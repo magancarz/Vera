@@ -54,3 +54,13 @@ __device__ inline glm::vec3 randomInUnitHemisphere(curandState* curand_state, gl
 
     return p;
 }
+
+__device__ inline glm::vec3 randomInUnitDisk(curandState* curand_state)
+{
+    const float r = sqrt(randomFloat(curand_state));
+    const float alpha = randomFloat(curand_state) * 2.f * static_cast<float>(M_PI);
+    const float x = r * cos(alpha);
+    const float y = r * sin(alpha);
+
+    return {x, y, 0};
+}

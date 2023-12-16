@@ -14,32 +14,28 @@
 
 RayTracedImage::RayTracedImage(const RayTracerConfig& config)
     : name(config.image_name),
-      width(config.image_width),
-      height(config.image_height),
-      max_ray_bounces(config.number_of_ray_bounces),
-      accumulated_texture_data(width * height * COLOR_CHANNELS)
+      image_config(config),
+      accumulated_texture_data(image_config.image_width * image_config.image_height * COLOR_CHANNELS)
 {
-    if (this->width / this->height != Display::WINDOW_WIDTH / Display::WINDOW_HEIGHT)
+    if (this->image_config.image_width / this->image_config.image_height != Display::WINDOW_WIDTH / Display::WINDOW_HEIGHT)
     {
-        this->width = 320;
-        this->height = 200;
+        this->image_config.image_width = 320;
+        this->image_config.image_height = 200;
     }
-    createTexture(width, height);
+    createTexture(image_config.image_width, image_config.image_height);
 }
 
 RayTracedImage::RayTracedImage(const RayTracedImage& other)
     : name(other.name),
-      width(other.width),
-      height(other.height),
-      max_ray_bounces(other.max_ray_bounces),
-      accumulated_texture_data(width * height * COLOR_CHANNELS)
+      image_config(other.image_config),
+      accumulated_texture_data(image_config.image_width * image_config.image_height * COLOR_CHANNELS)
 {
-    if (this->width / this->height != Display::WINDOW_WIDTH / Display::WINDOW_HEIGHT)
+    if (this->image_config.image_width / this->image_config.image_height != Display::WINDOW_WIDTH / Display::WINDOW_HEIGHT)
     {
-        this->width = 320;
-        this->height = 200;
+        this->image_config.image_width = 320;
+        this->image_config.image_height = 200;
     }
-    createTexture(width, height);
+    createTexture(image_config.image_width, image_config.image_height);
 }
 
 RayTracedImage::~RayTracedImage()
@@ -50,29 +46,29 @@ RayTracedImage::~RayTracedImage()
 
 void RayTracedImage::clearImage()
 {
-    accumulated_texture_data = dmm::DeviceMemoryPointer<unsigned long>(width * height * COLOR_CHANNELS);
+    accumulated_texture_data = dmm::DeviceMemoryPointer<unsigned long>(image_config.image_width * image_config.image_height * COLOR_CHANNELS);
     generated_samples = 0;
 }
 
 void RayTracedImage::saveImageToFile(const std::string& path)
 {
     const std::string temp_path = path + ".png";
-    std::vector<unsigned char> texture_data(width * height * COLOR_CHANNELS);
-    cudaMemcpy(texture_data.data(), texture_data_ptr, width * height * COLOR_CHANNELS, cudaMemcpyDeviceToHost);
+    std::vector<unsigned char> texture_data(image_config.image_width * image_config.image_height * COLOR_CHANNELS);
+    cudaMemcpy(texture_data.data(), texture_data_ptr, image_config.image_width * image_config.image_height * COLOR_CHANNELS, cudaMemcpyDeviceToHost);
     stbi_write_png(
         temp_path.c_str(),
-        width,
-        height,
+        image_config.image_width,
+        image_config.image_height,
         COLOR_CHANNELS,
         texture_data.data(),
-        width * COLOR_CHANNELS);
+        image_config.image_width * COLOR_CHANNELS);
 }
 
 void RayTracedImage::updateImage()
 {
     glBindBuffer(GL_PIXEL_UNPACK_BUFFER, buffer.vbo_id);
     glBindTexture(GL_TEXTURE_2D, texture.texture_id);
-    glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, width, height, GL_RGB, GL_UNSIGNED_BYTE, nullptr);
+    glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, image_config.image_width, image_config.image_height, GL_RGB, GL_UNSIGNED_BYTE, nullptr);
     glGenerateMipmap(GL_TEXTURE_2D);
 }
 

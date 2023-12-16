@@ -64,7 +64,7 @@ std::weak_ptr<Object> RayTracer::traceRayFromMouse(Scene* scene, const std::shar
 
 void RayTracer::generateRayTracedImage(Scene* scene, const std::shared_ptr<Camera>& editor_camera, const std::shared_ptr<RayTracedImage>& current_image)
 {
-    const float aspect = static_cast<float>(current_image->width) / static_cast<float>(current_image->height);
+    const float aspect = static_cast<float>(current_image->image_config.image_width) / static_cast<float>(current_image->image_config.image_height);
     const RayTracerCamera ray_tracing_editor_camera
     {
         editor_camera->getPosition(),
@@ -72,12 +72,14 @@ void RayTracer::generateRayTracedImage(Scene* scene, const std::shared_ptr<Camer
         editor_camera->getWorldUpVector(),
         editor_camera->getFieldOfView(),
         aspect,
+        current_image->image_config.aperture,
+        current_image->image_config.focus_dist
     };
     cuda_camera.copyFrom(&ray_tracing_editor_camera);
 
     ++current_image->generated_samples;
 
-    const dim3 blocks(current_image->width / block_size + 1, current_image->height / block_size + 1);
+    const dim3 blocks(current_image->image_config.image_width / block_size + 1, current_image->image_config.image_height / block_size + 1);
     const auto start = std::chrono::steady_clock::now();
     runRayTracer(scene, current_image, blocks, threads_per_block);
     const auto end = std::chrono::steady_clock::now();
