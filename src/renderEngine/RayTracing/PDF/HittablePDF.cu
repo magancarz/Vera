@@ -13,7 +13,7 @@ __device__ float HittablePDF::value(const glm::vec3& direction) const
     const float weight = 1.f / static_cast<float>(num_of_triangles);
     for (int i = 0; i < num_of_triangles; ++i)
     {
-        out_pdf += triangles[i]->pdfValue(intersection_accelerator_tree_traverser, hit_record->hit_point, direction) * weight;
+        out_pdf += triangles[i]->calculatePDFValue(hit_record->hit_point, direction) * weight;
     }
     return out_pdf;
 }

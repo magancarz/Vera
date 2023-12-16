@@ -12,7 +12,7 @@ public:
 
     __device__ HitRecord intersects(const Ray* r) const;
 
-	__device__ float pdfValue(class BVHTreeTraverser* intersection_accelerator_tree_traverser, const glm::vec3& origin, const glm::vec3& direction);
+	__device__ float calculatePDFValue(const glm::vec3& origin, const glm::vec3& direction);
 	__device__ glm::vec3 random(curandState* curand_state, const glm::vec3& origin);
 
 	void setTransform(glm::mat4* object_to_world, glm::mat4* world_to_object);

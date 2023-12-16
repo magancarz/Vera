@@ -57,7 +57,7 @@ struct BucketInfo
 
 class BVHTreeBuilder {
 public:
-    dmm::DeviceMemoryPointer<BVHTreeTraverser> buildAccelerator(dmm::DeviceMemoryPointer<Triangle*> shapes, dmm::DeviceMemoryPointer<ShapeInfo*> shape_infos);
+    dmm::DeviceMemoryPointer<class BVHTreeTraverser> buildAccelerator(dmm::DeviceMemoryPointer<Triangle*> shapes, dmm::DeviceMemoryPointer<ShapeInfo*> shape_infos);
 
 private:
     std::shared_ptr<BVHBuildNode> recursiveBuild(std::vector<BVHShapeInfo>& shape_info,

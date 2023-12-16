@@ -2,7 +2,6 @@
 
 #include "Models/TriangleData.h"
 #include "Materials/Material.h"
-#include "RenderEngine/RayTracing/IntersectionAccelerators/BVHTreeTraverser.h"
 #include "Utils/CurandUtils.h"
 
 void Triangle::prepare(const TriangleData& triangle_data)
@@ -73,17 +72,18 @@ __device__ HitRecord Triangle::intersects(const Ray* r) const
     return hit_record_result;
 }
 
-__device__ float Triangle::pdfValue(BVHTreeTraverser* intersection_accelerator_tree_traverser, const glm::vec3& origin, const glm::vec3& direction)
+__device__ float Triangle::calculatePDFValue(const glm::vec3& origin, const glm::vec3& direction)
 {
     Ray ray{origin, direction};
-    const auto rec = intersection_accelerator_tree_traverser->checkIntersection(&ray);
+    const auto rec = intersects(&ray);
     if (rec.triangle_id != id)
     {
         return 0;
     }
 
+    float cosine = fabs(dot(direction, rec.normal));
     const float distance_squared = rec.t * rec.t;
-    const float cosine = fabs(dot(direction, rec.normal));
+    cosine = cosine < 0.00000001f ? 0.00000001f : cosine;
 
     return distance_squared / (cosine * area);
 }
