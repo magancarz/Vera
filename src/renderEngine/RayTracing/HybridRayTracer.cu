@@ -68,7 +68,8 @@ namespace RayTracing
                 return color * rec.material->emitted(rec.uv);
             }
 
-            return glm::vec3{0.f};
+            float t = 0.5f * (ray->direction.y + 1.f);
+            return (1.f - t) * glm::vec3{1} + t * glm::vec3{0.5f, 0.7f, 1.0f};
         }
 
         return glm::vec3{0.f};
