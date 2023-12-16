@@ -1,0 +1,9 @@
+pm glass_cube
+oi object8 plane light 0 14.999 0 0 0 0 3
+oi object9 plane white 0 -5 0 0 0 0 10
+oi object10 plane white 0 15 0 0 0 0 10
+oi object11 plane red -10 5 0 0 0 -90 10
+oi object12 plane green 10 5 0 0 0 90 10
+oi object13 plane white 0 5 -10 90 0 0 10
+oi object14 plane white 0 5 10 -90 0 0 10
+oi object15 cube glass 0 10 0 0 0 0 2

@@ -1,0 +1,9 @@
+pm infinity_room
+oi object0 plane light 0 14.999 0 180 0 0 3
+oi object1 icosphere white 0 3 -1 0 0 0 4
+oi object2 plane red 0 -5 0 0 0 0 10
+oi object3 plane blue 0 15 0 180 0 0 10
+oi object4 plane metal -10 5 0 0 0 -90 10
+oi object5 plane metal 10 5 0 0 0 90 10
+oi object6 plane metal 0 5 -10 90 0 0 10
+oi object7 plane metal 0 5 10 -90 0 0 10
