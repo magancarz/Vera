@@ -24,4 +24,7 @@ private:
     int image_height = 200;
     int number_of_ray_bounces = 1;
     int num_of_iterations = 100;
+    bool simulate_defocus_blur{false};
+    float aperture{0.f};
+    float focus_dist{1.f};
 };

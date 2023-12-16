@@ -19,8 +19,7 @@ public:
     void updateImage();
 
     std::string name;
-    int width, height;
-    int max_ray_bounces;
+    RayTracerConfig image_config;
     int generated_samples = 0;
 
     utils::Texture texture{};

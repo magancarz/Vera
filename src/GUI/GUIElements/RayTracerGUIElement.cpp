@@ -5,9 +5,9 @@
 #include <iomanip>
 #include <sstream>
 
-#include "../../editor/editorCommands/RefreshRayTracerConfigCommand.h"
-#include "../../editor/editorCommands/GenerateRayTracedImagesQueueCommand.h"
-#include "../../editor/editorCommands/ToggleLiveRayTracingCommand.h"
+#include "Editor/EditorCommands/RefreshRayTracerConfigCommand.h"
+#include "Editor/EditorCommands/GenerateRayTracedImagesQueueCommand.h"
+#include "Editor/EditorCommands/ToggleLiveRayTracingCommand.h"
 #include "Editor/EditorCommands/StopGeneratingImageCommand.h"
 #include "Editor/Editor.h"
 
@@ -22,12 +22,21 @@ std::vector<std::shared_ptr<EditorCommand>> RayTracerGUIElement::renderGUIElemen
     ImGui::InputScalar("Ray Traced Image Height", ImGuiDataType_U32, &image_height);
     ImGui::SetNextItemWidth(ImGui::GetFontSize() * ray_tracing_config_input_size);
     ImGui::InputScalar("Number Of Ray Bounces", ImGuiDataType_U32, &number_of_ray_bounces);
+    ImGui::SetNextItemWidth(ImGui::GetFontSize() * ray_tracing_config_input_size);
+    ImGui::Checkbox("Simulate Defocus Blur", &simulate_defocus_blur);
+    ImGui::SetNextItemWidth(ImGui::GetFontSize() * ray_tracing_config_input_size);
+    ImGui::InputScalar("Aperture", ImGuiDataType_Float, &aperture);
+    ImGui::SetNextItemWidth(ImGui::GetFontSize() * ray_tracing_config_input_size);
+    ImGui::InputScalar("Focus Distance", ImGuiDataType_Float, &focus_dist);
     if (ImGui::Button("Refresh Ray Tracer Config"))
     {
         RayTracerConfig config{
             image_width,
             image_height,
-            number_of_ray_bounces
+            number_of_ray_bounces,
+            simulate_defocus_blur,
+            aperture,
+            focus_dist,
         };
         editor_commands.push_back(std::make_shared<RefreshRayTracerConfigCommand>(config));
     }
@@ -92,6 +101,13 @@ void RayTracerGUIElement::renderCurrentlyGeneratedImageQueueElement(const Editor
     ImGui::Text(image_width.c_str());
     ImGui::Text(image_height.c_str());
     ImGui::Text(number_of_ray_bounces.c_str());
+    if (image_config.simulate_defocus_blur)
+    {
+        const std::string aperture = std::string("Aperture: " + std::to_string(image_config.aperture));
+        const std::string focus_distance = std::string("Focus Distance: " + std::to_string(image_config.focus_dist));
+        ImGui::Text(aperture.c_str());
+        ImGui::Text(focus_distance.c_str());
+    }
     const std::string temp1 = "Number of iterations left: " + std::to_string(editor_info.num_of_iterations_left);
     ImGui::Text(temp1.c_str());
     std::ostringstream temp_oss1;
@@ -112,6 +128,9 @@ void RayTracerGUIElement::renderImageQueueElement(RayTracerConfig& image_config)
     const std::string image_height = std::string("Image Height##" + std::to_string(image_config.id));
     const std::string samples_per_pixel = std::string("Samples Per Pixel##" + std::to_string(image_config.id));
     const std::string number_of_ray_bounces = std::string("Number Of Ray Bounces##" + std::to_string(image_config.id));
+    const std::string simulate_defocus_blur = std::string("Simulate Defocus Blur##" + std::to_string(image_config.id));
+    const std::string aperture = std::string("Aperture##" + std::to_string(image_config.id));
+    const std::string focus_distance = std::string("Focus Distance##" + std::to_string(image_config.id));
     const std::string number_of_iterations = std::string("Number Of Iterations##" + std::to_string(image_config.id));
     ImGui::SetNextItemWidth(ImGui::GetFontSize() * ray_tracing_config_input_size);
     ImGui::InputText(image_name.c_str(), &image_config.image_name);
@@ -121,6 +140,12 @@ void RayTracerGUIElement::renderImageQueueElement(RayTracerConfig& image_config)
     ImGui::InputScalar(image_height.c_str(), ImGuiDataType_U32, &image_config.image_height);
     ImGui::SetNextItemWidth(ImGui::GetFontSize() * ray_tracing_config_input_size);
     ImGui::InputScalar(number_of_ray_bounces.c_str(), ImGuiDataType_U32, &image_config.number_of_ray_bounces);
+    ImGui::SetNextItemWidth(ImGui::GetFontSize() * ray_tracing_config_input_size);
+    ImGui::Checkbox(simulate_defocus_blur.c_str(), &image_config.simulate_defocus_blur);
+    ImGui::SetNextItemWidth(ImGui::GetFontSize() * ray_tracing_config_input_size);
+    ImGui::InputScalar(aperture.c_str(), ImGuiDataType_Float, &image_config.aperture);
+    ImGui::SetNextItemWidth(ImGui::GetFontSize() * ray_tracing_config_input_size);
+    ImGui::InputScalar(focus_distance.c_str(), ImGuiDataType_Float, &image_config.focus_dist);
     ImGui::SetNextItemWidth(ImGui::GetFontSize() * ray_tracing_config_input_size);
     ImGui::InputScalar(number_of_iterations.c_str(), ImGuiDataType_U32, &image_config.number_of_iterations);
     ImGui::Separator();

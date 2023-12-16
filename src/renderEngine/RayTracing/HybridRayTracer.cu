@@ -68,7 +68,8 @@ namespace RayTracing
                 return color * rec.material->emitted(rec.uv);
             }
 
-            return glm::vec3{0.f};
+            float t = 0.5f * (ray->direction.y + 1.f);
+            return (1.f - t) * glm::vec3{1} + t * glm::vec3{0.5f, 0.7f, 1.0f};
         }
 
         return glm::vec3{0.f};
@@ -93,7 +94,7 @@ namespace RayTracing
             {
                 const float u = (static_cast<float>(x) + curand_uniform(curand_state) - 0.5f) * image_width_reciprocal;
                 const float v = (static_cast<float>(image_height - y) + curand_uniform(curand_state) - 0.5f) * image_height_reciprocal;
-                Ray ray = camera->getRay(u, v);
+                Ray ray = camera->getRay(curand_state, u, v);
                 ray.curand_state = curand_state;
                 color += gatherColorInformationFromSceneIntersectionWithHybridRayTracing(intersection_accelerator_tree_traverser, sampled_shapes, num_of_sampled_shapes, &ray, depth);
             }
@@ -130,9 +131,9 @@ void HybridRayTracer::runRayTracer(Scene* scene, const std::shared_ptr<RayTraced
         scene->intersection_accelerator_tree_traverser.data(),
         scene->scene_light_sources.data(),
         scene->scene_light_sources.size(),
-        current_image->max_ray_bounces,
-        current_image->width,
-        current_image->height);
+        current_image->image_config.number_of_ray_bounces,
+        current_image->image_config.image_width,
+        current_image->image_config.image_height);
     checkCudaErrors(cudaGetLastError());
     checkCudaErrors(cudaDeviceSynchronize());
 }
