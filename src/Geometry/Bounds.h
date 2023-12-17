@@ -77,6 +77,27 @@ public:
         return o;
     }
 
+    __host__ __device__ bool intersect(const Ray* ray, const glm::vec3& inv_dir, const bool dir_is_neg[3]) const
+    {
+        const Bounds3f &bounds = *this;
+        float t_min = (bounds[dir_is_neg[0]].x - ray->origin.x) * inv_dir.x;
+        float t_max = (bounds[1.f - dir_is_neg[0]].x - ray->origin.x) * inv_dir.x;
+        float ty_min = (bounds[dir_is_neg[1]].y - ray->origin.y) * inv_dir.y;
+        float ty_max = (bounds[1.f - dir_is_neg[1]].y - ray->origin.y) * inv_dir.y;
+        
+        if (t_min > ty_max || ty_min > t_max) return false;
+        if (ty_min > t_min) t_min = ty_min;
+        if (ty_max < t_max) t_max = ty_max;
+
+        float tz_min = (bounds[dir_is_neg[2]].z - ray->origin.z) * inv_dir.z;
+        float tz_max = (bounds[1.f - dir_is_neg[2]].z - ray->origin.z) * inv_dir.z;
+        
+        if (t_min > tz_max || tz_min > t_max) return false;
+        if (tz_min > t_min) t_min = tz_min;
+        if (tz_max < t_max) t_max = tz_max;
+        return (t_min < ray->max) && (t_max > 0);
+    }
+
     __host__ __device__ bool intersect(const Ray* ray, const glm::vec3& inv_dir, const bool dir_is_neg[3], float* out_t_min) const
     {
         const Bounds3f &bounds = *this;
@@ -96,6 +117,29 @@ public:
         if (tz_min > t_min) t_min = tz_min;
         if (tz_max < t_max) t_max = tz_max;
         *out_t_min = t_min;
+        return (t_min < ray->max) && (t_max > 0);
+    }
+
+    __host__ __device__ bool intersect(const Ray* ray, const glm::vec3& inv_dir, const bool dir_is_neg[3], float* out_t_min, float* out_t_max) const
+    {
+        const Bounds3f &bounds = *this;
+        float t_min = (bounds[dir_is_neg[0]].x - ray->origin.x) * inv_dir.x;
+        float t_max = (bounds[1.f - dir_is_neg[0]].x - ray->origin.x) * inv_dir.x;
+        float ty_min = (bounds[dir_is_neg[1]].y - ray->origin.y) * inv_dir.y;
+        float ty_max = (bounds[1.f - dir_is_neg[1]].y - ray->origin.y) * inv_dir.y;
+        
+        if (t_min > ty_max || ty_min > t_max) return false;
+        if (ty_min > t_min) t_min = ty_min;
+        if (ty_max < t_max) t_max = ty_max;
+
+        float tz_min = (bounds[dir_is_neg[2]].z - ray->origin.z) * inv_dir.z;
+        float tz_max = (bounds[1.f - dir_is_neg[2]].z - ray->origin.z) * inv_dir.z;
+        
+        if (t_min > tz_max || tz_min > t_max) return false;
+        if (tz_min > t_min) t_min = tz_min;
+        if (tz_max < t_max) t_max = tz_max;
+        *out_t_min = t_min;
+        *out_t_max = t_max;
         return (t_min < ray->max) && (t_max > 0);
     }
 

@@ -23,8 +23,6 @@ struct MaterialAsset;
 class Scene
 {
 public:
-    Scene();
-
     void loadSceneFromProject(const ProjectInfo& project_info);
     void buildSceneIntersectionAcceleratorIfNeeded();
     void notifyOnObjectChange();
@@ -44,11 +42,7 @@ public:
 
 private:
     void buildSceneIntersectionAccelerator();
-    void gatherShapesFromScene();
-    std::vector<ShapeInfo*> getShapesInfos();
     bool isObjectAlreadySampled(unsigned int id);
     
-    dmm::DeviceMemoryPointer<Shape*> cuda_scene_triangles;
-    std::shared_ptr<BVHTreeBuilder> intersection_accelerator_builder;
     bool need_to_build_intersection_accelerator{false};
 };

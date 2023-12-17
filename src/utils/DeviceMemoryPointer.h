@@ -28,6 +28,8 @@ namespace dmm
 
         DeviceMemoryPointer(DeviceMemoryPointer& dmp) noexcept { copy(dmp); }
         DeviceMemoryPointer(const DeviceMemoryPointer& dmp) noexcept { copy(dmp); }
+        DeviceMemoryPointer(DeviceMemoryPointer&& dmp) noexcept { copy(dmp); }
+        DeviceMemoryPointer(const DeviceMemoryPointer&& dmp) noexcept { copy(dmp); }
         DeviceMemoryPointer& operator=(const DeviceMemoryPointer& dmp)
     	{
             if (&dmp == this)

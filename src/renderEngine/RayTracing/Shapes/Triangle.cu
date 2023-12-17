@@ -17,7 +17,7 @@ __device__ Triangle::Triangle(Object* parent, size_t id, Material* material, con
     computeAverageNormal();
 }
 
-__device__ HitRecord Triangle::intersects(const Ray* r) const
+__device__ HitRecord Triangle::checkRayIntersection(const Ray* r) const
 {
     constexpr float EPSILON = 0.00000001f;
     constexpr float MIN_DST = 0.0001f;
@@ -66,10 +66,10 @@ __device__ HitRecord Triangle::intersects(const Ray* r) const
     return hit_record_result;
 }
 
-__device__ float Triangle::calculatePDFValue(const glm::vec3& origin, const glm::vec3& direction)
+__device__ float Triangle::calculatePDFValueOfEmittedLight(const glm::vec3& origin, const glm::vec3& direction)
 {
     Ray ray{origin, direction};
-    const auto rec = intersects(&ray);
+    const auto rec = checkRayIntersection(&ray);
     if (rec.triangle_id != id)
     {
         return 0;
@@ -82,7 +82,7 @@ __device__ float Triangle::calculatePDFValue(const glm::vec3& origin, const glm:
     return distance_squared / (cosine * area);
 }
 
-__device__ glm::vec3 Triangle::random(curandState* curand_state, const glm::vec3& origin)
+__device__ glm::vec3 Triangle::randomDirectionAtShape(curandState* curand_state, const glm::vec3& origin)
 {
     float u = randomFloat(curand_state);
     float v = randomFloat(curand_state);

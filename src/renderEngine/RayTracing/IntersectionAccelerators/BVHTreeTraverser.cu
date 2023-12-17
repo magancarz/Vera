@@ -21,7 +21,7 @@ __device__ HitRecord BVHTreeTraverser::checkIntersection(const Ray* ray) const
             {
                 for (int i = 0; i < node->num_of_shapes; ++i)
                 {
-                    const HitRecord temp = shapes[node->primitives_offset + i]->intersects(ray);
+                    const HitRecord temp = shapes[node->primitives_offset + i]->checkRayIntersection(ray);
                     if (temp.did_hit_anything && temp.t < closest_hit)
                     {
                         closest_hit = temp.t;

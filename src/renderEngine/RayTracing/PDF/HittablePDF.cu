@@ -13,7 +13,7 @@ __device__ float HittablePDF::value(const glm::vec3& direction) const
     const float weight = 1.f / static_cast<float>(num_of_triangles);
     for (int i = 0; i < num_of_triangles; ++i)
     {
-        out_pdf += triangles[i]->calculatePDFValue(hit_record->hit_point, direction) * weight;
+        out_pdf += triangles[i]->calculatePDFValueOfEmittedLight(hit_record->hit_point, direction) * weight;
     }
     return out_pdf;
 }
@@ -43,7 +43,7 @@ __device__ glm::vec3 HittablePDF::directRayToRandomLightSourceFromScene() const
     for (int i = 0; i < num_of_triangles; ++i)
     {
         Shape* light_source = shuffled_light_sources[i];
-        random_to_light_source = light_source->random(curand_state, hit_record->hit_point);
+        random_to_light_source = light_source->randomDirectionAtShape(curand_state, hit_record->hit_point);
         Ray ray_to_random_light_source{hit_record->hit_point, random_to_light_source};
         HitRecord result = intersection_accelerator_tree_traverser->checkIntersection(&ray_to_random_light_source);
         if (result.did_hit_anything && result.triangle_id == light_source->id)

@@ -11,10 +11,10 @@ class Shape {
 public:
     __device__ Shape(Object* parent, size_t id, Material* material);
 
-	__device__ virtual HitRecord intersects(const Ray* r) const = 0;
+	__device__ virtual HitRecord checkRayIntersection(const Ray* r) const = 0;
 
-	__device__ virtual float calculatePDFValue(const glm::vec3& origin, const glm::vec3& direction) = 0;
-	__device__ virtual glm::vec3 random(curandState* curand_state, const glm::vec3& origin) = 0;
+	__device__ virtual float calculatePDFValueOfEmittedLight(const glm::vec3& origin, const glm::vec3& direction);
+	__device__ virtual glm::vec3 randomDirectionAtShape(curandState* curand_state, const glm::vec3& origin);
 
 	__device__ void setTransform(glm::mat4* object_to_world, glm::mat4* world_to_object);
 	__device__ void resetTransform();
@@ -24,7 +24,7 @@ public:
 	__device__ virtual void calculateWorldBounds() = 0;
 	__device__ virtual void calculateShapeSurfaceArea() = 0;
 
-	__host__ __device__ virtual bool isEmittingLight() const = 0;
+	__device__ virtual bool isEmittingLight() const;
 
     Object* parent{nullptr};
 	size_t id{0};

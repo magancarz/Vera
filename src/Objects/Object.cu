@@ -66,20 +66,20 @@ Object::Object(
     const glm::vec3& rotation,
     float scale)
     : parent_scene(parent_scene),
-      cuda_triangles_infos(model_data->triangles.size()),
       material(std::move(material)),
       model_data(std::move(model_data)),
       position(position),
       rotation(rotation),
       scale(scale),
       is_emitting_some_light(this->material->material->isEmittingLight()),
-      num_of_triangles(this->model_data->triangles.size()),
-      cuda_shapes(num_of_triangles)
+      num_of_shapes(this->model_data->triangles.size()),
+      shapes(num_of_shapes),
+      shapes_infos(num_of_shapes)
 {
     createNameForObject();
     object_to_world.copyFrom(createObjectToWorldTransform());
     world_to_object.copyFrom(createWorldToObjectTransform());
-    createMeshConsistingOfTriangles();
+    createMeshConsistingOfShapes();
 }
 
 void Object::createNameForObject()
@@ -87,7 +87,7 @@ void Object::createNameForObject()
     name = "object" + std::to_string(next_id++);
 }
 
-void Object::createMeshConsistingOfTriangles()
+void Object::createMeshConsistingOfShapes()
 {
     allocateShapesOnDeviceMemory();
     gatherShapesEmittingLight();
@@ -95,58 +95,58 @@ void Object::createMeshConsistingOfTriangles()
 
 void Object::allocateShapesOnDeviceMemory()
 {
-    dmm::DeviceMemoryPointer<TriangleData> triangles_data(num_of_triangles);
+    dmm::DeviceMemoryPointer<TriangleData> triangles_data(num_of_shapes);
     triangles_data.copyFrom(model_data->triangles.data());
 
     cudaObjectUtils::createTrianglesOnDeviceMemory<<<1, 1>>>(
         this,
         object_to_world.data(), world_to_object.data(),
         triangles_data.data(),
-        cuda_shapes.data(), cuda_triangles_infos.data(),
-        material->cuda_material.data(), num_of_triangles, next_triangle_id.data());
+        shapes.data(), shapes_infos.data(),
+        material->cuda_material.data(), num_of_shapes, next_shape_id.data());
     cudaDeviceSynchronize();
 }
 
-void Object::refreshMeshTrianglesTransforms()
+void Object::refreshMeshShapesTransforms()
 {
-    cudaObjectUtils::transformTriangles<<<1, 1>>>(object_to_world.data(), world_to_object.data(), cuda_shapes.data(), cuda_triangles_infos.data(), num_of_triangles);
+    cudaObjectUtils::transformTriangles<<<1, 1>>>(object_to_world.data(), world_to_object.data(), shapes.data(), shapes_infos.data(), num_of_shapes);
     cudaDeviceSynchronize();
 }
 
 void Object::gatherShapesEmittingLight()
 {
-    triangles_emitting_light.clear();
+    shapes_emitting_light.clear();
     if (material->material->isEmittingLight())
     {
-        for (size_t i = 0; i < num_of_triangles; ++i)
+        for (size_t i = 0; i < num_of_shapes; ++i)
         {
             for (const auto& vertex : model_data->triangles[i].vertices)
             {
                 if (material->material->getSpecularValue(vertex.texture_coordinate).g > 0.5f)
                 {
-                    triangles_emitting_light.push_back(cuda_shapes[i]);
+                    shapes_emitting_light.push_back(shapes[i]);
                 }
             }
         }   
     }
 
-    is_emitting_some_light = !triangles_emitting_light.empty();
+    is_emitting_some_light = !shapes_emitting_light.empty();
 }
 
-void Object::changeMeshTrianglesMaterial()
+void Object::changeMeshShapesMaterial()
 {
-    cudaObjectUtils::changeTrianglesMaterial<<<1, 1>>>(cuda_shapes.data(), num_of_triangles, material->cuda_material.data());
+    cudaObjectUtils::changeTrianglesMaterial<<<1, 1>>>(shapes.data(), num_of_shapes, material->cuda_material.data());
     cudaDeviceSynchronize();
 }
 
-int Object::getNumberOfTriangles()
+size_t Object::getNumberOfShapes()
 {
-    return num_of_triangles;
+    return num_of_shapes;
 }
 
-std::vector<Shape*> Object::getTrianglesEmittingLight() const
+std::vector<Shape*> Object::getShapesEmittingLight() const
 {
-    return triangles_emitting_light;
+    return shapes_emitting_light;
 }
 
 glm::mat4 Object::createObjectToWorldTransform()
@@ -170,34 +170,18 @@ glm::mat4 Object::createWorldToObjectTransform()
 
 void Object::refreshObject()
 {
-    (*object_to_world) = createObjectToWorldTransform();
-    (*world_to_object) = createWorldToObjectTransform();
-    refreshMeshTrianglesTransforms();
+    object_to_world.copyFrom(createObjectToWorldTransform());
+    world_to_object.copyFrom(createWorldToObjectTransform());
+    refreshMeshShapesTransforms();
     parent_scene->notifyOnObjectChange();
 }
 
 void Object::changeMaterial(std::shared_ptr<MaterialAsset> new_material)
 {
     material = std::move(new_material);
-    changeMeshTrianglesMaterial();
+    changeMeshShapesMaterial();
     gatherShapesEmittingLight();
     parent_scene->notifyOnObjectMaterialChange(this);
-}
-
-void Object::increasePosition(const float dx, const float dy, const float dz)
-{
-    position.x += dx;
-    position.y += dy;
-    position.z += dz;
-    refreshObject();
-}
-
-void Object::increaseRotation(const float rx, const float ry, const float rz)
-{
-    rotation.x += rx;
-    rotation.y += ry;
-    rotation.z += rz;
-    refreshObject();
 }
 
 glm::vec3 Object::getPosition() const
@@ -253,9 +237,14 @@ std::shared_ptr<RawModel> Object::getModelData() const
     return model_data;
 }
 
-Shape** Object::getTriangles()
+Shape** Object::getShapes()
 {
-    return cuda_shapes.data();
+    return shapes.data();
+}
+
+ShapeInfo* Object::getShapesInfos()
+{
+    return shapes_infos.data();
 }
 
 ObjectInfo Object::getObjectInfo()

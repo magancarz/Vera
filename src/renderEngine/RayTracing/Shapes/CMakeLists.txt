@@ -1,3 +1,4 @@
 target_sources(Tiny-Ray-Tracing-Lib PRIVATE
+        Shape.cu
         Triangle.cu
-        Shape.cu)
+        Volume.cu)
