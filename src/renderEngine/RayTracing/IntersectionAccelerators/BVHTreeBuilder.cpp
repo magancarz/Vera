@@ -4,7 +4,7 @@
 #include "RenderEngine/RayTracing/Shapes/ShapeInfo.h"
 
 dmm::DeviceMemoryPointer<BVHTreeTraverser> BVHTreeBuilder::buildAccelerator(
-    dmm::DeviceMemoryPointer<Triangle*> shapes,
+    dmm::DeviceMemoryPointer<Shape*> shapes,
     dmm::DeviceMemoryPointer<ShapeInfo*> shape_infos)
 {
     this->shapes = std::move(shapes);
@@ -20,7 +20,7 @@ dmm::DeviceMemoryPointer<BVHTreeTraverser> BVHTreeBuilder::buildAccelerator(
     }
 
     int total_nodes = 0;
-    std::vector<Triangle*> ordered_shapes;
+    std::vector<Shape*> ordered_shapes;
     const std::shared_ptr<BVHBuildNode> root = recursiveBuild(primitive_info, 0, num_of_shapes, 0, &total_nodes, ordered_shapes);
 
     this->shapes.copyFrom(ordered_shapes.data());
@@ -39,7 +39,7 @@ std::shared_ptr<BVHBuildNode> BVHTreeBuilder::recursiveBuild(
     int start, int end,
     int depth,
     int* total_nodes,
-    std::vector<Triangle*>& ordered_shapes)
+    std::vector<Shape*>& ordered_shapes)
 {
     std::shared_ptr<BVHBuildNode> node = std::make_shared<BVHBuildNode>();
     (*total_nodes)++;
@@ -177,7 +177,7 @@ int BVHTreeBuilder::flattenBVHTree(const std::shared_ptr<BVHBuildNode>& node, in
 std::shared_ptr<BVHBuildNode> BVHTreeBuilder::createLeafNode(
     std::shared_ptr<BVHBuildNode>& node,
     int start, int end,
-    std::vector<Triangle*>& ordered_shapes,
+    std::vector<Shape*>& ordered_shapes,
     const std::vector<BVHShapeInfo>& shape_info,
     const Bounds3f& bounds)
 {

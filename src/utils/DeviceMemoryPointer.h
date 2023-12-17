@@ -8,7 +8,7 @@ namespace dmm
     class DeviceMemoryPointer
     {
     public:
-        DeviceMemoryPointer(int num_of_elements)
+        DeviceMemoryPointer(size_t num_of_elements)
             : num_of_elements(num_of_elements)
         {
             allocateMemory();
@@ -43,13 +43,18 @@ namespace dmm
             cudaMemcpy(ptr, from, num_of_elements * sizeof(T), cudaMemcpyHostToDevice);
         }
 
+        void copyFrom(const T&& from)
+        {
+            cudaMemcpy(ptr, &from, num_of_elements * sizeof(T), cudaMemcpyHostToDevice);
+        }
+
         void copyFrom(DeviceMemoryPointer& from)
         {
             cudaMemcpy(ptr, from.data(), num_of_elements * sizeof(T), cudaMemcpyHostToDevice);
         }
 
         __host__ __device__ T* data() { return ptr; }
-        __host__ __device__ int size() const { return num_of_elements; }
+        __host__ __device__ size_t size() const { return num_of_elements; }
 
         __host__ __device__ T* operator->() const { return ptr; }
         __host__ __device__ T operator*() { return *ptr; }
@@ -107,6 +112,6 @@ namespace dmm
 
         T* ptr;
         unsigned int* use_count{nullptr};
-        int num_of_elements;
+        size_t num_of_elements;
     };
 }

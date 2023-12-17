@@ -155,32 +155,32 @@ void Scene::gatherShapesFromScene()
         }
     }
 
-    std::vector<Triangle*> temp_light_sources;
+    std::vector<Shape*> temp_light_sources;
     temp_light_sources.reserve(num_of_light_sources);
     for (auto& object : lights)
     {
         if (object.expired()) continue;
 
-        std::vector<Triangle*> object_light_sources = object.lock()->getTrianglesEmittingLight();
+        std::vector<Shape*> object_light_sources = object.lock()->getTrianglesEmittingLight();
         for (size_t i = 0; i < object_light_sources.size(); ++i)
         {
 			temp_light_sources.push_back(object_light_sources[i]);
         }
     }
-    scene_light_sources = dmm::DeviceMemoryPointer<Triangle*>(num_of_light_sources);
+    scene_light_sources = dmm::DeviceMemoryPointer<Shape*>(num_of_light_sources);
     scene_light_sources.copyFrom(temp_light_sources.data());
 
-    std::vector<Triangle*> temp_cuda_scene_triangles;
+    std::vector<Shape*> temp_cuda_scene_triangles;
     temp_cuda_scene_triangles.reserve(num_of_triangles_in_scene);
     for (const auto& object : objects)
     {
-        Triangle* temp = object->getTriangles();
+        const auto temp = object->getTriangles();
         for (int i = 0; i < object->getNumberOfTriangles(); ++i)
         {
-            temp_cuda_scene_triangles.push_back(&temp[i]);
+            temp_cuda_scene_triangles.push_back(temp[i]);
         }
     }
-    cuda_scene_triangles = dmm::DeviceMemoryPointer<Triangle*>(num_of_triangles_in_scene);
+    cuda_scene_triangles = dmm::DeviceMemoryPointer<Shape*>(num_of_triangles_in_scene);
     cuda_scene_triangles.copyFrom(temp_cuda_scene_triangles.data());
 }
 

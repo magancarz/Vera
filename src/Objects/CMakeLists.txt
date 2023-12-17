@@ -1,3 +1,3 @@
 target_sources(Tiny-Ray-Tracing-Lib PRIVATE
-        Object.cpp
+        "Object.cu"
         Camera.cpp)

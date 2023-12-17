@@ -22,7 +22,7 @@
 
 namespace RayTracing
 {
-    __device__ glm::vec3 gatherColorInformationFromSceneIntersectionWithHybridRayTracing(BVHTreeTraverser* intersection_accelerator_tree_traverser, Triangle** sampled_shapes, int num_of_sampled_shapes, Ray* ray, int depth)
+    __device__ glm::vec3 gatherColorInformationFromSceneIntersectionWithHybridRayTracing(BVHTreeTraverser* intersection_accelerator_tree_traverser, Shape** sampled_shapes, int num_of_sampled_shapes, Ray* ray, int depth)
     {
         HittablePDF hittable_pdf(ray->curand_state, intersection_accelerator_tree_traverser, sampled_shapes, num_of_sampled_shapes);
         glm::vec3 color{1.f};
@@ -75,7 +75,7 @@ namespace RayTracing
         return glm::vec3{0.f};
     }
 
-    __global__ void generateImageWithHybridRayTracing(unsigned char* cuda_texture_array, unsigned long* accumulated_texture_data, int number_of_total_samples, RayTracerCamera* camera, BVHTreeTraverser* intersection_accelerator_tree_traverser, Triangle** sampled_shapes, int num_of_sampled_shapes, int depth, int image_width, int image_height)
+    __global__ void generateImageWithHybridRayTracing(unsigned char* cuda_texture_array, unsigned long* accumulated_texture_data, int number_of_total_samples, RayTracerCamera* camera, BVHTreeTraverser* intersection_accelerator_tree_traverser, Shape** sampled_shapes, int num_of_sampled_shapes, int depth, int image_width, int image_height)
     {
         const int x = blockIdx.x * blockDim.x + threadIdx.x;
         const int y = blockIdx.y * blockDim.y + threadIdx.y;

@@ -40,7 +40,7 @@ public:
     std::vector<std::shared_ptr<Object>> objects;
     std::vector<std::weak_ptr<Object>> lights;
     dmm::DeviceMemoryPointer<BVHTreeTraverser> intersection_accelerator_tree_traverser;
-    dmm::DeviceMemoryPointer<Triangle*> scene_light_sources;
+    dmm::DeviceMemoryPointer<Shape*> scene_light_sources;
 
 private:
     void buildSceneIntersectionAccelerator();
@@ -48,7 +48,7 @@ private:
     std::vector<ShapeInfo*> getShapesInfos();
     bool isObjectAlreadySampled(unsigned int id);
     
-    dmm::DeviceMemoryPointer<Triangle*> cuda_scene_triangles;
+    dmm::DeviceMemoryPointer<Shape*> cuda_scene_triangles;
     std::shared_ptr<BVHTreeBuilder> intersection_accelerator_builder;
     bool need_to_build_intersection_accelerator{false};
 };

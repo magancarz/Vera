@@ -6,12 +6,12 @@
 class BVHTreeTraverser
 {
 public:
-    BVHTreeTraverser(Triangle** shapes, BVHTreeNode* nodes)
+    BVHTreeTraverser(Shape** shapes, BVHTreeNode* nodes)
         : shapes(shapes), nodes(nodes) {}
 
     __device__ HitRecord checkIntersection(const Ray* ray) const;
 
 protected:
-    Triangle** shapes;
+    Shape** shapes;
     BVHTreeNode* nodes{nullptr};
 };

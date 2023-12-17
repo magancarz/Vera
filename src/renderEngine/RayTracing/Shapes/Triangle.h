@@ -1,58 +1,36 @@
 #pragma once
 
-#include "Geometry/Bounds.h"
-#include "RenderEngine/RayTracing/Ray.h"
+#include "Shape.h"
 #include "Utils/AdditionalAlgorithms.h"
-#include "HitRecord.h"
+#include "Models/Vertex.h"
 
-class Triangle
+class Triangle : public Shape
 {
 public:
-	void prepare(const struct TriangleData& triangle_data);
+	__device__ Triangle(Object* parent, size_t id, Material* material, const struct TriangleData& triangle_data);
 
-    __device__ HitRecord intersects(const Ray* r) const;
+    __device__ HitRecord intersects(const Ray* r) const override;
 
-	__device__ float calculatePDFValue(const glm::vec3& origin, const glm::vec3& direction);
-	__device__ glm::vec3 random(curandState* curand_state, const glm::vec3& origin);
+	__device__ float calculatePDFValue(const glm::vec3& origin, const glm::vec3& direction) override;
+	__device__ glm::vec3 random(curandState* curand_state, const glm::vec3& origin) override;
 
-	void setTransform(glm::mat4* object_to_world, glm::mat4* world_to_object);
-	void resetTransform();
-	void applyTransform(const glm::mat4& transform);
+	__device__ void applyTransform(const glm::mat4& transform) override;
 
-	void calculateObjectBounds();
-	void calculateWorldBounds();
-	void calculateShapeSurfaceArea();
+	__host__ __device__ bool isEmittingLight() const override;
+
+private:
+    
+	__device__ void calculateObjectBounds() override;
+	__device__ void calculateWorldBounds() override;
+	__device__ void calculateShapeSurfaceArea() override;
+
+    __device__ void computeAverageNormal();
+	__device__ void transformNormal(const glm::mat4& transform);
+	__device__ bool areTriangleNormalsValid() const;
 
 	__host__ __device__ glm::vec3 getNormalAt(const glm::vec3& barycentric_coordinates) const;
 	__host__ __device__ glm::vec3 getNormalAt(float u, float v, float w) const;
 
-	__host__ __device__ bool isEmittingLight() const;
-
-	Object* parent;
-	unsigned int id;
-
-	Material* material;
-
-	glm::mat4* object_to_world;
-	glm::mat4* world_to_object;
-
-	Bounds3f object_bounds;
-	Bounds3f world_bounds;
-	float area;
-
-    glm::vec3 x;
-    glm::vec3 y;
-    glm::vec3 z;
-	glm::vec2 uv_x;
-	glm::vec2 uv_y;
-	glm::vec2 uv_z;
-    glm::vec3 normal_x;
-    glm::vec3 normal_y;
-    glm::vec3 normal_z;
+    Vertex x, y, z;
 	glm::vec3 average_normal;
-
-private:
-	void computeAverageNormal();
-	bool areTriangleNormalsValid() const;
-	void transformNormal(const glm::mat4& transform);
 };
