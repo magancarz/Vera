@@ -6,7 +6,6 @@
 #include "Objects/Object.h"
 #include "Objects/ShapesCollector.h"
 #include "RenderEngine/RayTracing/IntersectionAccelerators/BVHTreeBuilder.h"
-#include "RenderEngine/RayTracing/Shapes/ShapeInfo.h"
 
 void Scene::notifyOnObjectChange()
 {

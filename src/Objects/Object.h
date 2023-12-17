@@ -61,7 +61,8 @@ private:
     void createMeshConsistingOfShapes();
     void refreshObject();
     void allocateShapesOnDeviceMemory();
-    void refreshMeshShapesTransforms();
+    void resetMeshTrianglesTransforms();
+    void transformMeshTriangles();
     void changeMeshShapesMaterial();
     void gatherShapesEmittingLight();
     glm::mat4 createObjectToWorldTransform();

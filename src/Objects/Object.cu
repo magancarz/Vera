@@ -3,6 +3,7 @@
 #include <string>
 #include <glm/gtx/transform.hpp>
 
+#include "helper_cuda.h"
 #include "Materials/MaterialAsset.h"
 #include "Scene/Scene.h"
 #include "ObjectInfo.h"
@@ -12,12 +13,36 @@
 
 namespace cudaObjectUtils
 {
+    __device__ void resetTriangleTransform(Shape* shape)
+    {
+        shape->resetTransform();
+    }
+
+    __global__ void resetTrianglesTransforms(Shape** shape, size_t num_of_shapes)
+    {
+        for (size_t i = 0; i < num_of_shapes; ++i)
+        {
+            resetTriangleTransform(shape[i]);
+        }
+    }
+
     __device__ void transformTriangle(
         glm::mat4* object_to_world, glm::mat4* world_to_object,
         Shape* shape, ShapeInfo* shapes_info)
     {
         shape->setTransform(object_to_world, world_to_object);
         shapes_info->world_bounds = shape->world_bounds;
+    }
+
+    __global__ void transformTriangles(
+        glm::mat4* object_to_world, glm::mat4* world_to_object,
+        Shape** cuda_shapes, ShapeInfo* shapes_infos,
+        size_t num_of_shapes)
+    {
+        for (size_t i = 0; i < num_of_shapes; ++i)
+        {
+            transformTriangle(object_to_world, world_to_object, cuda_shapes[i], &shapes_infos[i]);
+        }
     }
 
     __global__ void createTrianglesOnDeviceMemory(
@@ -31,17 +56,6 @@ namespace cudaObjectUtils
         for (size_t i = 0; i < num_of_shapes; ++i)
         {
             cuda_shapes[i] = new Triangle(parent, (*next_triangle_id)++, material, shapes_data[i]);
-            transformTriangle(object_to_world, world_to_object, cuda_shapes[i], &shapes_infos[i]);
-        }
-    }
-
-    __global__ void transformTriangles(
-        glm::mat4* object_to_world, glm::mat4* world_to_object,
-        Shape** cuda_shapes, ShapeInfo* shapes_infos,
-        size_t num_of_shapes)
-    {
-        for (size_t i = 0; i < num_of_shapes; ++i)
-        {
             transformTriangle(object_to_world, world_to_object, cuda_shapes[i], &shapes_infos[i]);
         }
     }
@@ -84,7 +98,8 @@ Object::Object(
 
 void Object::createNameForObject()
 {
-    name = "object" + std::to_string(next_id++);
+    object_id = next_id++;
+    name = "object" + std::to_string(object_id);
 }
 
 void Object::createMeshConsistingOfShapes()
@@ -104,13 +119,8 @@ void Object::allocateShapesOnDeviceMemory()
         triangles_data.data(),
         shapes.data(), shapes_infos.data(),
         material->cuda_material.data(), num_of_shapes, next_shape_id.data());
-    cudaDeviceSynchronize();
-}
-
-void Object::refreshMeshShapesTransforms()
-{
-    cudaObjectUtils::transformTriangles<<<1, 1>>>(object_to_world.data(), world_to_object.data(), shapes.data(), shapes_infos.data(), num_of_shapes);
-    cudaDeviceSynchronize();
+    checkCudaErrors(cudaGetLastError());
+    checkCudaErrors(cudaDeviceSynchronize());
 }
 
 void Object::gatherShapesEmittingLight()
@@ -136,7 +146,8 @@ void Object::gatherShapesEmittingLight()
 void Object::changeMeshShapesMaterial()
 {
     cudaObjectUtils::changeTrianglesMaterial<<<1, 1>>>(shapes.data(), num_of_shapes, material->cuda_material.data());
-    cudaDeviceSynchronize();
+    checkCudaErrors(cudaGetLastError());
+    checkCudaErrors(cudaDeviceSynchronize());
 }
 
 size_t Object::getNumberOfShapes()
@@ -170,10 +181,25 @@ glm::mat4 Object::createWorldToObjectTransform()
 
 void Object::refreshObject()
 {
+    resetMeshTrianglesTransforms();
     object_to_world.copyFrom(createObjectToWorldTransform());
     world_to_object.copyFrom(createWorldToObjectTransform());
-    refreshMeshShapesTransforms();
+    transformMeshTriangles();
     parent_scene->notifyOnObjectChange();
+}
+
+void Object::resetMeshTrianglesTransforms()
+{
+    cudaObjectUtils::resetTrianglesTransforms<<<1, 1>>>(shapes.data(), num_of_shapes);
+    checkCudaErrors(cudaGetLastError());
+    checkCudaErrors(cudaDeviceSynchronize());
+}
+
+void Object::transformMeshTriangles()
+{
+    cudaObjectUtils::transformTriangles<<<1, 1>>>(object_to_world.data(), world_to_object.data(), shapes.data(), shapes_infos.data(), num_of_shapes);
+    checkCudaErrors(cudaGetLastError());
+    checkCudaErrors(cudaDeviceSynchronize());
 }
 
 void Object::changeMaterial(std::shared_ptr<MaterialAsset> new_material)

@@ -10,7 +10,6 @@ float Shape::calculatePDFValueOfEmittedLight(const glm::vec3& origin, const glm:
 
 __device__ void Shape::setTransform(glm::mat4* object_to_world_val, glm::mat4* world_to_object_val)
 {
-    resetTransform();
     this->object_to_world = object_to_world_val;
     this->world_to_object = world_to_object_val;
     calculateObjectBounds();
