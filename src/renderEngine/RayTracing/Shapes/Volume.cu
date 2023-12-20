@@ -7,6 +7,7 @@ __device__ Volume::Volume(Object* parent, size_t id, Material* material, Bounds3
     : Shape(parent, id, material), negative_inv_density(-1.f / density)
 {
     object_bounds = bounds;
+    world_bounds = bounds;
 }
 
 __device__ HitRecord Volume::checkRayIntersection(const Ray* r) const
@@ -29,8 +30,8 @@ __device__ HitRecord Volume::checkRayIntersection(const Ray* r) const
 
     HitRecord hit_record{};
     hit_record.t = t_min + hit_distance;
-    hit_record.hit_point = r->pointAtParameter(hit_record.t);
-    hit_record.normal = glm::vec3{1, 0, 0};
+    hit_record.hit_point = r->origin + r->direction * hit_record.t;
+    hit_record.normal = glm::vec3{0, 1, 0};
     hit_record.did_hit_anything = true;
 
     return hit_record;
@@ -38,8 +39,11 @@ __device__ HitRecord Volume::checkRayIntersection(const Ray* r) const
 
 bool Volume::scatter(const Ray* r_in, const HitRecord* rec, ScatterRecord* scatter_record)
 {
-    scatter_record->color = glm::vec3{0.7f, 0.7f, 0.7f};
+    scatter_record->color = glm::vec3{1.f, 1.f, 1.f};
     scatter_record->specular_ray = Ray{rec->hit_point, randomCosineDirection(r_in->curand_state)};
+    scatter_record->is_specular = true;
+
+    return true;
 }
 
 __device__ void Volume::applyTransform(const glm::mat4& transform)
@@ -50,7 +54,9 @@ __device__ void Volume::applyTransform(const glm::mat4& transform)
 
 __device__ void Volume::calculateObjectBounds() {}
 
-__device__ void Volume::calculateWorldBounds() {}
+__device__ void Volume::calculateWorldBounds()
+{
+}
 
 __device__ void Volume::calculateShapeSurfaceArea()
 {

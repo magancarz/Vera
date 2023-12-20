@@ -29,6 +29,7 @@ ConstantMedia::ConstantMedia(Scene* parent_scene, std::shared_ptr<RawModel> mode
 
 void ConstantMedia::createShapesOnDeviceMemory()
 {
+    num_of_shapes = 1;
     shapes = dmm::DeviceMemoryPointer<Shape*>(num_of_shapes);
     shapes_infos = dmm::DeviceMemoryPointer<ShapeInfo>(num_of_shapes);
 
