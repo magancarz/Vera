@@ -15,6 +15,13 @@ struct MaterialAsset;
 class RayTracedObject;
 class Triangle;
 
+namespace cudaObjectUtils
+{
+    __device__ void transformShape(
+        glm::mat4* object_to_world, glm::mat4* world_to_object,
+        Shape* shape, ShapeInfo* shapes_info);
+}
+
 class Object
 {
 public:
@@ -26,7 +33,10 @@ public:
         const glm::vec3& rotation,
         float scale);
 
+    virtual ~Object();
+
     void changeMaterial(std::shared_ptr<MaterialAsset> new_material);
+    void createShapesForRayTracedMesh();
 
     glm::vec3 getPosition() const;
     glm::vec3 getRotation() const;
@@ -45,8 +55,8 @@ public:
     size_t getNumberOfShapes();
     ObjectInfo getObjectInfo();
 
-    bool operator==(unsigned int id) const;
-    unsigned int object_id;
+    bool operator==(size_t id) const;
+    size_t object_id;
     std::string name;
 
     bool isEmittingSomeLight() const { return is_emitting_some_light; }
@@ -55,33 +65,33 @@ public:
 
     Scene* parent_scene;
 
-private:
+protected:
     void createNameForObject();
 
-    void createMeshConsistingOfShapes();
     void refreshObject();
-    void allocateShapesOnDeviceMemory();
     void resetMeshTrianglesTransforms();
     void transformMeshTriangles();
     void changeMeshShapesMaterial();
     void gatherShapesEmittingLight();
+    virtual void createShapesOnDeviceMemory();
+    virtual bool determineIfShapeIsEmittingLight(size_t i);
     glm::mat4 createObjectToWorldTransform();
     glm::mat4 createWorldToObjectTransform();
 
-    std::shared_ptr<MaterialAsset> material;
-    std::shared_ptr<RawModel> model_data;
+    std::shared_ptr<MaterialAsset> material{};
+    std::shared_ptr<RawModel> model_data{};
 
-    glm::vec3 position;
-    glm::vec3 rotation;
-    float scale;
+    glm::vec3 position{};
+    glm::vec3 rotation{};
+    float scale{};
     bool is_emitting_some_light{false};
 
-    std::vector<Shape*> shapes_emitting_light;
+    std::vector<Shape*> shapes_emitting_light{};
 
     size_t num_of_shapes{0};
     dmm::DeviceMemoryPointer<glm::mat4> object_to_world{};
     dmm::DeviceMemoryPointer<glm::mat4> world_to_object{};
-    dmm::DeviceMemoryPointer<Shape*> shapes;
+    dmm::DeviceMemoryPointer<Shape*> shapes{};
     dmm::DeviceMemoryPointer<ShapeInfo> shapes_infos;
 
     bool should_be_outlined = false;

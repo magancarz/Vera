@@ -1,5 +1,6 @@
 #include "Volume.h"
 
+#include "renderEngine/RayTracing/ScatterRecord.h"
 #include "Utils/CurandUtils.h"
 
 __device__ Volume::Volume(Object* parent, size_t id, Material* material, Bounds3f bounds, float density)
@@ -30,10 +31,15 @@ __device__ HitRecord Volume::checkRayIntersection(const Ray* r) const
     hit_record.t = t_min + hit_distance;
     hit_record.hit_point = r->pointAtParameter(hit_record.t);
     hit_record.normal = glm::vec3{1, 0, 0};
-    hit_record.front_face = true;
-    hit_record.material = material;
+    hit_record.did_hit_anything = true;
 
     return hit_record;
+}
+
+bool Volume::scatter(const Ray* r_in, const HitRecord* rec, ScatterRecord* scatter_record)
+{
+    scatter_record->color = glm::vec3{0.7f, 0.7f, 0.7f};
+    scatter_record->specular_ray = Ray{rec->hit_point, randomCosineDirection(r_in->curand_state)};
 }
 
 __device__ void Volume::applyTransform(const glm::mat4& transform)

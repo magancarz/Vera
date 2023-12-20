@@ -7,9 +7,13 @@
 class Triangle : public Shape
 {
 public:
-	__device__ Triangle(Object* parent, size_t id, Material* material, const struct TriangleData& triangle_data);
+	__device__ Triangle(Object* in_parent, size_t in_id, Material* in_material, const struct TriangleData& triangle_data);
+	__device__ virtual ~Triangle() = default;
 
     __device__ HitRecord checkRayIntersection(const Ray* r) const override;
+	__device__ bool scatter(const Ray* r_in, const HitRecord* rec, ScatterRecord* scatter_record) override;
+	__device__ float scatteringPDF(const HitRecord* rec, const Ray* scattered) const override;
+	__device__ glm::vec3 emitted(const glm::vec2& uv) override;
 
 	__device__ float calculatePDFValueOfEmittedLight(const glm::vec3& origin, const glm::vec3& direction) override;
 	__device__ glm::vec3 randomDirectionAtShape(curandState* curand_state, const glm::vec3& origin) override;
@@ -32,5 +36,5 @@ private:
 	__device__ glm::vec3 getNormalAt(float u, float v, float w) const;
 
     Vertex x, y, z;
-	glm::vec3 average_normal;
+	glm::vec3 average_normal{};
 };

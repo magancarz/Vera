@@ -14,8 +14,8 @@ __device__ void Shape::setTransform(glm::mat4* object_to_world_val, glm::mat4* w
     this->world_to_object = world_to_object_val;
     calculateObjectBounds();
     calculateWorldBounds();
-    calculateShapeSurfaceArea();
     applyTransform(*this->object_to_world);
+    calculateShapeSurfaceArea();
 }
 
 __device__ void Shape::resetTransform()
@@ -34,4 +34,14 @@ __device__ glm::vec3 Shape::randomDirectionAtShape(curandState* curand_state, co
 __device__ bool Shape::isEmittingLight() const
 {
     return false;
+}
+
+float Shape::scatteringPDF(const HitRecord* rec, const Ray* scattered) const
+{
+    return 0.f;
+}
+
+glm::vec3 Shape::emitted(const glm::vec2& uv)
+{
+    return {0, 0, 0};
 }

@@ -31,8 +31,7 @@ dmm::DeviceMemoryPointer<BVHTreeTraverser> BVHTreeBuilder::buildAccelerator()
     int offset = 0;
     flattenBVHTree(root, &offset);
 
-    BVHTreeTraverser bvh_tree_traverser{shapes.data(), nodes.data()};
-    tree_traverser.copyFrom(&bvh_tree_traverser);
+    tree_traverser.copyFrom({shapes, nodes});
 
     return tree_traverser;
 }

@@ -4,6 +4,7 @@
 #include "RenderEngine/RayTracing/Ray.h"
 #include "HitRecord.h"
 
+struct ScatterRecord;
 class Object;
 class Material;
 
@@ -12,6 +13,9 @@ public:
     __device__ Shape(Object* parent, size_t id, Material* material);
 
 	__device__ virtual HitRecord checkRayIntersection(const Ray* r) const = 0;
+	__device__ virtual bool scatter(const Ray* r_in, const HitRecord* rec, ScatterRecord* scatter_record) = 0;
+    __device__ virtual float scatteringPDF(const HitRecord* rec, const Ray* scattered) const;
+    __device__ virtual glm::vec3 emitted(const glm::vec2& uv);
 
 	__device__ virtual float calculatePDFValueOfEmittedLight(const glm::vec3& origin, const glm::vec3& direction);
 	__device__ virtual glm::vec3 randomDirectionAtShape(curandState* curand_state, const glm::vec3& origin);
@@ -29,12 +33,13 @@ public:
     Object* parent{nullptr};
 	size_t id{0};
 
-	Material* material{nullptr};
 
 	glm::mat4* object_to_world{nullptr};
 	glm::mat4* world_to_object{nullptr};
 
-	Bounds3f object_bounds;
-	Bounds3f world_bounds;
+	Bounds3f object_bounds{};
+	Bounds3f world_bounds{};
 	float area{0.f};
+
+	Material* material{nullptr};
 };

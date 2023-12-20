@@ -4,8 +4,8 @@
 #include "Materials/Material.h"
 #include "Utils/CurandUtils.h"
 
-__device__ Triangle::Triangle(Object* parent, size_t id, Material* material, const TriangleData& triangle_data)
-    : Shape(parent, id, material)
+__device__ Triangle::Triangle(Object* in_parent, size_t in_id, Material* in_material, const TriangleData& triangle_data)
+    : Shape(in_parent, in_id, in_material)
 {
     object_to_world = nullptr;
     world_to_object = nullptr;
@@ -170,4 +170,22 @@ __device__ void Triangle::transformNormal(const glm::mat4& transform)
     y.normal = glm::normalize(transposed_inverse * y.normal);
     z.normal = glm::normalize(transposed_inverse * z.normal);
     average_normal = glm::normalize(transposed_inverse * average_normal);
+}
+
+__device__ bool Triangle::scatter(const Ray* r_in, const HitRecord* rec, ScatterRecord* scatter_record)
+{
+    assert(material != nullptr);
+    return material->scatter(r_in, rec, scatter_record);
+}
+
+__device__ float Triangle::scatteringPDF(const HitRecord* rec, const Ray* scattered) const
+{
+    assert(material != nullptr);
+    return material->scatteringPDF(rec, scattered);
+}
+
+__device__ glm::vec3 Triangle::emitted(const glm::vec2& uv)
+{
+    assert(material != nullptr);
+    return material->emitted(uv);
 }

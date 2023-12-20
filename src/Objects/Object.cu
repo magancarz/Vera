@@ -10,23 +10,24 @@
 #include "Materials/Material.h"
 #include "Utils/CurandUtils.h"
 #include "renderEngine/RayTracing/Shapes/ShapeInfo.h"
+#include "utils/DeviceObjectsAllocation.h"
 
 namespace cudaObjectUtils
 {
-    __device__ void resetTriangleTransform(Shape* shape)
+    __device__ void resetShapeTransform(Shape* shape)
     {
         shape->resetTransform();
     }
 
-    __global__ void resetTrianglesTransforms(Shape** shape, size_t num_of_shapes)
+    __global__ void resetShapesTransforms(Shape** shape, size_t num_of_shapes)
     {
         for (size_t i = 0; i < num_of_shapes; ++i)
         {
-            resetTriangleTransform(shape[i]);
+            resetShapeTransform(shape[i]);
         }
     }
 
-    __device__ void transformTriangle(
+    __device__ void transformShape(
         glm::mat4* object_to_world, glm::mat4* world_to_object,
         Shape* shape, ShapeInfo* shapes_info)
     {
@@ -34,14 +35,14 @@ namespace cudaObjectUtils
         shapes_info->world_bounds = shape->world_bounds;
     }
 
-    __global__ void transformTriangles(
+    __global__ void transformShapes(
         glm::mat4* object_to_world, glm::mat4* world_to_object,
         Shape** cuda_shapes, ShapeInfo* shapes_infos,
         size_t num_of_shapes)
     {
         for (size_t i = 0; i < num_of_shapes; ++i)
         {
-            transformTriangle(object_to_world, world_to_object, cuda_shapes[i], &shapes_infos[i]);
+            transformShape(object_to_world, world_to_object, cuda_shapes[i], &shapes_infos[i]);
         }
     }
 
@@ -56,11 +57,11 @@ namespace cudaObjectUtils
         for (size_t i = 0; i < num_of_shapes; ++i)
         {
             cuda_shapes[i] = new Triangle(parent, (*next_triangle_id)++, material, shapes_data[i]);
-            transformTriangle(object_to_world, world_to_object, cuda_shapes[i], &shapes_infos[i]);
+            transformShape(object_to_world, world_to_object, cuda_shapes[i], &shapes_infos[i]);
         }
     }
 
-    __global__ void changeTrianglesMaterial(
+    __global__ void changeShapesMaterial(
         Shape** cuda_shapes, size_t num_of_shapes,
         Material* material)
     {
@@ -86,14 +87,18 @@ Object::Object(
       rotation(rotation),
       scale(scale),
       is_emitting_some_light(this->material->material->isEmittingLight()),
-      num_of_shapes(this->model_data->triangles.size()),
-      shapes(num_of_shapes),
-      shapes_infos(num_of_shapes)
+      num_of_shapes(this->model_data->triangles.size())
 {
     createNameForObject();
     object_to_world.copyFrom(createObjectToWorldTransform());
     world_to_object.copyFrom(createWorldToObjectTransform());
-    createMeshConsistingOfShapes();
+}
+
+Object::~Object()
+{
+    dmm::deleteObjectCUDA<Shape><<<1, 1>>>(shapes.data(), num_of_shapes);
+    checkCudaErrors(cudaGetLastError());
+    checkCudaErrors(cudaDeviceSynchronize());
 }
 
 void Object::createNameForObject()
@@ -102,14 +107,16 @@ void Object::createNameForObject()
     name = "object" + std::to_string(object_id);
 }
 
-void Object::createMeshConsistingOfShapes()
+void Object::createShapesForRayTracedMesh()
 {
-    allocateShapesOnDeviceMemory();
+    createShapesOnDeviceMemory();
     gatherShapesEmittingLight();
 }
 
-void Object::allocateShapesOnDeviceMemory()
+void Object::createShapesOnDeviceMemory()
 {
+    shapes = dmm::DeviceMemoryPointer<Shape*>(num_of_shapes);
+    shapes_infos = dmm::DeviceMemoryPointer<ShapeInfo>(num_of_shapes);
     dmm::DeviceMemoryPointer<TriangleData> triangles_data(num_of_shapes);
     triangles_data.copyFrom(model_data->triangles.data());
 
@@ -130,12 +137,9 @@ void Object::gatherShapesEmittingLight()
     {
         for (size_t i = 0; i < num_of_shapes; ++i)
         {
-            for (const auto& vertex : model_data->triangles[i].vertices)
+            if (determineIfShapeIsEmittingLight(i))
             {
-                if (material->material->getSpecularValue(vertex.texture_coordinate).g > 0.5f)
-                {
-                    shapes_emitting_light.push_back(shapes[i]);
-                }
+                shapes_emitting_light.push_back(shapes[i]);
             }
         }   
     }
@@ -143,9 +147,22 @@ void Object::gatherShapesEmittingLight()
     is_emitting_some_light = !shapes_emitting_light.empty();
 }
 
+bool Object::determineIfShapeIsEmittingLight(size_t i)
+{
+    for (const auto& vertex : model_data->triangles[i].vertices)
+    {
+        if (material->material->getSpecularValue(vertex.texture_coordinate).g > 0.5f)
+        {
+            return true;
+        }
+    }
+
+    return false;
+}
+
 void Object::changeMeshShapesMaterial()
 {
-    cudaObjectUtils::changeTrianglesMaterial<<<1, 1>>>(shapes.data(), num_of_shapes, material->cuda_material.data());
+    cudaObjectUtils::changeShapesMaterial<<<1, 1>>>(shapes.data(), num_of_shapes, material->cuda_material.data());
     checkCudaErrors(cudaGetLastError());
     checkCudaErrors(cudaDeviceSynchronize());
 }
@@ -190,14 +207,14 @@ void Object::refreshObject()
 
 void Object::resetMeshTrianglesTransforms()
 {
-    cudaObjectUtils::resetTrianglesTransforms<<<1, 1>>>(shapes.data(), num_of_shapes);
+    cudaObjectUtils::resetShapesTransforms<<<1, 1>>>(shapes.data(), num_of_shapes);
     checkCudaErrors(cudaGetLastError());
     checkCudaErrors(cudaDeviceSynchronize());
 }
 
 void Object::transformMeshTriangles()
 {
-    cudaObjectUtils::transformTriangles<<<1, 1>>>(object_to_world.data(), world_to_object.data(), shapes.data(), shapes_infos.data(), num_of_shapes);
+    cudaObjectUtils::transformShapes<<<1, 1>>>(object_to_world.data(), world_to_object.data(), shapes.data(), shapes_infos.data(), num_of_shapes);
     checkCudaErrors(cudaGetLastError());
     checkCudaErrors(cudaDeviceSynchronize());
 }
@@ -278,7 +295,7 @@ ObjectInfo Object::getObjectInfo()
     return { name, model_data->model_name, material->material->name, position, rotation, scale };
 }
 
-bool Object::operator==(unsigned id) const
+bool Object::operator==(size_t id) const
 {
     return object_id == id;
 }

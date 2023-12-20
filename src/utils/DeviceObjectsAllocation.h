@@ -15,4 +15,13 @@ namespace dmm
     {
         delete (*object);
     }
+
+    template <typename T>
+    __global__ void deleteObjectCUDA(T** objects, size_t num_of_objects)
+    {
+        for(size_t i = 0; i < num_of_objects; ++i)
+        {
+            delete objects[i];
+        }
+    }
 }

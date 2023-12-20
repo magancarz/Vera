@@ -6,12 +6,12 @@
 class BVHTreeTraverser
 {
 public:
-    BVHTreeTraverser(Shape** shapes, BVHTreeNode* nodes)
-        : shapes(shapes), nodes(nodes) {}
+    BVHTreeTraverser(dmm::DeviceMemoryPointer<Shape*> shapes, dmm::DeviceMemoryPointer<BVHTreeNode> nodes)
+        : shapes(std::move(shapes)), nodes(std::move(nodes)) {}
 
     __device__ HitRecord checkIntersection(const Ray* ray) const;
 
 protected:
-    Shape** shapes;
-    BVHTreeNode* nodes{nullptr};
+    dmm::DeviceMemoryPointer<Shape*> shapes;
+    dmm::DeviceMemoryPointer<BVHTreeNode> nodes;
 };

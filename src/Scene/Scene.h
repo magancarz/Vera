@@ -43,6 +43,7 @@ public:
 private:
     void buildSceneIntersectionAccelerator();
     bool isObjectAlreadySampled(unsigned int id);
-    
+
+    std::unique_ptr<BVHTreeBuilder> bvh_tree_builder;
     bool need_to_build_intersection_accelerator{false};
 };

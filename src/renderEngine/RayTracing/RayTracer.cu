@@ -50,6 +50,7 @@ std::weak_ptr<Object> RayTracer::traceRayFromMouse(Scene* scene, const std::shar
 
     dmm::DeviceMemoryPointer<Object*> object;
     dmm::DeviceMemoryPointer<bool> found;
+    found.copyFrom(false);
     cuda_camera.copyFrom(&ray_tracing_editor_camera);
     RayTracing::findObjectIntersectingRay<<<1, 1>>>(scene->intersection_accelerator_tree_traverser.data(), cuda_camera.data(), x, y, Display::WINDOW_WIDTH, Display::WINDOW_HEIGHT, object.data(), found.data());
     checkCudaErrors(cudaGetLastError());
@@ -85,7 +86,7 @@ void RayTracer::generateRayTracedImage(Scene* scene, const std::shared_ptr<Camer
     const auto end = std::chrono::steady_clock::now();
     std::cout << "Rendering time: " <<
         std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count() <<
-        " milliseconds." << std::endl;
+        " milliseconds.\n";
 
     current_image->updateImage();
 }

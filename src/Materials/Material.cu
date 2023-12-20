@@ -29,6 +29,7 @@ Material::Material(std::string name, std::shared_ptr<TextureAsset> texture, std:
 
 __device__ bool Material::scatter(const Ray* r_in, const HitRecord* rec, ScatterRecord* scatter_record) const
 {
+    scatter_record->color = getColor(rec->uv);
     if (has_specular_map)
     {
         const glm::vec3 specular_map_value = cuda_specular_map_texture->getColorAtGivenUVCoordinates(rec->uv);

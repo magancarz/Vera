@@ -2,8 +2,10 @@
 
 #include "editor/Project/Project.h"
 #include "Models/AssetManager.h"
+#include "Objects/ConstantMedia.h"
 #include "RenderEngine/RayTracing/PDF/HittablePDF.h"
 #include "Objects/Object.h"
+#include "Objects/ConstantMedia.h"
 #include "Objects/ShapesCollector.h"
 #include "RenderEngine/RayTracing/IntersectionAccelerators/BVHTreeBuilder.h"
 
@@ -99,6 +101,7 @@ void Scene::loadSceneFromProject(const ProjectInfo& project_info)
         auto model = AssetManager::findModelAsset(object_info.model_name);
         
 		auto object = std::make_shared<Object>(this, material, model, object_info.position, object_info.rotation, object_info.scale);
+        object->createShapesForRayTracedMesh();
 		objects.push_back(object);
 
         if (object->isEmittingSomeLight())
@@ -112,13 +115,16 @@ void Scene::loadSceneFromProject(const ProjectInfo& project_info)
 
 void Scene::createObject(std::shared_ptr<RawModel> model)
 {
-    objects.push_back(std::make_shared<Object>(this, AssetManager::findMaterialAsset("white"), std::move(model), glm::vec3{0}, glm::vec3{0}, 1.f));
+    const auto new_object = std::make_shared<Object>(this, AssetManager::findMaterialAsset("white"), std::move(model), glm::vec3{0}, glm::vec3{0}, 1.f);
+    new_object->createShapesForRayTracedMesh();
+    objects.push_back(new_object);
     need_to_build_intersection_accelerator = true;
 }
 
 void Scene::createObject(std::shared_ptr<RawModel> model, std::shared_ptr<MaterialAsset> material, glm::vec3 position, glm::vec3 rotation, float scale)
 {
     const auto new_object = std::make_shared<Object>(this, std::move(material), std::move(model), position, rotation, scale);
+    new_object->createShapesForRayTracedMesh();
     objects.push_back(new_object);
     if (new_object->isEmittingSomeLight())
     {
@@ -133,8 +139,8 @@ void Scene::buildSceneIntersectionAccelerator()
     const CollectedShapes collected_shapes = shapes_collector.collectShapes();
     scene_light_sources = dmm::DeviceMemoryPointer<Shape*>{collected_shapes.number_of_light_emitting_shapes};
     scene_light_sources.copyFrom(collected_shapes.light_emitting_shapes.data());
-    BVHTreeBuilder bvh_tree_builder{collected_shapes};
-    intersection_accelerator_tree_traverser = bvh_tree_builder.buildAccelerator();
+    bvh_tree_builder = std::make_unique<BVHTreeBuilder>(collected_shapes);
+    intersection_accelerator_tree_traverser = bvh_tree_builder->buildAccelerator();
 }
 
 std::vector<ObjectInfo> Scene::gatherObjectsInfos()
