@@ -25,7 +25,7 @@ namespace RayTracing
         const float v = (image_height - y) * image_height_reciprocal;
         Ray ray = camera->getRay(u, v);
         const HitRecord rec = intersection_accelerator_tree_traverser->checkIntersection(&ray);
-        (*found_mesh) = rec.parent_object;
+        (*found_mesh) = (*rec.intersected_shape)->parent;
         (*found) = found_mesh != nullptr;
     }
 }

@@ -39,13 +39,13 @@ namespace RayTracing
             if (rec.did_hit_anything)
             {
                 ScatterRecord scatter_record{};
-                if (rec.material->scatter(ray, &rec, &scatter_record))
+                if ((*rec.intersected_shape)->scatter(ray, &rec, &scatter_record))
                 {
                     if (scatter_record.is_specular)
                     {
                         scatter_record.specular_ray.curand_state = ray->curand_state;
                         *ray = scatter_record.specular_ray;
-                        color *= rec.color;
+                        color *= scatter_record.color;
                         ++current_depth;
                         continue;
                     }
@@ -57,15 +57,15 @@ namespace RayTracing
                         scatter_record.pdf};
                     Ray scattered{rec.hit_point, mixture_pdf.generate()};
                     auto pdf = mixture_pdf.value(scattered.direction);
-                    auto scattering_pdf = rec.material->scatteringPDF(&rec, &scattered);
+                    auto scattering_pdf = (*rec.intersected_shape)->scatteringPDF(&rec, &scattered);
 
                     scattered.curand_state = ray->curand_state;
                     *ray = scattered;
-                    color *= rec.color * scattering_pdf / pdf;
+                    color *= scatter_record.color * scattering_pdf / pdf;
                     continue;
                 }
 
-                return color * rec.material->emitted(rec.uv);
+                return color * (*rec.intersected_shape)->emitted(rec.uv);
             }
 
             float t = 0.5f * (ray->direction.y + 1.f);

@@ -47,10 +47,6 @@ __device__ HitRecord Triangle::checkRayIntersection(const Ray* r) const
         hit_record_result.front_face = determinant > 0;
         hit_record_result.t = dst;
         hit_record_result.did_hit_anything = true;
-        hit_record_result.parent_object = parent;
-        hit_record_result.triangle_id = id;
-        hit_record_result.material = material;
-        hit_record_result.color = material->getColor(hit_record_result.uv);
         glm::vec3 new_normal;
     	if (material->hasNormalMap())
         {
@@ -70,7 +66,7 @@ __device__ float Triangle::calculatePDFValueOfEmittedLight(const glm::vec3& orig
 {
     Ray ray{origin, direction};
     const auto rec = checkRayIntersection(&ray);
-    if (rec.triangle_id != id)
+    if (!rec.did_hit_anything)
     {
         return 0;
     }

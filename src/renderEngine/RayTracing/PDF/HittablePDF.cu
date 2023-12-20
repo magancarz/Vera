@@ -46,7 +46,7 @@ __device__ glm::vec3 HittablePDF::directRayToRandomLightSourceFromScene() const
         random_to_light_source = light_source->randomDirectionAtShape(curand_state, hit_record->hit_point);
         Ray ray_to_random_light_source{hit_record->hit_point, random_to_light_source};
         HitRecord result = intersection_accelerator_tree_traverser->checkIntersection(&ray_to_random_light_source);
-        if (result.did_hit_anything && result.triangle_id == light_source->id)
+        if (result.did_hit_anything && (*result.intersected_shape)->id == light_source->id)
         {
             break;
         }

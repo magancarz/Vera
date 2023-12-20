@@ -26,6 +26,7 @@ __device__ HitRecord BVHTreeTraverser::checkIntersection(const Ray* ray) const
                     {
                         closest_hit = temp.t;
                         hit_record = temp;
+                        hit_record.intersected_shape = &shapes[node->primitives_offset + i];
                     }
                 }
                 if (to_visit_offset == 0) break;
