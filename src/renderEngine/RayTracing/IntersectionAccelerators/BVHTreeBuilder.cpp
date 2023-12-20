@@ -1,35 +1,37 @@
 #include "BVHTreeBuilder.h"
 
 #include "BVHTreeNode.h"
+#include "Objects/CollectedShapes.h"
 #include "RenderEngine/RayTracing/Shapes/ShapeInfo.h"
 
-dmm::DeviceMemoryPointer<BVHTreeTraverser> BVHTreeBuilder::buildAccelerator(
-    dmm::DeviceMemoryPointer<Triangle*> shapes,
-    dmm::DeviceMemoryPointer<ShapeInfo*> shape_infos)
+BVHTreeBuilder::BVHTreeBuilder(const CollectedShapes& collected_shapes)
+    : shapes(collected_shapes.shapes.size()), shape_infos(collected_shapes.shapes_infos)
 {
-    this->shapes = std::move(shapes);
-    this->shape_infos = std::move(shape_infos);
-    num_of_shapes = this->shapes.size();
+    shapes.copyFrom(collected_shapes.shapes.data());
+}
+
+dmm::DeviceMemoryPointer<BVHTreeTraverser> BVHTreeBuilder::buildAccelerator()
+{
+    num_of_shapes = shapes.size();
     max_shapes_in_node = static_cast<size_t>(std::log(num_of_shapes));
     max_depth = 16;
 
     std::vector<BVHShapeInfo> primitive_info(num_of_shapes);
     for (size_t i = 0; i < num_of_shapes; ++i)
     {
-        primitive_info[i] = BVHShapeInfo{i, this->shape_infos[i]->world_bounds};
+        primitive_info[i] = BVHShapeInfo{i, shape_infos[i]->world_bounds};
     }
 
     int total_nodes = 0;
-    std::vector<Triangle*> ordered_shapes;
+    std::vector<Shape*> ordered_shapes;
     const std::shared_ptr<BVHBuildNode> root = recursiveBuild(primitive_info, 0, num_of_shapes, 0, &total_nodes, ordered_shapes);
 
-    this->shapes.copyFrom(ordered_shapes.data());
+    shapes.copyFrom(ordered_shapes.data());
     nodes = dmm::DeviceMemoryPointer<BVHTreeNode>(total_nodes);
     int offset = 0;
     flattenBVHTree(root, &offset);
 
-    BVHTreeTraverser bvh_tree_traverser{this->shapes.data(), nodes.data()};
-    tree_traverser.copyFrom(&bvh_tree_traverser);
+    tree_traverser.copyFrom({shapes, nodes});
 
     return tree_traverser;
 }
@@ -39,7 +41,7 @@ std::shared_ptr<BVHBuildNode> BVHTreeBuilder::recursiveBuild(
     int start, int end,
     int depth,
     int* total_nodes,
-    std::vector<Triangle*>& ordered_shapes)
+    std::vector<Shape*>& ordered_shapes)
 {
     std::shared_ptr<BVHBuildNode> node = std::make_shared<BVHBuildNode>();
     (*total_nodes)++;
@@ -177,7 +179,7 @@ int BVHTreeBuilder::flattenBVHTree(const std::shared_ptr<BVHBuildNode>& node, in
 std::shared_ptr<BVHBuildNode> BVHTreeBuilder::createLeafNode(
     std::shared_ptr<BVHBuildNode>& node,
     int start, int end,
-    std::vector<Triangle*>& ordered_shapes,
+    std::vector<Shape*>& ordered_shapes,
     const std::vector<BVHShapeInfo>& shape_info,
     const Bounds3f& bounds)
 {

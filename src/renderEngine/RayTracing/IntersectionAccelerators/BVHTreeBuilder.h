@@ -9,6 +9,7 @@
 #include "Utils/DeviceMemoryPointer.h"
 #include "BVHTreeTraverser.h"
 
+struct CollectedShapes;
 struct ShapeInfo;
 
 struct BVHShapeInfo
@@ -57,25 +58,28 @@ struct BucketInfo
 
 class BVHTreeBuilder {
 public:
-    dmm::DeviceMemoryPointer<class BVHTreeTraverser> buildAccelerator(dmm::DeviceMemoryPointer<Triangle*> shapes, dmm::DeviceMemoryPointer<ShapeInfo*> shape_infos);
+    BVHTreeBuilder(const CollectedShapes& collected_shapes);
+    dmm::DeviceMemoryPointer<class BVHTreeTraverser> buildAccelerator();
 
 private:
     std::shared_ptr<BVHBuildNode> recursiveBuild(std::vector<BVHShapeInfo>& shape_info,
         int start, int end,
         int depth,
         int* total_nodes,
-        std::vector<Triangle*>& ordered_shapes);
+        std::vector<Shape*>& ordered_shapes);
+
     std::shared_ptr<BVHBuildNode> createLeafNode(
         std::shared_ptr<BVHBuildNode>& node,
         int start, int end,
-        std::vector<Triangle*>& ordered_shapes,
+        std::vector<Shape*>& ordered_shapes,
         const std::vector<BVHShapeInfo>& shape_info,
         const Bounds3f& bounds);
+
     int flattenBVHTree(const std::shared_ptr<BVHBuildNode>& node, int* offset);
 
     dmm::DeviceMemoryPointer<BVHTreeNode> nodes;
-    dmm::DeviceMemoryPointer<Triangle*> shapes;
-    dmm::DeviceMemoryPointer<ShapeInfo*> shape_infos;
+    dmm::DeviceMemoryPointer<Shape*> shapes;
+    std::vector<ShapeInfo*> shape_infos;
     size_t num_of_shapes{0};
     size_t max_shapes_in_node{0};
     size_t max_depth{0};

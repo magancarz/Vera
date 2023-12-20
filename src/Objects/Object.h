@@ -15,6 +15,13 @@ struct MaterialAsset;
 class RayTracedObject;
 class Triangle;
 
+namespace cudaObjectUtils
+{
+    __device__ void transformShape(
+        glm::mat4* object_to_world, glm::mat4* world_to_object,
+        Shape* shape, ShapeInfo* shapes_info);
+}
+
 class Object
 {
 public:
@@ -26,66 +33,69 @@ public:
         const glm::vec3& rotation,
         float scale);
 
-    void changeMaterial(std::shared_ptr<MaterialAsset> new_material);
-    void refreshObject();
+    virtual ~Object();
 
-    void increasePosition(float dx, float dy, float dz);
-    void increaseRotation(float rx, float ry, float rz);
+    void changeMaterial(std::shared_ptr<MaterialAsset> new_material);
+    void createShapesForRayTracedMesh();
+
     glm::vec3 getPosition() const;
     glm::vec3 getRotation() const;
     float getScale() const;
     void setPosition(const glm::vec3& value);
     void setRotation(const glm::vec3& value);
     void setScale(float value);
+
     void setShouldBeOutlined(bool value);
     bool shouldBeOutlined() const;
 
     Material* getMaterial() const;
     std::shared_ptr<RawModel> getModelData() const;
-    Triangle* getTriangles();
-    int getNumberOfTriangles();
+    Shape** getShapes();
+    ShapeInfo* getShapesInfos();
+    size_t getNumberOfShapes();
     ObjectInfo getObjectInfo();
 
-    void changeMaterial(Material* material);
-
-    bool operator==(unsigned int id) const;
-    unsigned int object_id;
+    bool operator==(size_t id) const;
+    size_t object_id;
     std::string name;
 
     bool isEmittingSomeLight() const { return is_emitting_some_light; }
-    bool isTriangleEmittingLight(int triangle_index) const;
-    size_t getNumberOfTrianglesEmittingLight() const { return triangles_emitting_light.size(); }
-    std::vector<Triangle*> getTrianglesEmittingLight() const;
+    size_t getNumberOfLightEmittingShapes() const { return shapes_emitting_light.size(); }
+    std::vector<Shape*> getShapesEmittingLight() const;
 
     Scene* parent_scene;
-    dmm::DeviceMemoryPointer<ShapeInfo> cuda_triangles_infos;
 
-private:
-    void createObjectName();
+protected:
+    void createNameForObject();
 
-    void createMesh();
-    void allocateShapesOnDeviceMemory();
-    void refreshTriangles();
+    void refreshObject();
+    void resetMeshTrianglesTransforms();
+    void transformMeshTriangles();
+    void changeMeshShapesMaterial();
+    void gatherShapesEmittingLight();
+    virtual void createShapesOnDeviceMemory();
+    virtual bool determineIfShapeIsEmittingLight(size_t i);
     glm::mat4 createObjectToWorldTransform();
     glm::mat4 createWorldToObjectTransform();
 
-    std::shared_ptr<MaterialAsset> material;
-    std::shared_ptr<RawModel> model_data;
+    std::shared_ptr<MaterialAsset> material{};
+    std::shared_ptr<RawModel> model_data{};
 
-    glm::vec3 position;
-    glm::vec3 rotation;
-    float scale;
+    glm::vec3 position{};
+    glm::vec3 rotation{};
+    float scale{};
     bool is_emitting_some_light{false};
 
-    std::vector<Triangle*> triangles_emitting_light;
+    std::vector<Shape*> shapes_emitting_light{};
 
-    size_t num_of_triangles{0};
+    size_t num_of_shapes{0};
     dmm::DeviceMemoryPointer<glm::mat4> object_to_world{};
     dmm::DeviceMemoryPointer<glm::mat4> world_to_object{};
-    dmm::DeviceMemoryPointer<Triangle> cuda_shapes;
+    dmm::DeviceMemoryPointer<Shape*> shapes{};
+    dmm::DeviceMemoryPointer<ShapeInfo> shapes_infos;
 
     bool should_be_outlined = false;
 
-    inline static unsigned int next_id = 0;
-    inline static unsigned int next_triangle_id = 0;
+    inline static dmm::DeviceMemoryPointer<size_t> next_shape_id{};
+    inline static size_t next_id = 0;
 };

@@ -77,7 +77,7 @@ public:
         return o;
     }
 
-    __host__ __device__ bool intersect(const Ray* ray, const glm::vec3& inv_dir, const bool dir_is_neg[3], float* out_t_min) const
+    __host__ __device__ bool intersect(const Ray* ray, const glm::vec3& inv_dir, const bool dir_is_neg[3], float* out_t_min = nullptr, float* out_t_max = nullptr) const
     {
         const Bounds3f &bounds = *this;
         float t_min = (bounds[dir_is_neg[0]].x - ray->origin.x) * inv_dir.x;
@@ -95,7 +95,8 @@ public:
         if (t_min > tz_max || tz_min > t_max) return false;
         if (tz_min > t_min) t_min = tz_min;
         if (tz_max < t_max) t_max = tz_max;
-        *out_t_min = t_min;
+        if (out_t_min != nullptr) *out_t_min = t_min;
+        if (out_t_max != nullptr) *out_t_max = t_max;
         return (t_min < ray->max) && (t_max > 0);
     }
 
