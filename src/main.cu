@@ -1,8 +1,8 @@
-#include "TinyRayTracingApp.h"
+#include "Vera.h"
 
 int main()
 {
-    TinyRayTracingApp app{};
+    Vera app{};
     app.launch();
 
     return 0;

@@ -1,2 +1,2 @@
-target_sources(Tiny-Ray-Tracing-Lib PRIVATE
+target_sources(Vera-Lib PRIVATE
         OBJLoader.cpp)

@@ -1,7 +1,7 @@
-target_sources(Tiny-Ray-Tracing-Lib PRIVATE
-        TinyRayTracingApp.cu)
+target_sources(Vera-Lib PRIVATE
+        Vera.cu)
 
-target_include_directories(Tiny-Ray-Tracing-Lib PUBLIC Geometry)
+target_include_directories(Vera-Lib PUBLIC Geometry)
 
 add_subdirectory(Editor)
 add_subdirectory(GUI)

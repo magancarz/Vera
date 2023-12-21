@@ -110,11 +110,6 @@ void Scene::loadSceneFromProject(const ProjectInfo& project_info)
         }
     }
 
-    auto model = AssetManager::findModelAsset("cube");
-    std::shared_ptr<Object> object = std::make_shared<ConstantMedia>(this, model, Bounds3f{{-2, -2, -2}, {2, 2, 2}}, 0.7f);
-    object->createShapesForRayTracedMesh();
-	objects.push_back(object);
-
     need_to_build_intersection_accelerator = true;
 }
 
