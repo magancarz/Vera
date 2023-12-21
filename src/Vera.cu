@@ -1,4 +1,4 @@
-#include "TinyRayTracingApp.h"
+#include "Vera.h"
 
 #include "imgui/imgui.h"
 #include "imgui/imgui_impl_opengl3.h"
@@ -9,7 +9,7 @@
 #include "imgui/imgui_impl_glfw.h"
 #include "input/Input.h"
 
-int TinyRayTracingApp::launch()
+int Vera::launch()
 {
     if (!glfwInit())
         return -1;
@@ -26,12 +26,12 @@ int TinyRayTracingApp::launch()
     return 0;
 }
 
-void TinyRayTracingApp::run()
+void Vera::run()
 {
     editor->run();
 }
 
-void TinyRayTracingApp::close()
+void Vera::close()
 {
     ImGui_ImplOpenGL3_Shutdown();
     ImGui_ImplGlfw_Shutdown();

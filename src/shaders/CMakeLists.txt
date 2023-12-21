@@ -1,4 +1,4 @@
-target_sources(Tiny-Ray-Tracing-Lib PRIVATE
+target_sources(Vera-Lib PRIVATE
         RayTracedImageShader.cpp
         ShaderProgram.cpp
         StaticShader.cpp

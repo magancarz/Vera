@@ -1,4 +1,4 @@
-target_sources(Tiny-Ray-Tracing-Lib PRIVATE
+target_sources(Vera-Lib PRIVATE
         Ray.h
         ImageBlock.h
         RayTracedImage.cpp

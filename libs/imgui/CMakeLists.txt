@@ -1,4 +1,4 @@
-target_sources(Tiny-Ray-Tracing-Lib PRIVATE
+target_sources(Vera-Lib PRIVATE
         imgui.cpp
         imgui_demo.cpp
         imgui_draw.cpp

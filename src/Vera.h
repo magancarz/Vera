@@ -2,7 +2,7 @@
 
 #include "editor/Editor.h"
 
-class TinyRayTracingApp
+class Vera
 {
 public:
     int launch();
