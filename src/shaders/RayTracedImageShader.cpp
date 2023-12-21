@@ -1,4 +1,4 @@
-#include "ImageShader"
+#include "RayTracedImageShader.h"
 
 RayTracedImageShader::RayTracedImageShader()
 {
