@@ -8,5 +8,4 @@ target_sources(Vera-Lib PRIVATE
         StopGeneratingImageCommand.cpp
         SaveProjectCommand.cpp
         LoadProjectCommand.cpp
-        ChangeProjectNameCommand.cpp
-        ChangeRayTracerCommand.cpp)
+        ChangeProjectNameCommand.cpp)

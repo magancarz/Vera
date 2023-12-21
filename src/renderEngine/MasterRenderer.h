@@ -2,7 +2,7 @@
 
 #include "RenderEngine/EntityRenderer.h"
 #include "../models/AssetManager.h"
-#include "../shaders/ImageShader"
+#include "Shaders/RayTracedImageShader.h"
 #include "Objects/Camera.h"
 
 class MasterRenderer

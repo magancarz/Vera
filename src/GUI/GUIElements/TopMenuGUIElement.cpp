@@ -8,7 +8,6 @@
 
 #include "Editor/Editor.h"
 #include "editor/editorCommands/ChangeProjectNameCommand.h"
-#include "Editor/EditorCommands/ChangeRayTracerCommand.h"
 #include "editor/editorCommands/LoadProjectCommand.h"
 #include "RenderEngine/RayTracing/HybridRayTracer.h"
 

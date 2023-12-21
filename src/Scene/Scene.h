@@ -27,13 +27,11 @@ public:
     void buildSceneIntersectionAcceleratorIfNeeded();
     void notifyOnObjectChange();
     void notifyOnObjectMaterialChange(const Object* object);
-    void addObject(const std::shared_ptr<Object>& scene_object);
     void deleteObject(const Object* scene_object);
     std::weak_ptr<Object> findObjectByID(unsigned int id);
     void refreshScene();
     std::vector<ObjectInfo> gatherObjectsInfos();
     void createObject(std::shared_ptr<RawModel> model);
-    void createObject(std::shared_ptr<RawModel> model, std::shared_ptr<MaterialAsset> material, glm::vec3 position, glm::vec3 rotation, float scale);
 
     std::vector<std::shared_ptr<Object>> objects;
     std::vector<std::weak_ptr<Object>> lights;

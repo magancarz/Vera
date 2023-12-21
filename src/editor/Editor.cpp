@@ -229,11 +229,6 @@ void Editor::stopGeneratingRayTracedImage()
     generating_image = false;
 }
 
-void Editor::refreshScene()
-{
-    scene->refreshScene();
-}
-
 void Editor::saveCurrentProject()
 {
     updateCurrentProjectInfo();
@@ -254,11 +249,6 @@ void Editor::loadProject(const std::string& project_name)
 void Editor::changeCurrentProjectName(const std::string& project_name)
 {
     current_project_info.project_name = project_name;
-}
-
-void Editor::changeRayTracer(std::shared_ptr<RayTracer> new_ray_tracer)
-{
-    ray_tracer = std::move(new_ray_tracer);
 }
 
 void Editor::resetCurrentRayTracedImage()

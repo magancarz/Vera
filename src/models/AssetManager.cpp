@@ -25,6 +25,7 @@ void AssetManager::initializeAssets()
     loadModelAsset("cherry");
     loadModelAsset("rock");
     loadModelAsset("monkey");
+    loadModelAsset("bunny");
 
     MaterialParameters white_material_parameters{
         "white", "", "", 0.f, 0.f, 0.f
@@ -131,53 +132,6 @@ std::shared_ptr<TextureData> AssetManager::loadImageFromFile(const std::string& 
         std::cout << "Failed to load " + file_name + " image!\n";
 
     return std::make_shared<TextureData>(image, width, height);
-}
-
-std::shared_ptr<utils::Texture> AssetManager::createColorTexture(float r, float g, float b)
-{
-    const auto ir = static_cast<uint8_t>(255.99f * r);
-    const auto ig = static_cast<uint8_t>(255.99f * g);
-    const auto ib = static_cast<uint8_t>(255.99f * b);
-    return createColorTexture(ir, ig, ib);
-}
-
-std::shared_ptr<utils::Texture> AssetManager::createColorTexture(uint8_t r, uint8_t g, uint8_t b)
-{
-    const auto texture = std::make_shared<utils::Texture>();
-    glBindTexture(GL_TEXTURE_2D, texture->texture_id);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    constexpr int custom_texture_size = 16;
-
-    const auto data = new unsigned char[3 * custom_texture_size * custom_texture_size * sizeof(unsigned char)];
-    for (unsigned int i = 0; i < custom_texture_size * custom_texture_size; i++)
-    {
-        data[i * 3] = r;
-        data[i * 3 + 1] = g;
-        data[i * 3 + 2] = b;
-    }
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, custom_texture_size, custom_texture_size, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
-    glGenerateMipmap(GL_TEXTURE_2D);
-
-    delete[] data;
-    return texture;
-}
-
-std::shared_ptr<utils::Texture> AssetManager::createTexture(int width, int height, const std::vector<char>& data)
-{
-    const auto texture = std::make_shared<utils::Texture>();
-    glBindTexture(GL_TEXTURE_2D, texture->texture_id);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data.data());
-    glGenerateMipmap(GL_TEXTURE_2D);
-
-    return texture;
 }
 
 std::shared_ptr<utils::Texture> AssetManager::loadTexture(const std::string& file_name, const float lod_value)

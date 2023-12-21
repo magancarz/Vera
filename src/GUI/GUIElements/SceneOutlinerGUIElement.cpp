@@ -59,6 +59,10 @@ std::vector<std::shared_ptr<EditorCommand>> SceneOutlinerGUIElement::renderGUIEl
             {
                 editor_commands.push_back(std::make_shared<CreateObjectCommand>(AssetManager::findModelAsset("teapot")));
             }
+            if (ImGui::MenuItem("Bunny"))
+            {
+                editor_commands.push_back(std::make_shared<CreateObjectCommand>(AssetManager::findModelAsset("bunny")));
+            }
             ImGui::EndMenu();
         }
         ImGui::EndMenuBar();

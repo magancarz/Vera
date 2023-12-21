@@ -32,12 +32,6 @@ public:
     static double getFrameTimeSeconds();
     static bool closeNotRequested();
 
-    static GLFWwindow* getWindow();
-
-    static void enableDisplayInput();
-    static void disableDisplayInput();
-    static bool isDisplayInputEnabled();
-
     inline static const int WINDOW_WIDTH = 1280;
     inline static const int WINDOW_HEIGHT = 800;
 

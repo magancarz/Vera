@@ -3,10 +3,6 @@
 #include "glm/glm.hpp"
 #include <glm/gtc/type_ptr.hpp>
 
-#define CAMERA_HEIGHT 5
-
-enum direction { FORWARD, BACKWARD, LEFT, RIGHT };
-
 class Camera
 {
 public:

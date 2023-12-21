@@ -202,27 +202,7 @@ double Display::getDWheel()
     return mouse_wheel;
 }
 
-GLFWwindow* Display::getWindow()
-{
-    return window;
-}
-
 bool Display::closeNotRequested()
 {
     return !is_close_requested;
-}
-
-void Display::enableDisplayInput()
-{
-    is_input_enabled = true;
-}
-
-void Display::disableDisplayInput()
-{
-    is_input_enabled = false;
-}
-
-bool Display::isDisplayInputEnabled()
-{
-    return is_input_enabled;
 }

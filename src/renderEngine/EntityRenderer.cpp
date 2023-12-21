@@ -1,6 +1,6 @@
 #include "EntityRenderer.h"
 
-#include <gl/glew.h>
+#include <GL/glew.h>
 
 #include "RenderEngine/MasterRenderer.h"
 #include "Utils/AdditionalAlgorithms.h"

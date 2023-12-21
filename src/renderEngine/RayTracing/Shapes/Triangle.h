@@ -32,7 +32,6 @@ private:
 	__device__ void transformNormal(const glm::mat4& transform);
 	__device__ bool areTriangleNormalsValid() const;
 
-	__device__ glm::vec3 getNormalAt(const glm::vec3& barycentric_coordinates) const;
 	__device__ glm::vec3 getNormalAt(float u, float v, float w) const;
 
     Vertex x, y, z;

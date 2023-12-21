@@ -23,16 +23,6 @@ __device__ glm::vec3 HittablePDF::generate() const
     return directRayToRandomLightSourceFromScene();
 }
 
-__device__ void HittablePDF::shuffleLightSources(Shape** shuffled_light_sources) const
-{
-    for (int i = num_of_triangles - 1; i > 0; i--) {
-        const int j = randomInt(curand_state, 0, num_of_triangles);
-        Shape* temp = shuffled_light_sources[i];
-        shuffled_light_sources[i] = shuffled_light_sources[j];
-        shuffled_light_sources[j] = temp;
-    }
-}
-
 __device__ glm::vec3 HittablePDF::directRayToRandomLightSourceFromScene() const
 {
     auto shuffled_light_sources = static_cast<Shape**>(malloc(num_of_triangles * sizeof(void*)));
@@ -56,4 +46,14 @@ __device__ glm::vec3 HittablePDF::directRayToRandomLightSourceFromScene() const
     free(shuffled_light_sources);
 
     return random_to_light_source;
+}
+
+__device__ void HittablePDF::shuffleLightSources(Shape** shuffled_light_sources) const
+{
+    for (int i = num_of_triangles - 1; i > 0; i--) {
+        const int j = randomInt(curand_state, 0, num_of_triangles);
+        Shape* temp = shuffled_light_sources[i];
+        shuffled_light_sources[i] = shuffled_light_sources[j];
+        shuffled_light_sources[j] = temp;
+    }
 }

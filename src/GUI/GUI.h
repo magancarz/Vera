@@ -8,13 +8,6 @@
 class EditorCommand;
 class Object;
 struct EditorInfo;
-class SceneObjectFactory;
-
-enum ImageIndex
-{
-    RECENT_IMAGE = -2,
-    NO_IMAGE = -1,
-};
 
 class GUI
 {

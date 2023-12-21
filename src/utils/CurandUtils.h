@@ -5,15 +5,13 @@
 #include <corecrt_math_defines.h>
 #include <glm/glm.hpp>
 
-__global__ void initCurandState(curandState* curand_state, unsigned long long seed);
-
 __device__ inline float randomFloat(curandState* curand_state)
 {
-    float random_float = curand_uniform(curand_state);
-    if (random_float >= 1.0f)
+    float random_float;
+    do
     {
-        random_float -= 0.00001f;
-    }
+        random_float = curand_uniform(curand_state);
+    } while (random_float >= 1.0f);
     return random_float;
 }
 
@@ -21,8 +19,6 @@ __device__ inline float randomFloat(curandState* curand_state, float a, float b)
 {
     const float random_float = randomFloat(curand_state);
     const float temp = random_float * (b - a) + a;
-    assert(temp >= a);
-    assert(temp < b);
     return temp;
 }
 

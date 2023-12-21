@@ -1,7 +1,7 @@
 #pragma once
 
 #include "renderEngine/RayTracing/Shapes/Triangle.h"
-#include "models/Vertex.h"
+#include "Models/Vertex.h"
 
 struct ModelData
 {

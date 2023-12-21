@@ -33,7 +33,6 @@ public:
     Editor();
 
     void prepare();
-    void prepareCudaDevice();
     void run();
 
     void createSceneObject(const std::shared_ptr<RawModel>& model);
@@ -46,12 +45,10 @@ public:
     void renderNextImageFromQueue();
     void saveImageFromQueue();
     void stopGeneratingRayTracedImage();
-    void refreshScene();
     void saveCurrentProject();
     void updateCurrentProjectInfo();
     void loadProject(const std::string& project_name);
     void changeCurrentProjectName(const std::string& project_name);
-    void changeRayTracer(std::shared_ptr<RayTracer> new_ray_tracer);
 
 private:
     void renderScene();

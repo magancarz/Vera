@@ -4,15 +4,6 @@
 
 namespace AdditionalAlgorithms
 {
-    glm::mat4 createTransformationMatrix(const glm::vec2& translation, const glm::vec2& scale)
-    {
-        glm::mat4 matrix(1.0f);
-        matrix = translate(matrix, glm::vec3(translation, 0.0f));
-        matrix = glm::scale(matrix, glm::vec3(scale, 1.0f));
-
-        return matrix;
-    }
-
     glm::mat4 createTransformationMatrix(const glm::vec3& translation, const float rx, const float ry, const float rz,
                                          const float scale)
     {

@@ -122,19 +122,14 @@ __device__ void Triangle::calculateShapeSurfaceArea()
     area = glm::length(glm::cross(glm::vec3{y.position - x.position}, glm::vec3{z.position - x.position})) / 2.f;
 }
 
-__host__ __device__ bool Triangle::isEmittingLight() const
+__device__ bool Triangle::isEmittingLight() const
 {
     return material->getSpecularValue(x.texture_coordinate).g > 0.5f ||
         material->getSpecularValue(y.texture_coordinate).g > 0.5f ||
         material->getSpecularValue(z.texture_coordinate).g > 0.5f;
 }
 
-__host__ __device__ glm::vec3 Triangle::getNormalAt(const glm::vec3& barycentric_coordinates) const
-{
-    return x.normal * barycentric_coordinates.x + y.normal * barycentric_coordinates.y + z.normal * barycentric_coordinates.z;
-}
-
-__host__ __device__ glm::vec3 Triangle::getNormalAt(float u, float v, float w) const
+__device__ glm::vec3 Triangle::getNormalAt(float u, float v, float w) const
 {
     return x.normal * u + y.normal * v + z.normal * w;
 }

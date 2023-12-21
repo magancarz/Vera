@@ -13,8 +13,9 @@ public:
     void start() const;
     static void stop();
 
-    void virtual bindAttributes() = 0;
-    void virtual getAllUniformLocations() = 0;
+    virtual void bindAttributes() = 0;
+
+    virtual void getAllUniformLocations() = 0;
 
 protected:
     void bindAttribute(unsigned int attribute, const char* variable_name) const;

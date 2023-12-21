@@ -11,6 +11,7 @@ class Material;
 class Shape {
 public:
     __device__ Shape(Object* parent, size_t id, Material* material);
+    __device__ ~Shape() = default;
 
 	__device__ virtual HitRecord checkRayIntersection(const Ray* r) const = 0;
 	__device__ virtual bool scatter(const Ray* r_in, const HitRecord* rec, ScatterRecord* scatter_record) = 0;
@@ -32,7 +33,6 @@ public:
 
     Object* parent{nullptr};
 	size_t id{0};
-
 
 	glm::mat4* object_to_world{nullptr};
 	glm::mat4* world_to_object{nullptr};

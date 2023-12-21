@@ -1,6 +1,5 @@
 target_sources(Vera-Lib PRIVATE
         Ray.h
-        ImageBlock.h
         RayTracedImage.cpp
         RayTracer.cu
         HybridRayTracer.cu

@@ -34,12 +34,6 @@ void Scene::notifyOnObjectMaterialChange(const Object* object)
     need_to_build_intersection_accelerator = true;
 }
 
-void Scene::addObject(const std::shared_ptr<Object>& scene_object)
-{
-    objects.push_back(scene_object);
-    need_to_build_intersection_accelerator = true;
-}
-
 void Scene::deleteObject(const Object* scene_object)
 {
     for (int i = 0; i < objects.size(); ++i)
@@ -118,18 +112,6 @@ void Scene::createObject(std::shared_ptr<RawModel> model)
     const auto new_object = std::make_shared<Object>(this, AssetManager::findMaterialAsset("white"), std::move(model), glm::vec3{0}, glm::vec3{0}, 1.f);
     new_object->createShapesForRayTracedMesh();
     objects.push_back(new_object);
-    need_to_build_intersection_accelerator = true;
-}
-
-void Scene::createObject(std::shared_ptr<RawModel> model, std::shared_ptr<MaterialAsset> material, glm::vec3 position, glm::vec3 rotation, float scale)
-{
-    const auto new_object = std::make_shared<Object>(this, std::move(material), std::move(model), position, rotation, scale);
-    new_object->createShapesForRayTracedMesh();
-    objects.push_back(new_object);
-    if (new_object->isEmittingSomeLight())
-    {
-        lights.push_back(new_object);
-    }
     need_to_build_intersection_accelerator = true;
 }
 
