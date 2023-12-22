@@ -10,7 +10,7 @@
 
 #include "RayTracerCamera.h"
 #include "Scene/Scene.h"
-#include "Objects/Camera.h"
+#include "renderEngine/Camera.h"
 #include "Utils/DeviceMemoryPointer.h"
 
 #include "ScatterRecord.h"

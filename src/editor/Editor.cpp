@@ -13,7 +13,7 @@
 #include "../RenderEngine/RayTracing/RayTracerConfig.h"
 #include "../RenderEngine/RayTracing/RayTracer.h"
 #include "../Scene/Scene.h"
-#include "../Objects/Camera.h"
+#include "renderEngine/Camera.h"
 #include "../Objects/Object.h"
 #include "../Utils/Timer.h"
 #include "../Input/Input.h"

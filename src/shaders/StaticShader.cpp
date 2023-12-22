@@ -5,7 +5,7 @@
 
 #include "Materials/Material.h"
 #include "Objects/Object.h"
-#include "Objects/Camera.h"
+#include "renderEngine/Camera.h"
 
 StaticShader::StaticShader()
     : ShaderProgram("res/shaders/vert.glsl", "res/shaders/frag.glsl") {}
@@ -17,13 +17,13 @@ void StaticShader::loadTransformationMatrix(const glm::mat4& matrix) const
 
 void StaticShader::loadProjectionMatrix(const std::shared_ptr<Camera>& camera) const
 {
-    const auto projection_matrix = camera->getProjectionMatrix();
+    const auto projection_matrix = camera->getPerspectiveProjectionMatrix();
     loadMatrix(location_projection_matrix, projection_matrix);
 }
 
 void StaticShader::loadViewMatrix(const std::shared_ptr<Camera>& camera) const
 {
-    const auto view = camera->getView();
+    const auto view = camera->getCameraViewMatrix();
     loadMatrix(location_view_matrix, view);
 }
 

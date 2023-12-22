@@ -57,6 +57,11 @@ void AssetManager::initializeAssets()
     };
     createMaterialAsset("transparent", transparent_material_parameters);
 
+    MaterialParameters mirror_material_parameters{
+            "white", "", "red", 0.f, 0.f, 1.5f
+    };
+    createMaterialAsset("mirror", mirror_material_parameters);
+
     MaterialParameters barrel_material_parameters{
         "barrel", "barrel_normal", "barrel_specular", 0.f, 1.f, 0.f
     };

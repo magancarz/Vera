@@ -3,7 +3,7 @@
 #include "RenderEngine/EntityRenderer.h"
 #include "../models/AssetManager.h"
 #include "Shaders/RayTracedImageShader.h"
-#include "Objects/Camera.h"
+#include "Camera.h"
 
 class MasterRenderer
 {

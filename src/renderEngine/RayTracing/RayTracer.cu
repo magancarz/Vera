@@ -9,7 +9,7 @@
 #include "RayTracerCamera.h"
 #include "Objects/Object.h"
 #include "Scene/Scene.h"
-#include "Objects/Camera.h"
+#include "renderEngine/Camera.h"
 #include "Utils/DeviceMemoryPointer.h"
 #include "IntersectionAccelerators/BVHTreeTraverser.h"
 
@@ -42,8 +42,8 @@ std::weak_ptr<Object> RayTracer::traceRayFromMouse(Scene* scene, const std::shar
     const RayTracerCamera ray_tracing_editor_camera
     {
         editor_camera->getPosition(),
-        editor_camera->getDirection(),
-        editor_camera->getWorldUpVector(),
+        editor_camera->getCameraFrontVector(),
+        editor_camera->getCameraUpVector(),
         editor_camera->getFieldOfView(),
         aspect,
     };
@@ -69,8 +69,8 @@ void RayTracer::generateRayTracedImage(Scene* scene, const std::shared_ptr<Camer
     const RayTracerCamera ray_tracing_editor_camera
     {
         editor_camera->getPosition(),
-        editor_camera->getDirection(),
-        editor_camera->getWorldUpVector(),
+        editor_camera->getCameraFrontVector(),
+        editor_camera->getCameraUpVector(),
         editor_camera->getFieldOfView(),
         aspect,
         current_image->image_config.aperture,
