@@ -5,10 +5,10 @@
 #include "Shaders/RayTracedImageShader.h"
 #include "Camera.h"
 
-class MasterRenderer
+class Renderer
 {
 public:
-    MasterRenderer();
+    Renderer();
 
     void render(const std::shared_ptr<Camera>& camera) const;
     void renderRayTracedImage(unsigned int texture_id) const;

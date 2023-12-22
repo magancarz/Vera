@@ -5,7 +5,7 @@
 #include <vector>
 
 #include "../GUI/GUI.h"
-#include "../RenderEngine/MasterRenderer.h"
+#include "../RenderEngine/Renderer.h"
 #include "Project/Project.h"
 #include "RenderEngine/RayTracing/RayTracer.h"
 
@@ -32,7 +32,6 @@ class Editor
 public:
     Editor();
 
-    void prepare();
     void run();
 
     void createSceneObject(const std::shared_ptr<RawModel>& model);
@@ -62,7 +61,7 @@ private:
     unsigned int getCurrentRayTracedTexture() const { return current_texture->texture.texture_id; }
 
     GUI gui_display;
-    MasterRenderer master_renderer;
+    Renderer master_renderer;
     std::shared_ptr<RayTracer> ray_tracer;
     std::shared_ptr<Camera> camera;
 

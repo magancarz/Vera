@@ -22,14 +22,12 @@
 
 Editor::Editor()
 {
+    Display::createDisplay();
+    Input::initializeInput();
     RayTracer::prepareCudaDevice();
-    ray_tracer = std::make_shared<HybridRayTracer>();
-}
-
-void Editor::prepare()
-{
     AssetManager::initializeAssets();
 
+    ray_tracer = std::make_shared<HybridRayTracer>();
     scene = std::make_shared<Scene>();
     camera = std::make_shared<Camera>(glm::vec3(0, 10, 7));
 

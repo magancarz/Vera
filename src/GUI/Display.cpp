@@ -88,6 +88,11 @@ void Display::scrollCallback(GLFWwindow* window, double x_offset, double y_offse
 
 void Display::createDisplay()
 {
+    if (!glfwInit())
+    {
+        throw std::runtime_error("Couldn't initialize GLFW!\n");
+    }
+
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
@@ -142,6 +147,9 @@ void Display::updateDisplay()
 
 void Display::closeDisplay()
 {
+    ImGui_ImplOpenGL3_Shutdown();
+    ImGui_ImplGlfw_Shutdown();
+    ImGui::DestroyContext();
     glfwTerminate();
 }
 

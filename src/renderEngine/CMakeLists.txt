@@ -1,5 +1,5 @@
 target_sources(Vera-Lib PRIVATE
-        MasterRenderer.cpp
+        Renderer.cpp
         EntityRenderer.cpp
         Camera.cpp)
 

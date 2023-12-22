@@ -2,7 +2,7 @@
 
 #include <GL/glew.h>
 
-#include "RenderEngine/MasterRenderer.h"
+#include "RenderEngine/Renderer.h"
 #include "Utils/AdditionalAlgorithms.h"
 #include "Objects/Object.h"
 #include "Materials/Material.h"

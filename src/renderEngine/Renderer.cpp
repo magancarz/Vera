@@ -1,8 +1,8 @@
-#include "MasterRenderer.h"
+#include "Renderer.h"
 
 #include "GUI/Display.h"
 
-MasterRenderer::MasterRenderer()
+Renderer::Renderer()
 {
     quad = AssetManager::loadRawModel(quad_positions, quad_textures);
     ray_traced_image_shader.start();
@@ -14,13 +14,13 @@ MasterRenderer::MasterRenderer()
     entity_renderer = std::make_unique<EntityRenderer>();
 }
 
-void MasterRenderer::render(const std::shared_ptr<Camera>& camera) const
+void Renderer::render(const std::shared_ptr<Camera>& camera) const
 {
     prepare();
     entity_renderer->render(entities_map, camera);
 }
 
-void MasterRenderer::renderRayTracedImage(unsigned texture_id) const
+void Renderer::renderRayTracedImage(unsigned texture_id) const
 {
     glBindVertexArray(quad.vao->vao_id);
     glEnableVertexAttribArray(0);
@@ -39,7 +39,7 @@ void MasterRenderer::renderRayTracedImage(unsigned texture_id) const
     glBindVertexArray(0);
 }
 
-void MasterRenderer::prepare()
+void Renderer::prepare()
 {
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_STENCIL_TEST);
@@ -48,7 +48,7 @@ void MasterRenderer::prepare()
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 }
 
-void MasterRenderer::processEntities(const std::vector<std::shared_ptr<Object>>& entities)
+void Renderer::processEntities(const std::vector<std::shared_ptr<Object>>& entities)
 {
     for (const auto& entity : entities)
     {
@@ -56,7 +56,7 @@ void MasterRenderer::processEntities(const std::vector<std::shared_ptr<Object>>&
     }
 }
 
-void MasterRenderer::processEntity(const std::shared_ptr<Object>& entity)
+void Renderer::processEntity(const std::shared_ptr<Object>& entity)
 {
     auto entity_model = entity->getModelData();
 
@@ -74,7 +74,7 @@ void MasterRenderer::processEntity(const std::shared_ptr<Object>& entity)
     }
 }
 
-void MasterRenderer::cleanUpObjectsMaps()
+void Renderer::cleanUpObjectsMaps()
 {
     entities_map.clear();
 }
