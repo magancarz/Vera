@@ -163,3 +163,11 @@ void Material::bindColorTexture() const
 {
     color_texture->bindTexture();
 }
+
+void Material::bindNormalMap() const
+{
+    if (has_normal_map)
+    {
+        normal_map_texture->bindTexture();
+    }
+}

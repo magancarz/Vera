@@ -13,9 +13,10 @@ class RayTracer
 {
 public:
     static void prepareCudaDevice();
+
     std::weak_ptr<Object> traceRayFromMouse(Scene* scene, const std::shared_ptr<Camera>& editor_camera, int x, int y);
     void generateRayTracedImage(Scene* scene, const std::shared_ptr<Camera>& editor_camera, const std::shared_ptr<RayTracedImage>& current_image);
-    virtual void runRayTracer(Scene* scene, const std::shared_ptr<RayTracedImage>& current_image, const dim3& blocks, const dim3& threads_per_block) = 0;
+    void runRayTracer(Scene* scene, const std::shared_ptr<RayTracedImage>& current_image, const dim3& blocks, const dim3& threads_per_block);
 
 protected:
     dmm::DeviceMemoryPointer<RayTracerCamera> cuda_camera;

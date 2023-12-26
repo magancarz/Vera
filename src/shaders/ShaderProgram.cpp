@@ -46,6 +46,11 @@ void ShaderProgram::loadInt(const int location, const int value)
     glUniform1i(location, value);
 }
 
+void ShaderProgram::loadFloat(int location, float value)
+{
+    glUniform1f(location, value);
+}
+
 void ShaderProgram::loadMatrix(const int location, const glm::mat4& matrix)
 {
     glUniformMatrix4fv(location, 1, GL_FALSE, value_ptr(matrix));
@@ -54,6 +59,11 @@ void ShaderProgram::loadMatrix(const int location, const glm::mat4& matrix)
 void ShaderProgram::loadVector3(const int location, const glm::vec3& vector)
 {
     glUniform3f(location, vector.x, vector.y, vector.z);
+}
+
+void ShaderProgram::loadVector4(int location, const glm::vec4& vector)
+{
+    glUniform4f(location, vector.x, vector.y, vector.z, vector.w);
 }
 
 void ShaderProgram::loadShaders(const std::string& vertex_file, const std::string& fragment_file)

@@ -4,7 +4,7 @@
 
 Renderer::Renderer()
 {
-    quad = AssetManager::loadRawModel(quad_positions, quad_textures);
+    quad = AssetManager::loadSimpleModel(quad_positions, quad_textures);
     ray_traced_image_shader.start();
     ray_traced_image_shader.bindAttributes();
     ray_traced_image_shader.getAllUniformLocations();
@@ -14,10 +14,12 @@ Renderer::Renderer()
     entity_renderer = std::make_unique<EntityRenderer>();
 }
 
-void Renderer::render(const std::shared_ptr<Camera>& camera) const
+void Renderer::renderScene(const std::shared_ptr<Camera>& camera, const std::vector<std::shared_ptr<Object>>& entities)
 {
     prepare();
+    processEntities(entities);
     entity_renderer->render(entities_map, camera);
+    cleanUpObjectsMaps();
 }
 
 void Renderer::renderRayTracedImage(unsigned texture_id) const

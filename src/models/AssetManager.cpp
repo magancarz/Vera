@@ -104,18 +104,14 @@ RawModelAttributes AssetManager::loadModel(const ModelData& model_data)
     const std::shared_ptr<utils::VAO> vao = createVao();
     std::shared_ptr<utils::VBO> indices_vbo = bindIndicesBuffer(model_data.indices.data(), model_data.indices.size());
     std::shared_ptr<utils::VBO> positions_vbo = storeDataInAttributeList(0, 3, model_data.positions.data(), model_data.positions.size());
-    std::shared_ptr<utils::VBO> texture_coords_vbo = storeDataInAttributeList(
-        1, 2, model_data.texture_coords.data(), model_data.texture_coords.size());
+    std::shared_ptr<utils::VBO> texture_coords_vbo = storeDataInAttributeList(1, 2, model_data.texture_coords.data(), model_data.texture_coords.size());
     std::shared_ptr<utils::VBO> normals_vbo = storeDataInAttributeList(2, 3, model_data.normals.data(), model_data.normals.size());
     unbindVao();
 
-    return
-    {
-        vao, {indices_vbo, positions_vbo, texture_coords_vbo, normals_vbo}, static_cast<unsigned int>(model_data.indices.size())
-    };
+    return {vao, {indices_vbo, positions_vbo, texture_coords_vbo, normals_vbo}, static_cast<unsigned int>(model_data.indices.size())};
 }
 
-RawModelAttributes AssetManager::loadRawModel(
+RawModelAttributes AssetManager::loadSimpleModel(
     const std::vector<float>& positions,
     const std::vector<float>& texture_coords)
 {
@@ -126,17 +122,6 @@ RawModelAttributes AssetManager::loadRawModel(
     unbindVao();
 
     return {vao, {positions_vbo, texture_coords_vbo}, static_cast<unsigned int>(positions.size())};
-}
-
-std::shared_ptr<TextureData> AssetManager::loadImageFromFile(const std::string& file_name)
-{
-    const std::string file = locations::textures_folder_location + file_name + locations::image_extension;
-    int width, height, format;
-    unsigned char* image = stbi_load(file.c_str(), &width, &height, &format, STBI_rgb_alpha);
-    if (image == nullptr)
-        std::cout << "Failed to load " + file_name + " image!\n";
-
-    return std::make_shared<TextureData>(image, width, height);
 }
 
 std::shared_ptr<utils::Texture> AssetManager::loadTexture(const std::string& file_name, const float lod_value)
@@ -181,6 +166,17 @@ std::shared_ptr<utils::Texture> AssetManager::loadTexture(const std::string& fil
     stbi_image_free(data->texture_data);
 
     return texture;
+}
+
+std::shared_ptr<TextureData> AssetManager::loadImageFromFile(const std::string& file_name)
+{
+    const std::string file = locations::textures_folder_location + file_name + locations::image_extension;
+    int width, height, format;
+    unsigned char* image = stbi_load(file.c_str(), &width, &height, &format, STBI_rgb_alpha);
+    if (image == nullptr)
+        std::cout << "Failed to load " + file_name + " image!\n";
+
+    return std::make_shared<TextureData>(image, width, height);
 }
 
 std::shared_ptr<utils::Texture> AssetManager::loadTexture(const std::string& file_name)

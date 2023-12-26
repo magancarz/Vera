@@ -42,7 +42,7 @@ public:
     static std::shared_ptr<MaterialAsset> createMaterialAsset(const std::string& name, const MaterialParameters& material_parameters = {});
     static std::shared_ptr<RawModel> loadModelFromOBJFileFormat(const std::string& file_name);
 
-    static RawModelAttributes loadRawModel(
+    static RawModelAttributes loadSimpleModel(
         const std::vector<float>& positions,
         const std::vector<float>& texture_coords);
 

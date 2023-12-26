@@ -62,14 +62,14 @@ private:
 
     GUI gui_display;
     Renderer master_renderer;
-    std::shared_ptr<RayTracer> ray_tracer;
+    RayTracer ray_tracer;
     std::shared_ptr<Camera> camera;
 
     std::shared_ptr<Scene> scene;
     std::vector<Object*> outlined_objects;
     ProjectInfo current_project_info;
 
-    std::vector<RayTracerConfig>* ray_traced_images_queue;
+    std::vector<RayTracerConfig>* ray_traced_images_queue{nullptr};
     std::shared_ptr<RayTracedImage> current_texture;
 
     bool toggle_live_ray_tracing = false;

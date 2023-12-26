@@ -11,6 +11,7 @@
 #include <iostream>
 
 #include "GUI/Display.h"
+#include "helper_cuda.h"
 
 RayTracedImage::RayTracedImage(const RayTracerConfig& config)
     : name(config.image_name),
@@ -41,7 +42,9 @@ RayTracedImage::RayTracedImage(const RayTracedImage& other)
 RayTracedImage::~RayTracedImage()
 {
     cudaGraphicsUnmapResources(1, &cuda_texture_resource, nullptr);
+    checkCudaErrors(cudaGetLastError());
     cudaGraphicsUnregisterResource(cuda_texture_resource);
+    checkCudaErrors(cudaGetLastError());
 }
 
 void RayTracedImage::clearImage()
@@ -55,6 +58,7 @@ void RayTracedImage::saveImageToFile(const std::string& path)
     const std::string temp_path = path + ".png";
     std::vector<unsigned char> texture_data(image_config.image_width * image_config.image_height * COLOR_CHANNELS);
     cudaMemcpy(texture_data.data(), texture_data_ptr, image_config.image_width * image_config.image_height * COLOR_CHANNELS, cudaMemcpyDeviceToHost);
+    checkCudaErrors(cudaGetLastError());
     stbi_write_png(
         temp_path.c_str(),
         image_config.image_width,
@@ -81,7 +85,10 @@ void RayTracedImage::createTexture(int width, int height)
     glBindBuffer(GL_PIXEL_UNPACK_BUFFER, buffer.vbo_id);
     glBufferData(GL_PIXEL_UNPACK_BUFFER, width * height * COLOR_CHANNELS, nullptr, GL_DYNAMIC_COPY);
     cudaGraphicsGLRegisterBuffer(&cuda_texture_resource, buffer.vbo_id, cudaGraphicsMapFlagsWriteDiscard);
+    checkCudaErrors(cudaGetLastError());
 
     cudaGraphicsMapResources(1, &cuda_texture_resource, nullptr);
+    checkCudaErrors(cudaGetLastError());
     cudaGraphicsResourceGetMappedPointer((void**)&texture_data_ptr, &num_bytes, cuda_texture_resource);
+    checkCudaErrors(cudaGetLastError());
 }

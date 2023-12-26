@@ -5,4 +5,5 @@ oi object2 plane red -10 5 0 0 0 -90 10
 oi object3 plane green 10 5 0 0 0 90 10
 oi object4 plane white 0 5 -10 90 0 0 10
 oi object5 plane white 0 5 10 -90 0 0 10
-oi object7 plane light 0 14.999 0 0 0 0 3
+oi object6 plane light 0 14.999 0 0 0 0 3
+oi object7 teapot white 0 0 0 0 0 0 1

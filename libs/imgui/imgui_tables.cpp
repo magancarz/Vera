@@ -1177,7 +1177,7 @@ void ImGui::TableUpdateBorders(ImGuiTable* table)
     // At this point OuterRect height may be zero or under actual final height, so we rely on temporal coherency and
     // use the final height from last frame. Because this is only affecting _interaction_ with columns, it is not
     // really problematic (whereas the actual visual will be displayed in EndTable() and using the current frame height).
-    // Actual columns highlight/render will be performed in EndTable() and not be affected.
+    // Actual columns highlight/renderScene will be performed in EndTable() and not be affected.
     ImGuiTableInstanceData* table_instance = TableGetInstanceData(table, table->InstanceCurrent);
     const float hit_half_width = TABLE_RESIZE_SEPARATOR_HALF_THICKNESS;
     const float hit_y1 = table->OuterRect.Min.y;
@@ -1850,7 +1850,7 @@ void ImGui::TableEndRow(ImGuiTable* table)
             ImGuiTableCellData* cell_data_end = &table->RowCellData[table->RowCellDataCurrent];
             for (ImGuiTableCellData* cell_data = &table->RowCellData[0]; cell_data <= cell_data_end; cell_data++)
             {
-                // As we render the BG here we need to clip things (for layout we would not)
+                // As we renderScene the BG here we need to clip things (for layout we would not)
                 // FIXME: This cancels the OuterPadding addition done by TableGetCellBgRect(), need to keep it while renderEngine correctly while scrolling.
                 const ImGuiTableColumn* column = &table->Columns[cell_data->Column];
                 ImRect cell_bg_rect = TableGetCellBgRect(table, cell_data->Column);
@@ -2260,7 +2260,7 @@ void ImGui::TableUpdateColumnsWeightFromWidth(ImGuiTable* table)
 // - TableDrawBorders() [Internal]
 //-------------------------------------------------------------------------
 
-// Bg2 is used by Selectable (and possibly other widgets) to render to the background.
+// Bg2 is used by Selectable (and possibly other widgets) to renderScene to the background.
 // Unlike our Bg0/1 channel which we uses for RowBg/CellBg/Borders and where we guarantee all shapes to be CPU-clipped, the Bg2 channel being widgets-facing will rely on regular ClipRect.
 void ImGui::TablePushBackgroundChannel()
 {
@@ -2540,7 +2540,7 @@ void ImGui::TableMergeDrawChannels(ImGuiTable* table)
     }
 }
 
-// FIXME-TABLE: This is a mess, need to redesign how we render borders (as some are also done in TableEndRow)
+// FIXME-TABLE: This is a mess, need to redesign how we renderScene borders (as some are also done in TableEndRow)
 void ImGui::TableDrawBorders(ImGuiTable* table)
 {
     ImGuiWindow* inner_window = table->InnerWindow;

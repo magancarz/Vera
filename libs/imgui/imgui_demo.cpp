@@ -501,7 +501,7 @@ void ImGui::ShowDemoWindow(bool* p_open)
             ImGui::Checkbox("io.ConfigInputTrickleEventQueue", &io.ConfigInputTrickleEventQueue);
             ImGui::SameLine(); HelpMarker("Enable input queue trickling: some types of events submitted during the same frame (e.g. button down + up) will be spread over multiple frames, improving interactions with low framerates.");
             ImGui::Checkbox("io.MouseDrawCursor", &io.MouseDrawCursor);
-            ImGui::SameLine(); HelpMarker("Instruct Dear ImGui to render a mouse cursor itself. Note that a mouse cursor rendered via your application GPU renderEngine path will feel more laggy than hardware cursor, but will be more in sync with your other visuals.\n\nSome desktop applications may use both kinds of cursors (e.g. enable software cursor only when resizing/dragging something).");
+            ImGui::SameLine(); HelpMarker("Instruct Dear ImGui to renderScene a mouse cursor itself. Note that a mouse cursor rendered via your application GPU renderEngine path will feel more laggy than hardware cursor, but will be more in sync with your other visuals.\n\nSome desktop applications may use both kinds of cursors (e.g. enable software cursor only when resizing/dragging something).");
 
             ImGui::SeparatorText("Widgets");
             ImGui::Checkbox("io.ConfigInputTextCursorBlink", &io.ConfigInputTextCursorBlink);
@@ -5896,7 +5896,7 @@ static void ShowDemoWindowInputs()
 
             ImGui::Text("Hover to see mouse cursors:");
             ImGui::SameLine(); HelpMarker(
-                "Your application can render a different mouse cursor based on what ImGui::GetMouseCursor() returns. "
+                "Your application can renderScene a different mouse cursor based on what ImGui::GetMouseCursor() returns. "
                 "If software cursor renderEngine (io.MouseDrawCursor) is set ImGui will draw the right cursor for you, "
                 "otherwise your backend needs to handle it.");
             for (int i = 0; i < ImGuiMouseCursor_COUNT; i++)
@@ -6416,7 +6416,7 @@ void ImGui::ShowStyleEditor(ImGuiStyle* ref)
 
             ImGui::Checkbox("Anti-aliased lines use texture", &style.AntiAliasedLinesUseTex);
             ImGui::SameLine();
-            HelpMarker("Faster lines using texture data. Require backend to render with bilinear filtering (not point/nearest filtering).");
+            HelpMarker("Faster lines using texture data. Require backend to renderScene with bilinear filtering (not point/nearest filtering).");
 
             ImGui::Checkbox("Anti-aliased fill", &style.AntiAliasedFill);
             ImGui::PushItemWidth(ImGui::GetFontSize() * 8);
@@ -7908,8 +7908,8 @@ void ShowExampleAppDockSpace(bool* p_open)
         dockspace_flags &= ~ImGuiDockNodeFlags_PassthruCentralNode;
     }
 
-    // When using ImGuiDockNodeFlags_PassthruCentralNode, DockSpace() will render our background
-    // and handle the pass-thru hole, so we ask Begin() to not render a background.
+    // When using ImGuiDockNodeFlags_PassthruCentralNode, DockSpace() will renderScene our background
+    // and handle the pass-thru hole, so we ask Begin() to not renderScene a background.
     if (dockspace_flags & ImGuiDockNodeFlags_PassthruCentralNode)
         window_flags |= ImGuiWindowFlags_NoBackground;
 

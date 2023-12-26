@@ -2,12 +2,13 @@
 
 #include "editor/Project/Project.h"
 #include "Models/AssetManager.h"
-#include "Objects/ConstantMedia.h"
-#include "RenderEngine/RayTracing/PDF/HittablePDF.h"
 #include "Objects/Object.h"
-#include "Objects/ConstantMedia.h"
 #include "Objects/ShapesCollector.h"
+#include "Objects/Lights/Light.h"
+#include "Materials/MaterialAsset.h"
+#include "Materials/Material.h"
 #include "RenderEngine/RayTracing/IntersectionAccelerators/BVHTreeBuilder.h"
+#include "Objects/Lights/PointLight.h"
 
 void Scene::notifyOnObjectChange()
 {
@@ -93,15 +94,21 @@ void Scene::loadSceneFromProject(const ProjectInfo& project_info)
     {
         auto material = AssetManager::findMaterialAsset(object_info.material_name);
         auto model = AssetManager::findModelAsset(object_info.model_name);
-        
-		auto object = std::make_shared<Object>(this, material, model, object_info.position, object_info.rotation, object_info.scale);
-        object->createShapesForRayTracedMesh();
-		objects.push_back(object);
 
-        if (object->isEmittingSomeLight())
+        std::shared_ptr<Object> object;
+        if (material->cuda_material->isEmittingLight())
         {
+            object = std::make_shared<PointLight>(this, material, model, object_info.position, object_info.rotation, object_info.scale,
+              glm::vec3{1, 1, 1}, glm::vec3{1, 0.01, 0.0001});
             lights.push_back(object);
         }
+        else
+        {
+    		object = std::make_shared<Object>(this, material, model, object_info.position, object_info.rotation, object_info.scale);
+        }
+
+        object->createShapesForRayTracedMesh();
+		objects.push_back(object);
     }
 
     need_to_build_intersection_accelerator = true;

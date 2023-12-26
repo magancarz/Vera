@@ -33,6 +33,8 @@ private:
 
     inline static constexpr int MAX_LIGHTS = 4;
     int location_light_position[MAX_LIGHTS];
+    int location_light_direction[MAX_LIGHTS];
     int location_light_color[MAX_LIGHTS];
     int location_attenuation[MAX_LIGHTS];
+    int location_cutoff_angle[MAX_LIGHTS];
 };

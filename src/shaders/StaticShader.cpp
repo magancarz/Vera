@@ -6,6 +6,7 @@
 #include "Materials/Material.h"
 #include "Objects/Object.h"
 #include "renderEngine/Camera.h"
+#include "Objects/Lights/Light.h"
 
 StaticShader::StaticShader()
     : ShaderProgram("res/shaders/vert.glsl", "res/shaders/frag.glsl") {}
@@ -49,8 +50,11 @@ void StaticShader::getAllUniformLocations()
 
     for (const int i : std::views::iota(0, MAX_LIGHTS))
     {
-        location_light_position[i] = getUniformLocation("light_position[" + std::to_string(i) + "]");
-        location_light_color[i] = getUniformLocation("light_color[" + std::to_string(i) + "]");
+        location_light_position[i] = getUniformLocation("lights[" + std::to_string(i) + "].light_position");
+        location_light_direction[i] = getUniformLocation("lights[" + std::to_string(i) + "].light_direction");
+        location_light_color[i] = getUniformLocation("lights[" + std::to_string(i) + "].light_color");
+        location_attenuation[i] = getUniformLocation("lights[" + std::to_string(i) + "].attenuation");
+        location_cutoff_angle[i] = getUniformLocation("lights[" + std::to_string(i) + "].cutoff_angle");
     }
 }
 
@@ -61,10 +65,13 @@ void StaticShader::loadLights(const std::map<std::shared_ptr<RawModel>, std::vec
     {
         for (const auto& object : objects)
         {
-            if (object->isEmittingSomeLight())
+            if (auto object_as_light = dynamic_cast<Light*>(object.get()))
             {
-                loadVector3(location_light_position[loaded_lights], object->getPosition());
-                loadVector3(location_light_color[loaded_lights], object->getMaterial()->getColor({0.5, 0.5}));
+                loadVector3(location_light_position[loaded_lights], object_as_light->getPosition());
+                loadVector4(location_light_direction[loaded_lights], object_as_light->getLightDirection());
+                loadVector3(location_light_color[loaded_lights], object_as_light->getLightColor());
+                loadVector3(location_attenuation[loaded_lights], object_as_light->getAttenuation());
+                loadFloat(location_cutoff_angle[loaded_lights], object_as_light->getCutoffAngle());
 
                 if (++loaded_lights >= MAX_LIGHTS)
                 {
@@ -75,9 +82,12 @@ void StaticShader::loadLights(const std::map<std::shared_ptr<RawModel>, std::vec
         }
     }
 
-    for (int i = loaded_lights; i < MAX_LIGHTS; ++i)
+    for (size_t i = loaded_lights; i < MAX_LIGHTS; ++i)
     {
         loadVector3(location_light_position[loaded_lights], glm::vec3(0));
+        loadVector4(location_light_direction[loaded_lights], glm::vec4{0, 0, 0, 1});
         loadVector3(location_light_color[loaded_lights], glm::vec3(0));
+        loadVector3(location_attenuation[loaded_lights], {0, 0, 0});
+        loadFloat(location_cutoff_angle[loaded_lights], 0);
     }
 }

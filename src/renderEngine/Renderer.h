@@ -10,17 +10,15 @@ class Renderer
 public:
     Renderer();
 
-    void render(const std::shared_ptr<Camera>& camera) const;
+    void renderScene(const std::shared_ptr<Camera>& camera, const std::vector<std::shared_ptr<Object>>& entities);
     void renderRayTracedImage(unsigned int texture_id) const;
 
+private:
     static void prepare();
-
-    void processEntity(const std::shared_ptr<Object>& entity);
     void processEntities(const std::vector<std::shared_ptr<Object>>& entities);
-
+    void processEntity(const std::shared_ptr<Object>& entity);
     void cleanUpObjectsMaps();
 
-private:
     std::unique_ptr<EntityRenderer> entity_renderer;
     RayTracedImageShader ray_traced_image_shader;
     std::map<std::shared_ptr<RawModel>, std::vector<std::shared_ptr<Object>>> entities_map;

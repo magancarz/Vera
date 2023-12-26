@@ -26,6 +26,7 @@ public:
     __host__ __device__ bool hasNormalMap() const { return has_normal_map; }
 
     void bindColorTexture() const;
+    void bindNormalMap() const;
 
     bool isEmittingLight() const { return brightness > 0.f; }
 

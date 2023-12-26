@@ -57,8 +57,7 @@ void EntityRenderer::render(
                 glStencilMask(0x00);
             }
             static_shader.start();
-            glDrawElements(GL_TRIANGLES, static_cast<int>(raw_model->vertex_count), GL_UNSIGNED_INT,
-                           nullptr);
+            glDrawElements(GL_TRIANGLES, static_cast<int>(raw_model->vertex_count), GL_UNSIGNED_INT, nullptr);
             ShaderProgram::stop();
 
             if (entity->shouldBeOutlined())
@@ -66,8 +65,7 @@ void EntityRenderer::render(
                 glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
                 glStencilMask(0x00);
                 outline_shader.start();
-                glDrawElements(GL_TRIANGLES, static_cast<int>(raw_model->vertex_count), GL_UNSIGNED_INT,
-                               nullptr);
+                glDrawElements(GL_TRIANGLES, static_cast<int>(raw_model->vertex_count), GL_UNSIGNED_INT, nullptr);
                 glStencilFunc(GL_ALWAYS, 1, 0x00);
                 glStencilMask(0xFF);
                 ShaderProgram::stop();
@@ -110,6 +108,12 @@ void EntityRenderer::prepareInstance(const std::shared_ptr<Object>& entity) cons
     static_shader.loadTransformationMatrix(transformation_matrix);
     glActiveTexture(GL_TEXTURE0);
     entity->getMaterial()->bindColorTexture();
+    if (entity->getMaterial()->hasNormalMap())
+    {
+        glActiveTexture(GL_TEXTURE1);
+        entity->getMaterial()->bindNormalMap();
+    }
+
     ShaderProgram::stop();
 
     if (entity->shouldBeOutlined())
