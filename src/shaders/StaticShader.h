@@ -18,6 +18,7 @@ public:
     void loadTransformationMatrix(const glm::mat4& matrix) const;
     void loadProjectionMatrix(const std::shared_ptr<Camera>& camera) const;
     void loadViewMatrix(const std::shared_ptr<Camera>& camera) const;
+    void loadReflectivity(float reflectivity) const;
     void connectTextureUnits() const;
 
     void bindAttributes() override;
@@ -37,4 +38,7 @@ private:
     int location_light_color[MAX_LIGHTS];
     int location_attenuation[MAX_LIGHTS];
     int location_cutoff_angle[MAX_LIGHTS];
+    int location_cutoff_angle_offset[MAX_LIGHTS];
+
+    int location_reflectivity;
 };

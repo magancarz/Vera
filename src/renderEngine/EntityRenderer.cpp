@@ -106,6 +106,7 @@ void EntityRenderer::prepareInstance(const std::shared_ptr<Object>& entity) cons
 
     static_shader.start();
     static_shader.loadTransformationMatrix(transformation_matrix);
+    static_shader.loadReflectivity(1.f - entity->getMaterial()->getFuzziness());
     glActiveTexture(GL_TEXTURE0);
     entity->getMaterial()->bindColorTexture();
     if (entity->getMaterial()->hasNormalMap())

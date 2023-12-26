@@ -28,27 +28,27 @@ void AssetManager::initializeAssets()
     loadModelAsset("bunny");
 
     MaterialParameters white_material_parameters{
-        "white", "", "", 0.f, 0.f, 0.f
+        "white"
     };
     createMaterialAsset("white", white_material_parameters);
 
     MaterialParameters red_material_parameters{
-        "red", "", "", 0.f, 0.f, 0.f
+        "red"
     };
     createMaterialAsset("red", red_material_parameters);
 
     MaterialParameters green_material_parameters{
-        "green", "", "", 0.f, 0.f, 0.f
+        "green"
     };
     createMaterialAsset("green", green_material_parameters);
 
     MaterialParameters blue_material_parameters{
-        "blue", "", "", 0.f, 0.f, 0.f
+        "blue"
     };
     createMaterialAsset("blue", blue_material_parameters);
 
     MaterialParameters light_material_parameters{
-        "white", "", "specular", 15.f, 0.f, 0.f
+        "white", "", "specular", 15.f
     };
     createMaterialAsset("light", light_material_parameters);
 
@@ -58,7 +58,7 @@ void AssetManager::initializeAssets()
     createMaterialAsset("transparent", transparent_material_parameters);
 
     MaterialParameters mirror_material_parameters{
-            "white", "", "red", 0.f, 0.f, 1.5f
+            "white", "", "red", 0.f, 0.f, 0.f
     };
     createMaterialAsset("mirror", mirror_material_parameters);
 

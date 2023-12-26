@@ -4,11 +4,13 @@
 #include "Models/AssetManager.h"
 #include "Objects/Object.h"
 #include "Objects/ShapesCollector.h"
-#include "Objects/Lights/Light.h"
 #include "Materials/MaterialAsset.h"
 #include "Materials/Material.h"
 #include "RenderEngine/RayTracing/IntersectionAccelerators/BVHTreeBuilder.h"
+#include "Objects/Lights/Light.h"
 #include "Objects/Lights/PointLight.h"
+#include "Objects/Lights/DirectionalLight.h"
+#include "Objects/Lights/Spotlight.h"
 
 void Scene::notifyOnObjectChange()
 {

@@ -36,6 +36,16 @@ void Light::setCutoffAngle(float in_cutoff_angle_cosine)
     cutoff_angle_cosine = in_cutoff_angle_cosine;
 }
 
+float Light::getCutoffAngleOffset() const
+{
+    return cutoff_angle_offset_cosine;
+}
+
+void Light::setCutoffAngleOffset(float in_cutoff_angle_offset_cosine)
+{
+    cutoff_angle_offset_cosine = in_cutoff_angle_offset_cosine;
+}
+
 glm::vec3 Light::getAttenuation() const
 {
     return attenuation;

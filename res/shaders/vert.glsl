@@ -7,6 +7,7 @@ in vec3 normal;
 out vec4 world_position;
 out vec2 pass_texture_coords;
 out vec3 surface_normal;
+out vec3 to_camera_vector;
 
 uniform mat4 model;
 uniform mat4 view;
@@ -20,4 +21,5 @@ void main(void) {
 	pass_texture_coords = texture_coords;
 
 	surface_normal = normalize((model * vec4(normal, 0.0)).xyz);
+	to_camera_vector = (inverse(view) * vec4(0, 0, 0, 1)).xyz - world_position.xyz;
 }
