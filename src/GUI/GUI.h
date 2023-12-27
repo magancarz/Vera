@@ -22,6 +22,7 @@ public:
     static bool drawInputFieldForFloat(float* value, const std::string& name, float field_size = INPUT_FIELD_SIZE / 3);
     static std::optional<glm::vec3> drawInputFieldForVector3(glm::vec3& vector, const std::string& name, float field_size = INPUT_FIELD_SIZE);
     static std::optional<glm::vec4> drawInputFieldForVector4(glm::vec4& vector, const std::string& name, float field_size = INPUT_FIELD_SIZE);
+    static std::optional<glm::vec3> drawColorPicker(glm::vec3& color, const std::string& name);
 
     inline static constexpr float INPUT_FIELD_SIZE = 18.f;
 

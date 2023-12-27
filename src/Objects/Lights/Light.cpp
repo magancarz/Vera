@@ -39,7 +39,7 @@ void Light::renderObjectInformationGUI()
         setPosition(position_value.value());
     }
 
-    auto light_color_value = GUI::drawInputFieldForVector3(light_color, "Light Color");
+    auto light_color_value = GUI::drawColorPicker(light_color, "Light Color");
     if (light_color_value.has_value())
     {
         setLightColor(light_color_value.value());

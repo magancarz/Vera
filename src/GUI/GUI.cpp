@@ -72,10 +72,10 @@ std::optional<glm::vec4> GUI::drawInputFieldForVector4(glm::vec4& vector, const 
 {
     float fvector[] =
     {
-            vector.x,
-            vector.y,
-            vector.z,
-            vector.w
+        vector.x,
+        vector.y,
+        vector.z,
+        vector.w
     };
     ImGui::Text("%s", name.c_str());
     ImGui::SetNextItemWidth(ImGui::GetFontSize() * field_size);
@@ -86,6 +86,26 @@ std::optional<glm::vec4> GUI::drawInputFieldForVector4(glm::vec4& vector, const 
     if (ImGui::IsItemEdited())
     {
         out = {fvector[0], fvector[1], fvector[2], fvector[3]};
+    }
+    return out;
+}
+
+std::optional<glm::vec3> GUI::drawColorPicker(glm::vec3& color, const std::string& name)
+{
+    float fvector[] =
+    {
+        color.x,
+        color.y,
+        color.z
+    };
+    ImGui::Text("%s", name.c_str());
+    std::string id = "##" + name;
+    ImGui::ColorEdit3(id.c_str(), fvector);
+
+    std::optional<glm::vec3> out;
+    if (ImGui::IsItemEdited())
+    {
+        out = {fvector[0], fvector[1], fvector[2]};
     }
     return out;
 }
