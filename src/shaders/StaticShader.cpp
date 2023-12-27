@@ -66,28 +66,22 @@ void StaticShader::getAllUniformLocations()
     location_reflectivity = getUniformLocation("reflectivity");
 }
 
-void StaticShader::loadLights(const std::map<std::shared_ptr<RawModel>, std::vector<std::shared_ptr<Object>>>& entity_map) const
+void StaticShader::loadLights(const std::vector<std::shared_ptr<Light>>& lights) const
 {
     size_t loaded_lights = 0;
-    for (const auto& [model, objects] : entity_map)
+    for (const auto& light : lights)
     {
-        for (const auto& object : objects)
-        {
-            if (auto object_as_light = dynamic_cast<Light*>(object.get()))
-            {
-                loadVector3(location_light_position[loaded_lights], object_as_light->getPosition());
-                loadVector4(location_light_direction[loaded_lights], object_as_light->getLightDirection());
-                loadVector3(location_light_color[loaded_lights], object_as_light->getLightColor());
-                loadVector3(location_attenuation[loaded_lights], object_as_light->getAttenuation());
-                loadFloat(location_cutoff_angle[loaded_lights], object_as_light->getCutoffAngle());
-                loadFloat(location_cutoff_angle_offset[loaded_lights], object_as_light->getCutoffAngleOffset());
+        loadVector3(location_light_position[loaded_lights], light->getPosition());
+        loadVector4(location_light_direction[loaded_lights], light->getLightDirection());
+        loadVector3(location_light_color[loaded_lights], light->getLightColor());
+        loadVector3(location_attenuation[loaded_lights], light->getAttenuation());
+        loadFloat(location_cutoff_angle[loaded_lights], light->getCutoffAngle());
+        loadFloat(location_cutoff_angle_offset[loaded_lights], light->getCutoffAngleOffset());
 
-                if (++loaded_lights >= MAX_LIGHTS)
-                {
-                    std::cerr << "Number of lights in the scene is larger than capable value: " << MAX_LIGHTS << ".\n";
-                    return;
-                }
-            }
+        if (++loaded_lights >= MAX_LIGHTS)
+        {
+            std::cerr << "Number of lights in the scene is larger than capable value: " << MAX_LIGHTS << ".\n";
+            return;
         }
     }
 

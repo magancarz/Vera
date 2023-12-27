@@ -19,7 +19,7 @@ Editor::Editor()
     scene = std::make_shared<Scene>();
     camera = std::make_shared<Camera>(glm::vec3(0, 10, 7));
 
-    loadProject("example");
+    loadProject("example_project");
 }
 
 void Editor::run()
@@ -83,7 +83,7 @@ void Editor::renderScene()
         return;
     }
 
-    master_renderer.renderScene(camera, scene->objects);
+    master_renderer.renderScene(camera, scene->lights, scene->triangle_meshes);
 }
 
 EditorInfo Editor::prepareEditorInfo()

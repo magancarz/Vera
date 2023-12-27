@@ -1,10 +1,20 @@
 #include "Light.h"
 
-Light::Light(Scene* parent_scene, std::shared_ptr<MaterialAsset> material, std::shared_ptr<RawModel> model_data,
-        const glm::vec3& position, const glm::vec3& rotation, float scale, const glm::vec4& light_direction,
-        const glm::vec3& light_color, const glm::vec3& attenuation, float cutoff_angle_cosine)
-    : Object(parent_scene, std::move(material), std::move(model_data), position, rotation, scale),
-      light_direction(light_direction), light_color(light_color), attenuation(attenuation), cutoff_angle_cosine(cutoff_angle_cosine) {}
+Light::Light(Scene* parent_scene,
+        const glm::vec3& position, const glm::vec4& light_direction,
+        const glm::vec3& light_color, const glm::vec3& attenuation, float cutoff_angle_cosine, float cutoff_angle_outer_cosine)
+    : Object(parent_scene, position), light_direction(light_direction), light_color(light_color), attenuation(attenuation),
+    cutoff_angle_cosine(cutoff_angle_cosine), cutoff_angle_offset_cosine(cutoff_angle_outer_cosine) {}
+
+std::string Light::getObjectInfo()
+{
+    return Algorithms::vec3ToString(position) + " " + Algorithms::vec3ToString(light_color);
+}
+
+void Light::renderObjectInformationGUI()
+{
+
+}
 
 glm::vec4 Light::getLightDirection() const
 {
@@ -54,4 +64,9 @@ glm::vec3 Light::getAttenuation() const
 void Light::setAttenuation(const glm::vec3& in_attenuation)
 {
     attenuation = in_attenuation;
+}
+
+bool Light::shouldBeOutlined() const
+{
+    return false;
 }

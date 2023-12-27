@@ -9,7 +9,7 @@ struct ObjectInfo;
 struct ProjectInfo
 {
 	std::string project_name;
-	std::vector<ObjectInfo> objects_infos;
+	std::vector<std::string> objects_infos;
 };
 
 class ProjectUtils

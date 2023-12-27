@@ -3,9 +3,11 @@
 #include <GL/glew.h>
 
 #include "RenderEngine/Renderer.h"
-#include "Utils/AdditionalAlgorithms.h"
+#include "Utils/Algorithms.h"
 #include "Objects/Object.h"
+#include "Objects/TriangleMesh.h"
 #include "Materials/Material.h"
+#include "Objects/Lights/Light.h"
 
 EntityRenderer::EntityRenderer()
 {
@@ -23,11 +25,12 @@ EntityRenderer::EntityRenderer()
 }
 
 void EntityRenderer::render(
-    const std::map<std::shared_ptr<RawModel>, std::vector<std::shared_ptr<Object>>>& entity_map,
+    const std::map<std::shared_ptr<RawModel>, std::vector<std::shared_ptr<TriangleMesh>>>& entity_map,
+    const std::vector<std::shared_ptr<Light>>& lights,
     const std::shared_ptr<Camera>& camera) const
 {
     static_shader.start();
-    static_shader.loadLights(entity_map);
+    static_shader.loadLights(lights);
     static_shader.loadViewMatrix(camera);
     static_shader.loadProjectionMatrix(camera);
     ShaderProgram::stop();
@@ -92,10 +95,10 @@ void EntityRenderer::unbindTexturedModel()
     glBindVertexArray(0);
 }
 
-void EntityRenderer::prepareInstance(const std::shared_ptr<Object>& entity) const
+void EntityRenderer::prepareInstance(const std::shared_ptr<TriangleMesh>& entity) const
 {
     const auto entity_rotation = entity->getRotation();
-    const auto transformation_matrix = AdditionalAlgorithms::createTransformationMatrix
+    const auto transformation_matrix = Algorithms::createTransformationMatrix
     (
         entity->getPosition(),
         entity_rotation.x,
@@ -119,7 +122,7 @@ void EntityRenderer::prepareInstance(const std::shared_ptr<Object>& entity) cons
 
     if (entity->shouldBeOutlined())
     {
-        const auto scaled_transformation_matrix = AdditionalAlgorithms::createTransformationMatrix
+        const auto scaled_transformation_matrix = Algorithms::createTransformationMatrix
         (
             entity->getPosition(),
             entity_rotation.x,

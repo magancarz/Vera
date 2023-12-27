@@ -5,9 +5,14 @@
 class PointLight : public Light
 {
 public:
-    PointLight(Scene* parent_scene, std::shared_ptr<MaterialAsset> material, std::shared_ptr<RawModel> model_data,
-        const glm::vec3& position, const glm::vec3& rotation, float scale, const glm::vec3& light_color,
+    PointLight(
+        Scene* parent_scene,
+        const glm::vec3& position, const glm::vec3& light_color,
         const glm::vec3& attenuation);
 
     ~PointLight() override = default;
+
+    std::string getObjectInfo() override;
+
+    inline static std::string POINT_LIGHT_TAG{"point_light"};
 };

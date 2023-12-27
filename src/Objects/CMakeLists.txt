@@ -1,5 +1,6 @@
 target_sources(Vera-Lib PRIVATE
-        "Object.cu"
+        Object.cpp
+        TriangleMesh.cu
         ConstantMedia.cu
         ShapesCollector.cpp)
 

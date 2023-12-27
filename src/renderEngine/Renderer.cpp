@@ -1,6 +1,7 @@
 #include "Renderer.h"
 
 #include "GUI/Display.h"
+#include "Objects/TriangleMesh.h"
 
 Renderer::Renderer()
 {
@@ -14,11 +15,11 @@ Renderer::Renderer()
     entity_renderer = std::make_unique<EntityRenderer>();
 }
 
-void Renderer::renderScene(const std::shared_ptr<Camera>& camera, const std::vector<std::shared_ptr<Object>>& entities)
+void Renderer::renderScene(const std::shared_ptr<Camera>& camera, const std::vector<std::shared_ptr<Light>>& lights, const std::vector<std::shared_ptr<TriangleMesh>>& entities)
 {
     prepare();
     processEntities(entities);
-    entity_renderer->render(entities_map, camera);
+    entity_renderer->render(entities_map, lights, camera);
     cleanUpObjectsMaps();
 }
 
@@ -50,7 +51,7 @@ void Renderer::prepare()
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 }
 
-void Renderer::processEntities(const std::vector<std::shared_ptr<Object>>& entities)
+void Renderer::processEntities(const std::vector<std::shared_ptr<TriangleMesh>>& entities)
 {
     for (const auto& entity : entities)
     {
@@ -58,7 +59,7 @@ void Renderer::processEntities(const std::vector<std::shared_ptr<Object>>& entit
     }
 }
 
-void Renderer::processEntity(const std::shared_ptr<Object>& entity)
+void Renderer::processEntity(const std::shared_ptr<TriangleMesh>& entity)
 {
     auto entity_model = entity->getModelData();
 
@@ -70,7 +71,7 @@ void Renderer::processEntity(const std::shared_ptr<Object>& entity)
     }
     else
     {
-        std::vector<std::shared_ptr<Object>> new_batch;
+        std::vector<std::shared_ptr<TriangleMesh>> new_batch;
         new_batch.push_back(entity);
         entities_map.insert(std::make_pair(entity_model, new_batch));
     }

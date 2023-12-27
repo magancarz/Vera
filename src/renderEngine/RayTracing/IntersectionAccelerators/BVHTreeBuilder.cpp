@@ -66,7 +66,7 @@ std::shared_ptr<BVHBuildNode> BVHTreeBuilder::recursiveBuild(
     int dim = centroid_bounds.maximumExtent();
     int mid = (start + end) / 2;
 
-    if (AdditionalAlgorithms::equal(centroid_bounds.max[dim], centroid_bounds.min[dim]))
+    if (Algorithms::equal(centroid_bounds.max[dim], centroid_bounds.min[dim]))
     {
         node = createLeafNode(node, start, end, ordered_shapes, shape_info, bounds);
         return node;

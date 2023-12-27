@@ -1,7 +1,11 @@
 #include "Spotlight.h"
 
-Spotlight::Spotlight(Scene* parent_scene, std::shared_ptr<MaterialAsset> material,
-        std::shared_ptr<RawModel> model_data, const glm::vec3& position,
-        const glm::vec3& rotation, float scale, const glm::vec4& light_direction, const glm::vec3& light_color, float cutoff_angle)
-    : Light(parent_scene, std::move(material), std::move(model_data), position, rotation, scale, light_direction,
-            light_color, {1, 0, 0}, cutoff_angle) {}
+Spotlight::Spotlight(Scene* parent_scene, const glm::vec3& position, const glm::vec4& light_direction, const glm::vec3& light_color,
+        const glm::vec3& attenuation, float cutoff_angle, float cutoff_angle_outer)
+    : Light(parent_scene, position, light_direction, light_color, attenuation, cutoff_angle, cutoff_angle_outer) {}
+
+std::string Spotlight::getObjectInfo()
+{
+    return SPOTLIGHT_TAG + " " + Light::getObjectInfo() + " " + Algorithms::vec4ToString(light_direction) + " " + Algorithms::vec3ToString(attenuation) + " " +
+           Algorithms::floatToString(cutoff_angle_cosine) + " " + Algorithms::floatToString(cutoff_angle_offset_cosine);
+}

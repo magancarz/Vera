@@ -1,8 +1,8 @@
 #pragma once
 
-#include "Object.h"
+#include "TriangleMesh.h"
 
-class ConstantMedia : public Object {
+class ConstantMedia : public TriangleMesh {
 public:
     ConstantMedia(Scene* parent_scene, std::shared_ptr<RawModel> model_data, Bounds3f bounds, float density);
 

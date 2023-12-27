@@ -11,13 +11,12 @@ class BVHTreeBuilder;
 class Triangle;
 class BVHTreeTraverser;
 struct ProjectInfo;
-class BVHAccel;
 struct ShapeInfo;
 struct RawModel;
 class Ray;
-class SceneObjectFactory;
 class Light;
 class Object;
+class TriangleMesh;
 struct MaterialAsset;
 
 class Scene
@@ -26,21 +25,22 @@ public:
     void loadSceneFromProject(const ProjectInfo& project_info);
     void buildSceneIntersectionAcceleratorIfNeeded();
     void notifyOnObjectChange();
-    void notifyOnObjectMaterialChange(const Object* object);
+    void notifyOnObjectMaterialChange();
     void deleteObject(const Object* scene_object);
     std::weak_ptr<Object> findObjectByID(unsigned int id);
     void refreshScene();
-    std::vector<ObjectInfo> gatherObjectsInfos();
+    std::vector<std::string> gatherObjectsInfos();
     void createObject(std::shared_ptr<RawModel> model);
 
     std::vector<std::shared_ptr<Object>> objects;
-    std::vector<std::weak_ptr<Object>> lights;
+    std::vector<std::shared_ptr<TriangleMesh>> triangle_meshes;
+    std::vector<std::shared_ptr<Light>> lights;
+
     dmm::DeviceMemoryPointer<BVHTreeTraverser> intersection_accelerator_tree_traverser;
     dmm::DeviceMemoryPointer<Shape*> scene_light_sources;
 
 private:
     void buildSceneIntersectionAccelerator();
-    bool isObjectAlreadySampled(unsigned int id);
 
     std::unique_ptr<BVHTreeBuilder> bvh_tree_builder;
     bool need_to_build_intersection_accelerator{false};

@@ -8,7 +8,7 @@
 
 struct RawModel;
 class Camera;
-class Object;
+class Light;
 
 class StaticShader : public ShaderProgram
 {
@@ -24,7 +24,7 @@ public:
     void bindAttributes() override;
     void getAllUniformLocations() override;
 
-    void loadLights(const std::map<std::shared_ptr<RawModel>, std::vector<std::shared_ptr<Object>>>& entity_map) const;
+    void loadLights(const std::vector<std::shared_ptr<Light>>& lights) const;
 
 private:
     int location_transformation_matrix;

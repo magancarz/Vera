@@ -1,9 +1,9 @@
 #include "ShapesCollector.h"
 
-#include "Object.h"
+#include "Objects/TriangleMesh.h"
 #include "renderEngine/RayTracing/Shapes/ShapeInfo.h"
 
-ShapesCollector::ShapesCollector(const std::vector<std::shared_ptr<Object>>& objects_to_collect_from)
+ShapesCollector::ShapesCollector(const std::vector<std::shared_ptr<TriangleMesh>>& objects_to_collect_from)
     : objects_to_collect_from{objects_to_collect_from} {}
 
 CollectedShapes ShapesCollector::collectShapes()
@@ -30,7 +30,7 @@ void ShapesCollector::findNumberOfAllShapes()
     collected_shapes.light_emitting_shapes.reserve(collected_shapes.number_of_light_emitting_shapes);
 }
 
-void ShapesCollector::collectShapesFromObject(const std::shared_ptr<Object>& object)
+void ShapesCollector::collectShapesFromObject(const std::shared_ptr<TriangleMesh>& object)
 {
     Shape** object_shapes = object->getShapes();
     ShapeInfo* shapes_infos = object->getShapesInfos();
