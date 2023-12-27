@@ -35,6 +35,7 @@ public:
     void run();
 
     void createSceneObject(const std::shared_ptr<RawModel>& model);
+    void createSceneLight(const std::shared_ptr<LightCreator>& light_creator);
     void clearOutlinedObjectsArray();
     void setObjectToBeOutlined(const std::weak_ptr<Object>& object);
     void refreshRayTracerConfig(const RayTracerConfig& config);

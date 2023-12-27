@@ -3,9 +3,13 @@
 #include <memory>
 #include <vector>
 
-#include "Objects/ObjectInfo.h"
+#include "Objects/TriangleMeshInfo.h"
 #include "Utils/DeviceMemoryPointer.h"
 #include "RenderEngine/RayTracing/IntersectionAccelerators/BVHTreeBuilder.h"
+#include "Objects/Lights/LightCreators/LightCreator.h"
+#include "Objects/Lights/LightCreators/DirectionalLightCreator.h"
+#include "Objects/Lights/LightCreators/PointLightCreator.h"
+#include "Objects/Lights/LightCreators/SpotlightCreator.h"
 
 class BVHTreeBuilder;
 class Triangle;
@@ -29,8 +33,10 @@ public:
     void deleteObject(const Object* scene_object);
     std::weak_ptr<Object> findObjectByID(unsigned int id);
     void refreshScene();
-    std::vector<std::string> gatherObjectsInfos();
     void createTriangleMesh(std::shared_ptr<RawModel> model);
+    void createSceneLight(const std::shared_ptr<LightCreator>& light_creator);
+    std::vector<std::string> gatherTriangleMeshesInfos();
+    std::vector<std::string> gatherLightsInfos();
 
     std::vector<std::shared_ptr<Object>> objects;
     std::vector<std::weak_ptr<TriangleMesh>> triangle_meshes;
@@ -41,6 +47,8 @@ public:
 
 private:
     void buildSceneIntersectionAccelerator();
+    void loadTriangleMeshes(const std::vector<std::string>& triangle_meshes_infos);
+    void loadLights(const std::vector<std::string>& lights_infos);
 
     std::unique_ptr<BVHTreeBuilder> bvh_tree_builder;
     bool need_to_build_intersection_accelerator{false};

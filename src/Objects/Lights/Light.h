@@ -7,7 +7,7 @@ class Light : public Object
 public:
     Light(
         Scene* parent_scene,
-        const glm::vec3& position,
+        const glm::vec3& position = {0, 0, 0},
         const glm::vec4& light_direction = {0, -1, 0, 1},
         const glm::vec3& light_color = {1, 1, 1},
         const glm::vec3& attenuation = {1, 0, 0},
@@ -18,6 +18,8 @@ public:
 
     std::string getObjectInfo() override;
     void renderObjectInformationGUI() override;
+
+    bool shouldBeOutlined() const override;
 
     glm::vec4 getLightDirection() const;
     void setLightDirection(const glm::vec4& in_light_direction);
@@ -30,9 +32,10 @@ public:
     glm::vec3 getAttenuation() const;
     void setAttenuation(const glm::vec3& in_attenuation);
 
-    bool shouldBeOutlined() const override;
 
 protected:
+    void createNameForLight();
+
     glm::vec4 light_direction{0, -1, 0, 1};
     glm::vec3 light_color{1, 1, 1};
     glm::vec3 attenuation{1, 0.01, 0.0001};

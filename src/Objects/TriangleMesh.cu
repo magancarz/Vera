@@ -278,7 +278,7 @@ ShapeInfo* TriangleMesh::getShapesInfos()
 
 std::string TriangleMesh::getObjectInfo()
 {
-    ObjectInfo object_info{ name, model_data->model_name, material->material->name, position, rotation, scale };
+    TriangleMeshInfo object_info{name, model_data->model_name, material->material->name, position, rotation, scale };
     return object_info.toString();
 }
 
@@ -292,11 +292,11 @@ void TriangleMesh::renderObjectInformationGUI()
 
     const auto object_position = getPosition();
     float position[] =
-            {
-                    object_position.x,
-                    object_position.y,
-                    object_position.z
-            };
+    {
+            object_position.x,
+            object_position.y,
+            object_position.z
+    };
     ImGui::Text("Position");
     ImGui::SetNextItemWidth(ImGui::GetFontSize() * GUI::INPUT_FIELD_SIZE);
     ImGui::InputFloat3("##Position", position);
@@ -306,11 +306,11 @@ void TriangleMesh::renderObjectInformationGUI()
     }
     const auto object_rotation = getRotation();
     float rotation[] =
-            {
-                    object_rotation.x,
-                    object_rotation.y,
-                    object_rotation.z
-            };
+    {
+            object_rotation.x,
+            object_rotation.y,
+            object_rotation.z
+    };
     ImGui::Text("Rotation");
     ImGui::SetNextItemWidth(ImGui::GetFontSize() * GUI::INPUT_FIELD_SIZE);
     ImGui::InputFloat3("##Rotation", rotation);

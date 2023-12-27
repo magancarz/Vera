@@ -260,3 +260,8 @@ std::shared_ptr<MaterialAsset> AssetManager::createMaterialAsset(const std::stri
 	available_material_assets.push_back(material_asset);
     return material_asset;
 }
+
+std::vector<std::shared_ptr<LightCreator>> AssetManager::getAvailableLightCreators()
+{
+    return AVAILABLE_LIGHT_CREATORS;
+}

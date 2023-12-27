@@ -3,3 +3,5 @@ target_sources(Vera-Lib PRIVATE
     PointLight.cpp
     DirectionalLight.cpp
     Spotlight.cpp)
+
+add_subdirectory(LightCreators)

@@ -5,7 +5,7 @@
 #include <string>
 #include <sstream>
 
-struct ObjectInfo
+struct TriangleMeshInfo
 {
 	std::string object_name;
 	std::string model_name;
@@ -14,7 +14,7 @@ struct ObjectInfo
 	glm::vec3 rotation;
 	float scale;
 
-    static ObjectInfo fromString(const std::string& str)
+    static TriangleMeshInfo fromString(const std::string& str)
     {
         std::stringstream iss(str);
         std::string prefix;

@@ -70,5 +70,4 @@ protected:
     dmm::DeviceMemoryPointer<ShapeInfo> shapes_infos;
 
     inline static dmm::DeviceMemoryPointer<size_t> next_shape_id{};
-    inline static size_t next_id = 0;
 };

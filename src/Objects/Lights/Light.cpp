@@ -1,10 +1,24 @@
 #include "Light.h"
 
+#include <imgui.h>
+#include <imgui_stdlib.h>
+
+#include "GUI/GUI.h"
+
 Light::Light(Scene* parent_scene,
         const glm::vec3& position, const glm::vec4& light_direction,
         const glm::vec3& light_color, const glm::vec3& attenuation, float cutoff_angle_cosine, float cutoff_angle_outer_cosine)
     : Object(parent_scene, position), light_direction(light_direction), light_color(light_color), attenuation(attenuation),
-    cutoff_angle_cosine(cutoff_angle_cosine), cutoff_angle_offset_cosine(cutoff_angle_outer_cosine) {}
+    cutoff_angle_cosine(cutoff_angle_cosine), cutoff_angle_offset_cosine(cutoff_angle_outer_cosine)
+{
+    createNameForLight();
+}
+
+void Light::createNameForLight()
+{
+    object_id = next_id++;
+    name = "light" + std::to_string(object_id);
+}
 
 std::string Light::getObjectInfo()
 {
@@ -13,7 +27,23 @@ std::string Light::getObjectInfo()
 
 void Light::renderObjectInformationGUI()
 {
+    ImGui::TextColored(ImVec4(1, 1, 0, 1), "Light Details");
+    ImGui::Text("Name");
+    ImGui::InputText("##name", &name);
 
+    ImGui::Separator();
+
+    auto position_value = GUI::drawInputFieldForVector3(position, "Position");
+    if (position_value.has_value())
+    {
+        setPosition(position_value.value());
+    }
+
+    auto light_color_value = GUI::drawInputFieldForVector3(light_color, "Light Color");
+    if (light_color_value.has_value())
+    {
+        setLightColor(light_color_value.value());
+    }
 }
 
 glm::vec4 Light::getLightDirection() const

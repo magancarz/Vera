@@ -8,10 +8,8 @@
 #include "Materials/Material.h"
 #include "RenderEngine/RayTracing/IntersectionAccelerators/BVHTreeBuilder.h"
 #include "Objects/Lights/Light.h"
-#include "Objects/Lights/PointLight.h"
-#include "Objects/Lights/DirectionalLight.h"
-#include "Objects/Lights/Spotlight.h"
 #include "Objects/TriangleMesh.h"
+
 
 void Scene::notifyOnObjectChange()
 {
@@ -67,32 +65,43 @@ void Scene::refreshScene()
 
 void Scene::loadSceneFromProject(const ProjectInfo& project_info)
 {
-    objects.clear();
-    lights.clear();
-
-    for (const auto& object_info_as_string : project_info.objects_infos)
-    {
-        ObjectInfo object_info = ObjectInfo::fromString(object_info_as_string);
-        auto material = AssetManager::findMaterialAsset(object_info.material_name);
-        auto model = AssetManager::findModelAsset(object_info.model_name);
-
-        if (material->cuda_material->isEmittingLight())
-        {
-            std::shared_ptr<Light> light = std::make_shared<PointLight>(
-                    this, object_info.position, glm::vec3{1, 1, 1}, glm::vec3{1, 0.01, 0.0001});
-            objects.push_back(light);
-            lights.push_back(light);
-        }
-        else
-        {
-            auto object = std::make_shared<TriangleMesh>(this, material, model, object_info.position, object_info.rotation, object_info.scale);
-            object->createShapesForRayTracedMesh();
-		    objects.push_back(object);
-		    triangle_meshes.push_back(object);
-        }
-    }
+    loadTriangleMeshes(project_info.objects_infos);
+    loadLights(project_info.lights_infos);
 
     need_to_build_intersection_accelerator = true;
+}
+
+void Scene::loadTriangleMeshes(const std::vector<std::string>& triangle_meshes_infos)
+{
+    objects.clear();
+    for (const auto& triangle_mesh_info_as_string : triangle_meshes_infos)
+    {
+        TriangleMeshInfo triangle_mesh_info = TriangleMeshInfo::fromString(triangle_mesh_info_as_string);
+        auto material = AssetManager::findMaterialAsset(triangle_mesh_info.material_name);
+        auto model = AssetManager::findModelAsset(triangle_mesh_info.model_name);
+        auto triangle_mesh = std::make_shared<TriangleMesh>(this, material, model, triangle_mesh_info.position, triangle_mesh_info.rotation, triangle_mesh_info.scale);
+        triangle_mesh->createShapesForRayTracedMesh();
+        objects.push_back(triangle_mesh);
+        triangle_meshes.push_back(triangle_mesh);
+    }
+}
+
+void Scene::loadLights(const std::vector<std::string>& lights_infos)
+{
+    lights.clear();
+    for (const auto& light_info_as_string : lights_infos)
+    {
+        for (const auto& light_creator : AssetManager::getAvailableLightCreators())
+        {
+            if (light_creator->apply(light_info_as_string))
+            {
+                std::shared_ptr<Light> light = light_creator->fromLightInfo(this, light_info_as_string);
+                objects.push_back(light);
+                lights.push_back(light);
+                break;
+            }
+        }
+    }
 }
 
 void Scene::createTriangleMesh(std::shared_ptr<RawModel> model)
@@ -102,6 +111,13 @@ void Scene::createTriangleMesh(std::shared_ptr<RawModel> model)
     objects.push_back(triangle_mesh);
     triangle_meshes.push_back(triangle_mesh);
     need_to_build_intersection_accelerator = true;
+}
+
+void Scene::createSceneLight(const std::shared_ptr<LightCreator>& light_creator)
+{
+    std::shared_ptr<Light> light = light_creator->create(this);
+    objects.push_back(light);
+    lights.push_back(light);
 }
 
 void Scene::buildSceneIntersectionAccelerator()
@@ -114,13 +130,24 @@ void Scene::buildSceneIntersectionAccelerator()
     intersection_accelerator_tree_traverser = bvh_tree_builder->buildAccelerator();
 }
 
-std::vector<std::string> Scene::gatherObjectsInfos()
+std::vector<std::string> Scene::gatherTriangleMeshesInfos()
 {
     std::vector<std::string> objects_infos;
-    objects_infos.reserve(objects.size());
-    for (const auto& object : objects)
+    objects_infos.reserve(triangle_meshes.size());
+    for (const auto& object : triangle_meshes)
     {
-        objects_infos.push_back(object->getObjectInfo());
+        objects_infos.push_back(object.lock()->getObjectInfo());
     }
     return objects_infos;
+}
+
+std::vector<std::string> Scene::gatherLightsInfos()
+{
+    std::vector<std::string> lights_infos;
+    lights_infos.reserve(lights.size());
+    for (const auto& light : lights)
+    {
+        lights_infos.push_back(light.lock()->getObjectInfo());
+    }
+    return lights_infos;
 }

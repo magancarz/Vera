@@ -146,6 +146,11 @@ void Editor::createSceneObject(const std::shared_ptr<RawModel>& model)
     scene->createTriangleMesh(model);
 }
 
+void Editor::createSceneLight(const std::shared_ptr<LightCreator>& light_creator)
+{
+    scene->createSceneLight(light_creator);
+}
+
 void Editor::clearOutlinedObjectsArray()
 {
     for (const auto& object : outlined_objects)
@@ -220,7 +225,8 @@ void Editor::saveCurrentProject()
 
 void Editor::updateCurrentProjectInfo()
 {
-    current_project_info.objects_infos = scene->gatherObjectsInfos();
+    current_project_info.objects_infos = scene->gatherTriangleMeshesInfos();
+    current_project_info.lights_infos = scene->gatherLightsInfos();
 }
 
 void Editor::loadProject(const std::string& project_name)

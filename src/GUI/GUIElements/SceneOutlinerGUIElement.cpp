@@ -8,6 +8,7 @@
 #include "editor/Editor.h"
 #include "Materials/MaterialAsset.h"
 #include "Materials/Material.h"
+#include "editor/editorCommands/CreateLightCommand.h"
 
 std::vector<std::shared_ptr<EditorCommand>> SceneOutlinerGUIElement::renderGUIElement(const EditorInfo& editor_info)
 {
@@ -18,49 +19,27 @@ std::vector<std::shared_ptr<EditorCommand>> SceneOutlinerGUIElement::renderGUIEl
     {
         if (ImGui::BeginMenu("Add"))
         {
-            if (ImGui::MenuItem("Sphere"))
+            if (ImGui::BeginMenu("Triangle Mesh"))
             {
-                editor_commands.push_back(std::make_shared<CreateObjectCommand>(AssetManager::findModelAsset("sphere")));
+                for (const auto& model : AssetManager::getAvailableModelAssets())
+                {
+                    if (ImGui::MenuItem(model->model_name.c_str()))
+                    {
+                        editor_commands.push_back(std::make_shared<CreateObjectCommand>(model));
+                    }
+                }
+                ImGui::EndMenu();
             }
-            if (ImGui::MenuItem("Icosphere"))
+            if (ImGui::BeginMenu("Light"))
             {
-                editor_commands.push_back(std::make_shared<CreateObjectCommand>(AssetManager::findModelAsset("icosphere")));
-            }
-            if (ImGui::MenuItem("Cube"))
-            {
-                editor_commands.push_back(std::make_shared<CreateObjectCommand>(AssetManager::findModelAsset("cube")));
-            }
-            if (ImGui::MenuItem("Plane"))
-            {
-                editor_commands.push_back(std::make_shared<CreateObjectCommand>(AssetManager::findModelAsset("plane")));
-            }
-            if (ImGui::MenuItem("Barrel"))
-            {
-                editor_commands.push_back(std::make_shared<CreateObjectCommand>(AssetManager::findModelAsset("barrel")));
-            }
-            if (ImGui::MenuItem("Cherry"))
-            {
-                editor_commands.push_back(std::make_shared<CreateObjectCommand>(AssetManager::findModelAsset("cherry")));
-            }
-            if (ImGui::MenuItem("Lantern"))
-            {
-                editor_commands.push_back(std::make_shared<CreateObjectCommand>(AssetManager::findModelAsset("lantern")));
-            }
-            if (ImGui::MenuItem("Rock"))
-            {
-                editor_commands.push_back(std::make_shared<CreateObjectCommand>(AssetManager::findModelAsset("rock")));
-            }
-            if (ImGui::MenuItem("Monkey"))
-            {
-                editor_commands.push_back(std::make_shared<CreateObjectCommand>(AssetManager::findModelAsset("monkey")));
-            }
-            if (ImGui::MenuItem("Teapot"))
-            {
-                editor_commands.push_back(std::make_shared<CreateObjectCommand>(AssetManager::findModelAsset("teapot")));
-            }
-            if (ImGui::MenuItem("Bunny"))
-            {
-                editor_commands.push_back(std::make_shared<CreateObjectCommand>(AssetManager::findModelAsset("bunny")));
+                for (const auto& light_creator : AssetManager::getAvailableLightCreators())
+                {
+                    if (ImGui::MenuItem(light_creator->getLightTypeName().c_str()))
+                    {
+                        editor_commands.push_back(std::make_shared<CreateLightCommand>(light_creator));
+                    }
+                }
+                ImGui::EndMenu();
             }
             ImGui::EndMenu();
         }

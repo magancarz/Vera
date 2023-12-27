@@ -4,7 +4,7 @@
 
 #include "Models/RawModel.h"
 #include "RenderEngine/RayTracing/Shapes/Triangle.h"
-#include "Objects/ObjectInfo.h"
+#include "Objects/TriangleMeshInfo.h"
 #include "Utils/DeviceMemoryPointer.h"
 
 struct ShapeInfo;
@@ -30,12 +30,14 @@ public:
     virtual bool shouldBeOutlined() const;
     virtual void renderObjectInformationGUI() = 0;
 
-    size_t object_id;
     std::string name;
+    size_t object_id;
 
 protected:
     Scene* parent_scene;
 
     glm::vec3 position{};
     bool should_be_outlined = false;
+
+    inline static size_t next_id = 0;
 };

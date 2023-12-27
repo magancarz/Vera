@@ -5,6 +5,7 @@
 class Spotlight : public Light
 {
 public:
+    explicit Spotlight(Scene* parent_scene);
     Spotlight(
         Scene* parent_scene,
         const glm::vec3& position, const glm::vec4& light_direction, const glm::vec3& light_color,
@@ -12,6 +13,7 @@ public:
     ~Spotlight() override = default;
 
     std::string getObjectInfo() override;
+    void renderObjectInformationGUI() override;
 
     inline static std::string SPOTLIGHT_TAG{"spotlight"};
 };
