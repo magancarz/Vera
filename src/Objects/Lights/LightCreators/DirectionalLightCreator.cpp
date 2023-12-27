@@ -17,7 +17,7 @@ std::shared_ptr<Light> DirectionalLightCreator::fromLightInfo(Scene* parent_scen
 
     std::string position_x, position_y, position_z,
         light_color_r, light_color_g, light_color_b,
-        direction_x, direction_y, direction_z, direction_w;
+        direction_x, direction_y, direction_z;
     iss >> position_x;
     iss >> position_y;
     iss >> position_z;
@@ -30,8 +30,7 @@ std::shared_ptr<Light> DirectionalLightCreator::fromLightInfo(Scene* parent_scen
     iss >> direction_x;
     iss >> direction_y;
     iss >> direction_z;
-    iss >> direction_w;
-    glm::vec4 direction{std::stof(direction_x), std::stof(direction_y), std::stof(direction_z), std::stof(direction_w)};
+    glm::vec3 direction{std::stof(direction_x), std::stof(direction_y), std::stof(direction_z)};
 
     return std::make_shared<DirectionalLight>(parent_scene, direction, light_color);
 }

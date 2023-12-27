@@ -8,7 +8,8 @@ public:
     PointLight(Scene* parent_scene);
     PointLight(
         Scene* parent_scene,
-        const glm::vec3& position, const glm::vec3& light_color,
+        const glm::vec3& position,
+        const glm::vec3& light_color,
         const glm::vec3& attenuation);
 
     ~PointLight() override = default;

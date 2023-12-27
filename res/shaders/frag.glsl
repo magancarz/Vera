@@ -12,7 +12,7 @@ uniform sampler2D texture_sampler;
 struct Light
 {
 	vec3 light_position;
-	vec4 light_direction;
+	vec3 light_direction;
 	vec3 light_color;
 	vec3 attenuation;
 	float cutoff_angle;
@@ -33,7 +33,7 @@ void calculateSpecularValue(vec3 to_light_dir, float attenuation)
 
 void calculateBrightnessFromDirectionalLight(int i)
 {
-	vec3 to_light_vector = normalize(-lights[i].light_direction.xyz);
+	vec3 to_light_vector = normalize(-lights[i].light_direction);
 	float n_dot1 = dot(surface_normal, to_light_vector);
 	brightness = max(n_dot1, 0.0);
 	calculateSpecularValue(to_light_vector, 1.0);
@@ -52,7 +52,7 @@ void calculateBrightnessFromPointLight(int i)
 void calculateBrightnessFromSpotlight(int i)
 {
 	vec3 to_light_vector = normalize(lights[i].light_position - world_position.xyz);
-	float to_light_dot = dot(to_light_vector, normalize(-lights[i].light_direction.xyz));
+	float to_light_dot = dot(to_light_vector, normalize(-lights[i].light_direction));
 	if (to_light_dot > lights[i].cutoff_angle_offset)
 	{
 		float n_dot1 = dot(surface_normal, to_light_vector);
@@ -79,7 +79,7 @@ void main(void)
 		{
 			calculateBrightnessFromSpotlight(i);
 		}
-		else if (lights[i].light_direction.w > 0)
+		else if (lights[i].attenuation.y > 0)
 		{
 			calculateBrightnessFromPointLight(i);
 		}

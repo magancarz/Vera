@@ -6,7 +6,10 @@ class DirectionalLight : public Light
 {
 public:
     DirectionalLight(Scene* parent_scene);
-    DirectionalLight(Scene* parent_scene, const glm::vec4& light_direction, const glm::vec3& light_color);
+    DirectionalLight(
+        Scene* parent_scene,
+        const glm::vec3& light_direction,
+        const glm::vec3& light_color);
     ~DirectionalLight() override = default;
 
     std::string getObjectInfo() override;

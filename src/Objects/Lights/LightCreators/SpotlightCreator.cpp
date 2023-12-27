@@ -17,7 +17,7 @@ std::shared_ptr<Light> SpotlightCreator::fromLightInfo(Scene* parent_scene, cons
 
     std::string position_x, position_y, position_z,
         light_color_r, light_color_g, light_color_b,
-        direction_x, direction_y, direction_z, direction_w,
+        direction_x, direction_y, direction_z,
         attenuation_x, attenuation_y, attenuation_z,
         cutoff_angle, cutoff_angle_outer;
     iss >> position_x;
@@ -33,8 +33,7 @@ std::shared_ptr<Light> SpotlightCreator::fromLightInfo(Scene* parent_scene, cons
     iss >> direction_x;
     iss >> direction_y;
     iss >> direction_z;
-    iss >> direction_w;
-    glm::vec4 direction{std::stof(direction_x), std::stof(direction_y), std::stof(direction_z), std::stof(direction_w)};
+    glm::vec3 direction{std::stof(direction_x), std::stof(direction_y), std::stof(direction_z)};
 
     iss >> attenuation_x;
     iss >> attenuation_y;

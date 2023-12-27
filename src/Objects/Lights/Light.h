@@ -8,7 +8,7 @@ public:
     Light(
         Scene* parent_scene,
         const glm::vec3& position = {0, 0, 0},
-        const glm::vec4& light_direction = {0, -1, 0, 1},
+        const glm::vec3& light_direction = {0, -1, 0},
         const glm::vec3& light_color = {1, 1, 1},
         const glm::vec3& attenuation = {1, 0, 0},
         float cutoff_angle_cosine = 0.f,
@@ -21,8 +21,8 @@ public:
 
     bool shouldBeOutlined() const override;
 
-    glm::vec4 getLightDirection() const;
-    void setLightDirection(const glm::vec4& in_light_direction);
+    glm::vec3 getLightDirection() const;
+    void setLightDirection(const glm::vec3& in_light_direction);
     glm::vec3 getLightColor() const;
     void setLightColor(const glm::vec3& in_light_color);
     float getCutoffAngle() const;
@@ -32,13 +32,12 @@ public:
     glm::vec3 getAttenuation() const;
     void setAttenuation(const glm::vec3& in_attenuation);
 
-
 protected:
     void createNameForLight();
 
-    glm::vec4 light_direction{0, -1, 0, 1};
+    glm::vec3 light_direction{0, -1, 0};
     glm::vec3 light_color{1, 1, 1};
-    glm::vec3 attenuation{1, 0.01, 0.0001};
+    glm::vec3 attenuation{0, 0, 0};
     float cutoff_angle_cosine{0};
     float cutoff_angle_offset_cosine{0.85f};
 };

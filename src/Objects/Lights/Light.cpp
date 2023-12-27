@@ -6,8 +6,11 @@
 #include "GUI/GUI.h"
 
 Light::Light(Scene* parent_scene,
-        const glm::vec3& position, const glm::vec4& light_direction,
-        const glm::vec3& light_color, const glm::vec3& attenuation, float cutoff_angle_cosine, float cutoff_angle_outer_cosine)
+        const glm::vec3& position,
+        const glm::vec3& light_direction,
+        const glm::vec3& light_color,
+        const glm::vec3& attenuation,
+        float cutoff_angle_cosine, float cutoff_angle_outer_cosine)
     : Object(parent_scene, position), light_direction(light_direction), light_color(light_color), attenuation(attenuation),
     cutoff_angle_cosine(cutoff_angle_cosine), cutoff_angle_offset_cosine(cutoff_angle_outer_cosine)
 {
@@ -46,12 +49,12 @@ void Light::renderObjectInformationGUI()
     }
 }
 
-glm::vec4 Light::getLightDirection() const
+glm::vec3 Light::getLightDirection() const
 {
     return light_direction;
 }
 
-void Light::setLightDirection(const glm::vec4& in_light_direction)
+void Light::setLightDirection(const glm::vec3& in_light_direction)
 {
     light_direction = in_light_direction;
 }

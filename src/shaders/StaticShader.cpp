@@ -72,7 +72,7 @@ void StaticShader::loadLights(const std::vector<std::weak_ptr<Light>>& lights) c
     for (const auto& light : lights)
     {
         loadVector3(location_light_position[loaded_lights], light.lock()->getPosition());
-        loadVector4(location_light_direction[loaded_lights], light.lock()->getLightDirection());
+        loadVector3(location_light_direction[loaded_lights], light.lock()->getLightDirection());
         loadVector3(location_light_color[loaded_lights], light.lock()->getLightColor());
         loadVector3(location_attenuation[loaded_lights], light.lock()->getAttenuation());
         loadFloat(location_cutoff_angle[loaded_lights], light.lock()->getCutoffAngle());
@@ -88,7 +88,7 @@ void StaticShader::loadLights(const std::vector<std::weak_ptr<Light>>& lights) c
     for (size_t i = loaded_lights; i < MAX_LIGHTS; ++i)
     {
         loadVector3(location_light_position[loaded_lights], glm::vec3(0));
-        loadVector4(location_light_direction[loaded_lights], glm::vec4{0, 0, 0, 1});
+        loadVector3(location_light_direction[loaded_lights], glm::vec3{0, 0, 0});
         loadVector3(location_light_color[loaded_lights], glm::vec3(0));
         loadVector3(location_attenuation[loaded_lights], {1, 0, 0});
         loadFloat(location_cutoff_angle[loaded_lights], 0);
