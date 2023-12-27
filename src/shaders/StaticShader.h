@@ -24,7 +24,7 @@ public:
     void bindAttributes() override;
     void getAllUniformLocations() override;
 
-    void loadLights(const std::vector<std::shared_ptr<Light>>& lights) const;
+    void loadLights(const std::vector<std::weak_ptr<Light>>& lights) const;
 
 private:
     int location_transformation_matrix;

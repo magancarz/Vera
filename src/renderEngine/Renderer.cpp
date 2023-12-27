@@ -15,7 +15,7 @@ Renderer::Renderer()
     entity_renderer = std::make_unique<EntityRenderer>();
 }
 
-void Renderer::renderScene(const std::shared_ptr<Camera>& camera, const std::vector<std::shared_ptr<Light>>& lights, const std::vector<std::shared_ptr<TriangleMesh>>& entities)
+void Renderer::renderScene(const std::shared_ptr<Camera>& camera, const std::vector<std::weak_ptr<Light>>& lights, const std::vector<std::weak_ptr<TriangleMesh>>& entities)
 {
     prepare();
     processEntities(entities);
@@ -51,7 +51,7 @@ void Renderer::prepare()
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 }
 
-void Renderer::processEntities(const std::vector<std::shared_ptr<TriangleMesh>>& entities)
+void Renderer::processEntities(const std::vector<std::weak_ptr<TriangleMesh>>& entities)
 {
     for (const auto& entity : entities)
     {
@@ -59,9 +59,9 @@ void Renderer::processEntities(const std::vector<std::shared_ptr<TriangleMesh>>&
     }
 }
 
-void Renderer::processEntity(const std::shared_ptr<TriangleMesh>& entity)
+void Renderer::processEntity(const std::weak_ptr<TriangleMesh>& entity)
 {
-    auto entity_model = entity->getModelData();
+    auto entity_model = entity.lock()->getModelData();
 
     const auto it = entities_map.find(entity_model);
     if (it != entities_map.end())
@@ -71,7 +71,7 @@ void Renderer::processEntity(const std::shared_ptr<TriangleMesh>& entity)
     }
     else
     {
-        std::vector<std::shared_ptr<TriangleMesh>> new_batch;
+        std::vector<std::weak_ptr<TriangleMesh>> new_batch;
         new_batch.push_back(entity);
         entities_map.insert(std::make_pair(entity_model, new_batch));
     }

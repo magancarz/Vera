@@ -17,13 +17,13 @@ public:
     EntityRenderer();
 
     void render(
-        const std::map<std::shared_ptr<RawModel>, std::vector<std::shared_ptr<TriangleMesh>>>& entity_map,
-        const std::vector<std::shared_ptr<Light>>& lights,
+        const std::map<std::shared_ptr<RawModel>, std::vector<std::weak_ptr<TriangleMesh>>>& entity_map,
+        const std::vector<std::weak_ptr<Light>>& lights,
         const std::shared_ptr<Camera>& camera) const;
 
 private:
     void prepareTexturedModel(const std::shared_ptr<RawModel>& raw_model) const;
-    void prepareInstance(const std::shared_ptr<TriangleMesh>& entity) const;
+    void prepareInstance(const std::weak_ptr<TriangleMesh>& entity) const;
 
     static void unbindTexturedModel();
 

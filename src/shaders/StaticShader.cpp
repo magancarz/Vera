@@ -66,17 +66,17 @@ void StaticShader::getAllUniformLocations()
     location_reflectivity = getUniformLocation("reflectivity");
 }
 
-void StaticShader::loadLights(const std::vector<std::shared_ptr<Light>>& lights) const
+void StaticShader::loadLights(const std::vector<std::weak_ptr<Light>>& lights) const
 {
     size_t loaded_lights = 0;
     for (const auto& light : lights)
     {
-        loadVector3(location_light_position[loaded_lights], light->getPosition());
-        loadVector4(location_light_direction[loaded_lights], light->getLightDirection());
-        loadVector3(location_light_color[loaded_lights], light->getLightColor());
-        loadVector3(location_attenuation[loaded_lights], light->getAttenuation());
-        loadFloat(location_cutoff_angle[loaded_lights], light->getCutoffAngle());
-        loadFloat(location_cutoff_angle_offset[loaded_lights], light->getCutoffAngleOffset());
+        loadVector3(location_light_position[loaded_lights], light.lock()->getPosition());
+        loadVector4(location_light_direction[loaded_lights], light.lock()->getLightDirection());
+        loadVector3(location_light_color[loaded_lights], light.lock()->getLightColor());
+        loadVector3(location_attenuation[loaded_lights], light.lock()->getAttenuation());
+        loadFloat(location_cutoff_angle[loaded_lights], light.lock()->getCutoffAngle());
+        loadFloat(location_cutoff_angle_offset[loaded_lights], light.lock()->getCutoffAngleOffset());
 
         if (++loaded_lights >= MAX_LIGHTS)
         {

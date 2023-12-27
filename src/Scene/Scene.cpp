@@ -43,6 +43,8 @@ void Scene::deleteObject(const Object* scene_object)
             objects.shrink_to_fit();
         }
     }
+    Algorithms::removeExpiredWeakPointers(triangle_meshes);
+    Algorithms::removeExpiredWeakPointers(lights);
     need_to_build_intersection_accelerator = true;
 }
 
@@ -93,12 +95,12 @@ void Scene::loadSceneFromProject(const ProjectInfo& project_info)
     need_to_build_intersection_accelerator = true;
 }
 
-void Scene::createObject(std::shared_ptr<RawModel> model)
+void Scene::createTriangleMesh(std::shared_ptr<RawModel> model)
 {
-    const auto new_object = std::make_shared<TriangleMesh>(this, AssetManager::findMaterialAsset("white"), std::move(model), glm::vec3{0}, glm::vec3{0}, 1.f);
-    new_object->createShapesForRayTracedMesh();
-    objects.push_back(new_object);
-    triangle_meshes.push_back(new_object);
+    const auto triangle_mesh = std::make_shared<TriangleMesh>(this, AssetManager::findMaterialAsset("white"), std::move(model), glm::vec3{0}, glm::vec3{0}, 1.f);
+    triangle_mesh->createShapesForRayTracedMesh();
+    objects.push_back(triangle_mesh);
+    triangle_meshes.push_back(triangle_mesh);
     need_to_build_intersection_accelerator = true;
 }
 

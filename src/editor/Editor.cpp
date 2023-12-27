@@ -143,7 +143,7 @@ void Editor::handleEditorCommands(const std::vector<std::shared_ptr<EditorComman
 
 void Editor::createSceneObject(const std::shared_ptr<RawModel>& model)
 {
-    scene->createObject(model);
+    scene->createTriangleMesh(model);
 }
 
 void Editor::clearOutlinedObjectsArray()

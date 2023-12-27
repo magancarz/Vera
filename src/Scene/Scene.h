@@ -30,11 +30,11 @@ public:
     std::weak_ptr<Object> findObjectByID(unsigned int id);
     void refreshScene();
     std::vector<std::string> gatherObjectsInfos();
-    void createObject(std::shared_ptr<RawModel> model);
+    void createTriangleMesh(std::shared_ptr<RawModel> model);
 
     std::vector<std::shared_ptr<Object>> objects;
-    std::vector<std::shared_ptr<TriangleMesh>> triangle_meshes;
-    std::vector<std::shared_ptr<Light>> lights;
+    std::vector<std::weak_ptr<TriangleMesh>> triangle_meshes;
+    std::vector<std::weak_ptr<Light>> lights;
 
     dmm::DeviceMemoryPointer<BVHTreeTraverser> intersection_accelerator_tree_traverser;
     dmm::DeviceMemoryPointer<Shape*> scene_light_sources;

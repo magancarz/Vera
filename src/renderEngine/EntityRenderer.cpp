@@ -25,8 +25,8 @@ EntityRenderer::EntityRenderer()
 }
 
 void EntityRenderer::render(
-    const std::map<std::shared_ptr<RawModel>, std::vector<std::shared_ptr<TriangleMesh>>>& entity_map,
-    const std::vector<std::shared_ptr<Light>>& lights,
+    const std::map<std::shared_ptr<RawModel>, std::vector<std::weak_ptr<TriangleMesh>>>& entity_map,
+    const std::vector<std::weak_ptr<Light>>& lights,
     const std::shared_ptr<Camera>& camera) const
 {
     static_shader.start();
@@ -50,7 +50,7 @@ void EntityRenderer::render(
         {
             prepareInstance(entity);
 
-            if (entity->shouldBeOutlined())
+            if (entity.lock()->shouldBeOutlined())
             {
                 glStencilFunc(GL_ALWAYS, 1, 0xFF);
                 glStencilMask(0xFF);
@@ -63,7 +63,7 @@ void EntityRenderer::render(
             glDrawElements(GL_TRIANGLES, static_cast<int>(raw_model->vertex_count), GL_UNSIGNED_INT, nullptr);
             ShaderProgram::stop();
 
-            if (entity->shouldBeOutlined())
+            if (entity.lock()->shouldBeOutlined())
             {
                 glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
                 glStencilMask(0x00);
@@ -95,40 +95,40 @@ void EntityRenderer::unbindTexturedModel()
     glBindVertexArray(0);
 }
 
-void EntityRenderer::prepareInstance(const std::shared_ptr<TriangleMesh>& entity) const
+void EntityRenderer::prepareInstance(const std::weak_ptr<TriangleMesh>& entity) const
 {
-    const auto entity_rotation = entity->getRotation();
+    const auto entity_rotation = entity.lock()->getRotation();
     const auto transformation_matrix = Algorithms::createTransformationMatrix
     (
-        entity->getPosition(),
+        entity.lock()->getPosition(),
         entity_rotation.x,
         entity_rotation.y,
         entity_rotation.z,
-        entity->getScale()
+        entity.lock()->getScale()
     );
 
     static_shader.start();
     static_shader.loadTransformationMatrix(transformation_matrix);
-    static_shader.loadReflectivity(1.f - entity->getMaterial()->getFuzziness());
+    static_shader.loadReflectivity(1.f - entity.lock()->getMaterial()->getFuzziness());
     glActiveTexture(GL_TEXTURE0);
-    entity->getMaterial()->bindColorTexture();
-    if (entity->getMaterial()->hasNormalMap())
+    entity.lock()->getMaterial()->bindColorTexture();
+    if (entity.lock()->getMaterial()->hasNormalMap())
     {
         glActiveTexture(GL_TEXTURE1);
-        entity->getMaterial()->bindNormalMap();
+        entity.lock()->getMaterial()->bindNormalMap();
     }
 
     ShaderProgram::stop();
 
-    if (entity->shouldBeOutlined())
+    if (entity.lock()->shouldBeOutlined())
     {
         const auto scaled_transformation_matrix = Algorithms::createTransformationMatrix
         (
-            entity->getPosition(),
+            entity.lock()->getPosition(),
             entity_rotation.x,
             entity_rotation.y,
             entity_rotation.z,
-            entity->getScale() * 1.02f
+            entity.lock()->getScale() * 1.02f
         );
 
         outline_shader.start();
