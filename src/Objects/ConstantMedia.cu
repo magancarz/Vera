@@ -6,7 +6,6 @@
 #include "helper_cuda.h"
 #include "Materials/Material.h"
 #include "models/AssetManager.h"
-#include "Utils/CurandUtils.h"
 #include "renderEngine/RayTracing/Shapes/ShapeInfo.h"
 
 namespace cudaObjectUtils
@@ -25,7 +24,7 @@ namespace cudaObjectUtils
 }
 
 ConstantMedia::ConstantMedia(Scene* parent_scene, std::shared_ptr<RawModel> model_data, Bounds3f bounds, float density)
-    : Object(parent_scene, AssetManager::findMaterialAsset("barrel"), std::move(model_data), glm::vec3{bounds.min + bounds.max} / 2.f, glm::vec3{0}, 1.f), bounds(bounds), density(density) {}
+    : TriangleMesh(parent_scene, AssetManager::findMaterialAsset("barrel"), std::move(model_data), glm::vec3{bounds.min + bounds.max} / 2.f, glm::vec3{0}, 1.f), bounds(bounds), density(density) {}
 
 void ConstantMedia::createShapesOnDeviceMemory()
 {

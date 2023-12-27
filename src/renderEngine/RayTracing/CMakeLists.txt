@@ -2,7 +2,6 @@ target_sources(Vera-Lib PRIVATE
         Ray.h
         RayTracedImage.cpp
         RayTracer.cu
-        HybridRayTracer.cu
         RayTracerCamera.cu
         RayTracerConfig.h
         ScatterRecord.h)

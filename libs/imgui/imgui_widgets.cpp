@@ -213,7 +213,7 @@ void ImGui::TextEx(const char* text, const char* text_end, ImGuiTextFlags flags)
             }
         }
 
-        // Lines to render
+        // Lines to renderScene
         if (line < text_end)
         {
             ImRect line_rect(pos, pos + ImVec2(FLT_MAX, line_height));
@@ -4279,7 +4279,7 @@ bool ImGui::InputTextEx(const char* label, const char* hint, char* buf, int buf_
         render_selection &= state->HasSelection();
     }
 
-    // Select the buffer to render.
+    // Select the buffer to renderScene.
     const bool buf_display_from_state = (render_cursor || render_selection || g.ActiveId == id) && !is_readonly && state && state->TextAIsValid;
     const bool is_displaying_hint = (hint != NULL && (buf_display_from_state ? state->TextA.Data : buf)[0] == 0);
 
@@ -4562,7 +4562,7 @@ bool ImGui::InputTextEx(const char* label, const char* hint, char* buf, int buf_
             }
         }
 
-        // Update render selection flag after events have been handled, so selection highlight can be displayed during the same frame.
+        // Update renderScene selection flag after events have been handled, so selection highlight can be displayed during the same frame.
         render_selection |= state->HasSelection() && (RENDER_SELECTION_WHEN_INACTIVE || render_cursor);
     }
 
@@ -4615,7 +4615,7 @@ bool ImGui::InputTextEx(const char* label, const char* hint, char* buf, int buf_
         {
             // Apply new value immediately - copy modified buffer back
             // Note that as soon as the input box is active, the in-widget value gets priority over any underlying modification of the input buffer
-            // FIXME: We actually always render 'buf' when calling DrawList->AddText, making the comment above incorrect.
+            // FIXME: We actually always renderScene 'buf' when calling DrawList->AddText, making the comment above incorrect.
             // FIXME-OPT: CPU waste to do this every time the widget is active, should mark dirty state from the stb_textedit callbacks.
 
             // User callback
@@ -4779,7 +4779,7 @@ bool ImGui::InputTextEx(const char* label, const char* hint, char* buf, int buf_
         buf_display_end = hint + strlen(hint);
     }
 
-    // Render text. We currently only render selection when the widget is active or while scrolling.
+    // Render text. We currently only renderScene selection when the widget is active or while scrolling.
     // FIXME: We could remove the '&& render_cursor' to keep renderEngine selection when inactive.
     if (render_cursor || render_selection)
     {
@@ -6491,7 +6491,7 @@ bool ImGui::Selectable(const char* label, bool selected, ImGuiSelectableFlags fl
     if (disabled_item && !disabled_global) // Only testing this as an optimization
         BeginDisabled();
 
-    // FIXME: We can standardize the behavior of those two, we could also keep the fast path of override ClipRect + full push on render only,
+    // FIXME: We can standardize the behavior of those two, we could also keep the fast path of override ClipRect + full push on renderScene only,
     // which would be advantageous since most selectable are not selected.
     if (span_all_columns && window->DC.CurrentColumns)
         PushColumnsBackground();
@@ -6786,7 +6786,7 @@ int ImGui::PlotEx(ImGuiPlotType plot_type, const char* label, float (*values_get
             const float v1 = values_getter(data, (v1_idx + values_offset + 1) % values_count);
             const ImVec2 tp1 = ImVec2( t1, 1.0f - ImSaturate((v1 - scale_min) * inv_scale) );
 
-            // NB: Draw calls are merged together by the DrawList system. Still, we should render our batch are lower level to save a bit of CPU.
+            // NB: Draw calls are merged together by the DrawList system. Still, we should renderScene our batch are lower level to save a bit of CPU.
             ImVec2 pos0 = ImLerp(inner_bb.Min, inner_bb.Max, tp0);
             ImVec2 pos1 = ImLerp(inner_bb.Min, inner_bb.Max, (plot_type == ImGuiPlotType_Lines) ? tp1 : ImVec2(tp1.x, histogram_zero_line_t));
             if (plot_type == ImGuiPlotType_Lines)
@@ -7371,7 +7371,7 @@ bool ImGui::MenuItemEx(const char* label, const char* icon, const char* shortcut
     if (window->DC.LayoutType == ImGuiLayoutType_Horizontal)
     {
         // Mimic the exact layout spacing of BeginMenu() to allow MenuItem() inside a menu bar, which is a little misleading but may be useful
-        // Note that in this situation: we don't render the shortcut, we render a highlight instead of the selected tick mark.
+        // Note that in this situation: we don't render the shortcut, we renderScene a highlight instead of the selected tick mark.
         float w = label_size.x;
         window->DC.CursorPos.x += IM_FLOOR(style.ItemSpacing.x * 0.5f);
         ImVec2 text_pos(window->DC.CursorPos.x + offsets->OffsetLabel, window->DC.CursorPos.y + window->DC.CurrLineTextBaseOffset);
@@ -8336,7 +8336,7 @@ bool    ImGui::TabItemEx(ImGuiTabBar* tab_bar, const char* label, bool* p_open, 
     const ImGuiStyle& style = g.Style;
     const ImGuiID id = TabBarCalcTabID(tab_bar, label, docked_window);
 
-    // If the user called us with *p_open == false, we early out and don't render.
+    // If the user called us with *p_open == false, we early out and don't renderScene.
     // We make a call to ItemAdd() so that attempts to use a contextual popup menu with an implicit ID won't use an older ID.
     IMGUI_TEST_ENGINE_ITEM_INFO(id, label, g.LastItemData.StatusFlags);
     if (p_open && !*p_open)

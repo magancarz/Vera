@@ -36,3 +36,76 @@ std::vector<std::shared_ptr<EditorCommand>> GUI::renderGUI(const EditorInfo& edi
 
     return editor_requests;
 }
+
+bool GUI::drawInputFieldForFloat(float* value, const std::string& name, float field_size)
+{
+    ImGui::Text("%s", name.c_str());
+    ImGui::SetNextItemWidth(ImGui::GetFontSize() * field_size);
+    std::string id = "##" + name;
+    ImGui::InputFloat(id.c_str(), value);
+
+    return ImGui::IsItemEdited();
+}
+
+std::optional<glm::vec3> GUI::drawInputFieldForVector3(glm::vec3& vector, const std::string& name, float field_size)
+{
+    float fvector[] =
+    {
+        vector.x,
+        vector.y,
+        vector.z
+    };
+    ImGui::Text("%s", name.c_str());
+    ImGui::SetNextItemWidth(ImGui::GetFontSize() * field_size);
+    std::string id = "##" + name;
+    ImGui::InputFloat3(id.c_str(), fvector);
+
+    std::optional<glm::vec3> out;
+    if (ImGui::IsItemEdited())
+    {
+        out = {fvector[0], fvector[1], fvector[2]};
+    }
+    return out;
+}
+
+std::optional<glm::vec4> GUI::drawInputFieldForVector4(glm::vec4& vector, const std::string& name, float field_size)
+{
+    float fvector[] =
+    {
+        vector.x,
+        vector.y,
+        vector.z,
+        vector.w
+    };
+    ImGui::Text("%s", name.c_str());
+    ImGui::SetNextItemWidth(ImGui::GetFontSize() * field_size);
+    std::string id = "##" + name;
+    ImGui::InputFloat4(id.c_str(), fvector);
+
+    std::optional<glm::vec4> out;
+    if (ImGui::IsItemEdited())
+    {
+        out = {fvector[0], fvector[1], fvector[2], fvector[3]};
+    }
+    return out;
+}
+
+std::optional<glm::vec3> GUI::drawColorPicker(glm::vec3& color, const std::string& name)
+{
+    float fvector[] =
+    {
+        color.x,
+        color.y,
+        color.z
+    };
+    ImGui::Text("%s", name.c_str());
+    std::string id = "##" + name;
+    ImGui::ColorEdit3(id.c_str(), fvector);
+
+    std::optional<glm::vec3> out;
+    if (ImGui::IsItemEdited())
+    {
+        out = {fvector[0], fvector[1], fvector[2]};
+    }
+    return out;
+}

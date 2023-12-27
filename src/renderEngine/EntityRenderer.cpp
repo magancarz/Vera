@@ -3,9 +3,11 @@
 #include <GL/glew.h>
 
 #include "RenderEngine/Renderer.h"
-#include "Utils/AdditionalAlgorithms.h"
+#include "Utils/Algorithms.h"
 #include "Objects/Object.h"
+#include "Objects/TriangleMesh.h"
 #include "Materials/Material.h"
+#include "Objects/Lights/Light.h"
 
 EntityRenderer::EntityRenderer()
 {
@@ -23,11 +25,12 @@ EntityRenderer::EntityRenderer()
 }
 
 void EntityRenderer::render(
-    const std::map<std::shared_ptr<RawModel>, std::vector<std::shared_ptr<Object>>>& entity_map,
+    const std::map<std::shared_ptr<RawModel>, std::vector<std::weak_ptr<TriangleMesh>>>& entity_map,
+    const std::vector<std::weak_ptr<Light>>& lights,
     const std::shared_ptr<Camera>& camera) const
 {
     static_shader.start();
-    static_shader.loadLights(entity_map);
+    static_shader.loadLights(lights);
     static_shader.loadViewMatrix(camera);
     static_shader.loadProjectionMatrix(camera);
     ShaderProgram::stop();
@@ -47,7 +50,7 @@ void EntityRenderer::render(
         {
             prepareInstance(entity);
 
-            if (entity->shouldBeOutlined())
+            if (entity.lock()->shouldBeOutlined())
             {
                 glStencilFunc(GL_ALWAYS, 1, 0xFF);
                 glStencilMask(0xFF);
@@ -57,17 +60,15 @@ void EntityRenderer::render(
                 glStencilMask(0x00);
             }
             static_shader.start();
-            glDrawElements(GL_TRIANGLES, static_cast<int>(raw_model->vertex_count), GL_UNSIGNED_INT,
-                           nullptr);
+            glDrawElements(GL_TRIANGLES, static_cast<int>(raw_model->vertex_count), GL_UNSIGNED_INT, nullptr);
             ShaderProgram::stop();
 
-            if (entity->shouldBeOutlined())
+            if (entity.lock()->shouldBeOutlined())
             {
                 glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
                 glStencilMask(0x00);
                 outline_shader.start();
-                glDrawElements(GL_TRIANGLES, static_cast<int>(raw_model->vertex_count), GL_UNSIGNED_INT,
-                               nullptr);
+                glDrawElements(GL_TRIANGLES, static_cast<int>(raw_model->vertex_count), GL_UNSIGNED_INT, nullptr);
                 glStencilFunc(GL_ALWAYS, 1, 0x00);
                 glStencilMask(0xFF);
                 ShaderProgram::stop();
@@ -94,33 +95,40 @@ void EntityRenderer::unbindTexturedModel()
     glBindVertexArray(0);
 }
 
-void EntityRenderer::prepareInstance(const std::shared_ptr<Object>& entity) const
+void EntityRenderer::prepareInstance(const std::weak_ptr<TriangleMesh>& entity) const
 {
-    const auto entity_rotation = entity->getRotation();
-    const auto transformation_matrix = AdditionalAlgorithms::createTransformationMatrix
+    const auto entity_rotation = entity.lock()->getRotation();
+    const auto transformation_matrix = Algorithms::createTransformationMatrix
     (
-        entity->getPosition(),
+        entity.lock()->getPosition(),
         entity_rotation.x,
         entity_rotation.y,
         entity_rotation.z,
-        entity->getScale()
+        entity.lock()->getScale()
     );
 
     static_shader.start();
     static_shader.loadTransformationMatrix(transformation_matrix);
+    static_shader.loadReflectivity(1.f - entity.lock()->getMaterial()->getFuzziness());
     glActiveTexture(GL_TEXTURE0);
-    entity->getMaterial()->bindColorTexture();
+    entity.lock()->getMaterial()->bindColorTexture();
+    if (entity.lock()->getMaterial()->hasNormalMap())
+    {
+        glActiveTexture(GL_TEXTURE1);
+        entity.lock()->getMaterial()->bindNormalMap();
+    }
+
     ShaderProgram::stop();
 
-    if (entity->shouldBeOutlined())
+    if (entity.lock()->shouldBeOutlined())
     {
-        const auto scaled_transformation_matrix = AdditionalAlgorithms::createTransformationMatrix
+        const auto scaled_transformation_matrix = Algorithms::createTransformationMatrix
         (
-            entity->getPosition(),
+            entity.lock()->getPosition(),
             entity_rotation.x,
             entity_rotation.y,
             entity_rotation.z,
-            entity->getScale() * 1.02f
+            entity.lock()->getScale() * 1.02f
         );
 
         outline_shader.start();

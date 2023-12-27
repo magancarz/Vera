@@ -1,8 +1,8 @@
-#include "AdditionalAlgorithms.h"
+#include "Algorithms.h"
 
 #include <glm/gtc/type_ptr.hpp>
 
-namespace AdditionalAlgorithms
+namespace Algorithms
 {
     glm::mat4 createTransformationMatrix(const glm::vec3& translation, const float rx, const float ry, const float rz,
                                          const float scale)
@@ -19,5 +19,20 @@ namespace AdditionalAlgorithms
     __host__ __device__ bool equal(float a, float b, float round_error)
     {
         return a >= b - round_error && a <= b + round_error;   
+    }
+
+    std::string Algorithms::floatToString(float val)
+    {
+        return std::to_string(val);
+    }
+
+    std::string Algorithms::vec3ToString(const glm::vec3& vec)
+    {
+        return std::to_string(vec.x) + " " + std::to_string(vec.y) + " " + std::to_string(vec.z);
+    }
+
+    std::string Algorithms::vec4ToString(const glm::vec4& vec)
+    {
+        return std::to_string(vec.x) + " " + std::to_string(vec.y) + " " + std::to_string(vec.z) + " " + std::to_string(vec.w);
     }
 }

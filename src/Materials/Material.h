@@ -22,10 +22,12 @@ public:
     __host__ __device__ float getColorAlphaValue(const glm::vec2& uv) const;
     __host__ __device__ glm::vec3 getNormal(const glm::vec2& uv) const;
     __host__ __device__ glm::vec3 getSpecularValue(const glm::vec2& uv) const;
+    __host__ __device__ float getFuzziness() const;
 
     __host__ __device__ bool hasNormalMap() const { return has_normal_map; }
 
     void bindColorTexture() const;
+    void bindNormalMap() const;
 
     bool isEmittingLight() const { return brightness > 0.f; }
 
@@ -52,6 +54,6 @@ private:
     bool has_specular_map{ false };
 
     float brightness{0.f};
-    float fuzziness{0.f};
+    float fuzziness{1.f};
     float refractive_index{1.f};
 };

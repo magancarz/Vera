@@ -3,49 +3,36 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
-#include <glm/glm.hpp>
-
 #include <memory>
 #include <vector>
 
 #include "helper_cuda.h"
-#include "../GUI/Display.h"
-#include "../RenderEngine/RayTracing/RayTracerConfig.h"
-#include "../RenderEngine/RayTracing/RayTracer.h"
-#include "../Scene/Scene.h"
-#include "renderEngine/Camera.h"
-#include "../Objects/Object.h"
-#include "../Utils/Timer.h"
-#include "../Input/Input.h"
+#include "GUI/Display.h"
+#include "Scene/Scene.h"
+#include "RenderEngine/Camera.h"
+#include "Utils/Timer.h"
+#include "Input/Input.h"
 #include "Editor/EditorCommands/EditorCommand.h"
-#include <RenderEngine/RayTracing/HybridRayTracer.h>
 
 Editor::Editor()
 {
-    Display::createDisplay();
-    Input::initializeInput();
-    RayTracer::prepareCudaDevice();
-    AssetManager::initializeAssets();
-
-    ray_tracer = std::make_shared<HybridRayTracer>();
     scene = std::make_shared<Scene>();
     camera = std::make_shared<Camera>(glm::vec3(0, 10, 7));
 
-    loadProject("example");
+    loadProject("example_project");
 }
 
 void Editor::run()
 {
     while (Display::closeNotRequested())
     {
-        const bool camera_moved = camera->move();
-        if (!generating_image && toggle_live_ray_tracing && camera_moved)
+        glfwPollEvents();
+        if (!generating_image && camera->move() && toggle_live_ray_tracing)
         {
             resetCurrentRayTracedImage();
         }
 
         Display::resetInputValues();
-        glfwPollEvents();
 
         renderScene();
 
@@ -67,7 +54,7 @@ void Editor::renderScene()
     if (toggle_live_ray_tracing)
     {
         scene->buildSceneIntersectionAcceleratorIfNeeded();
-        ray_tracer->generateRayTracedImage(scene.get(), camera, current_texture);
+        ray_tracer.generateRayTracedImage(scene.get(), camera, current_texture);
         master_renderer.renderRayTracedImage(getCurrentRayTracedTexture());
 
         return;
@@ -77,7 +64,7 @@ void Editor::renderScene()
     {
         scene->buildSceneIntersectionAcceleratorIfNeeded();
         const utils::Timer timer;
-        ray_tracer->generateRayTracedImage(scene.get(), camera, current_texture);
+        ray_tracer.generateRayTracedImage(scene.get(), camera, current_texture);
         max_time_during_generating += timer.getTimeInMillis();
 
         master_renderer.renderRayTracedImage(getCurrentRayTracedTexture());
@@ -96,9 +83,7 @@ void Editor::renderScene()
         return;
     }
 
-    master_renderer.processEntities(scene->objects);
-    master_renderer.render(camera);
-    master_renderer.cleanUpObjectsMaps();
+    master_renderer.renderScene(camera, scene->lights, scene->triangle_meshes);
 }
 
 EditorInfo Editor::prepareEditorInfo()
@@ -127,7 +112,7 @@ void Editor::checkIfAnyObjectHasBeenSelected()
             outlined_objects.clear();
         }
         scene->buildSceneIntersectionAcceleratorIfNeeded();
-        const auto selected_object = ray_tracer->traceRayFromMouse(scene.get(), camera, Display::getMouseX(), Display::getMouseY());
+        const auto selected_object = ray_tracer.traceRayFromMouse(scene.get(), camera, Display::getMouseX(), Display::getMouseY());
         if (!selected_object.expired() && !selected_object.lock()->shouldBeOutlined())
         {
             selected_object.lock()->setShouldBeOutlined(true);
@@ -158,7 +143,12 @@ void Editor::handleEditorCommands(const std::vector<std::shared_ptr<EditorComman
 
 void Editor::createSceneObject(const std::shared_ptr<RawModel>& model)
 {
-    scene->createObject(model);
+    scene->createTriangleMesh(model);
+}
+
+void Editor::createSceneLight(const std::shared_ptr<LightCreator>& light_creator)
+{
+    scene->createSceneLight(light_creator);
 }
 
 void Editor::clearOutlinedObjectsArray()
@@ -235,7 +225,8 @@ void Editor::saveCurrentProject()
 
 void Editor::updateCurrentProjectInfo()
 {
-    current_project_info.objects_infos = scene->gatherObjectsInfos();
+    current_project_info.objects_infos = scene->gatherTriangleMeshesInfos();
+    current_project_info.lights_infos = scene->gatherLightsInfos();
 }
 
 void Editor::loadProject(const std::string& project_name)

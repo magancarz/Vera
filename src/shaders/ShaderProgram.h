@@ -23,8 +23,10 @@ protected:
     int getUniformLocation(const std::string& uniform_name) const;
 
     static void loadInt(int location, int value);
+    static void loadFloat(int location, float value);
     static void loadMatrix(int location, const glm::mat4& matrix);
     static void loadVector3(int location, const glm::vec3& vector);
+    static void loadVector4(int location, const glm::vec4& vector);
 
     void loadShaders(const std::string& vertex_file, const std::string& fragment_file);
 

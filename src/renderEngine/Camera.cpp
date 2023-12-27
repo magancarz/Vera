@@ -13,9 +13,9 @@ bool Camera::move()
     checkInputs();
     updateCameraDirectionVectors();
 
-    if (pitch >= 90.f)
+    if (pitch > 89.999f)
         pitch = 89.999f;
-    else if (pitch <= -90.f)
+    else if (pitch < -89.999f)
         pitch = -89.999f;
 
     if (yaw >= 360.f || yaw <= -360.f)

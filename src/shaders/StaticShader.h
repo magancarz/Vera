@@ -8,7 +8,7 @@
 
 struct RawModel;
 class Camera;
-class Object;
+class Light;
 
 class StaticShader : public ShaderProgram
 {
@@ -18,12 +18,13 @@ public:
     void loadTransformationMatrix(const glm::mat4& matrix) const;
     void loadProjectionMatrix(const std::shared_ptr<Camera>& camera) const;
     void loadViewMatrix(const std::shared_ptr<Camera>& camera) const;
+    void loadReflectivity(float reflectivity) const;
     void connectTextureUnits() const;
 
     void bindAttributes() override;
     void getAllUniformLocations() override;
 
-    void loadLights(const std::map<std::shared_ptr<RawModel>, std::vector<std::shared_ptr<Object>>>& entity_map) const;
+    void loadLights(const std::vector<std::weak_ptr<Light>>& lights) const;
 
 private:
     int location_transformation_matrix;
@@ -33,6 +34,11 @@ private:
 
     inline static constexpr int MAX_LIGHTS = 4;
     int location_light_position[MAX_LIGHTS];
+    int location_light_direction[MAX_LIGHTS];
     int location_light_color[MAX_LIGHTS];
     int location_attenuation[MAX_LIGHTS];
+    int location_cutoff_angle[MAX_LIGHTS];
+    int location_cutoff_angle_offset[MAX_LIGHTS];
+
+    int location_reflectivity;
 };

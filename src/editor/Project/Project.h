@@ -4,12 +4,13 @@
 #include <vector>
 
 class Object;
-struct ObjectInfo;
+struct TriangleMeshInfo;
 
 struct ProjectInfo
 {
 	std::string project_name;
-	std::vector<ObjectInfo> objects_infos;
+	std::vector<std::string> objects_infos;
+	std::vector<std::string> lights_infos;
 };
 
 class ProjectUtils
@@ -24,10 +25,13 @@ public:
 private:
 	static void saveProjectMetadata(std::ofstream& file_stream, const ProjectInfo& project_info);
 	static void saveObjectsInfos(std::ofstream& file_stream, const ProjectInfo& project_info);
+	static void saveLightsInfos(std::ofstream& file_stream, const ProjectInfo& project_info);
 
 	static void loadProjectMetadata(std::string previous_line, std::ifstream& file_stream, ProjectInfo& project_info);
 	static void loadObjectsInfos(std::string previous_line, std::ifstream& file_stream, ProjectInfo& project_info);
+	static void loadLightsInfos(std::string previous_line, std::ifstream& file_stream, ProjectInfo& project_info);
 
 	inline const static std::string PROJECT_METADATA_PREFIX = "pm";
 	inline const static std::string OBJECTS_INFOS_PREFIX = "oi";
+	inline const static std::string LIGHTS_INFOS_PREFIX = "li";
 };

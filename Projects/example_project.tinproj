@@ -6,3 +6,4 @@ oi object4 plane red -10 5 0 0 0 -90 10
 oi object5 plane green 10 5 0 0 0 90 10
 oi object6 plane white 0 5 -10 90 0 0 10
 oi object7 plane white 0 5 10 -90 0 0 10
+li point_light 0 15 0 1 1 1 1 0.01 0.0001

@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Shape.h"
-#include "Utils/AdditionalAlgorithms.h"
+#include "Utils/Algorithms.h"
 #include "Models/Vertex.h"
 
 class Triangle : public Shape

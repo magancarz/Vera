@@ -159,7 +159,20 @@ __host__ __device__ glm::vec3 Material::getSpecularValue(const glm::vec2& uv) co
     return {0.f, 0.f, 0.f};
 }
 
+__host__ __device__ float Material::getFuzziness() const
+{
+    return fuzziness;
+}
+
 void Material::bindColorTexture() const
 {
     color_texture->bindTexture();
+}
+
+void Material::bindNormalMap() const
+{
+    if (has_normal_map)
+    {
+        normal_map_texture->bindTexture();
+    }
 }

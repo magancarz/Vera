@@ -1,8 +1,0 @@
-pm lantern
-oi object1 plane white 0 -5 0 0 0 0 10
-oi object2 plane white 0 15 0 0 0 0 10
-oi object3 plane red -10 5 0 0 0 -90 10
-oi object4 plane green 10 5 0 0 0 90 10
-oi object5 plane white 0 5 -10 90 0 0 10
-oi object6 plane white 0 5 10 -90 0 0 10
-oi object8 lantern lantern 2.5 0 0 0 90 0 0.5

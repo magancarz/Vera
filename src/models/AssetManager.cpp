@@ -28,27 +28,27 @@ void AssetManager::initializeAssets()
     loadModelAsset("bunny");
 
     MaterialParameters white_material_parameters{
-        "white", "", "", 0.f, 0.f, 0.f
+        "white"
     };
     createMaterialAsset("white", white_material_parameters);
 
     MaterialParameters red_material_parameters{
-        "red", "", "", 0.f, 0.f, 0.f
+        "red"
     };
     createMaterialAsset("red", red_material_parameters);
 
     MaterialParameters green_material_parameters{
-        "green", "", "", 0.f, 0.f, 0.f
+        "green"
     };
     createMaterialAsset("green", green_material_parameters);
 
     MaterialParameters blue_material_parameters{
-        "blue", "", "", 0.f, 0.f, 0.f
+        "blue"
     };
     createMaterialAsset("blue", blue_material_parameters);
 
     MaterialParameters light_material_parameters{
-        "white", "", "specular", 15.f, 0.f, 0.f
+        "white", "", "specular", 15.f
     };
     createMaterialAsset("light", light_material_parameters);
 
@@ -58,7 +58,7 @@ void AssetManager::initializeAssets()
     createMaterialAsset("transparent", transparent_material_parameters);
 
     MaterialParameters mirror_material_parameters{
-            "white", "", "red", 0.f, 0.f, 1.5f
+            "white", "", "red", 0.f, 0.f, 0.f
     };
     createMaterialAsset("mirror", mirror_material_parameters);
 
@@ -104,18 +104,14 @@ RawModelAttributes AssetManager::loadModel(const ModelData& model_data)
     const std::shared_ptr<utils::VAO> vao = createVao();
     std::shared_ptr<utils::VBO> indices_vbo = bindIndicesBuffer(model_data.indices.data(), model_data.indices.size());
     std::shared_ptr<utils::VBO> positions_vbo = storeDataInAttributeList(0, 3, model_data.positions.data(), model_data.positions.size());
-    std::shared_ptr<utils::VBO> texture_coords_vbo = storeDataInAttributeList(
-        1, 2, model_data.texture_coords.data(), model_data.texture_coords.size());
+    std::shared_ptr<utils::VBO> texture_coords_vbo = storeDataInAttributeList(1, 2, model_data.texture_coords.data(), model_data.texture_coords.size());
     std::shared_ptr<utils::VBO> normals_vbo = storeDataInAttributeList(2, 3, model_data.normals.data(), model_data.normals.size());
     unbindVao();
 
-    return
-    {
-        vao, {indices_vbo, positions_vbo, texture_coords_vbo, normals_vbo}, static_cast<unsigned int>(model_data.indices.size())
-    };
+    return {vao, {indices_vbo, positions_vbo, texture_coords_vbo, normals_vbo}, static_cast<unsigned int>(model_data.indices.size())};
 }
 
-RawModelAttributes AssetManager::loadRawModel(
+RawModelAttributes AssetManager::loadSimpleModel(
     const std::vector<float>& positions,
     const std::vector<float>& texture_coords)
 {
@@ -126,17 +122,6 @@ RawModelAttributes AssetManager::loadRawModel(
     unbindVao();
 
     return {vao, {positions_vbo, texture_coords_vbo}, static_cast<unsigned int>(positions.size())};
-}
-
-std::shared_ptr<TextureData> AssetManager::loadImageFromFile(const std::string& file_name)
-{
-    const std::string file = locations::textures_folder_location + file_name + locations::image_extension;
-    int width, height, format;
-    unsigned char* image = stbi_load(file.c_str(), &width, &height, &format, STBI_rgb_alpha);
-    if (image == nullptr)
-        std::cout << "Failed to load " + file_name + " image!\n";
-
-    return std::make_shared<TextureData>(image, width, height);
 }
 
 std::shared_ptr<utils::Texture> AssetManager::loadTexture(const std::string& file_name, const float lod_value)
@@ -181,6 +166,17 @@ std::shared_ptr<utils::Texture> AssetManager::loadTexture(const std::string& fil
     stbi_image_free(data->texture_data);
 
     return texture;
+}
+
+std::shared_ptr<TextureData> AssetManager::loadImageFromFile(const std::string& file_name)
+{
+    const std::string file = locations::textures_folder_location + file_name + locations::image_extension;
+    int width, height, format;
+    unsigned char* image = stbi_load(file.c_str(), &width, &height, &format, STBI_rgb_alpha);
+    if (image == nullptr)
+        std::cout << "Failed to load " + file_name + " image!\n";
+
+    return std::make_shared<TextureData>(image, width, height);
 }
 
 std::shared_ptr<utils::Texture> AssetManager::loadTexture(const std::string& file_name)
@@ -263,4 +259,9 @@ std::shared_ptr<MaterialAsset> AssetManager::createMaterialAsset(const std::stri
     auto material_asset = std::make_shared<MaterialAsset>(dmm_material, material, color_texture, normal_map_texture, specular_map_texture);
 	available_material_assets.push_back(material_asset);
     return material_asset;
+}
+
+std::vector<std::shared_ptr<LightCreator>> AssetManager::getAvailableLightCreators()
+{
+    return AVAILABLE_LIGHT_CREATORS;
 }
