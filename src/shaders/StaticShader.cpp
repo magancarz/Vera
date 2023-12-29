@@ -33,22 +33,30 @@ void StaticShader::loadReflectivity(float reflectivity) const
     loadFloat(location_reflectivity, reflectivity);
 }
 
+void StaticShader::loadHeightScale(float height_scale) const
+{
+    loadFloat(location_height_scale, height_scale);
+}
+
 void StaticShader::loadNormalMapLoadedBool(bool value) const
 {
     loadInt(location_normal_map_loaded, value);
+}
+
+void StaticShader::loadDepthMapLoadedBool(bool value) const
+{
+    loadInt(location_depth_map_loaded, value);
 }
 
 void StaticShader::connectTextureUnits() const
 {
     loadInt(location_model_texture, 0);
     loadInt(location_normal_texture, 1);
+    loadInt(location_depth_map_loaded, 2);
 }
 
 void StaticShader::bindAttributes()
 {
-    bindAttribute(0, "position");
-    bindAttribute(1, "texture_coords");
-    bindAttribute(2, "normal");
 }
 
 void StaticShader::getAllUniformLocations()
@@ -59,6 +67,7 @@ void StaticShader::getAllUniformLocations()
 
     location_model_texture = getUniformLocation("color_texture_sampler");
     location_normal_texture = getUniformLocation("normal_texture_sampler");
+    location_depth_texture = getUniformLocation("depth_texture_sampler");
 
     for (const int i : std::views::iota(0, MAX_LIGHTS))
     {
@@ -71,7 +80,10 @@ void StaticShader::getAllUniformLocations()
     }
 
     location_reflectivity = getUniformLocation("reflectivity");
+    location_height_scale = getUniformLocation("height_scale");
+
     location_normal_map_loaded = getUniformLocation("normal_map_loaded");
+    location_depth_map_loaded = getUniformLocation("depth_map_loaded");
 }
 
 void StaticShader::loadLights(const std::vector<std::weak_ptr<Light>>& lights) const

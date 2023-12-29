@@ -127,6 +127,18 @@ void EntityRenderer::prepareInstance(const std::weak_ptr<TriangleMesh>& entity) 
         static_shader.loadNormalMapLoadedBool(false);
     }
 
+    if (entity.lock()->getMaterial()->hasDepthMap())
+    {
+        glActiveTexture(GL_TEXTURE2);
+        entity.lock()->getMaterial()->bindDepthMap();
+        static_shader.loadDepthMapLoadedBool(true);
+        static_shader.loadHeightScale(entity.lock()->getMaterial()->getDepthMapHeightScale());
+    }
+    else
+    {
+        static_shader.loadDepthMapLoadedBool(false);
+    }
+
     ShaderProgram::stop();
 
     if (entity.lock()->shouldBeOutlined())

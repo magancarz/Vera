@@ -6,11 +6,12 @@
 #include "renderEngine/RayTracing/Shapes/HitRecord.h"
 #include "renderEngine/RayTracing/ScatterRecord.h"
 
-Material::Material(std::string name, std::shared_ptr<TextureAsset> texture, std::shared_ptr<TextureAsset> normal_map_texture,
-    std::shared_ptr<TextureAsset> specular_map_texture, const MaterialParameters& material_parameters)
+Material::Material(std::string name, std::shared_ptr<TextureAsset> texture, const MaterialParameters& material_parameters,
+        std::shared_ptr<TextureAsset> normal_map_texture, std::shared_ptr<TextureAsset> specular_map_texture,
+        std::shared_ptr<TextureAsset> depth_map_texture)
     : name(std::move(name)), color_texture(std::move(texture)), normal_map_texture(std::move(normal_map_texture)),
-	specular_map_texture(std::move(specular_map_texture)), brightness(material_parameters.brightness),
-	fuzziness(material_parameters.fuzziness), refractive_index(material_parameters.refractive_index)
+	specular_map_texture(std::move(specular_map_texture)), depth_map_texture(std::move(depth_map_texture)), brightness(material_parameters.brightness),
+	fuzziness(material_parameters.fuzziness), refractive_index(material_parameters.refractive_index), height_scale(material_parameters.height_scale)
 {
     cuda_color_texture.copyFrom(this->color_texture.get());
 
@@ -18,6 +19,12 @@ Material::Material(std::string name, std::shared_ptr<TextureAsset> texture, std:
     {
         cuda_normal_map_texture.copyFrom(this->normal_map_texture.get());
         has_normal_map = true;
+    }
+
+    if (this->depth_map_texture)
+    {
+        cuda_depth_map_texture.copyFrom(this->depth_map_texture.get());
+        has_depth_map = true;
     }
 
     if (this->specular_map_texture)
@@ -164,6 +171,11 @@ __host__ __device__ float Material::getFuzziness() const
     return fuzziness;
 }
 
+__host__ __device__ float Material::getDepthMapHeightScale() const
+{
+    return height_scale;
+}
+
 void Material::bindColorTexture() const
 {
     color_texture->bindTexture();
@@ -174,5 +186,13 @@ void Material::bindNormalMap() const
     if (has_normal_map)
     {
         normal_map_texture->bindTexture();
+    }
+}
+
+void Material::bindDepthMap() const
+{
+    if (has_depth_map)
+    {
+        depth_map_texture->bindTexture();
     }
 }

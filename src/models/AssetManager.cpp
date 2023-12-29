@@ -88,6 +88,11 @@ void AssetManager::initializeAssets()
     };
     createMaterialAsset("brick_wall", brick_wall);
 
+    MaterialParameters bricks{
+            "bricks2", "bricks2_normal", "", 0.f, 0.f, 0.f, "bricks2_disp", .1f
+    };
+    createMaterialAsset("bricks", bricks);
+
     MaterialParameters primitive_handled_pot_material_parameters{
             "primative-handled-pot_albedo", "primative-handled-pot_normal-ogl", "", 0.f, 0.f, 0.f
     };
@@ -265,10 +270,11 @@ std::shared_ptr<MaterialAsset> AssetManager::createMaterialAsset(const std::stri
     const auto color_texture = std::make_shared<TextureAsset>(loadTexture(material_parameters.color_texture_name));
     const auto normal_map_texture = material_parameters.normal_map_texture_name.length() != 0 ? std::make_shared<TextureAsset>(loadTexture(material_parameters.normal_map_texture_name)) : nullptr;
     const auto specular_map_texture = material_parameters.specular_map_texture_name.length() != 0 ? std::make_shared<TextureAsset>(loadTexture(material_parameters.specular_map_texture_name)) : nullptr;
-    auto material = std::make_shared<Material>(name, color_texture, normal_map_texture, specular_map_texture, material_parameters);
+    const auto depth_map_texture = material_parameters.depth_map_texture_name.length() != 0 ? std::make_shared<TextureAsset>(loadTexture(material_parameters.depth_map_texture_name)) : nullptr;
+    auto material = std::make_shared<Material>(name, color_texture, material_parameters, normal_map_texture, specular_map_texture, depth_map_texture);
     dmm::DeviceMemoryPointer<Material> dmm_material{};
     dmm_material.copyFrom(material.get());
-    auto material_asset = std::make_shared<MaterialAsset>(dmm_material, material, color_texture, normal_map_texture, specular_map_texture);
+    auto material_asset = std::make_shared<MaterialAsset>(dmm_material, material, color_texture, normal_map_texture, specular_map_texture, depth_map_texture);
 	available_material_assets.push_back(material_asset);
     return material_asset;
 }

@@ -12,8 +12,9 @@ struct HitRecord;
 class Material
 {
 public:
-    Material(std::string name, std::shared_ptr<TextureAsset> texture, std::shared_ptr<TextureAsset> normal_map_texture = nullptr,
-        std::shared_ptr<TextureAsset> specular_map_texture = nullptr, const MaterialParameters& material_parameters = {});
+    Material(std::string name, std::shared_ptr<TextureAsset> texture, const MaterialParameters& material_parameters = {},
+        std::shared_ptr<TextureAsset> normal_map_texture = nullptr, std::shared_ptr<TextureAsset> specular_map_texture = nullptr,
+        std::shared_ptr<TextureAsset> depth_map_texture = nullptr);
 
     __device__ bool scatter(const Ray* r_in, const HitRecord* rec, ScatterRecord* scatter_record) const;
     __device__ float scatteringPDF(const HitRecord* rec, const Ray* scattered) const;
@@ -23,11 +24,14 @@ public:
     __host__ __device__ glm::vec3 getNormal(const glm::vec2& uv) const;
     __host__ __device__ glm::vec3 getSpecularValue(const glm::vec2& uv) const;
     __host__ __device__ float getFuzziness() const;
+    __host__ __device__ float getDepthMapHeightScale() const;
 
     __host__ __device__ bool hasNormalMap() const { return has_normal_map; }
+    __host__ __device__ bool hasDepthMap() const { return has_depth_map; }
 
     void bindColorTexture() const;
     void bindNormalMap() const;
+    void bindDepthMap() const;
 
     bool isEmittingLight() const { return brightness > 0.f; }
 
@@ -49,6 +53,10 @@ private:
     dmm::DeviceMemoryPointer<TextureAsset> cuda_normal_map_texture;
     bool has_normal_map{ false };
 
+    std::shared_ptr<TextureAsset> depth_map_texture;
+    dmm::DeviceMemoryPointer<TextureAsset> cuda_depth_map_texture;
+    bool has_depth_map{ false };
+
 	std::shared_ptr<TextureAsset> specular_map_texture;
     dmm::DeviceMemoryPointer<TextureAsset> cuda_specular_map_texture;
     bool has_specular_map{ false };
@@ -56,4 +64,5 @@ private:
     float brightness{0.f};
     float fuzziness{1.f};
     float refractive_index{1.f};
+    float height_scale{1.f};
 };
