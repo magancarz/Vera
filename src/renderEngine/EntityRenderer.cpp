@@ -85,6 +85,8 @@ void EntityRenderer::prepareTexturedModel(const std::shared_ptr<RawModel>& raw_m
     glEnableVertexAttribArray(0);
     glEnableVertexAttribArray(1);
     glEnableVertexAttribArray(2);
+    glEnableVertexAttribArray(3);
+    glEnableVertexAttribArray(4);
 }
 
 void EntityRenderer::unbindTexturedModel()
@@ -92,6 +94,8 @@ void EntityRenderer::unbindTexturedModel()
     glDisableVertexAttribArray(0);
     glDisableVertexAttribArray(1);
     glDisableVertexAttribArray(2);
+    glDisableVertexAttribArray(3);
+    glDisableVertexAttribArray(4);
     glBindVertexArray(0);
 }
 
@@ -116,6 +120,11 @@ void EntityRenderer::prepareInstance(const std::weak_ptr<TriangleMesh>& entity) 
     {
         glActiveTexture(GL_TEXTURE1);
         entity.lock()->getMaterial()->bindNormalMap();
+        static_shader.loadNormalMapLoadedBool(true);
+    }
+    else
+    {
+        static_shader.loadNormalMapLoadedBool(false);
     }
 
     ShaderProgram::stop();

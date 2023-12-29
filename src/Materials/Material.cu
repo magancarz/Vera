@@ -143,7 +143,7 @@ __host__ __device__ glm::vec3 Material::getNormal(const glm::vec2& uv) const
 {
     if (has_normal_map)
     {
-        return cuda_normal_map_texture->getColorAtGivenUVCoordinates(uv);
+        return cuda_normal_map_texture->getColorAtGivenUVCoordinates(uv) * 2.0f - 1.0f;
     }
 
     return {0.f, 1.f, 0.f};

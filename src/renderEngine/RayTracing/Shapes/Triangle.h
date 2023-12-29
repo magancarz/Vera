@@ -31,9 +31,11 @@ private:
     __device__ void computeAverageNormal();
 	__device__ void transformNormal(const glm::mat4& transform);
 	__device__ bool areTriangleNormalsValid() const;
+    __device__ void computeTangentSpaceMatrix();
 
 	__device__ glm::vec3 getNormalAt(float u, float v, float w) const;
 
     Vertex x, y, z;
 	glm::vec3 average_normal{};
+    glm::mat3 tangent_space_matrix{};
 };

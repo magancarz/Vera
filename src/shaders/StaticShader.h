@@ -19,6 +19,7 @@ public:
     void loadProjectionMatrix(const std::shared_ptr<Camera>& camera) const;
     void loadViewMatrix(const std::shared_ptr<Camera>& camera) const;
     void loadReflectivity(float reflectivity) const;
+    void loadNormalMapLoadedBool(bool value) const;
     void connectTextureUnits() const;
 
     void bindAttributes() override;
@@ -31,6 +32,8 @@ private:
     int location_projection_matrix;
     int location_view_matrix;
     int location_model_texture;
+    int location_normal_texture;
+    int location_normal_map_loaded;
 
     inline static constexpr int MAX_LIGHTS = 4;
     int location_light_position[MAX_LIGHTS];

@@ -33,9 +33,15 @@ void StaticShader::loadReflectivity(float reflectivity) const
     loadFloat(location_reflectivity, reflectivity);
 }
 
+void StaticShader::loadNormalMapLoadedBool(bool value) const
+{
+    loadInt(location_normal_map_loaded, value);
+}
+
 void StaticShader::connectTextureUnits() const
 {
     loadInt(location_model_texture, 0);
+    loadInt(location_normal_texture, 1);
 }
 
 void StaticShader::bindAttributes()
@@ -51,7 +57,8 @@ void StaticShader::getAllUniformLocations()
     location_projection_matrix = getUniformLocation("proj");
     location_view_matrix = getUniformLocation("view");
 
-    location_model_texture = getUniformLocation("texture_sampler");
+    location_model_texture = getUniformLocation("color_texture_sampler");
+    location_normal_texture = getUniformLocation("normal_texture_sampler");
 
     for (const int i : std::views::iota(0, MAX_LIGHTS))
     {
@@ -64,6 +71,7 @@ void StaticShader::getAllUniformLocations()
     }
 
     location_reflectivity = getUniformLocation("reflectivity");
+    location_normal_map_loaded = getUniformLocation("normal_map_loaded");
 }
 
 void StaticShader::loadLights(const std::vector<std::weak_ptr<Light>>& lights) const

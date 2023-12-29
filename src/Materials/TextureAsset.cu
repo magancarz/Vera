@@ -46,7 +46,7 @@ __host__ __device__ float TextureAsset::getAlphaValueAtGivenUVCoordinates(const 
     return static_cast<float>(texture_data_ptr[pixel_index + 3]) / 255.f;
 }
 
-__host__ __device__ glm::vec2 TextureAsset::fixUVCoordinates(const glm::vec2& uv) const
+__host__ __device__ glm::vec2 TextureAsset::fixUVCoordinates(const glm::vec2& uv)
 {
     glm::vec2 fixed_uv = uv;
     if (fixed_uv.x < 0.f)
@@ -62,10 +62,12 @@ __host__ __device__ glm::vec2 TextureAsset::fixUVCoordinates(const glm::vec2& uv
     {
         fixed_uv.y = -fixed_uv.y - glm::floor(-fixed_uv.y);
     }
-    else if (fixed_uv.y > 1.f)
+    else if (fixed_uv.y >= 1.f)
     {
         fixed_uv.y -= glm::floor(fixed_uv.y);
     }
+
+    assert(fixed_uv.x >= 0 && fixed_uv.x < 1.f && fixed_uv.y >= 0 && fixed_uv.y < 1.f);
 
     return fixed_uv;
 }
@@ -74,6 +76,8 @@ __host__ __device__ unsigned TextureAsset::calculatePixelIndex(const glm::vec2& 
 {
     const auto x = static_cast<unsigned int>(uv.x * static_cast<float>(width));
     const auto y = static_cast<unsigned int>(uv.y * static_cast<float>(height));
+
+    assert(x >= 0 && x < width && y >= 0 && y < height);
 
     return (y * width + x) * NUM_OF_CHANNELS;
 }

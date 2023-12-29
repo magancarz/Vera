@@ -51,6 +51,7 @@ __device__ HitRecord Triangle::checkRayIntersection(const Ray* r) const
     	if (material->hasNormalMap())
         {
             new_normal = w * material->getNormal(x.texture_coordinate) + u * material->getNormal(y.texture_coordinate) + v * material->getNormal(z.texture_coordinate);
+            new_normal = tangent_space_matrix * new_normal;
         }
     	else
         {
@@ -102,6 +103,7 @@ __device__ void Triangle::applyTransform(const glm::mat4& transform)
     y.position = glm::vec3(transform * glm::vec4(y.position, 1.0f));
     z.position = glm::vec3(transform * glm::vec4(z.position, 1.0f));
     transformNormal(transform);
+    computeTangentSpaceMatrix();
 }
 
 __device__ void Triangle::calculateObjectBounds()
@@ -161,6 +163,18 @@ __device__ void Triangle::transformNormal(const glm::mat4& transform)
     y.normal = glm::normalize(transposed_inverse * y.normal);
     z.normal = glm::normalize(transposed_inverse * z.normal);
     average_normal = glm::normalize(transposed_inverse * average_normal);
+}
+
+__device__ void Triangle::computeTangentSpaceMatrix()
+{
+    glm::vec3 tangent = *object_to_world * glm::vec4{x.tangent, 0.0f};
+    glm::vec3 bitangent = *object_to_world * glm::vec4{x.bitangent, 0.0f};
+    tangent_space_matrix = glm::mat3
+    {
+        tangent,
+        bitangent,
+        average_normal
+    };
 }
 
 __device__ bool Triangle::scatter(const Ray* r_in, const HitRecord* rec, ScatterRecord* scatter_record)

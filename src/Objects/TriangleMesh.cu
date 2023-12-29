@@ -122,11 +122,11 @@ void TriangleMesh::createShapesOnDeviceMemory()
     triangles_data.copyFrom(model_data->triangles.data());
 
     cudaObjectUtils::createTrianglesOnDeviceMemory<<<1, 1>>>(
-            this,
-                    object_to_world.data(), world_to_object.data(),
-                    triangles_data.data(),
-                    shapes.data(), shapes_infos.data(),
-                    material->cuda_material.data(), num_of_shapes, next_shape_id.data());
+        this,
+        object_to_world.data(), world_to_object.data(),
+        triangles_data.data(),
+        shapes.data(), shapes_infos.data(),
+        material->cuda_material.data(), num_of_shapes, next_shape_id.data());
     checkCudaErrors(cudaGetLastError());
     checkCudaErrors(cudaDeviceSynchronize());
 }

@@ -76,7 +76,7 @@ namespace dmm
             {
                 return ptr[index];
             }
-            printf("Tried to get element out of bounds index!\n");
+            //printf("Tried to get element out of bounds index!\n");
             return ptr[0];
         }
     private:

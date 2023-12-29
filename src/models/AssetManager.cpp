@@ -26,6 +26,7 @@ void AssetManager::initializeAssets()
     loadModelAsset("rock");
     loadModelAsset("monkey");
     loadModelAsset("bunny");
+    loadModelAsset("primitive_handled_pot");
 
     MaterialParameters white_material_parameters{
         "white"
@@ -81,6 +82,16 @@ void AssetManager::initializeAssets()
         "rock", "rock_normal", "", 0.f, 0.f, 0.f
     };
     createMaterialAsset("rock", rock_material_parameters);
+
+    MaterialParameters brick_wall{
+            "brickwall", "brickwall_normal", "", 0.f, 0.f, 0.f
+    };
+    createMaterialAsset("brick_wall", brick_wall);
+
+    MaterialParameters primitive_handled_pot_material_parameters{
+            "primative-handled-pot_albedo", "primative-handled-pot_normal-ogl", "", 0.f, 0.f, 0.f
+    };
+    createMaterialAsset("primitive_handled_pot", primitive_handled_pot_material_parameters);
 }
 
 std::shared_ptr<RawModel> AssetManager::loadModelAsset(const std::string& file_name)
@@ -106,9 +117,11 @@ RawModelAttributes AssetManager::loadModel(const ModelData& model_data)
     std::shared_ptr<utils::VBO> positions_vbo = storeDataInAttributeList(0, 3, model_data.positions.data(), model_data.positions.size());
     std::shared_ptr<utils::VBO> texture_coords_vbo = storeDataInAttributeList(1, 2, model_data.texture_coords.data(), model_data.texture_coords.size());
     std::shared_ptr<utils::VBO> normals_vbo = storeDataInAttributeList(2, 3, model_data.normals.data(), model_data.normals.size());
+    std::shared_ptr<utils::VBO> tangents_vbo = storeDataInAttributeList(3, 3, model_data.tangents.data(), model_data.tangents.size());
+    std::shared_ptr<utils::VBO> bitangents_vbo = storeDataInAttributeList(4, 3, model_data.bitangents.data(), model_data.bitangents.size());
     unbindVao();
 
-    return {vao, {indices_vbo, positions_vbo, texture_coords_vbo, normals_vbo}, static_cast<unsigned int>(model_data.indices.size())};
+    return {vao, {indices_vbo, positions_vbo, texture_coords_vbo, normals_vbo, tangents_vbo, bitangents_vbo}, static_cast<unsigned int>(model_data.indices.size())};
 }
 
 RawModelAttributes AssetManager::loadSimpleModel(
@@ -141,7 +154,6 @@ std::shared_ptr<utils::Texture> AssetManager::loadTexture(const std::string& fil
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_LOD_BIAS, lod_value);
 
-    // check if anisotropic filtering is supported
     int no_of_extensions = 0;
     glGetIntegerv(GL_NUM_EXTENSIONS, &no_of_extensions);
 

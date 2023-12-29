@@ -24,7 +24,7 @@ public:
 
 private:
     void acquireTextureData();
-    __host__ __device__ glm::vec2 fixUVCoordinates(const glm::vec2& uv) const;
+    static __host__ __device__ glm::vec2 fixUVCoordinates(const glm::vec2& uv);
     __host__ __device__ unsigned int calculatePixelIndex(const glm::vec2& uv) const;
 
     std::shared_ptr<utils::Texture> texture;
