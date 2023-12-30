@@ -49,7 +49,7 @@ class MakeTempDir {
   // Creates a directory with a unique name including `testname`.
   // The destructor removes it.
   explicit MakeTempDir(const std::string& testname) {
-    // mkdtemp requires that the last 6 characters of the input pattern
+    // mkdtemp requires that the last 6 characters of the Input pattern
     // are Xs, and the string is modified by replacing those characters.
     std::string pattern = "/tmp/" + testname + "_XXXXXX";
     GTEST_CHECK_(mkdtemp(pattern.data()) != nullptr);

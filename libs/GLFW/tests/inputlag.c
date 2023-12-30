@@ -256,9 +256,9 @@ int main(int argc, char** argv)
                 nk_label(nk, "", 0);
                 nk_layout_row_push(nk, 500);
                 if (lead == 0)
-                    nk_label(nk, "- current cursor position (no input lag)", align_left);
+                    nk_label(nk, "- current cursor position (no Input lag)", align_left);
                 else
-                    nk_labelf(nk, align_left, "- %d-frame forecast (input lag is %d frame)", lead, lead);
+                    nk_labelf(nk, align_left, "- %d-frame forecast (Input lag is %d frame)", lead, lead);
                 nk_layout_row_end(nk);
             }
 
@@ -268,7 +268,7 @@ int main(int argc, char** argv)
             nk_label(nk, "Input method:", align_left);
             if (nk_option_label(nk, "glfwGetCursorPos (sync query)", cursor_method == cursor_sync_query))
                 cursor_method = cursor_sync_query;
-            if (nk_option_label(nk, "glfwSetCursorPosCallback (latest input message)", cursor_method == cursor_input_message))
+            if (nk_option_label(nk, "glfwSetCursorPosCallback (latest Input message)", cursor_method == cursor_input_message))
                 cursor_method = cursor_input_message;
 
             nk_label(nk, "", 0); // separator

@@ -44,7 +44,7 @@
 // The Xinerama extension provides legacy monitor indices
 #include <X11/extensions/Xinerama.h>
 
-// The XInput extension provides raw mouse motion input
+// The XInput extension provides raw mouse motion Input
 #include <X11/extensions/XInput2.h>
 
 typedef XRRCrtcGamma* (* PFN_XRRAllocGamma)(int);
@@ -220,7 +220,7 @@ typedef struct _GLFWlibraryX11
     Cursor          hiddenCursorHandle;
     // Context for mapping window XIDs to _GLFWwindow pointers
     XContext        context;
-    // XIM input method
+    // XIM Input method
     XIM             im;
     // The previous X error handler, to be restored later
     XErrorHandler   errorHandler;

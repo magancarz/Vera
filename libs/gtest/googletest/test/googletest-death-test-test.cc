@@ -228,7 +228,7 @@ int DieInCRTDebugElse12(int* sideeffect) {
 // Tests the ExitedWithCode predicate.
 TEST(ExitStatusPredicateTest, ExitedWithCode) {
   // On Windows, the process's exit code is the same as its exit status,
-  // so the predicate just compares the its input with its parameter.
+  // so the predicate just compares the its Input with its parameter.
   EXPECT_TRUE(testing::ExitedWithCode(0)(0));
   EXPECT_TRUE(testing::ExitedWithCode(1)(1));
   EXPECT_TRUE(testing::ExitedWithCode(42)(42));
@@ -652,7 +652,7 @@ TEST_F(TestForDeathTest, TestExpectDebugDeath) {
 // expected when in CRT debug mode (compiled with /MTd or /MDd, which defines
 // _DEBUG) the Windows CRT crashes the process with an assertion failure.
 // 1. Asserts on death.
-// 2. Has no side effect (doesn't pop up a window or wait for user input).
+// 2. Has no side effect (doesn't pop up a window or wait for user Input).
 #ifdef _DEBUG
 TEST_F(TestForDeathTest, CRTDebugDeath) {
   EXPECT_DEATH(DieInCRTDebugElse12(nullptr), "dup.* : Assertion failed")

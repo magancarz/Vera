@@ -818,13 +818,13 @@ TEST_P(AnyOfTestP, ExplainsResult) {
 // The following predicate function and predicate functor are for
 // testing the Truly(predicate) matcher.
 
-// Returns non-zero if the input is positive.  Note that the return
+// Returns non-zero if the Input is positive.  Note that the return
 // type of this function is not bool.  It's OK as Truly() accepts any
 // unary function or functor whose return type can be implicitly
 // converted to bool.
 int IsPositive(double x) { return x > 0 ? 1 : 0; }
 
-// This functor returns true if the input is greater than the given
+// This functor returns true if the Input is greater than the given
 // number.
 class IsGreaterThan {
  public:

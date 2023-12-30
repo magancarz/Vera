@@ -6,7 +6,7 @@ namespace glm
 	template<typename genType>
 	GLM_FUNC_QUALIFIER genType fastSqrt(genType x)
 	{
-		GLM_STATIC_ASSERT(std::numeric_limits<genType>::is_iec559, "'fastSqrt' only accept floating-point input");
+		GLM_STATIC_ASSERT(std::numeric_limits<genType>::is_iec559, "'fastSqrt' only accept floating-point Input");
 
 		return genType(1) / fastInverseSqrt(x);
 	}

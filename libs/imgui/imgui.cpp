@@ -145,7 +145,7 @@ CODE
      - Tab, SHIFT+Tab:              Cycle through every items.
      - Arrow keys                   Move through items using directional navigation. Tweak value.
      - Arrow keys + Alt, Shift      Tweak slower, tweak faster (when using arrow keys).
-     - Enter                        Activate item (prefer text input when possible).
+     - Enter                        Activate item (prefer text Input when possible).
      - Space                        Activate item (prefer tweaking with arrows when possible).
      - Escape                       Deactivate item, leave child window, close popup.
      - Page Up, Page Down           Previous page, next page.
@@ -164,10 +164,10 @@ CODE
    - Backend support: backend needs to:
       - Set 'io.BackendFlags |= ImGuiBackendFlags_HasGamepad' + call io.AddKeyEvent/AddKeyAnalogEvent() with ImGuiKey_Gamepad_XXX keys.
       - For analog values (0.0f to 1.0f), backend is responsible to handling a dead-zone and rescaling inputs accordingly.
-        Backend code will probably need to transform your raw inputs (such as e.g. remapping your 0.2..0.9 raw input range to 0.0..1.0 imgui range, etc.).
+        Backend code will probably need to transform your raw inputs (such as e.g. remapping your 0.2..0.9 raw Input range to 0.0..1.0 imgui range, etc.).
       - BEFORE 1.87, BACKENDS USED TO WRITE TO io.NavInputs[]. This is now obsolete. Please call io functions instead!
    - If you need to share inputs between your game and the Dear ImGui interface, the easiest approach is to go all-or-nothing,
-     with a buttons combo to toggle the target. Please reach out if you think the game vs navigation input sharing could be improved.
+     with a buttons combo to toggle the target. Please reach out if you think the game vs navigation Input sharing could be improved.
 
  - REMOTE INPUTS SHARING & MOUSE EMULATION
    - PS4/PS5 users: Consider emulating a mouse cursor with DualShock touch pad or a spare analog stick as a mouse-emulation fallback.
@@ -232,7 +232,7 @@ CODE
  - When using Dear ImGui, your programming IDE is your friend: follow the declaration of variables, functions and types to find comments about them.
  - Dear ImGui never touches or knows about your GPU state. The only function that knows about GPU is the draw function that you provide.
    Effectively it means you can create widgets at any time in your code, regardless of considerations of being in "update" vs "render"
-   phases of your own application. All renderEngine information is stored into command-lists that you will retrieve after calling ImGui::Render().
+   phases of your own application. All RenderEngine information is stored into command-lists that you will retrieve after calling ImGui::Render().
  - Refer to the backends and demo applications in the examples/ folder for instruction on how to setup your code.
  - If you are running over a standard OS with a common graphics API, you should be able to use unmodified imgui_impl_*** files from the examples/ folder.
 
@@ -318,7 +318,7 @@ CODE
         MyGameRender(); // may use any Dear ImGui functions as well!
 
         // Render dear imgui, swap buffers
-        // (You want to try calling EndFrame/Render as late as you can, to be able to use Dear ImGui in your own game renderEngine code)
+        // (You want to try calling EndFrame/Render as late as you can, to be able to use Dear ImGui in your own game RenderEngine code)
         ImGui::EndFrame();
         ImGui::Render();
         ImDrawData* draw_data = ImGui::GetDrawData();
@@ -336,7 +336,7 @@ CODE
 
  HOW A SIMPLE RENDERING FUNCTION MAY LOOK LIKE
  ---------------------------------------------
- The backends in impl_impl_XXX.cpp files contain many working implementations of a renderEngine function.
+ The backends in impl_impl_XXX.cpp files contain many working implementations of a RenderEngine function.
 
     void MyImGuiRenderFunction(ImDrawData* draw_data)
     {
@@ -602,13 +602,13 @@ CODE
  - 2019/07/15 (1.72) - removed TreeAdvanceToLabelPos() which is rarely used and only does SetCursorPosX(GetCursorPosX() + GetTreeNodeToLabelSpacing()). Kept redirection function (will obsolete).
  - 2019/07/12 (1.72) - renamed ImFontAtlas::CustomRect to ImFontAtlasCustomRect. Kept redirection typedef (will obsolete).
  - 2019/06/14 (1.72) - removed redirecting functions/enums names that were marked obsolete in 1.51 (June 2017): ImGuiCol_Column*, ImGuiSetCond_*, IsItemHoveredRect(), IsPosHoveringAnyWindow(), IsMouseHoveringAnyWindow(), IsMouseHoveringWindow(), IMGUI_ONCE_UPON_A_FRAME. Grep this log for details and new names, or see how they were implemented until 1.71.
- - 2019/06/07 (1.71) - renderEngine of child window outer decorations (bg color, border, scrollbars) is now performed as part of the parent window. If you have
-                       overlapping child windows in a same parent, and relied on their relative z-order to be mapped to their submission order, this will affect your renderEngine.
+ - 2019/06/07 (1.71) - RenderEngine of child window outer decorations (bg color, border, scrollbars) is now performed as part of the parent window. If you have
+                       overlapping child windows in a same parent, and relied on their relative z-order to be mapped to their submission order, this will affect your RenderEngine.
                        This optimization is disabled if the parent window has no visual output, because it appears to be the most common situation leading to the creation of overlapping child windows.
                        Please reach out if you are affected.
  - 2019/05/13 (1.71) - renamed SetNextTreeNodeOpen() to SetNextItemOpen(). Kept inline redirection function (will obsolete).
  - 2019/05/11 (1.71) - changed io.AddInputCharacter(unsigned short c) signature to io.AddInputCharacter(unsigned int c).
- - 2019/04/29 (1.70) - improved ImDrawList thick strokes (>1.0f) preserving correct thickness up to 90 degrees angles (e.g. rectangles). If you have custom renderEngine using thick lines, they will appear thicker now.
+ - 2019/04/29 (1.70) - improved ImDrawList thick strokes (>1.0f) preserving correct thickness up to 90 degrees angles (e.g. rectangles). If you have custom RenderEngine using thick lines, they will appear thicker now.
  - 2019/04/29 (1.70) - removed GetContentRegionAvailWidth(), use GetContentRegionAvail().x instead. Kept inline redirection function (will obsolete).
  - 2019/03/04 (1.69) - renamed GetOverlayDrawList() to GetForegroundDrawList(). Kept redirection function (will obsolete).
  - 2019/02/26 (1.69) - renamed ImGuiColorEditFlags_RGB/ImGuiColorEditFlags_HSV/ImGuiColorEditFlags_HEX to ImGuiColorEditFlags_DisplayRGB/ImGuiColorEditFlags_DisplayHSV/ImGuiColorEditFlags_DisplayHex. Kept redirection enums (will obsolete).
@@ -645,7 +645,7 @@ CODE
                        If you have IMGUI_DISABLE_OBSOLETE_FUNCTIONS enabled, the code will instead assert! You may run a reg-exp search on your codebase for e.g. "DragInt.*%f" to help you find them.
  - 2018/04/28 (1.61) - obsoleted InputFloat() functions taking an optional "int decimal_precision" in favor of an equivalent and more flexible "const char* format",
                        consistent with other functions. Kept redirection functions (will obsolete).
- - 2018/04/09 (1.61) - IM_DELETE() helper function added in 1.60 doesn't clear the input _pointer_ reference, more consistent with expectation and allows passing r-value.
+ - 2018/04/09 (1.61) - IM_DELETE() helper function added in 1.60 doesn't clear the Input _pointer_ reference, more consistent with expectation and allows passing r-value.
  - 2018/03/20 (1.60) - renamed io.WantMoveMouse to io.WantSetMousePos for consistency and ease of understanding (was added in 1.52, _not_ used by core and only honored by some backend ahead of merging the Nav branch).
  - 2018/03/12 (1.60) - removed ImGuiCol_CloseButton, ImGuiCol_CloseButtonActive, ImGuiCol_CloseButtonHovered as the closing cross uses regular button colors now.
  - 2018/03/08 (1.60) - changed ImFont::DisplayOffset.y to default to 0 instead of +1. Fixed rounding of Ascent/Descent to match TrueType renderer. If you were adding or subtracting to ImFont::DisplayOffset check if your fonts are correctly aligned vertically.
@@ -735,8 +735,8 @@ CODE
  - 2015/07/18 (1.44) - fixed angles in ImDrawList::PathArcTo(), PathArcToFast() (introduced in 1.43) being off by an extra PI for no justifiable reason
  - 2015/07/14 (1.43) - add new ImFontAtlas::AddFont() API. For the old AddFont***, moved the 'font_no' parameter of ImFontAtlas::AddFont** functions to the ImFontConfig structure.
                        you need to render your textured triangles with bilinear filtering to benefit from sub-pixel positioning of text.
- - 2015/07/08 (1.43) - switched renderEngine data to use indexed renderEngine. this is saving a fair amount of CPU/GPU and enables us to get anti-aliasing for a marginal cost.
-                       this necessary change will break your renderEngine function! the fix should be very easy. sorry for that :(
+ - 2015/07/08 (1.43) - switched RenderEngine data to use indexed RenderEngine. this is saving a fair amount of CPU/GPU and enables us to get anti-aliasing for a marginal cost.
+                       this necessary change will break your RenderEngine function! the fix should be very easy. sorry for that :(
                      - if you are using a vanilla copy of one of the imgui_impl_XXX.cpp provided in the example, you just need to update your copy and you can ignore the rest.
                      - the signature of the io.RenderDrawListsFn handler has changed!
                        old: ImGui_XXXX_RenderDrawLists(ImDrawList** const cmd_lists, int cmd_lists_count)
@@ -745,7 +745,7 @@ CODE
                          ImDrawList: 'commands' becomes 'CmdBuffer', 'vtx_buffer' becomes 'VtxBuffer', 'IdxBuffer' is new.
                          ImDrawCmd:  'vtx_count' becomes 'ElemCount', 'clip_rect' becomes 'ClipRect', 'user_callback' becomes 'UserCallback', 'texture_id' becomes 'TextureId'.
                      - each ImDrawList now contains both a vertex buffer and an index buffer. For each command, render ElemCount/3 triangles using indices from the index buffer.
-                     - if you REALLY cannot renderScene indexed primitives, you can call the draw_data->DeIndexAllBuffers() method to de-index the buffers. This is slow and a waste of CPU/GPU. Prefer using indexed renderEngine!
+                     - if you REALLY cannot renderScene indexed primitives, you can call the draw_data->DeIndexAllBuffers() method to de-index the buffers. This is slow and a waste of CPU/GPU. Prefer using indexed RenderEngine!
                      - refer to code in the examples/ folder or ask on the GitHub if you are unsure of how to upgrade. please upgrade!
  - 2015/07/10 (1.43) - changed SameLine() parameters from int to float.
  - 2015/07/02 (1.42) - renamed SetScrollPosHere() to SetScrollFromCursorPos(). Kept inline redirection function (will obsolete).
@@ -767,7 +767,7 @@ CODE
  - 2015/03/08 (1.35) - renamed style.ScrollBarWidth to style.ScrollbarWidth (casing)
  - 2015/02/27 (1.34) - renamed OpenNextNode(bool) to SetNextTreeNodeOpened(bool, ImGuiSetCond). Kept inline redirection function until 1.50.
  - 2015/02/27 (1.34) - renamed ImGuiSetCondition_*** to ImGuiSetCond_***, and _FirstUseThisSession becomes _Once.
- - 2015/02/11 (1.32) - changed text input callback ImGuiTextEditCallback return type from void-->int. reserved for future use, return 0 for now.
+ - 2015/02/11 (1.32) - changed text Input callback ImGuiTextEditCallback return type from void-->int. reserved for future use, return 0 for now.
  - 2015/02/10 (1.32) - renamed GetItemWidth() to CalcItemWidth() to clarify its evolving behavior
  - 2015/02/08 (1.31) - renamed GetTextLineSpacing() to GetTextLineHeightWithSpacing()
  - 2015/02/01 (1.31) - removed IO.MemReallocFn (unused)
@@ -790,7 +790,7 @@ CODE
  - 2014/09/24 (1.12) - moved IM_MALLOC/IM_REALLOC/IM_FREE preprocessor defines to IO.MemAllocFn/IO.MemReallocFn/IO.MemFreeFn
  - 2014/08/30 (1.09) - removed IO.FontHeight (now computed automatically)
  - 2014/08/30 (1.09) - moved IMGUI_FONT_TEX_UV_FOR_WHITE preprocessor define to IO.FontTexUvForWhite
- - 2014/08/28 (1.09) - changed the behavior of IO.PixelCenterOffset following various renderEngine fixes
+ - 2014/08/28 (1.09) - changed the behavior of IO.PixelCenterOffset following various RenderEngine fixes
 
 
  FREQUENTLY ASKED QUESTIONS (FAQ)
@@ -798,7 +798,7 @@ CODE
 
  Read all answers online:
    https://www.dearimgui.com/faq or https://github.com/ocornut/imgui/blob/master/docs/FAQ.md (same url)
- Read all answers locally (with a text editor or ideally a Markdown viewer):
+ Read all answers locally (with a text Editor or ideally a Markdown viewer):
    docs/FAQ.md
  Some answers are copied down here to facilitate searching in code.
 
@@ -834,7 +834,7 @@ CODE
  >> See https://www.dearimgui.com/faq for a fully detailed answer. You really want to read this.
 
  Q. How can I enable keyboard controls?
- Q: How can I use this without a mouse, without a keyboard or without a screen? (gamepad, input share, remote display)
+ Q: How can I use this without a mouse, without a keyboard or without a screen? (gamepad, Input share, remote display)
  Q: I integrated Dear ImGui in my engine and little squares are showing instead of text...
  Q: I integrated Dear ImGui in my engine and some elements are clipping or disappearing when I move windows around...
  Q: I integrated Dear ImGui in my engine and some elements are displaying outside their expected windows boundaries...
@@ -861,7 +861,7 @@ CODE
  Q: How can I load a different font than the default?
  Q: How can I easily use icons in my application?
  Q: How can I load multiple fonts?
- Q: How can I display and input non-Latin characters such as Chinese, Japanese, Korean, Cyrillic?
+ Q: How can I display and Input non-Latin characters such as Chinese, Japanese, Korean, Cyrillic?
  >> See https://www.dearimgui.com/faq and https://github.com/ocornut/imgui/edit/master/docs/FONTS.md
 
  Q&A: Concerns
@@ -1179,7 +1179,7 @@ ImGuiStyle::ImGuiStyle()
     DisplaySafeAreaPadding  = ImVec2(3,3);      // If you cannot see the edge of your screen (e.g. on a TV) increase the safe area padding. Covers popups/tooltips as well regular windows.
     MouseCursorScale        = 1.0f;             // Scale software rendered mouse cursor (when io.MouseDrawCursor is enabled). May be removed later.
     AntiAliasedLines        = true;             // Enable anti-aliased lines/borders. Disable if you are really tight on CPU/GPU.
-    AntiAliasedLinesUseTex  = true;             // Enable anti-aliased lines/borders using textures where possible. Require backend to renderScene with bilinear filtering (NOT point/nearest filtering).
+    AntiAliasedLinesUseTex  = true;             // Enable anti-aliased lines/borders using Textures where possible. Require backend to renderScene with bilinear filtering (NOT point/nearest filtering).
     AntiAliasedFill         = true;             // Enable anti-aliased filled shapes (rounded rectangles, circles, etc.).
     CurveTessellationTol    = 1.25f;            // Tessellation tolerance when using PathBezierCurveTo() without a specific number of segments. Decrease for highly tessellated curves (higher quality, more polygons), increase to reduce quality.
     CircleTessellationMaxError = 0.30f;         // Maximum error (in pixels) allowed when using AddCircle()/AddCircleFilled() or drawing rounded corner rectangles with no explicit segment count specified. Decrease for higher quality but more geometry.
@@ -1296,7 +1296,7 @@ ImGuiIO::ImGuiIO()
     BackendUsingLegacyNavInputArray = true; // assume using legacy array until proven wrong
 }
 
-// Pass in translated ASCII characters for text input.
+// Pass in translated ASCII characters for text Input.
 // - with glfw you can get those from the callback set in glfwSetCharCallback()
 // - on Windows you can get those using ToAscii+keyboard state, or via the WM_CHAR message
 // FIXME: Should in theory be called "AddCharacterEvent()" to be consistent with new API
@@ -2097,7 +2097,7 @@ void*   ImFileLoadToMemory(const char* filename, const char* mode, size_t* out_f
 
 IM_MSVC_RUNTIME_CHECKS_OFF
 
-// Convert UTF-8 to 32-bit character, process single character input.
+// Convert UTF-8 to 32-bit character, process single character Input.
 // A nearly-branchless UTF-8 decoder, based on work of Christopher Wellons (https://github.com/skeeto/branchless-utf8).
 // We handle UTF-8 decoding error by skipping forward.
 int ImTextCharFromUtf8(unsigned int* out_char, const char* in_text, const char* in_text_end)
@@ -2144,7 +2144,7 @@ int ImTextCharFromUtf8(unsigned int* out_char, const char* in_text, const char* 
         // No bytes are consumed when *in_text == 0 || in_text == in_text_end.
         // One byte is consumed in case of invalid first byte of in_text.
         // All available bytes (at most `len` bytes) are consumed on incomplete/invalid second to last bytes.
-        // Invalid or incomplete input may consume less bytes than wanted, therefore every byte has to be inspected in s.
+        // Invalid or incomplete Input may consume less bytes than wanted, therefore every byte has to be inspected in s.
         wanted = ImMin(wanted, !!s[0] + !!s[1] + !!s[2] + !!s[3]);
         *out_char = IM_UNICODE_CODEPOINT_INVALID;
     }
@@ -3339,7 +3339,7 @@ void ImGui::RenderTextClippedEx(ImDrawList* draw_list, const ImVec2& pos_min, co
     if (clip_rect) // If we had no explicit clipping rectangle then pos==clip_min
         need_clipping |= (pos.x < clip_min->x) || (pos.y < clip_min->y);
 
-    // Align whole block. We should defer that to the better renderEngine function when we'll have support for individual line alignment.
+    // Align whole block. We should defer that to the better RenderEngine function when we'll have support for individual line alignment.
     if (align.x > 0.0f) pos.x = ImMax(pos.x, pos.x + (pos_max.x - pos.x - text_size.x) * align.x);
     if (align.y > 0.0f) pos.y = ImMax(pos.y, pos.y + (pos_max.y - pos.y - text_size.y) * align.y);
 
@@ -4239,7 +4239,7 @@ ImGuiPlatformIO& ImGui::GetPlatformIO()
     return GImGui->PlatformIO;
 }
 
-// Pass this to your backend renderEngine function! Valid after Render() and until the next call to NewFrame()
+// Pass this to your backend RenderEngine function! Valid after Render() and until the next call to NewFrame()
 ImDrawData* ImGui::GetDrawData()
 {
     ImGuiContext& g = *GImGui;
@@ -4618,11 +4618,11 @@ void ImGui::NewFrame()
     g.FramerateSecPerFrameCount = ImMin(g.FramerateSecPerFrameCount + 1, IM_ARRAYSIZE(g.FramerateSecPerFrame));
     g.IO.Framerate = (g.FramerateSecPerFrameAccum > 0.0f) ? (1.0f / (g.FramerateSecPerFrameAccum / (float)g.FramerateSecPerFrameCount)) : FLT_MAX;
 
-    // Process input queue (trickle as many events as possible), turn events into writes to IO structure
+    // Process Input queue (trickle as many events as possible), turn events into writes to IO structure
     g.InputEventsTrail.resize(0);
     UpdateInputEvents(g.IO.ConfigInputTrickleEventQueue);
 
-    // Update viewports (after processing input queue, so io.MouseHoveredViewport is set)
+    // Update viewports (after processing Input queue, so io.MouseHoveredViewport is set)
     UpdateViewportsNewFrame();
 
     // Setup current font and draw list shared data
@@ -4646,7 +4646,7 @@ void ImGui::NewFrame()
     if (g.IO.BackendFlags & ImGuiBackendFlags_RendererHasVtxOffset)
         g.DrawListSharedData.InitialFlags |= ImDrawListFlags_AllowVtxOffset;
 
-    // Mark renderEngine data as invalid to prevent user who may have a handle on it to use it.
+    // Mark RenderEngine data as invalid to prevent user who may have a handle on it to use it.
     for (int n = 0; n < g.Viewports.Size; n++)
     {
         ImGuiViewportP* viewport = g.Viewports[n];
@@ -4746,7 +4746,7 @@ void ImGui::NewFrame()
     //if (g.IO.AppFocusLost)
     //    ClosePopupsExceptModals();
 
-    // Update keyboard input state
+    // Update keyboard Input state
     UpdateKeyboardInputs();
 
     //IM_ASSERT(g.IO.KeyCtrl == IsKeyDown(ImGuiKey_LeftCtrl) || IsKeyDown(ImGuiKey_RightCtrl));
@@ -4757,7 +4757,7 @@ void ImGui::NewFrame()
     // Update gamepad/keyboard navigation
     NavUpdate();
 
-    // Update mouse input state
+    // Update mouse Input state
     UpdateMouseInputs();
 
     // Undocking
@@ -4768,7 +4768,7 @@ void ImGui::NewFrame()
     // (needs to be before UpdateMouseMovingWindowNewFrame so we fill g.HoveredWindowUnderMovingWindow on the mouse release frame)
     UpdateHoveredWindowAndCaptureFlags();
 
-    // Handle user moving window with mouse (at the beginning of the frame to avoid input lag or sheering)
+    // Handle user moving window with mouse (at the beginning of the frame to avoid Input lag or sheering)
     UpdateMouseMovingWindowNewFrame();
 
     // Background darkening/whitening
@@ -4970,7 +4970,7 @@ void ImDrawDataBuilder::FlattenIntoSingleLayer()
 static void SetupViewportDrawData(ImGuiViewportP* viewport, ImVector<ImDrawList*>* draw_lists)
 {
     // When minimized, we report draw_data->DisplaySize as zero to be consistent with non-viewport mode,
-    // and to allow applications/backends to easily skip renderEngine.
+    // and to allow applications/backends to easily skip RenderEngine.
     // FIXME: Note that we however do NOT attempt to report "zero drawlist / vertices" into the ImDrawData structure.
     // This is because the work has been done already, and its wasted! We should fix that and add optimizations for
     // it earlier in the pipeline, rather than pretend to hide the data at the end of the pipeline.
@@ -4996,7 +4996,7 @@ static void SetupViewportDrawData(ImGuiViewportP* viewport, ImVector<ImDrawList*
     }
 }
 
-// Push a clipping rectangle for both ImGui logic (hit-testing etc.) and low-level ImDrawList renderEngine.
+// Push a clipping rectangle for both ImGui logic (hit-testing etc.) and low-level ImDrawList RenderEngine.
 // - When using this function it is sane to ensure that float are perfectly rounded to integer values,
 //   so that e.g. (int)(max.x-min.x) in user's renderScene produce correct result.
 // - If the code here changes, may need to update code of functions like NextColumn() and PushColumnClipRect():
@@ -5242,7 +5242,7 @@ void ImGui::EndFrame()
     CallContextHooks(&g, ImGuiContextHookType_EndFramePost);
 }
 
-// Prepare the data for renderEngine so you can call GetDrawData()
+// Prepare the data for RenderEngine so you can call GetDrawData()
 // (As with anything within the ImGui:: namspace this doesn't touch your GPU or graphics API at all:
 // it is the role of the ImGui_ImplXXXX_RenderDrawData() function provided by the renderer backend)
 void ImGui::Render()
@@ -6316,7 +6316,7 @@ void ImGui::RenderWindowDecorations(ImGuiWindow* window, const ImRect& title_bar
         if (window->ScrollbarY)
             Scrollbar(ImGuiAxis_Y);
 
-        // Render resize grips (after their input handling so we don't have a frame of latency)
+        // Render resize grips (after their Input handling so we don't have a frame of latency)
         if (handle_borders_and_resize_grips && !(flags & ImGuiWindowFlags_NoResize))
         {
             for (int resize_grip_n = 0; resize_grip_n < resize_grip_count; resize_grip_n++)
@@ -7550,7 +7550,7 @@ void ImGui::FocusTopMostWindowUnderOne(ImGuiWindow* under_this_window, ImGuiWind
     }
     for (int i = start_idx; i >= 0; i--)
     {
-        // We may later decide to test for different NoXXXInputs based on the active navigation input (mouse vs nav) but that may feel more confusing to the user.
+        // We may later decide to test for different NoXXXInputs based on the active navigation Input (mouse vs nav) but that may feel more confusing to the user.
         ImGuiWindow* window = g.WindowsFocusOrder[i];
         IM_ASSERT(window == window->RootWindow);
         if (window == ignore_window || !window->WasActive)
@@ -8620,7 +8620,7 @@ static int CalcRoutingScore(ImGuiWindow* location, ImGuiID owner_id, ImGuiInputF
         ImGuiWindow* focused = g.NavWindow;
 
         // ActiveID gets top priority
-        // (we don't check g.ActiveIdUsingAllKeys here. Routing is applied but if input ownership is tested later it may discard it)
+        // (we don't check g.ActiveIdUsingAllKeys here. Routing is applied but if Input ownership is tested later it may discard it)
         if (owner_id != 0 && g.ActiveId == owner_id)
             return 1;
 
@@ -8651,7 +8651,7 @@ static int CalcRoutingScore(ImGuiWindow* location, ImGuiID owner_id, ImGuiInputF
     return 0;
 }
 
-// Request a desired route for an input chord (key + mods).
+// Request a desired route for an Input chord (key + mods).
 // Return true if the route is available this frame.
 // - Routes and key ownership are attributed at the beginning of next frame based on best score and mod state.
 //   (Conceptually this does a "Submit for next frame" + "Test for current frame".
@@ -8843,7 +8843,7 @@ bool ImGui::IsMouseHoveringRect(const ImVec2& r_min, const ImVec2& r_max, bool c
     if (clip)
         rect_clipped.ClipWith(g.CurrentWindow->ClipRect);
 
-    // Expand for touch input
+    // Expand for touch Input
     const ImRect rect_for_touch(rect_clipped.Min - g.Style.TouchExtraPadding, rect_clipped.Max + g.Style.TouchExtraPadding);
     if (!rect_for_touch.Contains(g.IO.MousePos))
         return false;
@@ -8898,7 +8898,7 @@ bool ImGui::IsMousePosValid(const ImVec2* mouse_pos)
     return p.x >= MOUSE_INVALID && p.y >= MOUSE_INVALID;
 }
 
-// [WILL OBSOLETE] This was designed for backends, but prefer having backend maintain a mask of held mouse buttons, because upcoming input queue system will make this invalid.
+// [WILL OBSOLETE] This was designed for backends, but prefer having backend maintain a mask of held mouse buttons, because upcoming Input queue system will make this invalid.
 bool ImGui::IsAnyMouseDown()
 {
     ImGuiContext& g = *GImGui;
@@ -8935,7 +8935,7 @@ void ImGui::ResetMouseDragDelta(ImGuiMouseButton button)
 // Get desired mouse cursor shape.
 // Important: this is meant to be used by a platform backend, it is reset in ImGui::NewFrame(),
 // updated during the frame, and locked in EndFrame()/Render().
-// If you use software renderEngine by setting io.MouseDrawCursor then Dear ImGui will renderScene those for you
+// If you use software RenderEngine by setting io.MouseDrawCursor then Dear ImGui will renderScene those for you
 ImGuiMouseCursor ImGui::GetMouseCursor()
 {
     ImGuiContext& g = *GImGui;
@@ -9071,7 +9071,7 @@ static void ImGui::UpdateKeyboardInputs()
         key_data->DownDuration = key_data->Down ? (key_data->DownDuration < 0.0f ? 0.0f : key_data->DownDuration + io.DeltaTime) : -1.0f;
     }
 
-    // Update keys/input owner (named keys only): one entry per key
+    // Update keys/Input owner (named keys only): one entry per key
     for (ImGuiKey key = ImGuiKey_NamedKey_BEGIN; key < ImGuiKey_NamedKey_END; key = (ImGuiKey)(key + 1))
     {
         ImGuiKeyData* key_data = &io.KeysData[key - ImGuiKey_KeysData_OFFSET];
@@ -9092,9 +9092,9 @@ static void ImGui::UpdateMouseInputs()
 
     // Mouse Wheel swapping flag
     // As a standard behavior holding SHIFT while using Vertical Mouse Wheel triggers Horizontal scroll instead
-    // - We avoid doing it on OSX as it the OS input layer handles this already.
+    // - We avoid doing it on OSX as it the OS Input layer handles this already.
     // - FIXME: However this means when running on OSX over Emscripten, Shift+WheelY will incur two swapping (1 in OS, 1 here), canceling the feature.
-    // - FIXME: When we can distinguish e.g. touchpad scroll events from mouse ones, we'll set this accordingly based on input source.
+    // - FIXME: When we can distinguish e.g. touchpad scroll events from mouse ones, we'll set this accordingly based on Input source.
     io.MouseWheelRequestAxisSwap = io.KeyShift && !io.ConfigMacOSXBehaviors;
 
     // Round mouse position to avoid spreading non-rounded position (e.g. UpdateManualResize doesn't support them well)
@@ -9339,9 +9339,9 @@ static void DebugPrintInputEvent(const char* prefix, const ImGuiInputEvent* e)
 }
 #endif
 
-// Process input queue
+// Process Input queue
 // We always call this with the value of 'bool g.IO.ConfigInputTrickleEventQueue'.
-// - trickle_fast_inputs = false : process all events, turn into flattened input state (e.g. successive down/up/down/up will be lost)
+// - trickle_fast_inputs = false : process all events, turn into flattened Input state (e.g. successive down/up/down/up will be lost)
 // - trickle_fast_inputs = true  : process as many events as possible (successive down/up/down/up will be trickled over several frames so nothing is lost) (new feature in 1.87)
 void ImGui::UpdateInputEvents(bool trickle_fast_inputs)
 {
@@ -9516,7 +9516,7 @@ bool ImGui::TestKeyOwner(ImGuiKey key, ImGuiID owner_id)
     return true;
 }
 
-// _LockXXX flags are useful to lock keys away from code which is not input-owner aware.
+// _LockXXX flags are useful to lock keys away from code which is not Input-owner aware.
 // When using _LockXXX flags, you can use ImGuiKeyOwner_Any to lock keys from everyone.
 // - SetKeyOwner(..., None)              : clears owner
 // - SetKeyOwner(..., Any, !Lock)        : illegal (assert)
@@ -11881,7 +11881,7 @@ static void ImGui::NavUpdate()
     io.WantSetMousePos = false;
     //if (g.NavScoringDebugCount > 0) IMGUI_DEBUG_LOG_NAV("[nav] NavScoringDebugCount %d for '%s' layer %d (Init:%d, Move:%d)\n", g.NavScoringDebugCount, g.NavWindow ? g.NavWindow->Name : "NULL", g.NavLayer, g.NavInitRequest || g.NavInitResultId != 0, g.NavMoveRequest);
 
-    // Set input source based on which keys are last pressed (as some features differs when used with Gamepad vs Keyboard)
+    // Set Input source based on which keys are last pressed (as some features differs when used with Gamepad vs Keyboard)
     // FIXME-NAV: Now that keys are separated maybe we can get rid of NavInputSource?
     const bool nav_gamepad_active = (io.ConfigFlags & ImGuiConfigFlags_NavEnableGamepad) != 0 && (io.BackendFlags & ImGuiBackendFlags_HasGamepad) != 0;
     const ImGuiKey nav_gamepad_keys_to_change_source[] = { ImGuiKey_GamepadFaceRight, ImGuiKey_GamepadFaceLeft, ImGuiKey_GamepadFaceUp, ImGuiKey_GamepadFaceDown, ImGuiKey_GamepadDpadRight, ImGuiKey_GamepadDpadLeft, ImGuiKey_GamepadDpadUp, ImGuiKey_GamepadDpadDown };
@@ -11931,7 +11931,7 @@ static void ImGui::NavUpdate()
     io.NavActive = (nav_keyboard_active || nav_gamepad_active) && g.NavWindow && !(g.NavWindow->Flags & ImGuiWindowFlags_NoNavInputs);
     io.NavVisible = (io.NavActive && g.NavId != 0 && !g.NavDisableHighlight) || (g.NavWindowingTarget != NULL);
 
-    // Process NavCancel input (to close a popup, get back to parent, clear focus)
+    // Process NavCancel Input (to close a popup, get back to parent, clear focus)
     NavUpdateCancelRequest();
 
     // Process manual activation request
@@ -12330,7 +12330,7 @@ void ImGui::NavMoveRequestApplyResult()
         NavRestoreHighlightAfterMove();
 }
 
-// Process NavCancel input (to close a popup, get back to parent, clear focus)
+// Process NavCancel Input (to close a popup, get back to parent, clear focus)
 // FIXME: In order to support e.g. Escape to clear a selection we'll need:
 // - either to store the equivalent of ActiveIdUsingKeyInputMask for a FocusScope and test for it.
 // - either to move most/all of those tests to the epilogue/end functions of the scope they are dealing with (e.g. exit child window in EndChild()) or in EndFrame(), to allow an earlier intercept
@@ -14632,8 +14632,8 @@ void ImGui::UpdatePlatformWindows()
     }
 }
 
-// This is a default/basic function for performing the renderEngine/swap of multiple Platform Windows.
-// Custom renderers may prefer to not call this function at all, and instead iterate the publicly exposed platform data and handle renderEngine/sync themselves.
+// This is a default/basic function for performing the RenderEngine/swap of multiple Platform Windows.
+// Custom renderers may prefer to not call this function at all, and instead iterate the publicly exposed platform data and handle RenderEngine/sync themselves.
 // The Render/Swap functions stored in ImGuiPlatformIO are merely here to allow for this helper to exist, but you can do it yourself:
 //
 //    ImGuiPlatformIO& platform_io = ImGui::GetPlatformIO();
@@ -18805,7 +18805,7 @@ static void SetClipboardTextFn_DefaultImpl(void* user_data_ctx, const char* text
 
 static void SetPlatformImeDataFn_DefaultImpl(ImGuiViewport* viewport, ImGuiPlatformImeData* data)
 {
-    // Notify OS Input Method Editor of text input position
+    // Notify OS Input Method Editor of text Input position
     HWND hwnd = (HWND)viewport->PlatformHandleRaw;
     if (hwnd == 0)
         return;
@@ -18944,7 +18944,7 @@ void ImGui::DebugRenderKeyboardPreview(ImDrawList* draw_list)
     };
 
     // Elements rendered manually via ImDrawList API are not clipped automatically.
-    // While not strictly necessary, here IsItemVisible() is used to avoid renderEngine these shapes when they are out of view.
+    // While not strictly necessary, here IsItemVisible() is used to avoid RenderEngine these shapes when they are out of view.
     Dummy(board_max - board_min);
     if (!IsItemVisible())
         return;

@@ -56,7 +56,7 @@ from googletest.test import gtest_test_utils
 # processes.  We set an env variable to an empty string and invoke a python
 # script in a subprocess to print whether the variable is STILL in
 # os.environ.  We then use 'eval' to parse the child's output so that an
-# exception is thrown if the input is anything other than 'True' nor 'False'.
+# exception is thrown if the Input is anything other than 'True' nor 'False'.
 CAN_PASS_EMPTY_ENV = False
 if sys.executable:
   os.environ['EMPTY_VAR'] = ''
@@ -71,7 +71,7 @@ if sys.executable:
 # a python script in a subprocess to print whether the variable
 # is NO LONGER in os.environ.
 # We use 'eval' to parse the child's output so that an exception
-# is thrown if the input is neither 'True' nor 'False'.
+# is thrown if the Input is neither 'True' nor 'False'.
 CAN_UNSET_ENV = False
 if sys.executable:
   os.environ['UNSET_VAR'] = 'X'

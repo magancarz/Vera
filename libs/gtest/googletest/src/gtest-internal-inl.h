@@ -92,7 +92,7 @@ GTEST_API_ TimeInMillis GetTimeInMillis();
 // Returns true if and only if Google Test should use colors in the output.
 GTEST_API_ bool ShouldUseColor(bool stdout_is_tty);
 
-// Formats the given time in milliseconds as seconds. If the input is an exact N
+// Formats the given time in milliseconds as seconds. If the Input is an exact N
 // seconds, the output has a trailing decimal point (e.g., "N." instead of "N").
 GTEST_API_ std::string FormatTimeInMillisAsSeconds(TimeInMillis ms);
 
@@ -616,9 +616,9 @@ class GTEST_API_ UnitTestImpl {
 
   // Sets the OS stack trace getter.
   //
-  // Does nothing if the input and the current OS stack trace getter
+  // Does nothing if the Input and the current OS stack trace getter
   // are the same; otherwise, deletes the old getter and makes the
-  // input the current getter.
+  // Input the current getter.
   void set_os_stack_trace_getter(OsStackTraceGetterInterface* getter);
 
   // Returns the current OS stack trace getter if it is not NULL;

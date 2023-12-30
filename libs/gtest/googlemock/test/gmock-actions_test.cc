@@ -99,7 +99,7 @@ TEST(TypeTraits, Negation) {
 //
 // These let us check finicky details mandated by the standard like
 // "std::conjunction should evaluate to a type that inherits from the first
-// false-y input".
+// false-y Input".
 template <int>
 struct MyFalse : std::integral_constant<int, 0> {};
 
@@ -759,8 +759,8 @@ TEST(ReturnTest, ConversionRequiresConstLvalueReference) {
 
 // Return(x) should not be usable with a mock function result type that's
 // implicitly convertible from decltype(x) but requires a non-const lvalue
-// reference to the input. It doesn't make sense for the conversion operator to
-// modify the input.
+// reference to the Input. It doesn't make sense for the conversion operator to
+// modify the Input.
 TEST(ReturnTest, ConversionRequiresMutableLvalueReference) {
   // Set up a type that is implicitly convertible from std::string&, but not
   // std::string&& or `const std::string&`.

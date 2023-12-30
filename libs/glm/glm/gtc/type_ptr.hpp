@@ -59,7 +59,7 @@ namespace glm
 	/// @addtogroup gtc_type_ptr
 	/// @{
 
-	/// Return the constant address to the data of the input parameter.
+	/// Return the constant address to the data of the Input parameter.
 	/// @see gtc_type_ptr
 	template<typename genType>
 	GLM_FUNC_DECL typename genType::value_type const * value_ptr(genType const& v);

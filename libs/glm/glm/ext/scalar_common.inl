@@ -30,7 +30,7 @@ namespace glm
 		template<typename T>
 		GLM_FUNC_QUALIFIER T fmin(T a, T b)
 		{
-			GLM_STATIC_ASSERT(std::numeric_limits<T>::is_iec559, "'fmin' only accept floating-point input");
+			GLM_STATIC_ASSERT(std::numeric_limits<T>::is_iec559, "'fmin' only accept floating-point Input");
 
 			if (isnan(a))
 				return b;
@@ -41,7 +41,7 @@ namespace glm
 	template<typename T>
 	GLM_FUNC_QUALIFIER T fmin(T a, T b, T c)
 	{
-		GLM_STATIC_ASSERT(std::numeric_limits<T>::is_iec559, "'fmin' only accept floating-point input");
+		GLM_STATIC_ASSERT(std::numeric_limits<T>::is_iec559, "'fmin' only accept floating-point Input");
 
 		if (isnan(a))
 			return fmin(b, c);
@@ -55,7 +55,7 @@ namespace glm
 	template<typename T>
 	GLM_FUNC_QUALIFIER T fmin(T a, T b, T c, T d)
 	{
-		GLM_STATIC_ASSERT(std::numeric_limits<T>::is_iec559, "'fmin' only accept floating-point input");
+		GLM_STATIC_ASSERT(std::numeric_limits<T>::is_iec559, "'fmin' only accept floating-point Input");
 
 		if (isnan(a))
 			return fmin(b, c, d);
@@ -75,7 +75,7 @@ namespace glm
 		template<typename T>
 		GLM_FUNC_QUALIFIER T fmax(T a, T b)
 		{
-			GLM_STATIC_ASSERT(std::numeric_limits<T>::is_iec559, "'fmax' only accept floating-point input");
+			GLM_STATIC_ASSERT(std::numeric_limits<T>::is_iec559, "'fmax' only accept floating-point Input");
 
 			if (isnan(a))
 				return b;
@@ -86,7 +86,7 @@ namespace glm
 	template<typename T>
 	GLM_FUNC_QUALIFIER T fmax(T a, T b, T c)
 	{
-		GLM_STATIC_ASSERT(std::numeric_limits<T>::is_iec559, "'fmax' only accept floating-point input");
+		GLM_STATIC_ASSERT(std::numeric_limits<T>::is_iec559, "'fmax' only accept floating-point Input");
 
 		if (isnan(a))
 			return fmax(b, c);
@@ -100,7 +100,7 @@ namespace glm
 	template<typename T>
 	GLM_FUNC_QUALIFIER T fmax(T a, T b, T c, T d)
 	{
-		GLM_STATIC_ASSERT(std::numeric_limits<T>::is_iec559, "'fmax' only accept floating-point input");
+		GLM_STATIC_ASSERT(std::numeric_limits<T>::is_iec559, "'fmax' only accept floating-point Input");
 
 		if (isnan(a))
 			return fmax(b, c, d);

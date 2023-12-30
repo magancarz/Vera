@@ -275,7 +275,7 @@ void _glfwInputKey(_GLFWwindow* window, int key, int scancode, int action, int m
         window->callbacks.key((GLFWwindow*) window, key, scancode, action, mods);
 }
 
-// Notifies shared code of a Unicode codepoint input event
+// Notifies shared code of a Unicode codepoint Input event
 // The 'plain' parameter determines whether to emit a regular character event
 //
 void _glfwInputChar(_GLFWwindow* window, uint32_t codepoint, int mods, GLFWbool plain)
@@ -507,7 +507,7 @@ GLFWAPI int glfwGetInputMode(GLFWwindow* handle, int mode)
             return window->rawMouseMotion;
     }
 
-    _glfwInputError(GLFW_INVALID_ENUM, "Invalid input mode 0x%08X", mode);
+    _glfwInputError(GLFW_INVALID_ENUM, "Invalid Input mode 0x%08X", mode);
     return 0;
 }
 
@@ -601,7 +601,7 @@ GLFWAPI void glfwSetInputMode(GLFWwindow* handle, int mode, int value)
         _glfwPlatformSetRawMouseMotion(window, value);
     }
     else
-        _glfwInputError(GLFW_INVALID_ENUM, "Invalid input mode 0x%08X", mode);
+        _glfwInputError(GLFW_INVALID_ENUM, "Invalid Input mode 0x%08X", mode);
 }
 
 GLFWAPI int glfwRawMouseMotionSupported(void)

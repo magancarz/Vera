@@ -81,7 +81,7 @@ GTEST_API_ std::string ConvertIdentifierNameToWords(const char* id_name) {
   std::string result;
   char prev_char = '\0';
   for (const char* p = id_name; *p != '\0'; prev_char = *(p++)) {
-    // We don't care about the current locale as the input is
+    // We don't care about the current locale as the Input is
     // guaranteed to be a valid C++ identifier name.
     const bool starts_new_word = IsUpper(*p) ||
                                  (!IsAlpha(prev_char) && IsLower(*p)) ||

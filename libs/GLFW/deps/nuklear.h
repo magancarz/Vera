@@ -29,8 +29,8 @@
 /// This is a minimal state immediate mode graphical user interface toolkit
 /// written in ANSI C and licensed under public domain. It was designed as a simple
 /// embeddable user interface for application and does not have any dependencies,
-/// a default renderbackend or OS window and input handling but instead provides a very modular
-/// library approach by using simple input state for input and draw
+/// a default renderbackend or OS window and Input handling but instead provides a very modular
+/// library approach by using simple Input state for Input and draw
 /// commands describing primitive shapes as output. So instead of providing a
 /// layered library that tries to abstract over a number of platform and
 /// render backends it only focuses on the actual UI.
@@ -68,7 +68,7 @@
 ///     - Advanced widget like abstract comboboxes, contextual menus,...
 /// - Compile time configuration to only compile what you need
 ///     - Subset which can be used if you do not want to link or use the standard library
-/// - Can be easily modified to only update on user input instead of frame updates
+/// - Can be easily modified to only update on user Input instead of frame updates
 ///
 /// ## Usage
 /// This library is self contained in one single header file and can be used either
@@ -102,7 +102,7 @@
 /// NK_INCLUDE_VERTEX_BUFFER_OUTPUT | Defining this adds a vertex draw command list backend to this library, which allows you to convert queue commands into vertex draw commands. This is mainly if you need a hardware accessible format for OpenGL, DirectX, Vulkan, Metal,...
 /// NK_INCLUDE_FONT_BAKING          | Defining this adds `stb_truetype` and `stb_rect_pack` implementation to this library and provides font baking and rendering. If you already have font handling or do not want to use this font handler you don't have to define it.
 /// NK_INCLUDE_DEFAULT_FONT         | Defining this adds the default font: ProggyClean.ttf into this library which can be loaded into a font atlas and allows using this library without having a truetype font
-/// NK_INCLUDE_COMMAND_USERDATA     | Defining this adds a userdata pointer into each command. Can be useful for example if you want to provide custom shaders depending on the used widget. Can be combined with the style structures.
+/// NK_INCLUDE_COMMAND_USERDATA     | Defining this adds a userdata pointer into each command. Can be useful for example if you want to provide custom Shaders depending on the used widget. Can be combined with the style structures.
 /// NK_BUTTON_TRIGGER_ON_RELEASE    | Different platforms require button clicks occurring either on buttons being pressed (up to down) or released (down to up). By default this library will react on buttons being pressed, but if you define this it will only trigger if a button is released.
 /// NK_ZERO_COMMAND_MEMORY          | Defining this will zero out memory for each drawing command added to a drawing queue (inside nk_command_buffer_push). Zeroing command memory is very useful for fast checking (using memcmp) if command buffers are equal and avoid drawing frames when nothing on screen has changed since previous frame.
 ///
@@ -128,7 +128,7 @@
 /// --------------------------------|---------------------------------------
 /// NK_BUFFER_DEFAULT_INITIAL_SIZE  | Initial buffer size allocated by all buffers while using the default allocator functions included by defining NK_INCLUDE_DEFAULT_ALLOCATOR. If you don't want to allocate the default 4k memory then redefine it.
 /// NK_MAX_NUMBER_BUFFER            | Maximum buffer size for the conversion buffer between float and string Under normal circumstances this should be more than sufficient.
-/// NK_INPUT_MAX                    | Defines the max number of bytes which can be added as text input in one frame. Under normal circumstances this should be more than sufficient.
+/// NK_INPUT_MAX                    | Defines the max number of bytes which can be added as text Input in one frame. Under normal circumstances this should be more than sufficient.
 ///
 /// !!! WARNING
 ///     The following constants if defined need to be defined for both header and implementation:
@@ -511,7 +511,7 @@ enum nk_symbol_type {
  * =============================================================================*/
 /*/// ### Context
 /// Contexts are the main entry point and the majestro of nuklear and contain all required state.
-/// They are used for window, memory, input, style, stack, commands and time management and need
+/// They are used for window, memory, Input, style, stack, commands and time management and need
 /// to be passed into all nuklear GUI specific functions.
 ///
 /// #### Usage
@@ -670,10 +670,10 @@ NK_API void nk_set_user_data(struct nk_context*, nk_handle handle);
  *
  * =============================================================================*/
 /*/// ### Input
-/// The input API is responsible for holding the current input state composed of
-/// mouse, key and text input states.
+/// The Input API is responsible for holding the current Input state composed of
+/// mouse, key and text Input states.
 /// It is worth noting that no direct OS or window handling is done in nuklear.
-/// Instead all input state has to be provided by platform specific code. This on one hand
+/// Instead all Input state has to be provided by platform specific code. This on one hand
 /// expects more work from the user and complicates usage but on the other hand
 /// provides simple abstraction over a big number of platforms, libraries and other
 /// already provided functionality.
@@ -692,11 +692,11 @@ NK_API void nk_set_user_data(struct nk_context*, nk_handle handle);
 /// #### Usage
 /// Input state needs to be provided to nuklear by first calling `nk_input_begin`
 /// which resets internal state like delta mouse position and button transistions.
-/// After `nk_input_begin` all current input state needs to be provided. This includes
-/// mouse motion, button and key pressed and released, text input and scrolling.
-/// Both event- or state-based input handling are supported by this API
-/// and should work without problems. Finally after all input state has been
-/// mirrored `nk_input_end` needs to be called to finish input process.
+/// After `nk_input_begin` all current Input state needs to be provided. This includes
+/// mouse motion, button and key pressed and released, text Input and scrolling.
+/// Both event- or state-based Input handling are supported by this API
+/// and should work without problems. Finally after all Input state has been
+/// mirrored `nk_input_end` needs to be called to finish Input process.
 ///
 /// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~c
 /// struct nk_context ctx;
@@ -720,7 +720,7 @@ NK_API void nk_set_user_data(struct nk_context*, nk_handle handle);
 /// #### Reference
 /// Function            | Description
 /// --------------------|-------------------------------------------------------
-/// __nk_input_begin__  | Begins the input mirroring process. Needs to be called before all other `nk_input_xxx` calls
+/// __nk_input_begin__  | Begins the Input mirroring process. Needs to be called before all other `nk_input_xxx` calls
 /// __nk_input_motion__ | Mirrors mouse cursor position
 /// __nk_input_key__    | Mirrors key state with either pressed or released
 /// __nk_input_button__ | Mirrors mouse button state with either pressed or released
@@ -728,7 +728,7 @@ NK_API void nk_set_user_data(struct nk_context*, nk_handle handle);
 /// __nk_input_char__   | Adds a single ASCII text character into an internal text buffer
 /// __nk_input_glyph__  | Adds a single multi-byte UTF-8 character into an internal text buffer
 /// __nk_input_unicode__| Adds a single unicode rune into an internal text buffer
-/// __nk_input_end__    | Ends the input mirroring process by calculating state changes. Don't call any `nk_input_xxx` function referenced above after this call
+/// __nk_input_end__    | Ends the Input mirroring process by calculating state changes. Don't call any `nk_input_xxx` function referenced above after this call
 */
 enum nk_keys {
     NK_KEY_NONE,
@@ -773,7 +773,7 @@ enum nk_buttons {
     NK_BUTTON_MAX
 };
 /*/// #### nk_input_begin
-/// Begins the input mirroring process by resetting text, scroll
+/// Begins the Input mirroring process by resetting text, scroll
 /// mouse, previous mouse position and movement as well as key state transitions,
 ///
 /// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~c
@@ -896,7 +896,7 @@ NK_API void nk_input_glyph(struct nk_context*, const nk_glyph);
 */
 NK_API void nk_input_unicode(struct nk_context*, nk_rune);
 /*/// #### nk_input_end
-/// End the input mirroring process by resetting mouse grabbing
+/// End the Input mirroring process by resetting mouse grabbing
 /// state to ensure the mouse cursor is not grabbed indefinitely.
 ///
 /// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~c
@@ -947,7 +947,7 @@ NK_API void nk_input_end(struct nk_context*);
 /// }
 /// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ///
-/// In program flow context draw commands need to be executed after input has been
+/// In program flow context draw commands need to be executed after Input has been
 /// gathered and the complete UI with windows and their contained widgets have
 /// been executed and before calling `nk_clear` which frees all previously
 /// allocated draw commands.
@@ -990,9 +990,9 @@ NK_API void nk_input_end(struct nk_context*);
 /// quite wasteful. While the actual UI updating loop is quite fast rendering
 /// without actually needing it is not. So there are multiple things you could do.
 ///
-/// First is only update on input. This of course is only an option if your
+/// First is only update on Input. This of course is only an option if your
 /// application only depends on the UI and does not require any outside calculations.
-/// If you actually only update on input make sure to update the UI two times each
+/// If you actually only update on Input make sure to update the UI two times each
 /// frame and call `nk_clear` directly after the first pass and only draw in
 /// the second pass. In addition it is recommended to also add additional timers
 /// to make sure the UI is not drawn more than a fixed number of frames per second.
@@ -1001,7 +1001,7 @@ NK_API void nk_input_end(struct nk_context*);
 /// struct nk_context ctx;
 /// nk_init_xxx(&ctx, ...);
 /// while (1) {
-///     // [...wait for input ]
+///     // [...wait for Input ]
 ///     // [...do two UI passes ...]
 ///     do_ui(...)
 ///     nk_clear(&ctx);
@@ -1049,7 +1049,7 @@ NK_API void nk_input_end(struct nk_context*);
 /// //
 /// // loop
 /// while (1) {
-///     // [...input...]
+///     // [...Input...]
 ///     // [...ui...]
 ///     void *cmds = nk_buffer_memory(&ctx.memory);
 ///     if (memcmp(cmds, last, ctx.memory.allocated)) {
@@ -1310,7 +1310,7 @@ NK_API const struct nk_draw_command* nk__draw_next(const struct nk_draw_command*
 /// order. The topmost window thereby is the currently active window.<br /><br />
 ///
 /// To change window position inside the stack occurs either automatically by
-/// user input by being clicked on or programmatically by calling `nk_window_focus`.
+/// user Input by being clicked on or programmatically by calling `nk_window_focus`.
 /// Windows by default are visible unless explicitly being defined with flag
 /// `NK_WINDOW_HIDDEN`, the user clicked the close button on windows with flag
 /// `NK_WINDOW_CLOSABLE` or if a window was explicitly hidden by calling
@@ -1332,7 +1332,7 @@ NK_API const struct nk_draw_command* nk__draw_next(const struct nk_draw_command*
 /// nk_end(ctx);
 /// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ///
-/// In the grand concept window and widget declarations need to occur after input
+/// In the grand concept window and widget declarations need to occur after Input
 /// handling and before drawing to screen. Not doing so can result in higher
 /// latency or at worst invalid behavior. Furthermore make sure that `nk_clear`
 /// is called at the end of the frame. While nuklear's default platform backends
@@ -1419,8 +1419,8 @@ NK_API const struct nk_draw_command* nk__draw_next(const struct nk_draw_command*
 /// Flag                        | Description
 /// ----------------------------|----------------------------------------
 /// NK_WINDOW_BORDER            | Draws a border around the window to visually separate window from the background
-/// NK_WINDOW_MOVABLE           | The movable flag indicates that a window can be moved by user input or by dragging the window header
-/// NK_WINDOW_SCALABLE          | The scalable flag indicates that a window can be scaled by user input by dragging a scaler icon at the button of the window
+/// NK_WINDOW_MOVABLE           | The movable flag indicates that a window can be moved by user Input or by dragging the window header
+/// NK_WINDOW_SCALABLE          | The scalable flag indicates that a window can be scaled by user Input by dragging a scaler icon at the button of the window
 /// NK_WINDOW_CLOSABLE          | Adds a closable icon into the header
 /// NK_WINDOW_MINIMIZABLE       | Adds a minimize icon into the header
 /// NK_WINDOW_NO_SCROLLBAR      | Removes the scrollbar from the window
@@ -1812,7 +1812,7 @@ NK_API int nk_window_is_active(struct nk_context*, const char*);
 NK_API int nk_window_is_any_hovered(struct nk_context*);
 /*/// #### nk_item_is_any_active
 /// Returns if the any window is being hovered or any widget is currently active.
-/// Can be used to decide if input should be processed by UI or your specific input handling.
+/// Can be used to decide if Input should be processed by UI or your specific Input handling.
 /// Example could be UI and 3D camera to move inside a 3D space.
 /// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~c
 /// int nk_item_is_any_active(struct nk_context*);
@@ -4082,7 +4082,7 @@ NK_API nk_size nk_buffer_total(struct nk_buffer*);
  *                          STRING
  *
  * ===============================================================*/
-/*  Basic string buffer which is only used in context with the text editor
+/*  Basic string buffer which is only used in context with the text Editor
  *  to manage and manipulate dynamic or fixed size string content. This is _NOT_
  *  the default string handling method. The only instance you should have any contact
  *  with this API is if you interact with an `nk_text_edit` object inside one of the
@@ -4146,20 +4146,20 @@ NK_API int nk_str_len_char(struct nk_str*);
  * This library generally allows three different levels of memory control:
  * First of is the most basic way of just providing a simple char array with
  * string length. This method is probably the easiest way of handling simple
- * user text input. Main upside is complete control over memory while the biggest
+ * user text Input. Main upside is complete control over memory while the biggest
  * downside in comparison with the other two approaches is missing undo/redo.
  *
  * For UIs that require undo/redo the second way was created. It is based on
  * a fixed size nk_text_edit struct, which has an internal undo/redo stack.
- * This is mainly useful if you want something more like a text editor but don't want
+ * This is mainly useful if you want something more like a text Editor but don't want
  * to have a dynamically growing buffer.
  *
  * The final way is using a dynamically growing nk_text_edit struct, which
  * has both a default version if you don't care where memory comes from and an
- * allocator version if you do. While the text editor is quite powerful for its
+ * allocator version if you do. While the text Editor is quite powerful for its
  * complexity I would not recommend editing gigabytes of data with it.
  * It is rather designed for uses cases which make sense for a GUI library not for
- * an full blown text editor.
+ * an full blown text Editor.
  */
 #ifndef NK_TEXTEDIT_UNDOSTATECOUNT
 #define NK_TEXTEDIT_UNDOSTATECOUNT     99
@@ -4232,7 +4232,7 @@ NK_API int nk_filter_hex(const struct nk_text_edit*, nk_rune unicode);
 NK_API int nk_filter_oct(const struct nk_text_edit*, nk_rune unicode);
 NK_API int nk_filter_binary(const struct nk_text_edit*, nk_rune unicode);
 
-/* text editor */
+/* text Editor */
 #ifdef NK_INCLUDE_DEFAULT_ALLOCATOR
 NK_API void nk_textedit_init_default(struct nk_text_edit*);
 #endif
@@ -4270,7 +4270,7 @@ NK_API void nk_textedit_redo(struct nk_text_edit*);
         void draw_red_rectangle_widget(struct nk_context *ctx)
         {
             struct nk_command_buffer *canvas;
-            struct nk_input *input = &ctx->input;
+            struct nk_input *Input = &ctx->Input;
             canvas = nk_window_get_canvas(ctx);
 
             struct nk_rect space;
@@ -5276,9 +5276,9 @@ enum nk_window_flags {
     NK_WINDOW_DYNAMIC       = NK_WINDOW_PRIVATE,
     /* special window type growing up in height while being filled to a certain maximum height */
     NK_WINDOW_ROM           = NK_FLAG(12),
-    /* sets window widgets into a read only mode and does not allow input changes */
+    /* sets window widgets into a read only mode and does not allow Input changes */
     NK_WINDOW_NOT_INTERACTIVE = NK_WINDOW_ROM|NK_WINDOW_NO_INPUT,
-    /* prevents all interaction caused by input to either window or widgets inside */
+    /* prevents all interaction caused by Input to either window or widgets inside */
     NK_WINDOW_HIDDEN        = NK_FLAG(13),
     /* Hides window and stops any window interaction and drawing */
     NK_WINDOW_CLOSED        = NK_FLAG(14),
@@ -5508,7 +5508,7 @@ struct nk_context {
 #ifdef NK_INCLUDE_COMMAND_USERDATA
     nk_handle userdata;
 #endif
-    /* text editor objects are quite big because of an internal
+    /* text Editor objects are quite big because of an internal
      * undo/redo stack. Therefore it does not make sense to have one for
      * each window for temporary use cases, so I only provide *one* instance
      * for all windows. This works because the content is cleared anyway */
@@ -5775,7 +5775,7 @@ NK_LIB void nk_finish_buffer(struct nk_context *ctx, struct nk_command_buffer *b
 NK_LIB void nk_finish(struct nk_context *ctx, struct nk_window *w);
 NK_LIB void nk_build(struct nk_context *ctx);
 
-/* text editor */
+/* text Editor */
 NK_LIB void nk_textedit_clear_state(struct nk_text_edit *state, enum nk_text_edit_type type, nk_plugin_filter filter);
 NK_LIB void nk_textedit_click(struct nk_text_edit *state, float x, float y, const struct nk_user_font *font, float row_height);
 NK_LIB void nk_textedit_drag(struct nk_text_edit *state, float x, float y, const struct nk_user_font *font, float row_height);
@@ -6536,8 +6536,8 @@ nk_strfilter(const char *text, const char *regexp)
     /*
     c    matches any literal character c
     .    matches any single character
-    ^    matches the beginning of the input string
-    $    matches the end of the input string
+    ^    matches the beginning of the Input string
+    $    matches the end of the Input string
     *    matches zero or more occurrences of the previous character*/
     if (regexp[0] == '^')
         return nk_str_match_here(regexp+1, text);
@@ -10477,7 +10477,7 @@ typedef unsigned short nk_rp_coord;
 struct nk_rp_rect {
     /* reserved for your use: */
     int id;
-    /* input: */
+    /* Input: */
     nk_rp_coord w, h;
     /* output: */
     nk_rp_coord x, y;
@@ -15893,7 +15893,7 @@ nk_panel_end(struct nk_context *ctx)
         }
     }
 
-    /* hide scroll if no user input */
+    /* hide scroll if no user Input */
     if (window->flags & NK_WINDOW_SCROLL_AUTO_HIDE) {
         int has_input = ctx->input.mouse.delta.x != 0 || ctx->input.mouse.delta.y != 0 || ctx->input.mouse.scroll_delta.y != 0;
         int is_window_hovered = nk_window_is_hovered(ctx);
@@ -22680,7 +22680,7 @@ nk_do_edit(nk_flags *state, struct nk_command_buffer *out,
                                 bounds.x, bounds.y, bounds.w, bounds.h);
     }
 
-    /* (de)activate text editor */
+    /* (de)activate text Editor */
     if (!prev_state && edit->active) {
         const enum nk_text_edit_type type = (flags & NK_EDIT_MULTILINE) ?
             NK_TEXT_EDIT_MULTI_LINE: NK_TEXT_EDIT_SINGLE_LINE;
@@ -22701,7 +22701,7 @@ nk_do_edit(nk_flags *state, struct nk_command_buffer *out,
     if (prev_state != edit->active)
         ret |= (edit->active) ? NK_EDIT_ACTIVATED: NK_EDIT_DEACTIVATED;
 
-    /* handle user input */
+    /* handle user Input */
     if (edit->active && in)
     {
         int shift_mod = in->keyboard.keys[NK_KEY_SHIFT].down;
@@ -22726,7 +22726,7 @@ nk_do_edit(nk_flags *state, struct nk_command_buffer *out,
             cursor_follow = nk_true;
         }
 
-        {int i; /* keyboard input */
+        {int i; /* keyboard Input */
         int old_mode = edit->mode;
         for (i = 0; i < NK_KEY_MAX; ++i) {
             if (i == NK_KEY_ENTER || i == NK_KEY_TAB) continue; /* special case */
@@ -22739,7 +22739,7 @@ nk_do_edit(nk_flags *state, struct nk_command_buffer *out,
             in->keyboard.text_len = 0;
         }}
 
-        /* text input */
+        /* text Input */
         edit->filter = filter;
         if (in->keyboard.text_len) {
             nk_textedit_text(edit, in->keyboard.text, in->keyboard.text_len);
@@ -25260,8 +25260,8 @@ nk_tooltipfv(struct nk_context *ctx, const char *fmt, va_list args)
 ///                        color conversion functions to cast between nk_color and
 ///                        nk_colorf.
 /// - 2017/12/23 (2.00.7) - Fixed small warning
-/// - 2017/12/23 (2.00.7) - Fixed nk_edit_buffer behavior if activated to allow input
-/// - 2017/12/23 (2.00.7) - Fixed modifyable progressbar dragging visuals and input behavior
+/// - 2017/12/23 (2.00.7) - Fixed nk_edit_buffer behavior if activated to allow Input
+/// - 2017/12/23 (2.00.7) - Fixed modifyable progressbar dragging visuals and Input behavior
 /// - 2017/12/04 (2.00.6) - Added formated string tooltip widget
 /// - 2017/11/18 (2.00.5) - Fixed window becoming hidden with flag NK_WINDOW_NO_INPUT
 /// - 2017/11/15 (2.00.4) - Fixed font merging
@@ -25314,7 +25314,7 @@ nk_tooltipfv(struct nk_context *ctx, const char *fmt, va_list args)
 /// - 2017/02/25 (1.34.0) - Added custom draw command for better language binding support
 /// - 2017/01/24 (1.33.0) - Added programatic way of remove edit focus
 /// - 2017/01/24 (1.32.3) - Fixed wrong define for basic type definitions for windows
-/// - 2017/01/21 (1.32.2) - Fixed input capture from hidden or closed windows
+/// - 2017/01/21 (1.32.2) - Fixed Input capture from hidden or closed windows
 /// - 2017/01/21 (1.32.1) - Fixed slider behavior and drawing
 /// - 2017/01/13 (1.32.0) - Added flag to put scaler into the bottom left corner
 /// - 2017/01/13 (1.31.0) - Added additional row layouting method to combine both

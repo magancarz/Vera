@@ -73,7 +73,7 @@ namespace glm
 	/// The conversion for unpacked fixed-point value f to floating point is done as follows:
 	/// unpackUnorm4x8: f / 255.0
 	///
-	/// The first component of the returned vector will be extracted from the least significant bits of the input;
+	/// The first component of the returned vector will be extracted from the least significant bits of the Input;
 	/// the last component will be extracted from the most significant bits.
 	///
 	/// @see gtc_packing
@@ -131,7 +131,7 @@ namespace glm
 	/// The conversion for unpacked fixed-point value f to floating point is done as follows:
 	/// unpackSnorm2x8: clamp(f / 127.0, -1, +1)
 	///
-	/// The first component of the returned vector will be extracted from the least significant bits of the input;
+	/// The first component of the returned vector will be extracted from the least significant bits of the Input;
 	/// the last component will be extracted from the most significant bits.
 	///
 	/// @see gtc_packing
@@ -189,7 +189,7 @@ namespace glm
 	/// The conversion for unpacked fixed-point value f to floating point is done as follows:
 	/// unpackUnormx4x16: f / 65535.0
 	///
-	/// The first component of the returned vector will be extracted from the least significant bits of the input;
+	/// The first component of the returned vector will be extracted from the least significant bits of the Input;
 	/// the last component will be extracted from the most significant bits.
 	///
 	/// @see gtc_packing
@@ -247,7 +247,7 @@ namespace glm
 	/// The conversion for unpacked fixed-point value f to floating point is done as follows:
 	/// unpackSnorm4x16: clamp(f / 32767.0, -1, +1)
 	///
-	/// The first component of the returned vector will be extracted from the least significant bits of the input;
+	/// The first component of the returned vector will be extracted from the least significant bits of the Input;
 	/// the last component will be extracted from the most significant bits.
 	///
 	/// @see gtc_packing
@@ -320,7 +320,7 @@ namespace glm
 
 	/// Unpacks a single 32-bit unsigned integer p into three 10-bit and one 2-bit signed integers.
 	///
-	/// The first component of the returned vector will be extracted from the least significant bits of the input;
+	/// The first component of the returned vector will be extracted from the least significant bits of the Input;
 	/// the last component will be extracted from the most significant bits.
 	///
 	/// @see gtc_packing
@@ -344,7 +344,7 @@ namespace glm
 
 	/// Unpacks a single 32-bit unsigned integer p into three 10-bit and one 2-bit unsigned integers.
 	///
-	/// The first component of the returned vector will be extracted from the least significant bits of the input;
+	/// The first component of the returned vector will be extracted from the least significant bits of the Input;
 	/// the last component will be extracted from the most significant bits.
 	///
 	/// @see gtc_packing
@@ -378,7 +378,7 @@ namespace glm
 	/// unpackSnorm3x10_1x2(xyz): clamp(f / 511.0, -1, +1)
 	/// unpackSnorm3x10_1x2(w): clamp(f / 511.0, -1, +1)
 	///
-	/// The first component of the returned vector will be extracted from the least significant bits of the input;
+	/// The first component of the returned vector will be extracted from the least significant bits of the Input;
 	/// the last component will be extracted from the most significant bits.
 	///
 	/// @see gtc_packing
@@ -413,7 +413,7 @@ namespace glm
 	/// unpackSnorm3x10_1x2(xyz): clamp(f / 1023.0, 0, +1)
 	/// unpackSnorm3x10_1x2(w): clamp(f / 3.0, 0, +1)
 	///
-	/// The first component of the returned vector will be extracted from the least significant bits of the input;
+	/// The first component of the returned vector will be extracted from the least significant bits of the Input;
 	/// the last component will be extracted from the most significant bits.
 	///
 	/// @see gtc_packing
@@ -437,7 +437,7 @@ namespace glm
 	/// First, unpacks a single 32-bit unsigned integer p into two 11-bit signless floating-point values and one 10-bit signless floating-point value .
 	/// Then, each component is converted to a normalized floating-point value to generate the returned three-component vector.
 	///
-	/// The first component of the returned vector will be extracted from the least significant bits of the input;
+	/// The first component of the returned vector will be extracted from the least significant bits of the Input;
 	/// the last component will be extracted from the most significant bits.
 	///
 	/// @see gtc_packing
@@ -461,7 +461,7 @@ namespace glm
 	/// First, unpacks a single 32-bit unsigned integer p into two 11-bit signless floating-point values and one 10-bit signless floating-point value .
 	/// Then, each component is converted to a normalized floating-point value to generate the returned three-component vector.
 	///
-	/// The first component of the returned vector will be extracted from the least significant bits of the input;
+	/// The first component of the returned vector will be extracted from the least significant bits of the Input;
 	/// the last component will be extracted from the most significant bits.
 	///
 	/// unpackF3x9_E1x5 allows decoding RGBE / RGB9E5 data

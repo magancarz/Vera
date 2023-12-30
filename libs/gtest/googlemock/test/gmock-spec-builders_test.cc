@@ -1681,7 +1681,7 @@ TEST(AfterTest, AcceptsUpToFiveArguments) {
   a.DoA(6);
 }
 
-// .After() allows input to contain duplicated Expectations.
+// .After() allows Input to contain duplicated Expectations.
 TEST(AfterTest, AcceptsDuplicatedInput) {
   MockA a;
   ON_CALL(a, ReturnResult(_)).WillByDefault(Return(Result()));

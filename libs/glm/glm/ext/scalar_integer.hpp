@@ -34,14 +34,14 @@ namespace glm
 	template<typename genIUType>
 	GLM_FUNC_DECL bool isPowerOfTwo(genIUType v);
 
-	/// Return the power of two number which value is just higher the input value,
+	/// Return the power of two number which value is just higher the Input value,
 	/// round up to a power of two.
 	///
 	/// @see ext_scalar_integer
 	template<typename genIUType>
 	GLM_FUNC_DECL genIUType nextPowerOfTwo(genIUType v);
 
-	/// Return the power of two number which value is just lower the input value,
+	/// Return the power of two number which value is just lower the Input value,
 	/// round down to a power of two.
 	///
 	/// @see ext_scalar_integer

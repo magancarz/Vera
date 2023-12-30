@@ -9,7 +9,7 @@
 #include "Objects/Lights/Light.h"
 
 StaticShader::StaticShader()
-    : ShaderProgram("res/shaders/vert.glsl", "res/shaders/frag.glsl") {}
+    : ShaderProgram("Resources/Shaders/vert.glsl", "Resources/Shaders/frag.glsl") {}
 
 void StaticShader::loadTransformationMatrix(const glm::mat4& matrix) const
 {

@@ -38,7 +38,7 @@ namespace glm
 	template<length_t L, typename T, qualifier Q>
 	GLM_FUNC_DECL vec<L, bool, Q> isPowerOfTwo(vec<L, T, Q> const& v);
 
-	/// Return the power of two number which value is just higher the input value,
+	/// Return the power of two number which value is just higher the Input value,
 	/// round up to a power of two.
 	///
 	/// @tparam L Integer between 1 and 4 included that qualify the dimension of the vector
@@ -49,7 +49,7 @@ namespace glm
 	template<length_t L, typename T, qualifier Q>
 	GLM_FUNC_DECL vec<L, T, Q> nextPowerOfTwo(vec<L, T, Q> const& v);
 
-	/// Return the power of two number which value is just lower the input value,
+	/// Return the power of two number which value is just lower the Input value,
 	/// round down to a power of two.
 	///
 	/// @tparam L Integer between 1 and 4 included that qualify the dimension of the vector

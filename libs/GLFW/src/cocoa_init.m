@@ -320,7 +320,7 @@ static GLFWbool updateUnicodeDataNS(void)
     if (!_glfw.ns.inputSource)
     {
         _glfwInputError(GLFW_PLATFORM_ERROR,
-                        "Cocoa: Failed to retrieve keyboard layout input source");
+                        "Cocoa: Failed to retrieve keyboard layout Input source");
         return GLFW_FALSE;
     }
 

@@ -378,14 +378,14 @@ void ImGui::ShowDemoWindow(bool* p_open)
             ImGui::MenuItem("Console", NULL, &show_app_console);
             ImGui::MenuItem("Log", NULL, &show_app_log);
             ImGui::MenuItem("Simple layout", NULL, &show_app_layout);
-            ImGui::MenuItem("Property editor", NULL, &show_app_property_editor);
+            ImGui::MenuItem("Property Editor", NULL, &show_app_property_editor);
             ImGui::MenuItem("Long text display", NULL, &show_app_long_text);
             ImGui::MenuItem("Auto-resizing window", NULL, &show_app_auto_resize);
             ImGui::MenuItem("Constrained-resizing window", NULL, &show_app_constrained_resize);
             ImGui::MenuItem("Simple overlay", NULL, &show_app_simple_overlay);
             ImGui::MenuItem("Fullscreen window", NULL, &show_app_fullscreen);
             ImGui::MenuItem("Manipulating window titles", NULL, &show_app_window_titles);
-            ImGui::MenuItem("Custom renderEngine", NULL, &show_app_custom_rendering);
+            ImGui::MenuItem("Custom RenderEngine", NULL, &show_app_custom_rendering);
             ImGui::MenuItem("Dockspace", NULL, &show_app_dockspace);
             ImGui::MenuItem("Documents", NULL, &show_app_documents);
             ImGui::EndMenu();
@@ -478,7 +478,7 @@ void ImGui::ShowDemoWindow(bool* p_open)
                 ImGui::Checkbox("io.ConfigDockingAlwaysTabBar", &io.ConfigDockingAlwaysTabBar);
                 ImGui::SameLine(); HelpMarker("Create a docking node and tab-bar on single floating windows.");
                 ImGui::Checkbox("io.ConfigDockingTransparentPayload", &io.ConfigDockingTransparentPayload);
-                ImGui::SameLine(); HelpMarker("Make window or viewport transparent when docking and only display docking boxes on the target viewport. Useful if renderEngine of multiple viewport cannot be synced. Best used with ConfigViewportsNoAutoMerge.");
+                ImGui::SameLine(); HelpMarker("Make window or viewport transparent when docking and only display docking boxes on the target viewport. Useful if RenderEngine of multiple viewport cannot be synced. Best used with ConfigViewportsNoAutoMerge.");
                 ImGui::Unindent();
             }
 
@@ -499,9 +499,9 @@ void ImGui::ShowDemoWindow(bool* p_open)
             }
 
             ImGui::Checkbox("io.ConfigInputTrickleEventQueue", &io.ConfigInputTrickleEventQueue);
-            ImGui::SameLine(); HelpMarker("Enable input queue trickling: some types of events submitted during the same frame (e.g. button down + up) will be spread over multiple frames, improving interactions with low framerates.");
+            ImGui::SameLine(); HelpMarker("Enable Input queue trickling: some types of events submitted during the same frame (e.g. button down + up) will be spread over multiple frames, improving interactions with low framerates.");
             ImGui::Checkbox("io.MouseDrawCursor", &io.MouseDrawCursor);
-            ImGui::SameLine(); HelpMarker("Instruct Dear ImGui to renderScene a mouse cursor itself. Note that a mouse cursor rendered via your application GPU renderEngine path will feel more laggy than hardware cursor, but will be more in sync with your other visuals.\n\nSome desktop applications may use both kinds of cursors (e.g. enable software cursor only when resizing/dragging something).");
+            ImGui::SameLine(); HelpMarker("Instruct Dear ImGui to renderScene a mouse cursor itself. Note that a mouse cursor rendered via your application GPU RenderEngine path will feel more laggy than hardware cursor, but will be more in sync with your other visuals.\n\nSome desktop applications may use both kinds of cursors (e.g. enable software cursor only when resizing/dragging something).");
 
             ImGui::SeparatorText("Widgets");
             ImGui::Checkbox("io.ConfigInputTextCursorBlink", &io.ConfigInputTextCursorBlink);
@@ -509,12 +509,12 @@ void ImGui::ShowDemoWindow(bool* p_open)
             ImGui::Checkbox("io.ConfigInputTextEnterKeepActive", &io.ConfigInputTextEnterKeepActive);
             ImGui::SameLine(); HelpMarker("Pressing Enter will keep item active and select contents (single-line only).");
             ImGui::Checkbox("io.ConfigDragClickToInputText", &io.ConfigDragClickToInputText);
-            ImGui::SameLine(); HelpMarker("Enable turning DragXXX widgets into text input with a simple mouse click-release (without moving).");
+            ImGui::SameLine(); HelpMarker("Enable turning DragXXX widgets into text Input with a simple mouse click-release (without moving).");
             ImGui::Checkbox("io.ConfigWindowsResizeFromEdges", &io.ConfigWindowsResizeFromEdges);
             ImGui::SameLine(); HelpMarker("Enable resizing of windows from their edges and from the lower-left corner.\nThis requires (io.BackendFlags & ImGuiBackendFlags_HasMouseCursors) because it needs mouse cursor feedback.");
             ImGui::Checkbox("io.ConfigWindowsMoveFromTitleBarOnly", &io.ConfigWindowsMoveFromTitleBarOnly);
             ImGui::Checkbox("io.ConfigMacOSXBehaviors", &io.ConfigMacOSXBehaviors);
-            ImGui::Text("Also see Style->Rendering for renderEngine options.");
+            ImGui::Text("Also see Style->Rendering for RenderEngine options.");
 
             ImGui::SeparatorText("Debug");
             ImGui::BeginDisabled();
@@ -724,7 +724,7 @@ static void ShowDemoWindowWidgets()
             // see the "Text Input > Resize Callback" section of this demo, and the misc/cpp/imgui_stdlib.h file.
             IMGUI_DEMO_MARKER("Widgets/Basic/InputText");
             static char str0[128] = "Hello, world!";
-            ImGui::InputText("input text", str0, IM_ARRAYSIZE(str0));
+            ImGui::InputText("Input text", str0, IM_ARRAYSIZE(str0));
             ImGui::SameLine(); HelpMarker(
                 "USER:\n"
                 "Hold SHIFT or use mouse to select text.\n"
@@ -739,26 +739,26 @@ static void ShowDemoWindowWidgets()
                 "in imgui_demo.cpp).");
 
             static char str1[128] = "";
-            ImGui::InputTextWithHint("input text (w/ hint)", "enter text here", str1, IM_ARRAYSIZE(str1));
+            ImGui::InputTextWithHint("Input text (w/ hint)", "enter text here", str1, IM_ARRAYSIZE(str1));
 
             IMGUI_DEMO_MARKER("Widgets/Basic/InputInt, InputFloat");
             static int i0 = 123;
-            ImGui::InputInt("input int", &i0);
+            ImGui::InputInt("Input int", &i0);
 
             static float f0 = 0.001f;
-            ImGui::InputFloat("input float", &f0, 0.01f, 1.0f, "%.3f");
+            ImGui::InputFloat("Input float", &f0, 0.01f, 1.0f, "%.3f");
 
             static double d0 = 999999.00000001;
-            ImGui::InputDouble("input double", &d0, 0.01f, 1.0f, "%.8f");
+            ImGui::InputDouble("Input double", &d0, 0.01f, 1.0f, "%.8f");
 
             static float f1 = 1.e10f;
-            ImGui::InputFloat("input scientific", &f1, 0.0f, 0.0f, "%e");
+            ImGui::InputFloat("Input scientific", &f1, 0.0f, 0.0f, "%e");
             ImGui::SameLine(); HelpMarker(
-                "You can input value using the scientific notation,\n"
+                "You can Input value using the scientific notation,\n"
                 "  e.g. \"1e+8\" becomes \"100000000\".");
 
             static float vec4a[4] = { 0.10f, 0.20f, 0.30f, 0.44f };
-            ImGui::InputFloat3("input float3", vec4a);
+            ImGui::InputFloat3("Input float3", vec4a);
         }
 
         ImGui::SeparatorText("Drags");
@@ -770,7 +770,7 @@ static void ShowDemoWindowWidgets()
             ImGui::SameLine(); HelpMarker(
                 "Click and drag to edit value.\n"
                 "Hold SHIFT/ALT for faster/slower edit.\n"
-                "Double-click or CTRL+click to input value.");
+                "Double-click or CTRL+click to Input value.");
 
             ImGui::DragInt("drag int 0..100", &i2, 1, 0, 100, "%d%%", ImGuiSliderFlags_AlwaysClamp);
 
@@ -785,7 +785,7 @@ static void ShowDemoWindowWidgets()
             IMGUI_DEMO_MARKER("Widgets/Basic/SliderInt, SliderFloat");
             static int i1 = 0;
             ImGui::SliderInt("slider int", &i1, -1, 3);
-            ImGui::SameLine(); HelpMarker("CTRL+click to input value.");
+            ImGui::SameLine(); HelpMarker("CTRL+click to Input value.");
 
             static float f1 = 0.123f, f2 = 0.0f;
             ImGui::SliderFloat("slider float", &f1, 0.0f, 1.0f, "ratio = %.3f");
@@ -818,7 +818,7 @@ static void ShowDemoWindowWidgets()
                 "Click on the color square to open a color picker.\n"
                 "Click and hold to use drag and drop.\n"
                 "Right-click on the color square to show options.\n"
-                "CTRL+click on individual component to input value.\n");
+                "CTRL+click on individual component to Input value.\n");
 
             ImGui::ColorEdit4("color 2", col2);
         }
@@ -1070,7 +1070,7 @@ static void ShowDemoWindowWidgets()
             ImGui::Text("Kanjis: \xe6\x97\xa5\xe6\x9c\xac\xe8\xaa\x9e (nihongo)");
             static char buf[32] = "\xe6\x97\xa5\xe6\x9c\xac\xe8\xaa\x9e";
             //static char buf[32] = u8"NIHONGO"; // <- this is how you would write it with C++11, using real kanjis
-            ImGui::InputText("UTF-8 input", buf, IM_ARRAYSIZE(buf));
+            ImGui::InputText("UTF-8 Input", buf, IM_ARRAYSIZE(buf));
             ImGui::TreePop();
         }
         ImGui::TreePop();
@@ -1087,8 +1087,8 @@ static void ShowDemoWindowWidgets()
 
         // Below we are displaying the font texture because it is the only texture we have access to inside the demo!
         // Remember that ImTextureID is just storage for whatever you want it to be. It is essentially a value that
-        // will be passed to the renderEngine backend via the ImDrawCmd structure.
-        // If you use one of the default imgui_impl_XXXX.cpp renderEngine backend, they all have comments at the top
+        // will be passed to the RenderEngine backend via the ImDrawCmd structure.
+        // If you use one of the default imgui_impl_XXXX.cpp RenderEngine backend, they all have comments at the top
         // of their respective source file to specify what they expect to be stored in ImTextureID, for example:
         // - The imgui_impl_dx11.cpp renderer expect a 'ID3D11ShaderResourceView*' pointer
         // - The imgui_impl_opengl3.cpp renderer expect a GLuint OpenGL texture identifier, etc.
@@ -1137,7 +1137,7 @@ static void ShowDemoWindowWidgets()
         static int pressed_count = 0;
         for (int i = 0; i < 8; i++)
         {
-            // UV coordinates are often (0.0f, 0.0f) and (1.0f, 1.0f) to display an entire textures.
+            // UV coordinates are often (0.0f, 0.0f) and (1.0f, 1.0f) to display an entire Textures.
             // Here are trying to display only a 32x32 pixels area of the texture, hence the UV computation.
             // Read about UV coordinates here: https://github.com/ocornut/imgui/wiki/Image-Loading-and-Displaying-Examples
             ImGui::PushID(i);
@@ -1449,7 +1449,7 @@ static void ShowDemoWindowWidgets()
         {
             struct TextFilters
             {
-                // Modify character input by altering 'data->Eventchar' (ImGuiInputTextFlags_CallbackCharFilter callback)
+                // Modify character Input by altering 'data->Eventchar' (ImGuiInputTextFlags_CallbackCharFilter callback)
                 static int FilterCasingSwap(ImGuiInputTextCallbackData* data)
                 {
                     if (data->EventChar >= 'a' && data->EventChar <= 'z')       { data->EventChar = data->EventChar - 'A' - 'a'; } // Lowercase becomes uppercase
@@ -1476,7 +1476,7 @@ static void ShowDemoWindowWidgets()
             ImGui::TreePop();
         }
 
-        IMGUI_DEMO_MARKER("Widgets/Text Input/Password input");
+        IMGUI_DEMO_MARKER("Widgets/Text Input/Password Input");
         if (ImGui::TreeNode("Password Input"))
         {
             static char password[64] = "password123";
@@ -1837,11 +1837,11 @@ static void ShowDemoWindowWidgets()
         ImGuiColorEditFlags misc_flags = (hdr ? ImGuiColorEditFlags_HDR : 0) | (drag_and_drop ? 0 : ImGuiColorEditFlags_NoDragDrop) | (alpha_half_preview ? ImGuiColorEditFlags_AlphaPreviewHalf : (alpha_preview ? ImGuiColorEditFlags_AlphaPreview : 0)) | (options_menu ? 0 : ImGuiColorEditFlags_NoOptions);
 
         IMGUI_DEMO_MARKER("Widgets/Color/ColorEdit");
-        ImGui::SeparatorText("Inline color editor");
+        ImGui::SeparatorText("Inline color Editor");
         ImGui::Text("Color widget:");
         ImGui::SameLine(); HelpMarker(
             "Click on the color square to open a color picker.\n"
-            "CTRL+click on individual component to input value.\n");
+            "CTRL+click on individual component to Input value.\n");
         ImGui::ColorEdit3("MyColor##1", (float*)&color, misc_flags);
 
         IMGUI_DEMO_MARKER("Widgets/Color/ColorEdit (HSV, with Alpha)");
@@ -2016,13 +2016,13 @@ static void ShowDemoWindowWidgets()
         // Demonstrate using advanced flags for DragXXX and SliderXXX functions. Note that the flags are the same!
         static ImGuiSliderFlags flags = ImGuiSliderFlags_None;
         ImGui::CheckboxFlags("ImGuiSliderFlags_AlwaysClamp", &flags, ImGuiSliderFlags_AlwaysClamp);
-        ImGui::SameLine(); HelpMarker("Always clamp value to min/max bounds (if any) when input manually with CTRL+Click.");
+        ImGui::SameLine(); HelpMarker("Always clamp value to min/max bounds (if any) when Input manually with CTRL+Click.");
         ImGui::CheckboxFlags("ImGuiSliderFlags_Logarithmic", &flags, ImGuiSliderFlags_Logarithmic);
         ImGui::SameLine(); HelpMarker("Enable logarithmic editing (more precision for small values).");
         ImGui::CheckboxFlags("ImGuiSliderFlags_NoRoundToFormat", &flags, ImGuiSliderFlags_NoRoundToFormat);
         ImGui::SameLine(); HelpMarker("Disable rounding underlying value to match precision of the format string (e.g. %.3f values are rounded to those 3 digits).");
         ImGui::CheckboxFlags("ImGuiSliderFlags_NoInput", &flags, ImGuiSliderFlags_NoInput);
-        ImGui::SameLine(); HelpMarker("Disable CTRL+Click or Enter key allowing to input text directly into the widget.");
+        ImGui::SameLine(); HelpMarker("Disable CTRL+Click or Enter key allowing to Input text directly into the widget.");
 
         // Drags
         static float drag_f = 0.5f;
@@ -2110,7 +2110,7 @@ static void ShowDemoWindowWidgets()
         ImGui::Checkbox("Clamp integers to 0..50", &drag_clamp);
         ImGui::SameLine(); HelpMarker(
             "As with every widget in dear imgui, we never modify values unless there is a user interaction.\n"
-            "You can override the clamping limits by using CTRL+Click to input a value.");
+            "You can override the clamping limits by using CTRL+Click to Input a value.");
         ImGui::DragScalar("drag s8",        ImGuiDataType_S8,     &s8_v,  drag_speed, drag_clamp ? &s8_zero  : NULL, drag_clamp ? &s8_fifty  : NULL);
         ImGui::DragScalar("drag u8",        ImGuiDataType_U8,     &u8_v,  drag_speed, drag_clamp ? &u8_zero  : NULL, drag_clamp ? &u8_fifty  : NULL, "%u ms");
         ImGui::DragScalar("drag s16",       ImGuiDataType_S16,    &s16_v, drag_speed, drag_clamp ? &s16_zero : NULL, drag_clamp ? &s16_fifty : NULL);
@@ -2163,18 +2163,18 @@ static void ShowDemoWindowWidgets()
         static bool inputs_step = true;
         ImGui::SeparatorText("Inputs");
         ImGui::Checkbox("Show step buttons", &inputs_step);
-        ImGui::InputScalar("input s8",      ImGuiDataType_S8,     &s8_v,  inputs_step ? &s8_one  : NULL, NULL, "%d");
-        ImGui::InputScalar("input u8",      ImGuiDataType_U8,     &u8_v,  inputs_step ? &u8_one  : NULL, NULL, "%u");
-        ImGui::InputScalar("input s16",     ImGuiDataType_S16,    &s16_v, inputs_step ? &s16_one : NULL, NULL, "%d");
-        ImGui::InputScalar("input u16",     ImGuiDataType_U16,    &u16_v, inputs_step ? &u16_one : NULL, NULL, "%u");
-        ImGui::InputScalar("input s32",     ImGuiDataType_S32,    &s32_v, inputs_step ? &s32_one : NULL, NULL, "%d");
-        ImGui::InputScalar("input s32 hex", ImGuiDataType_S32,    &s32_v, inputs_step ? &s32_one : NULL, NULL, "%04X");
-        ImGui::InputScalar("input u32",     ImGuiDataType_U32,    &u32_v, inputs_step ? &u32_one : NULL, NULL, "%u");
-        ImGui::InputScalar("input u32 hex", ImGuiDataType_U32,    &u32_v, inputs_step ? &u32_one : NULL, NULL, "%08X");
-        ImGui::InputScalar("input s64",     ImGuiDataType_S64,    &s64_v, inputs_step ? &s64_one : NULL);
-        ImGui::InputScalar("input u64",     ImGuiDataType_U64,    &u64_v, inputs_step ? &u64_one : NULL);
-        ImGui::InputScalar("input float",   ImGuiDataType_Float,  &f32_v, inputs_step ? &f32_one : NULL);
-        ImGui::InputScalar("input double",  ImGuiDataType_Double, &f64_v, inputs_step ? &f64_one : NULL);
+        ImGui::InputScalar("Input s8",      ImGuiDataType_S8,     &s8_v,  inputs_step ? &s8_one  : NULL, NULL, "%d");
+        ImGui::InputScalar("Input u8",      ImGuiDataType_U8,     &u8_v,  inputs_step ? &u8_one  : NULL, NULL, "%u");
+        ImGui::InputScalar("Input s16",     ImGuiDataType_S16,    &s16_v, inputs_step ? &s16_one : NULL, NULL, "%d");
+        ImGui::InputScalar("Input u16",     ImGuiDataType_U16,    &u16_v, inputs_step ? &u16_one : NULL, NULL, "%u");
+        ImGui::InputScalar("Input s32",     ImGuiDataType_S32,    &s32_v, inputs_step ? &s32_one : NULL, NULL, "%d");
+        ImGui::InputScalar("Input s32 hex", ImGuiDataType_S32,    &s32_v, inputs_step ? &s32_one : NULL, NULL, "%04X");
+        ImGui::InputScalar("Input u32",     ImGuiDataType_U32,    &u32_v, inputs_step ? &u32_one : NULL, NULL, "%u");
+        ImGui::InputScalar("Input u32 hex", ImGuiDataType_U32,    &u32_v, inputs_step ? &u32_one : NULL, NULL, "%08X");
+        ImGui::InputScalar("Input s64",     ImGuiDataType_S64,    &s64_v, inputs_step ? &s64_one : NULL);
+        ImGui::InputScalar("Input u64",     ImGuiDataType_U64,    &u64_v, inputs_step ? &u64_one : NULL);
+        ImGui::InputScalar("Input float",   ImGuiDataType_Float,  &f32_v, inputs_step ? &f32_one : NULL);
+        ImGui::InputScalar("Input double",  ImGuiDataType_Double, &f64_v, inputs_step ? &f64_one : NULL);
 
         ImGui::TreePop();
     }
@@ -2186,26 +2186,26 @@ static void ShowDemoWindowWidgets()
         static int vec4i[4] = { 1, 5, 100, 255 };
 
         ImGui::SeparatorText("2-wide");
-        ImGui::InputFloat2("input float2", vec4f);
+        ImGui::InputFloat2("Input float2", vec4f);
         ImGui::DragFloat2("drag float2", vec4f, 0.01f, 0.0f, 1.0f);
         ImGui::SliderFloat2("slider float2", vec4f, 0.0f, 1.0f);
-        ImGui::InputInt2("input int2", vec4i);
+        ImGui::InputInt2("Input int2", vec4i);
         ImGui::DragInt2("drag int2", vec4i, 1, 0, 255);
         ImGui::SliderInt2("slider int2", vec4i, 0, 255);
 
         ImGui::SeparatorText("3-wide");
-        ImGui::InputFloat3("input float3", vec4f);
+        ImGui::InputFloat3("Input float3", vec4f);
         ImGui::DragFloat3("drag float3", vec4f, 0.01f, 0.0f, 1.0f);
         ImGui::SliderFloat3("slider float3", vec4f, 0.0f, 1.0f);
-        ImGui::InputInt3("input int3", vec4i);
+        ImGui::InputInt3("Input int3", vec4i);
         ImGui::DragInt3("drag int3", vec4i, 1, 0, 255);
         ImGui::SliderInt3("slider int3", vec4i, 0, 255);
 
         ImGui::SeparatorText("4-wide");
-        ImGui::InputFloat4("input float4", vec4f);
+        ImGui::InputFloat4("Input float4", vec4f);
         ImGui::DragFloat4("drag float4", vec4f, 0.01f, 0.0f, 1.0f);
         ImGui::SliderFloat4("slider float4", vec4f, 0.0f, 1.0f);
-        ImGui::InputInt4("input int4", vec4i);
+        ImGui::InputInt4("Input int4", vec4i);
         ImGui::DragInt4("drag int4", vec4i, 1, 0, 255);
         ImGui::SliderInt4("slider int4", vec4i, 0, 255);
 
@@ -2421,9 +2421,9 @@ static void ShowDemoWindowWidgets()
         if (item_type == 2) { ImGui::PushButtonRepeat(true); ret = ImGui::Button("ITEM: Button"); ImGui::PopButtonRepeat(); } // Testing button (with repeater)
         if (item_type == 3) { ret = ImGui::Checkbox("ITEM: Checkbox", &b); }                            // Testing checkbox
         if (item_type == 4) { ret = ImGui::SliderFloat("ITEM: SliderFloat", &col4f[0], 0.0f, 1.0f); }   // Testing basic item
-        if (item_type == 5) { ret = ImGui::InputText("ITEM: InputText", &str[0], IM_ARRAYSIZE(str)); }  // Testing input text (which handles tabbing)
-        if (item_type == 6) { ret = ImGui::InputTextMultiline("ITEM: InputTextMultiline", &str[0], IM_ARRAYSIZE(str)); } // Testing input text (which uses a child window)
-        if (item_type == 7) { ret = ImGui::InputFloat("ITEM: InputFloat", col4f, 1.0f); }               // Testing +/- buttons on scalar input
+        if (item_type == 5) { ret = ImGui::InputText("ITEM: InputText", &str[0], IM_ARRAYSIZE(str)); }  // Testing Input text (which handles tabbing)
+        if (item_type == 6) { ret = ImGui::InputTextMultiline("ITEM: InputTextMultiline", &str[0], IM_ARRAYSIZE(str)); } // Testing Input text (which uses a child window)
+        if (item_type == 7) { ret = ImGui::InputFloat("ITEM: InputFloat", col4f, 1.0f); }               // Testing +/- buttons on scalar Input
         if (item_type == 8) { ret = ImGui::InputFloat3("ITEM: InputFloat3", col4f); }                   // Testing multi-component items (IsItemXXX flags are reported merged)
         if (item_type == 9) { ret = ImGui::ColorEdit4("ITEM: ColorEdit4", col4f); }                     // Testing multi-component items (IsItemXXX flags are reported merged)
         if (item_type == 10){ ret = ImGui::Selectable("ITEM: Selectable"); }                            // Testing selectable item
@@ -3352,13 +3352,13 @@ static void ShowDemoWindowLayout()
 
         HelpMarker(
             "(Left) Using ImGui::PushClipRect():\n"
-            "Will alter ImGui hit-testing logic + ImDrawList renderEngine.\n"
+            "Will alter ImGui hit-testing logic + ImDrawList RenderEngine.\n"
             "(use this if you want your clipping rectangle to affect interactions)\n\n"
             "(Center) Using ImDrawList::PushClipRect():\n"
-            "Will alter ImDrawList renderEngine only.\n"
+            "Will alter ImDrawList RenderEngine only.\n"
             "(use this as a shortcut if you are only using ImDrawList calls)\n\n"
             "(Right) Using ImDrawList::AddText() with a fine ClipRect:\n"
-            "Will alter only this specific ImDrawList::AddText() renderEngine.\n"
+            "Will alter only this specific ImDrawList::AddText() RenderEngine.\n"
             "This is often used internally to avoid altering the clipping rectangle and minimize draw calls.");
 
         for (int n = 0; n < 3; n++)
@@ -3374,7 +3374,7 @@ static void ShowDemoWindowLayout()
                 offset.y += ImGui::GetIO().MouseDelta.y;
             }
             ImGui::PopID();
-            if (!ImGui::IsItemVisible()) // Skip renderEngine as ImDrawList elements are not clipped.
+            if (!ImGui::IsItemVisible()) // Skip RenderEngine as ImDrawList elements are not clipped.
                 continue;
 
             const ImVec2 p0 = ImGui::GetItemRectMin();
@@ -3671,7 +3671,7 @@ static void ShowDemoWindowPopups()
                 ImGui::OpenPopup("Stacked 2");
 
             // Also demonstrate passing a bool* to BeginPopupModal(), this will create a regular close button which
-            // will close the popup. Note that the visibility state of popups is owned by imgui, so the input value
+            // will close the popup. Note that the visibility state of popups is owned by imgui, so the Input value
             // of the bool actually doesn't matter here.
             bool unused_open = true;
             if (ImGui::BeginPopupModal("Stacked 2", &unused_open))
@@ -5809,7 +5809,7 @@ static void ShowDemoWindowInputs()
         if (ImGui::TreeNode("Inputs"))
         {
             HelpMarker(
-                "This is a simplified view. See more detailed input state:\n"
+                "This is a simplified view. See more detailed Input state:\n"
                 "- in 'Tools->Metrics/Debugger->Inputs'.\n"
                 "- in 'Tools->Debug Log->IO'.");
             if (ImGui::IsMousePosValid())
@@ -5897,7 +5897,7 @@ static void ShowDemoWindowInputs()
             ImGui::Text("Hover to see mouse cursors:");
             ImGui::SameLine(); HelpMarker(
                 "Your application can renderScene a different mouse cursor based on what ImGui::GetMouseCursor() returns. "
-                "If software cursor renderEngine (io.MouseDrawCursor) is set ImGui will draw the right cursor for you, "
+                "If software cursor RenderEngine (io.MouseDrawCursor) is set ImGui will draw the right cursor for you, "
                 "otherwise your backend needs to handle it.");
             for (int i = 0; i < ImGuiMouseCursor_COUNT; i++)
             {
@@ -6490,7 +6490,7 @@ void ImGui::ShowUserGuide()
     ImGui::BulletText(
         "Click and drag on lower corner to resize window\n"
         "(double-click to auto fit window to its contents).");
-    ImGui::BulletText("CTRL+Click on a slider or drag box to input value as text.");
+    ImGui::BulletText("CTRL+Click on a slider or drag box to Input value as text.");
     ImGui::BulletText("TAB/SHIFT+TAB to cycle through keyboard editable fields.");
     ImGui::BulletText("CTRL+Tab to select a window.");
     if (io.FontAllowUserScaling)
@@ -6507,7 +6507,7 @@ void ImGui::ShowUserGuide()
     ImGui::Indent();
     ImGui::BulletText("Arrow keys to navigate.");
     ImGui::BulletText("Space to activate a widget.");
-    ImGui::BulletText("Return to input text into a widget.");
+    ImGui::BulletText("Return to Input text into a widget.");
     ImGui::BulletText("Escape to deactivate a widget, close popup, exit child window.");
     ImGui::BulletText("Alt to jump to the menu layer of a window.");
     ImGui::Unindent();
@@ -6746,7 +6746,7 @@ struct ExampleAppConsole
         Filter.Draw("Filter (\"incl,-excl\") (\"error\")", 180);
         ImGui::Separator();
 
-        // Reserve enough left-over height for 1 separator + 1 input text
+        // Reserve enough left-over height for 1 separator + 1 Input text
         const float footer_height_to_reserve = ImGui::GetStyle().ItemSpacing.y + ImGui::GetFrameHeightWithSpacing();
         if (ImGui::BeginChild("ScrollingRegion", ImVec2(0, -footer_height_to_reserve), false, ImGuiWindowFlags_HorizontalScrollbar))
         {
@@ -6874,7 +6874,7 @@ struct ExampleAppConsole
             AddLog("Unknown command: '%s'\n", command_line);
         }
 
-        // On command input, we scroll to bottom even if AutoScroll==false
+        // On command Input, we scroll to bottom even if AutoScroll==false
         ScrollToBottom = true;
     }
 
@@ -6974,7 +6974,7 @@ struct ExampleAppConsole
                             HistoryPos = -1;
                 }
 
-                // A better implementation would preserve the data on the current input line along with cursor position.
+                // A better implementation would preserve the data on the current Input line along with cursor position.
                 if (prev_history_pos != HistoryPos)
                 {
                     const char* history_str = (HistoryPos >= 0) ? History[HistoryPos] : "";
@@ -7273,11 +7273,11 @@ static void ShowPlaceholderObject(const char* prefix, int uid)
     ImGui::PopID();
 }
 
-// Demonstrate create a simple property editor.
+// Demonstrate create a simple property Editor.
 static void ShowExampleAppPropertyEditor(bool* p_open)
 {
     ImGui::SetNextWindowSize(ImVec2(430, 450), ImGuiCond_FirstUseEver);
-    if (!ImGui::Begin("Example: Property editor", p_open))
+    if (!ImGui::Begin("Example: Property Editor", p_open))
     {
         ImGui::End();
         return;
@@ -7285,7 +7285,7 @@ static void ShowExampleAppPropertyEditor(bool* p_open)
     IMGUI_DEMO_MARKER("Examples/Property Editor");
 
     HelpMarker(
-        "This example shows how you may implement a property editor using two columns.\n"
+        "This example shows how you may implement a property Editor using two columns.\n"
         "All objects/fields data are dummies here.\n"
         "Remember that in many simple cases, you can use ImGui::SameLine(xxx) to position\n"
         "your cursor horizontally instead of using the Columns() API.");
@@ -7309,7 +7309,7 @@ static void ShowExampleAppPropertyEditor(bool* p_open)
 // [SECTION] Example App: Long Text / ShowExampleAppLongText()
 //-----------------------------------------------------------------------------
 
-// Demonstrate/test renderEngine huge amount of text, and the incidence of clipping.
+// Demonstrate/test RenderEngine huge amount of text, and the incidence of clipping.
 static void ShowExampleAppLongText(bool* p_open)
 {
     ImGui::SetNextWindowSize(ImVec2(520, 600), ImGuiCond_FirstUseEver);
@@ -7616,14 +7616,14 @@ static void ShowExampleAppWindowTitles(bool*)
 // Demonstrate using the low-level ImDrawList to draw custom shapes.
 static void ShowExampleAppCustomRendering(bool* p_open)
 {
-    if (!ImGui::Begin("Example: Custom renderEngine", p_open))
+    if (!ImGui::Begin("Example: Custom RenderEngine", p_open))
     {
         ImGui::End();
         return;
     }
     IMGUI_DEMO_MARKER("Examples/Custom Rendering");
 
-    // Tip: If you do a lot of custom renderEngine, you probably want to use your own geometrical types and benefit of
+    // Tip: If you do a lot of custom RenderEngine, you probably want to use your own geometrical types and benefit of
     // overloaded operators, etc. Define IM_VEC2_CLASS_EXTRA in imconfig.h to create implicit conversions between your
     // types and ImVec2/ImVec4. Dear ImGui defines overloaded operators but they are internal to imgui.cpp and not
     // exposed outside (to avoid messing with your types) In this example we are not using the maths operators!

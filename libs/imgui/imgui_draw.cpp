@@ -733,7 +733,7 @@ void ImDrawList::AddPolyline(const ImVec2* points, const int points_count, ImU32
         const float fractional_thickness = thickness - integer_thickness;
 
         // Do we want to draw this line using a texture?
-        // - For now, only draw integer-width lines using textures to avoid issues with the way scaling occurs, could be improved.
+        // - For now, only draw integer-width lines using Textures to avoid issues with the way scaling occurs, could be improved.
         // - If AA_SIZE is not 1.0f we cannot use the texture path.
         const bool use_texture = (Flags & ImDrawListFlags_AntiAliasedLinesUseTex) && (integer_thickness < IM_DRAWLIST_TEX_LINES_WIDTH_MAX) && (fractional_thickness <= 0.00001f) && (AA_SIZE == 1.0f);
 
@@ -831,7 +831,7 @@ void ImDrawList::AddPolyline(const ImVec2* points, const int points_count, ImU32
             // Add vertexes for each point on the line
             if (use_texture)
             {
-                // If we're using textures we only need to emit the left/right edge vertices
+                // If we're using Textures we only need to emit the left/right edge vertices
                 ImVec4 tex_uvs = _Data->TexUvLines[integer_thickness];
                 /*if (fractional_thickness != 0.0f) // Currently always zero when use_texture==false!
                 {
@@ -1814,7 +1814,7 @@ void ImDrawListSplitter::SetCurrentChannel(ImDrawList* draw_list, int idx)
 // [SECTION] ImDrawData
 //-----------------------------------------------------------------------------
 
-// For backward compatibility: convert all buffers from indexed to de-indexed, in case you cannot renderScene indexed. Note: this is slow and most likely a waste of resources. Always prefer indexed renderEngine!
+// For backward compatibility: convert all buffers from indexed to de-indexed, in case you cannot renderScene indexed. Note: this is slow and most likely a waste of resources. Always prefer indexed RenderEngine!
 void ImDrawData::DeIndexAllBuffers()
 {
     ImVector<ImDrawVert> new_vtx_buffer;
@@ -2049,7 +2049,7 @@ void    ImFontAtlas::GetTexDataAsAlpha8(unsigned char** out_pixels, int* out_wid
 void    ImFontAtlas::GetTexDataAsRGBA32(unsigned char** out_pixels, int* out_width, int* out_height, int* out_bytes_per_pixel)
 {
     // Convert to RGBA32 format on demand
-    // Although it is likely to be the most commonly used format, our font renderEngine is 1 channel / 8 bpp
+    // Although it is likely to be the most commonly used format, our font RenderEngine is 1 channel / 8 bpp
     if (!TexPixelsRGBA32)
     {
         unsigned char* pixels = NULL;
@@ -2505,7 +2505,7 @@ static bool ImFontAtlasBuildWithStbTruetype(ImFontAtlas* atlas)
     stbtt_PackBegin(&spc, NULL, atlas->TexWidth, TEX_HEIGHT_MAX, 0, atlas->TexGlyphPadding, NULL);
     ImFontAtlasBuildPackCustomRects(atlas, spc.pack_info);
 
-    // 6. Pack each source font. No renderEngine yet, we are working with rectangles in an infinitely tall texture at this point.
+    // 6. Pack each source font. No RenderEngine yet, we are working with rectangles in an infinitely tall texture at this point.
     for (int src_i = 0; src_i < src_tmp_array.Size; src_i++)
     {
         ImFontBuildSrcData& src_tmp = src_tmp_array[src_i];
@@ -2560,7 +2560,7 @@ static bool ImFontAtlasBuildWithStbTruetype(ImFontAtlas* atlas)
     for (int src_i = 0; src_i < src_tmp_array.Size; src_i++)
     {
         // When merging fonts with MergeMode=true:
-        // - We can have multiple input fonts writing into a same destination font.
+        // - We can have multiple Input fonts writing into a same destination font.
         // - dst_font->ConfigData is != from cfg which is our source configuration.
         ImFontBuildSrcData& src_tmp = src_tmp_array[src_i];
         ImFontConfig& cfg = atlas->ConfigData[src_i];
@@ -3224,7 +3224,7 @@ void ImFont::BuildLookupTable()
         if (IndexAdvanceX[i] < 0.0f)
             IndexAdvanceX[i] = FallbackAdvanceX;
 
-    // Setup Ellipsis character. It is required for renderEngine elided text. We prefer using U+2026 (horizontal ellipsis).
+    // Setup Ellipsis character. It is required for RenderEngine elided text. We prefer using U+2026 (horizontal ellipsis).
     // However some old fonts may contain ellipsis at U+0085. Here we auto-detect most suitable ellipsis character.
     // FIXME: Note that 0x2026 is rarely included in our font ranges. Because of this we are more likely to use three individual dots.
     const ImWchar ellipsis_chars[] = { (ImWchar)0x2026, (ImWchar)0x0085 };
@@ -3329,7 +3329,7 @@ void ImFont::AddRemapChar(ImWchar dst, ImWchar src, bool overwrite_dst)
 
     if (dst < index_size && IndexLookup.Data[dst] == (ImWchar)-1 && !overwrite_dst) // 'dst' already exists
         return;
-    if (src >= index_size && dst >= index_size) // both 'dst' and 'src' don't exist -> no-op
+    if (src >= index_size && dst >= index_size) // both 'dst' and 'Source' don't exist -> no-op
         return;
 
     GrowIndex(dst + 1);

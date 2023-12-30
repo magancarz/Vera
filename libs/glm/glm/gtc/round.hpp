@@ -30,14 +30,14 @@ namespace glm
 	/// @addtogroup gtc_round
 	/// @{
 
-	/// Return the power of two number which value is just higher the input value,
+	/// Return the power of two number which value is just higher the Input value,
 	/// round up to a power of two.
 	///
 	/// @see gtc_round
 	template<typename genIUType>
 	GLM_FUNC_DECL genIUType ceilPowerOfTwo(genIUType v);
 
-	/// Return the power of two number which value is just higher the input value,
+	/// Return the power of two number which value is just higher the Input value,
 	/// round up to a power of two.
 	///
 	/// @tparam L Integer between 1 and 4 included that qualify the dimension of the vector
@@ -48,14 +48,14 @@ namespace glm
 	template<length_t L, typename T, qualifier Q>
 	GLM_FUNC_DECL vec<L, T, Q> ceilPowerOfTwo(vec<L, T, Q> const& v);
 
-	/// Return the power of two number which value is just lower the input value,
+	/// Return the power of two number which value is just lower the Input value,
 	/// round down to a power of two.
 	///
 	/// @see gtc_round
 	template<typename genIUType>
 	GLM_FUNC_DECL genIUType floorPowerOfTwo(genIUType v);
 
-	/// Return the power of two number which value is just lower the input value,
+	/// Return the power of two number which value is just lower the Input value,
 	/// round down to a power of two.
 	///
 	/// @tparam L Integer between 1 and 4 included that qualify the dimension of the vector
@@ -66,13 +66,13 @@ namespace glm
 	template<length_t L, typename T, qualifier Q>
 	GLM_FUNC_DECL vec<L, T, Q> floorPowerOfTwo(vec<L, T, Q> const& v);
 
-	/// Return the power of two number which value is the closet to the input value.
+	/// Return the power of two number which value is the closet to the Input value.
 	///
 	/// @see gtc_round
 	template<typename genIUType>
 	GLM_FUNC_DECL genIUType roundPowerOfTwo(genIUType v);
 
-	/// Return the power of two number which value is the closet to the input value.
+	/// Return the power of two number which value is the closet to the Input value.
 	///
 	/// @tparam L Integer between 1 and 4 included that qualify the dimension of the vector
 	/// @tparam T Floating-point or integer scalar types

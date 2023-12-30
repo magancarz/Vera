@@ -1647,7 +1647,7 @@ template <typename FloatType>
 class FloatingEqMatcher {
  public:
   // Constructor for FloatingEqMatcher.
-  // The matcher's input will be compared with expected.  The matcher treats two
+  // The matcher's Input will be compared with expected.  The matcher treats two
   // NANs as equal if nan_eq_nan is true.  Otherwise, under IEEE standards,
   // equality comparisons between NANs will always return false.  We specify a
   // negative max_abs_error_ term to indicate that ULP-based approximation will
@@ -3685,7 +3685,7 @@ class UnorderedElementsAreMatcherImpl
 };
 
 // Functor for use in TransformTuple.
-// Performs MatcherCast<Target> on an input argument of any type.
+// Performs MatcherCast<Target> on an Input argument of any type.
 template <typename Target>
 struct CastAndAppendTransform {
   template <typename Arg>
@@ -4145,7 +4145,7 @@ class ArgsMatcher {
 // STL iterator range. In each of these cases, the underlying sequence
 // can be either a sequence of values or a sequence of matchers.
 //
-// All forms of ElementsAreArray() make a copy of the input matcher sequence.
+// All forms of ElementsAreArray() make a copy of the Input matcher sequence.
 
 template <typename Iter>
 inline internal::ElementsAreArrayMatcher<

@@ -233,7 +233,7 @@ if (_GLFW_X11)
         message(FATAL_ERROR "Xcursor headers not found; install libxcursor development package")
     endif()
 
-    # Check for XInput (modern HID input)
+    # Check for XInput (modern HID Input)
     if (NOT X11_Xi_INCLUDE_PATH)
         message(FATAL_ERROR "XInput headers not found; install libxi development package")
     endif()
@@ -355,7 +355,7 @@ endif()
 
 #--------------------------------------------------------------------
 # Install files other than the library
-# The library is installed by src/CMakeLists.txt
+# The library is installed by Source/CMakeLists.txt
 #--------------------------------------------------------------------
 if (GLFW_INSTALL)
     install(DIRECTORY include/GLFW DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}

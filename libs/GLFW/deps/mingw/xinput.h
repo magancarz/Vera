@@ -92,7 +92,7 @@
 
 /*
  * Deadzones are for analogue joystick controls on the joypad
- * which determine when input should be assumed to be in the
+ * which determine when Input should be assumed to be in the
  * middle of the pad. This is a threshold to stop a joypad
  * controlling the game when the player isn't touching the
  * controls.
@@ -203,7 +203,7 @@ typedef struct _XINPUT_CAPABILITIES {
 } XINPUT_CAPABILITIES, *PXINPUT_CAPABILITIES;
 
 /*
- * Defines the structure for a joystick input event which is
+ * Defines the structure for a joystick Input event which is
  * retrieved using the function XInputGetKeystroke
  */
 typedef struct _XINPUT_KEYSTROKE {

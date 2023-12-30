@@ -1,6 +1,6 @@
 /*************************************************************************
  * GLFW 3.3 - www.glfw.org
- * A library for OpenGL, window and input
+ * A library for OpenGL, window and Input
  *------------------------------------------------------------------------
  * Copyright (c) 2002-2006 Marcus Geelnard
  * Copyright (c) 2006-2019 Camilla Löwy <elmindreda@glfw.org>
@@ -65,10 +65,10 @@ extern "C" {
  *  the library, version management and error handling.  For more task-oriented
  *  information, see the @ref intro_guide.
  */
-/*! @defgroup input Input reference
- *  @brief Functions and types related to input handling.
+/*! @defgroup Input Input reference
+ *  @brief Functions and types related to Input handling.
  *
- *  This is the reference documentation for input related functions and types.
+ *  This is the reference documentation for Input related functions and types.
  *  For more task-oriented information, see the @ref input_guide.
  */
 /*! @defgroup monitor Monitor reference
@@ -326,21 +326,21 @@ extern "C" {
  *
  *  The key or mouse button was released.
  *
- *  @ingroup input
+ *  @ingroup Input
  */
 #define GLFW_RELEASE                0
 /*! @brief The key or mouse button was pressed.
  *
  *  The key or mouse button was pressed.
  *
- *  @ingroup input
+ *  @ingroup Input
  */
 #define GLFW_PRESS                  1
 /*! @brief The key was held down until it repeated.
  *
  *  The key was held down until it repeated.
  *
- *  @ingroup input
+ *  @ingroup Input
  */
 #define GLFW_REPEAT                 2
 /*! @} */
@@ -348,9 +348,9 @@ extern "C" {
 /*! @defgroup hat_state Joystick hat states
  *  @brief Joystick hat states.
  *
- *  See [joystick hat input](@ref joystick_hat) for how these are used.
+ *  See [joystick hat Input](@ref joystick_hat) for how these are used.
  *
- *  @ingroup input
+ *  @ingroup Input
  *  @{ */
 #define GLFW_HAT_CENTERED           0
 #define GLFW_HAT_UP                 1
@@ -366,7 +366,7 @@ extern "C" {
 /*! @defgroup keys Keyboard keys
  *  @brief Keyboard key IDs.
  *
- *  See [key input](@ref input_key) for how these are used.
+ *  See [key Input](@ref input_key) for how these are used.
  *
  *  These key codes are inspired by the _USB HID Usage Tables v1.12_ (p. 53-60),
  *  but re-arranged to map to 7-bit ASCII for printable keys (function keys are
@@ -383,7 +383,7 @@ extern "C" {
  *   - For non-printable keys, custom names are used (e.g. "F4",
  *     "BACKSPACE", etc.)
  *
- *  @ingroup input
+ *  @ingroup Input
  *  @{
  */
 
@@ -521,9 +521,9 @@ extern "C" {
 /*! @defgroup mods Modifier key flags
  *  @brief Modifier key flags.
  *
- *  See [key input](@ref input_key) for how these are used.
+ *  See [key Input](@ref input_key) for how these are used.
  *
- *  @ingroup input
+ *  @ingroup Input
  *  @{ */
 
 /*! @brief If this bit is set one or more Shift keys were held down.
@@ -549,13 +549,13 @@ extern "C" {
 /*! @brief If this bit is set the Caps Lock key is enabled.
  *
  *  If this bit is set the Caps Lock key is enabled and the @ref
- *  GLFW_LOCK_KEY_MODS input mode is set.
+ *  GLFW_LOCK_KEY_MODS Input mode is set.
  */
 #define GLFW_MOD_CAPS_LOCK       0x0010
 /*! @brief If this bit is set the Num Lock key is enabled.
  *
  *  If this bit is set the Num Lock key is enabled and the @ref
- *  GLFW_LOCK_KEY_MODS input mode is set.
+ *  GLFW_LOCK_KEY_MODS Input mode is set.
  */
 #define GLFW_MOD_NUM_LOCK        0x0020
 
@@ -564,9 +564,9 @@ extern "C" {
 /*! @defgroup buttons Mouse buttons
  *  @brief Mouse button IDs.
  *
- *  See [mouse button input](@ref input_mouse_button) for how these are used.
+ *  See [mouse button Input](@ref input_mouse_button) for how these are used.
  *
- *  @ingroup input
+ *  @ingroup Input
  *  @{ */
 #define GLFW_MOUSE_BUTTON_1         0
 #define GLFW_MOUSE_BUTTON_2         1
@@ -585,9 +585,9 @@ extern "C" {
 /*! @defgroup joysticks Joysticks
  *  @brief Joystick IDs.
  *
- *  See [joystick input](@ref joystick) for how these are used.
+ *  See [joystick Input](@ref joystick) for how these are used.
  *
- *  @ingroup input
+ *  @ingroup Input
  *  @{ */
 #define GLFW_JOYSTICK_1             0
 #define GLFW_JOYSTICK_2             1
@@ -613,7 +613,7 @@ extern "C" {
  *
  *  See @ref gamepad for how these are used.
  *
- *  @ingroup input
+ *  @ingroup Input
  *  @{ */
 #define GLFW_GAMEPAD_BUTTON_A               0
 #define GLFW_GAMEPAD_BUTTON_B               1
@@ -643,7 +643,7 @@ extern "C" {
  *
  *  See @ref gamepad for how these are used.
  *
- *  @ingroup input
+ *  @ingroup Input
  *  @{ */
 #define GLFW_GAMEPAD_AXIS_LEFT_X        0
 #define GLFW_GAMEPAD_AXIS_LEFT_Y        1
@@ -1068,7 +1068,7 @@ extern "C" {
  *
  *  See [standard cursor creation](@ref cursor_standard) for how these are used.
  *
- *  @ingroup input
+ *  @ingroup Input
  *  @{ */
 
 /*! @brief The regular arrow cursor shape.
@@ -1076,9 +1076,9 @@ extern "C" {
  *  The regular arrow cursor.
  */
 #define GLFW_ARROW_CURSOR           0x00036001
-/*! @brief The text input I-beam cursor shape.
+/*! @brief The text Input I-beam cursor shape.
  *
- *  The text input I-beam cursor shape.
+ *  The text Input I-beam cursor shape.
  */
 #define GLFW_IBEAM_CURSOR           0x00036002
 /*! @brief The crosshair shape.
@@ -1192,7 +1192,7 @@ typedef struct GLFWwindow GLFWwindow;
  *
  *  @since Added in version 3.1.
  *
- *  @ingroup input
+ *  @ingroup Input
  */
 typedef struct GLFWcursor GLFWcursor;
 
@@ -1313,8 +1313,8 @@ typedef void (* GLFWwindowrefreshfun)(GLFWwindow* window);
  *  void function_name(GLFWwindow* window, int focused)
  *  @endcode
  *
- *  @param[in] window The window that gained or lost input focus.
- *  @param[in] focused `GLFW_TRUE` if the window was given input focus, or
+ *  @param[in] window The window that gained or lost Input focus.
+ *  @param[in] focused `GLFW_TRUE` if the window was given Input focus, or
  *  `GLFW_FALSE` if it lost it.
  *
  *  @sa @ref window_focus
@@ -1432,7 +1432,7 @@ typedef void (* GLFWwindowcontentscalefun)(GLFWwindow* window, float xscale, flo
  *  @since Added in version 1.0.
  *  @glfw3 Added window handle and modifier mask parameters.
  *
- *  @ingroup input
+ *  @ingroup Input
  */
 typedef void (* GLFWmousebuttonfun)(GLFWwindow* window, int button, int action, int mods);
 
@@ -1455,7 +1455,7 @@ typedef void (* GLFWmousebuttonfun)(GLFWwindow* window, int button, int action, 
  *
  *  @since Added in version 3.0.  Replaces `GLFWmouseposfun`.
  *
- *  @ingroup input
+ *  @ingroup Input
  */
 typedef void (* GLFWcursorposfun)(GLFWwindow* window, double xpos, double ypos);
 
@@ -1476,7 +1476,7 @@ typedef void (* GLFWcursorposfun)(GLFWwindow* window, double xpos, double ypos);
  *
  *  @since Added in version 3.0.
  *
- *  @ingroup input
+ *  @ingroup Input
  */
 typedef void (* GLFWcursorenterfun)(GLFWwindow* window, int entered);
 
@@ -1497,7 +1497,7 @@ typedef void (* GLFWcursorenterfun)(GLFWwindow* window, int entered);
  *
  *  @since Added in version 3.0.  Replaces `GLFWmousewheelfun`.
  *
- *  @ingroup input
+ *  @ingroup Input
  */
 typedef void (* GLFWscrollfun)(GLFWwindow* window, double xoffset, double yoffset);
 
@@ -1523,7 +1523,7 @@ typedef void (* GLFWscrollfun)(GLFWwindow* window, double xoffset, double yoffse
  *  @since Added in version 1.0.
  *  @glfw3 Added window handle, scancode and modifier mask parameters.
  *
- *  @ingroup input
+ *  @ingroup Input
  */
 typedef void (* GLFWkeyfun)(GLFWwindow* window, int key, int scancode, int action, int mods);
 
@@ -1544,7 +1544,7 @@ typedef void (* GLFWkeyfun)(GLFWwindow* window, int key, int scancode, int actio
  *  @since Added in version 2.4.
  *  @glfw3 Added window handle parameter.
  *
- *  @ingroup input
+ *  @ingroup Input
  */
 typedef void (* GLFWcharfun)(GLFWwindow* window, unsigned int codepoint);
 
@@ -1552,7 +1552,7 @@ typedef void (* GLFWcharfun)(GLFWwindow* window, unsigned int codepoint);
  *  callbacks.
  *
  *  This is the function pointer type for Unicode character with modifiers
- *  callbacks.  It is called for each input character, regardless of what
+ *  callbacks.  It is called for each Input character, regardless of what
  *  modifier keys are held down.  A Unicode character with modifiers callback
  *  function has the following signature:
  *  @code
@@ -1571,7 +1571,7 @@ typedef void (* GLFWcharfun)(GLFWwindow* window, unsigned int codepoint);
  *
  *  @since Added in version 3.1.
  *
- *  @ingroup input
+ *  @ingroup Input
  */
 typedef void (* GLFWcharmodsfun)(GLFWwindow* window, unsigned int codepoint, int mods);
 
@@ -1595,7 +1595,7 @@ typedef void (* GLFWcharmodsfun)(GLFWwindow* window, unsigned int codepoint, int
  *
  *  @since Added in version 3.1.
  *
- *  @ingroup input
+ *  @ingroup Input
  */
 typedef void (* GLFWdropfun)(GLFWwindow* window, int path_count, const char* paths[]);
 
@@ -1637,7 +1637,7 @@ typedef void (* GLFWmonitorfun)(GLFWmonitor* monitor, int event);
  *
  *  @since Added in version 3.2.
  *
- *  @ingroup input
+ *  @ingroup Input
  */
 typedef void (* GLFWjoystickfun)(int jid, int event);
 
@@ -1730,16 +1730,16 @@ typedef struct GLFWimage
     unsigned char* pixels;
 } GLFWimage;
 
-/*! @brief Gamepad input state
+/*! @brief Gamepad Input state
  *
- *  This describes the input state of a gamepad.
+ *  This describes the Input state of a gamepad.
  *
  *  @sa @ref gamepad
  *  @sa @ref glfwGetGamepadState
  *
  *  @since Added in version 3.3.
  *
- *  @ingroup input
+ *  @ingroup Input
  */
 typedef struct GLFWgamepadstate
 {
@@ -1783,7 +1783,7 @@ typedef struct GLFWgamepadstate
  *
  *  @remark @x11 This function will set the `LC_CTYPE` category of the
  *  application locale according to the current environment if that category is
- *  still "C".  This is because the "C" locale breaks Unicode text input.
+ *  still "C".  This is because the "C" locale breaks Unicode text Input.
  *
  *  @thread_safety This function must only be called from the main thread.
  *
@@ -3346,9 +3346,9 @@ GLFWAPI void glfwShowWindow(GLFWwindow* window);
  */
 GLFWAPI void glfwHideWindow(GLFWwindow* window);
 
-/*! @brief Brings the specified window to front and sets input focus.
+/*! @brief Brings the specified window to front and sets Input focus.
  *
- *  This function brings the specified window to front and sets input focus.
+ *  This function brings the specified window to front and sets Input focus.
  *  The window should already be visible and not iconified.
  *
  *  By default, both windowed and full screen mode windows are focused when
@@ -3366,7 +3366,7 @@ GLFWAPI void glfwHideWindow(GLFWwindow* window);
  *  For a less disruptive way of getting the user's attention, see
  *  [attention requests](@ref window_attention).
  *
- *  @param[in] window The window to give input focus.
+ *  @param[in] window The window to give Input focus.
  *
  *  @errors Possible errors include @ref GLFW_NOT_INITIALIZED and @ref
  *  GLFW_PLATFORM_ERROR.
@@ -3757,9 +3757,9 @@ GLFWAPI GLFWwindowrefreshfun glfwSetWindowRefreshCallback(GLFWwindow* window, GL
 /*! @brief Sets the focus callback for the specified window.
  *
  *  This function sets the focus callback of the specified window, which is
- *  called when the window gains or loses input focus.
+ *  called when the window gains or loses Input focus.
  *
- *  After the focus callback is called for a window that lost input focus,
+ *  After the focus callback is called for a window that lost Input focus,
  *  synthetic key and mouse button release events will be generated for all such
  *  that had been pressed.  For more information, see @ref glfwSetKeyCallback
  *  and @ref glfwSetMouseButtonCallback.
@@ -3917,7 +3917,7 @@ GLFWAPI GLFWwindowcontentscalefun glfwSetWindowContentScaleCallback(GLFWwindow* 
  *
  *  This function processes only those events that are already in the event
  *  queue and then returns immediately.  Processing events will cause the window
- *  and input callbacks associated with those events to be called.
+ *  and Input callbacks associated with those events to be called.
  *
  *  On some platforms, a window move, resize or menu operation will cause event
  *  processing to block.  This is due to how event processing is designed on
@@ -3932,7 +3932,7 @@ GLFWAPI GLFWwindowcontentscalefun glfwSetWindowContentScaleCallback(GLFWwindow* 
  *  GLFW will pass those events on to the application callbacks before
  *  returning.
  *
- *  Event processing is not required for joystick input to work.
+ *  Event processing is not required for joystick Input to work.
  *
  *  @errors Possible errors include @ref GLFW_NOT_INITIALIZED and @ref
  *  GLFW_PLATFORM_ERROR.
@@ -3957,7 +3957,7 @@ GLFWAPI void glfwPollEvents(void);
  *  available in the event queue.  Once one or more events are available,
  *  it behaves exactly like @ref glfwPollEvents, i.e. the events in the queue
  *  are processed and the function then returns immediately.  Processing events
- *  will cause the window and input callbacks associated with those events to be
+ *  will cause the window and Input callbacks associated with those events to be
  *  called.
  *
  *  Since not all events are associated with callbacks, this function may return
@@ -3977,7 +3977,7 @@ GLFWAPI void glfwPollEvents(void);
  *  GLFW will pass those events on to the application callbacks before
  *  returning.
  *
- *  Event processing is not required for joystick input to work.
+ *  Event processing is not required for joystick Input to work.
  *
  *  @errors Possible errors include @ref GLFW_NOT_INITIALIZED and @ref
  *  GLFW_PLATFORM_ERROR.
@@ -4002,7 +4002,7 @@ GLFWAPI void glfwWaitEvents(void);
  *  available in the event queue, or until the specified timeout is reached.  If
  *  one or more events are available, it behaves exactly like @ref
  *  glfwPollEvents, i.e. the events in the queue are processed and the function
- *  then returns immediately.  Processing events will cause the window and input
+ *  then returns immediately.  Processing events will cause the window and Input
  *  callbacks associated with those events to be called.
  *
  *  The timeout value must be a positive finite number.
@@ -4024,7 +4024,7 @@ GLFWAPI void glfwWaitEvents(void);
  *  GLFW will pass those events on to the application callbacks before
  *  returning.
  *
- *  Event processing is not required for joystick input to work.
+ *  Event processing is not required for joystick Input to work.
  *
  *  @param[in] timeout The maximum amount of time, in seconds, to wait.
  *
@@ -4065,9 +4065,9 @@ GLFWAPI void glfwWaitEventsTimeout(double timeout);
  */
 GLFWAPI void glfwPostEmptyEvent(void);
 
-/*! @brief Returns the value of an input option for the specified window.
+/*! @brief Returns the value of an Input option for the specified window.
  *
- *  This function returns the value of an input option for the specified window.
+ *  This function returns the value of an Input option for the specified window.
  *  The mode must be one of @ref GLFW_CURSOR, @ref GLFW_STICKY_KEYS,
  *  @ref GLFW_STICKY_MOUSE_BUTTONS, @ref GLFW_LOCK_KEY_MODS or
  *  @ref GLFW_RAW_MOUSE_MOTION.
@@ -4086,13 +4086,13 @@ GLFWAPI void glfwPostEmptyEvent(void);
  *
  *  @since Added in version 3.0.
  *
- *  @ingroup input
+ *  @ingroup Input
  */
 GLFWAPI int glfwGetInputMode(GLFWwindow* window, int mode);
 
-/*! @brief Sets an input option for the specified window.
+/*! @brief Sets an Input option for the specified window.
  *
- *  This function sets an input mode option for the specified window.  The mode
+ *  This function sets an Input mode option for the specified window.  The mode
  *  must be one of @ref GLFW_CURSOR, @ref GLFW_STICKY_KEYS,
  *  @ref GLFW_STICKY_MOUSE_BUTTONS, @ref GLFW_LOCK_KEY_MODS or
  *  @ref GLFW_RAW_MOUSE_MOTION.
@@ -4133,11 +4133,11 @@ GLFWAPI int glfwGetInputMode(GLFWwindow* window, int mode);
  *  attempting to set this will emit @ref GLFW_PLATFORM_ERROR.  Call @ref
  *  glfwRawMouseMotionSupported to check for support.
  *
- *  @param[in] window The window whose input mode to set.
+ *  @param[in] window The window whose Input mode to set.
  *  @param[in] mode One of `GLFW_CURSOR`, `GLFW_STICKY_KEYS`,
  *  `GLFW_STICKY_MOUSE_BUTTONS`, `GLFW_LOCK_KEY_MODS` or
  *  `GLFW_RAW_MOUSE_MOTION`.
- *  @param[in] value The new value of the specified input mode.
+ *  @param[in] value The new value of the specified Input mode.
  *
  *  @errors Possible errors include @ref GLFW_NOT_INITIALIZED, @ref
  *  GLFW_INVALID_ENUM and @ref GLFW_PLATFORM_ERROR.
@@ -4148,7 +4148,7 @@ GLFWAPI int glfwGetInputMode(GLFWwindow* window, int mode);
  *
  *  @since Added in version 3.0.  Replaces `glfwEnable` and `glfwDisable`.
  *
- *  @ingroup input
+ *  @ingroup Input
  */
 GLFWAPI void glfwSetInputMode(GLFWwindow* window, int mode, int value);
 
@@ -4177,7 +4177,7 @@ GLFWAPI void glfwSetInputMode(GLFWwindow* window, int mode, int value);
  *
  *  @since Added in version 3.3.
  *
- *  @ingroup input
+ *  @ingroup Input
  */
 GLFWAPI int glfwRawMouseMotionSupported(void);
 
@@ -4188,8 +4188,8 @@ GLFWAPI int glfwRawMouseMotionSupported(void);
  *  modifier keys, intended for displaying key bindings to the user.  For dead
  *  keys, it is typically the diacritic it would add to a character.
  *
- *  __Do not use this function__ for [text input](@ref input_char).  You will
- *  break text input for many languages even if it happens to work for yours.
+ *  __Do not use this function__ for [text Input](@ref input_char).  You will
+ *  break text Input for many languages even if it happens to work for yours.
  *
  *  If the key is `GLFW_KEY_UNKNOWN`, the scancode is used to identify the key,
  *  otherwise the scancode is ignored.  If you specify a non-printable key, or
@@ -4245,7 +4245,7 @@ GLFWAPI int glfwRawMouseMotionSupported(void);
  *
  *  @since Added in version 3.2.
  *
- *  @ingroup input
+ *  @ingroup Input
  */
 GLFWAPI const char* glfwGetKeyName(int key, int scancode);
 
@@ -4269,7 +4269,7 @@ GLFWAPI const char* glfwGetKeyName(int key, int scancode);
  *
  *  @since Added in version 3.3.
  *
- *  @ingroup input
+ *  @ingroup Input
  */
 GLFWAPI int glfwGetKeyScancode(int key);
 
@@ -4280,18 +4280,18 @@ GLFWAPI int glfwGetKeyScancode(int key);
  *  specified window.  The returned state is one of `GLFW_PRESS` or
  *  `GLFW_RELEASE`.  The action `GLFW_REPEAT` is only reported to the key callback.
  *
- *  If the @ref GLFW_STICKY_KEYS input mode is enabled, this function returns
+ *  If the @ref GLFW_STICKY_KEYS Input mode is enabled, this function returns
  *  `GLFW_PRESS` the first time you call it for a key that was pressed, even if
  *  that key has already been released.
  *
  *  The key functions deal with physical keys, with [key tokens](@ref keys)
  *  named after their use on the standard US keyboard layout.  If you want to
- *  input text, use the Unicode character callback instead.
+ *  Input text, use the Unicode character callback instead.
  *
  *  The [modifier key bit masks](@ref mods) are not key tokens and cannot be
  *  used with this function.
  *
- *  __Do not use this function__ to implement [text input](@ref input_char).
+ *  __Do not use this function__ to implement [text Input](@ref input_char).
  *
  *  @param[in] window The desired window.
  *  @param[in] key The desired [keyboard key](@ref keys).  `GLFW_KEY_UNKNOWN` is
@@ -4308,7 +4308,7 @@ GLFWAPI int glfwGetKeyScancode(int key);
  *  @since Added in version 1.0.
  *  @glfw3 Added window handle parameter.
  *
- *  @ingroup input
+ *  @ingroup Input
  */
 GLFWAPI int glfwGetKey(GLFWwindow* window, int key);
 
@@ -4319,7 +4319,7 @@ GLFWAPI int glfwGetKey(GLFWwindow* window, int key);
  *  to the specified window.  The returned state is one of `GLFW_PRESS` or
  *  `GLFW_RELEASE`.
  *
- *  If the @ref GLFW_STICKY_MOUSE_BUTTONS input mode is enabled, this function
+ *  If the @ref GLFW_STICKY_MOUSE_BUTTONS Input mode is enabled, this function
  *  returns `GLFW_PRESS` the first time you call it for a mouse button that was
  *  pressed, even if that mouse button has already been released.
  *
@@ -4337,7 +4337,7 @@ GLFWAPI int glfwGetKey(GLFWwindow* window, int key);
  *  @since Added in version 1.0.
  *  @glfw3 Added window handle parameter.
  *
- *  @ingroup input
+ *  @ingroup Input
  */
 GLFWAPI int glfwGetMouseButton(GLFWwindow* window, int button);
 
@@ -4375,7 +4375,7 @@ GLFWAPI int glfwGetMouseButton(GLFWwindow* window, int button);
  *
  *  @since Added in version 3.0.  Replaces `glfwGetMousePos`.
  *
- *  @ingroup input
+ *  @ingroup Input
  */
 GLFWAPI void glfwGetCursorPos(GLFWwindow* window, double* xpos, double* ypos);
 
@@ -4384,8 +4384,8 @@ GLFWAPI void glfwGetCursorPos(GLFWwindow* window, double* xpos, double* ypos);
  *
  *  This function sets the position, in screen coordinates, of the cursor
  *  relative to the upper-left corner of the content area of the specified
- *  window.  The window must have input focus.  If the window does not have
- *  input focus when this function is called, it fails silently.
+ *  window.  The window must have Input focus.  If the window does not have
+ *  Input focus when this function is called, it fails silently.
  *
  *  __Do not use this function__ to implement things like camera controls.  GLFW
  *  already provides the `GLFW_CURSOR_DISABLED` cursor mode that hides the
@@ -4415,7 +4415,7 @@ GLFWAPI void glfwGetCursorPos(GLFWwindow* window, double* xpos, double* ypos);
  *
  *  @since Added in version 3.0.  Replaces `glfwSetMousePos`.
  *
- *  @ingroup input
+ *  @ingroup Input
  */
 GLFWAPI void glfwSetCursorPos(GLFWwindow* window, double xpos, double ypos);
 
@@ -4453,7 +4453,7 @@ GLFWAPI void glfwSetCursorPos(GLFWwindow* window, double xpos, double ypos);
  *
  *  @since Added in version 3.1.
  *
- *  @ingroup input
+ *  @ingroup Input
  */
 GLFWAPI GLFWcursor* glfwCreateCursor(const GLFWimage* image, int xhot, int yhot);
 
@@ -4476,7 +4476,7 @@ GLFWAPI GLFWcursor* glfwCreateCursor(const GLFWimage* image, int xhot, int yhot)
  *
  *  @since Added in version 3.1.
  *
- *  @ingroup input
+ *  @ingroup Input
  */
 GLFWAPI GLFWcursor* glfwCreateStandardCursor(int shape);
 
@@ -4503,7 +4503,7 @@ GLFWAPI GLFWcursor* glfwCreateStandardCursor(int shape);
  *
  *  @since Added in version 3.1.
  *
- *  @ingroup input
+ *  @ingroup Input
  */
 GLFWAPI void glfwDestroyCursor(GLFWcursor* cursor);
 
@@ -4515,7 +4515,7 @@ GLFWAPI void glfwDestroyCursor(GLFWcursor* cursor);
  *  `GLFW_CURSOR_NORMAL`.
  *
  *  On some platforms, the set cursor may not be visible unless the window also
- *  has input focus.
+ *  has Input focus.
  *
  *  @param[in] window The window to set the cursor for.
  *  @param[in] cursor The cursor to set, or `NULL` to switch back to the default
@@ -4530,7 +4530,7 @@ GLFWAPI void glfwDestroyCursor(GLFWcursor* cursor);
  *
  *  @since Added in version 3.1.
  *
- *  @ingroup input
+ *  @ingroup Input
  */
 GLFWAPI void glfwSetCursor(GLFWwindow* window, GLFWcursor* cursor);
 
@@ -4541,10 +4541,10 @@ GLFWAPI void glfwSetCursor(GLFWwindow* window, GLFWcursor* cursor);
  *
  *  The key functions deal with physical keys, with layout independent
  *  [key tokens](@ref keys) named after their values in the standard US keyboard
- *  layout.  If you want to input text, use the
+ *  layout.  If you want to Input text, use the
  *  [character callback](@ref glfwSetCharCallback) instead.
  *
- *  When a window loses input focus, it will generate synthetic key release
+ *  When a window loses Input focus, it will generate synthetic key release
  *  events for all pressed keys.  You can tell these events from user-generated
  *  events by the fact that the synthetic ones are generated after the focus
  *  loss event has been processed, i.e. after the
@@ -4580,25 +4580,25 @@ GLFWAPI void glfwSetCursor(GLFWwindow* window, GLFWcursor* cursor);
  *  @since Added in version 1.0.
  *  @glfw3 Added window handle parameter and return value.
  *
- *  @ingroup input
+ *  @ingroup Input
  */
 GLFWAPI GLFWkeyfun glfwSetKeyCallback(GLFWwindow* window, GLFWkeyfun callback);
 
 /*! @brief Sets the Unicode character callback.
  *
  *  This function sets the character callback of the specified window, which is
- *  called when a Unicode character is input.
+ *  called when a Unicode character is Input.
  *
- *  The character callback is intended for Unicode text input.  As it deals with
+ *  The character callback is intended for Unicode text Input.  As it deals with
  *  characters, it is keyboard layout dependent, whereas the
  *  [key callback](@ref glfwSetKeyCallback) is not.  Characters do not map 1:1
  *  to physical keys, as a key may produce zero, one or more characters.  If you
  *  want to know whether a specific physical key was pressed or released, see
  *  the key callback instead.
  *
- *  The character callback behaves as system text input normally does and will
+ *  The character callback behaves as system text Input normally does and will
  *  not be called if modifier keys are held down that would prevent normal text
- *  input on that platform, for example a Super (Command) key on macOS or Alt key
+ *  Input on that platform, for example a Super (Command) key on macOS or Alt key
  *  on Windows.
  *
  *  @param[in] window The window whose callback to set.
@@ -4623,18 +4623,18 @@ GLFWAPI GLFWkeyfun glfwSetKeyCallback(GLFWwindow* window, GLFWkeyfun callback);
  *  @since Added in version 2.4.
  *  @glfw3 Added window handle parameter and return value.
  *
- *  @ingroup input
+ *  @ingroup Input
  */
 GLFWAPI GLFWcharfun glfwSetCharCallback(GLFWwindow* window, GLFWcharfun callback);
 
 /*! @brief Sets the Unicode character with modifiers callback.
  *
  *  This function sets the character with modifiers callback of the specified
- *  window, which is called when a Unicode character is input regardless of what
+ *  window, which is called when a Unicode character is Input regardless of what
  *  modifier keys are used.
  *
  *  The character with modifiers callback is intended for implementing custom
- *  Unicode character input.  For regular Unicode text input, see the
+ *  Unicode character Input.  For regular Unicode text Input, see the
  *  [character callback](@ref glfwSetCharCallback).  Like the character
  *  callback, the character with modifiers callback deals with characters and is
  *  keyboard layout dependent.  Characters do not map 1:1 to physical keys, as
@@ -4665,7 +4665,7 @@ GLFWAPI GLFWcharfun glfwSetCharCallback(GLFWwindow* window, GLFWcharfun callback
  *
  *  @since Added in version 3.1.
  *
- *  @ingroup input
+ *  @ingroup Input
  */
 GLFWAPI GLFWcharmodsfun glfwSetCharModsCallback(GLFWwindow* window, GLFWcharmodsfun callback);
 
@@ -4674,7 +4674,7 @@ GLFWAPI GLFWcharmodsfun glfwSetCharModsCallback(GLFWwindow* window, GLFWcharmods
  *  This function sets the mouse button callback of the specified window, which
  *  is called when a mouse button is pressed or released.
  *
- *  When a window loses input focus, it will generate synthetic mouse button
+ *  When a window loses Input focus, it will generate synthetic mouse button
  *  release events for all pressed mouse buttons.  You can tell these events
  *  from user-generated events by the fact that the synthetic ones are generated
  *  after the focus loss event has been processed, i.e. after the
@@ -4702,7 +4702,7 @@ GLFWAPI GLFWcharmodsfun glfwSetCharModsCallback(GLFWwindow* window, GLFWcharmods
  *  @since Added in version 1.0.
  *  @glfw3 Added window handle parameter and return value.
  *
- *  @ingroup input
+ *  @ingroup Input
  */
 GLFWAPI GLFWmousebuttonfun glfwSetMouseButtonCallback(GLFWwindow* window, GLFWmousebuttonfun callback);
 
@@ -4734,7 +4734,7 @@ GLFWAPI GLFWmousebuttonfun glfwSetMouseButtonCallback(GLFWwindow* window, GLFWmo
  *
  *  @since Added in version 3.0.  Replaces `glfwSetMousePosCallback`.
  *
- *  @ingroup input
+ *  @ingroup Input
  */
 GLFWAPI GLFWcursorposfun glfwSetCursorPosCallback(GLFWwindow* window, GLFWcursorposfun callback);
 
@@ -4765,7 +4765,7 @@ GLFWAPI GLFWcursorposfun glfwSetCursorPosCallback(GLFWwindow* window, GLFWcursor
  *
  *  @since Added in version 3.0.
  *
- *  @ingroup input
+ *  @ingroup Input
  */
 GLFWAPI GLFWcursorenterfun glfwSetCursorEnterCallback(GLFWwindow* window, GLFWcursorenterfun callback);
 
@@ -4775,7 +4775,7 @@ GLFWAPI GLFWcursorenterfun glfwSetCursorEnterCallback(GLFWwindow* window, GLFWcu
  *  called when a scrolling device is used, such as a mouse wheel or scrolling
  *  area of a touchpad.
  *
- *  The scroll callback receives all scrolling input, like that from a mouse
+ *  The scroll callback receives all scrolling Input, like that from a mouse
  *  wheel or a touchpad scrolling area.
  *
  *  @param[in] window The window whose callback to set.
@@ -4799,7 +4799,7 @@ GLFWAPI GLFWcursorenterfun glfwSetCursorEnterCallback(GLFWwindow* window, GLFWcu
  *
  *  @since Added in version 3.0.  Replaces `glfwSetMouseWheelCallback`.
  *
- *  @ingroup input
+ *  @ingroup Input
  */
 GLFWAPI GLFWscrollfun glfwSetScrollCallback(GLFWwindow* window, GLFWscrollfun callback);
 
@@ -4836,7 +4836,7 @@ GLFWAPI GLFWscrollfun glfwSetScrollCallback(GLFWwindow* window, GLFWscrollfun ca
  *
  *  @since Added in version 3.1.
  *
- *  @ingroup input
+ *  @ingroup Input
  */
 GLFWAPI GLFWdropfun glfwSetDropCallback(GLFWwindow* window, GLFWdropfun callback);
 
@@ -4860,7 +4860,7 @@ GLFWAPI GLFWdropfun glfwSetDropCallback(GLFWwindow* window, GLFWdropfun callback
  *
  *  @since Added in version 3.0.  Replaces `glfwGetJoystickParam`.
  *
- *  @ingroup input
+ *  @ingroup Input
  */
 GLFWAPI int glfwJoystickPresent(int jid);
 
@@ -4893,7 +4893,7 @@ GLFWAPI int glfwJoystickPresent(int jid);
  *
  *  @since Added in version 3.0.  Replaces `glfwGetJoystickPos`.
  *
- *  @ingroup input
+ *  @ingroup Input
  */
 GLFWAPI const float* glfwGetJoystickAxes(int jid, int* count);
 
@@ -4934,7 +4934,7 @@ GLFWAPI const float* glfwGetJoystickAxes(int jid, int* count);
  *  @since Added in version 2.2.
  *  @glfw3 Changed to return a dynamic array.
  *
- *  @ingroup input
+ *  @ingroup Input
  */
 GLFWAPI const unsigned char* glfwGetJoystickButtons(int jid, int* count);
 
@@ -4991,7 +4991,7 @@ GLFWAPI const unsigned char* glfwGetJoystickButtons(int jid, int* count);
  *
  *  @since Added in version 3.3.
  *
- *  @ingroup input
+ *  @ingroup Input
  */
 GLFWAPI const unsigned char* glfwGetJoystickHats(int jid, int* count);
 
@@ -5022,7 +5022,7 @@ GLFWAPI const unsigned char* glfwGetJoystickHats(int jid, int* count);
  *
  *  @since Added in version 3.0.
  *
- *  @ingroup input
+ *  @ingroup Input
  */
 GLFWAPI const char* glfwGetJoystickName(int jid);
 
@@ -5063,7 +5063,7 @@ GLFWAPI const char* glfwGetJoystickName(int jid);
  *
  *  @since Added in version 3.3.
  *
- *  @ingroup input
+ *  @ingroup Input
  */
 GLFWAPI const char* glfwGetJoystickGUID(int jid);
 
@@ -5089,7 +5089,7 @@ GLFWAPI const char* glfwGetJoystickGUID(int jid);
  *
  *  @since Added in version 3.3.
  *
- *  @ingroup input
+ *  @ingroup Input
  */
 GLFWAPI void glfwSetJoystickUserPointer(int jid, void* pointer);
 
@@ -5113,7 +5113,7 @@ GLFWAPI void glfwSetJoystickUserPointer(int jid, void* pointer);
  *
  *  @since Added in version 3.3.
  *
- *  @ingroup input
+ *  @ingroup Input
  */
 GLFWAPI void* glfwGetJoystickUserPointer(int jid);
 
@@ -5141,7 +5141,7 @@ GLFWAPI void* glfwGetJoystickUserPointer(int jid);
  *
  *  @since Added in version 3.3.
  *
- *  @ingroup input
+ *  @ingroup Input
  */
 GLFWAPI int glfwJoystickIsGamepad(int jid);
 
@@ -5177,7 +5177,7 @@ GLFWAPI int glfwJoystickIsGamepad(int jid);
  *
  *  @since Added in version 3.2.
  *
- *  @ingroup input
+ *  @ingroup Input
  */
 GLFWAPI GLFWjoystickfun glfwSetJoystickCallback(GLFWjoystickfun callback);
 
@@ -5211,7 +5211,7 @@ GLFWAPI GLFWjoystickfun glfwSetJoystickCallback(GLFWjoystickfun callback);
  *
  *  @since Added in version 3.3.
  *
- *  @ingroup input
+ *  @ingroup Input
  */
 GLFWAPI int glfwUpdateGamepadMappings(const char* string);
 
@@ -5243,7 +5243,7 @@ GLFWAPI int glfwUpdateGamepadMappings(const char* string);
  *
  *  @since Added in version 3.3.
  *
- *  @ingroup input
+ *  @ingroup Input
  */
 GLFWAPI const char* glfwGetGamepadName(int jid);
 
@@ -5257,7 +5257,7 @@ GLFWAPI const char* glfwGetGamepadName(int jid);
  *  @ref glfwJoystickPresent to check whether it is present regardless of
  *  whether it has a mapping.
  *
- *  The Guide button may not be available for input as it is often hooked by the
+ *  The Guide button may not be available for Input as it is often hooked by the
  *  system or the Steam client.
  *
  *  Not all devices have all the buttons or axes provided by @ref
@@ -5265,7 +5265,7 @@ GLFWAPI const char* glfwGetGamepadName(int jid);
  *  `GLFW_RELEASE` and 0.0 respectively.
  *
  *  @param[in] jid The [joystick](@ref joysticks) to query.
- *  @param[out] state The gamepad input state of the joystick.
+ *  @param[out] state The gamepad Input state of the joystick.
  *  @return `GLFW_TRUE` if successful, or `GLFW_FALSE` if no joystick is
  *  connected, it has no gamepad mapping or an [error](@ref error_handling)
  *  occurred.
@@ -5281,7 +5281,7 @@ GLFWAPI const char* glfwGetGamepadName(int jid);
  *
  *  @since Added in version 3.3.
  *
- *  @ingroup input
+ *  @ingroup Input
  */
 GLFWAPI int glfwGetGamepadState(int jid, GLFWgamepadstate* state);
 
@@ -5306,7 +5306,7 @@ GLFWAPI int glfwGetGamepadState(int jid, GLFWgamepadstate* state);
  *
  *  @since Added in version 3.0.
  *
- *  @ingroup input
+ *  @ingroup Input
  */
 GLFWAPI void glfwSetClipboardString(GLFWwindow* window, const char* string);
 
@@ -5336,7 +5336,7 @@ GLFWAPI void glfwSetClipboardString(GLFWwindow* window, const char* string);
  *
  *  @since Added in version 3.0.
  *
- *  @ingroup input
+ *  @ingroup Input
  */
 GLFWAPI const char* glfwGetClipboardString(GLFWwindow* window);
 
@@ -5366,7 +5366,7 @@ GLFWAPI const char* glfwGetClipboardString(GLFWwindow* window);
  *
  *  @since Added in version 1.0.
  *
- *  @ingroup input
+ *  @ingroup Input
  */
 GLFWAPI double glfwGetTime(void);
 
@@ -5396,7 +5396,7 @@ GLFWAPI double glfwGetTime(void);
  *
  *  @since Added in version 2.2.
  *
- *  @ingroup input
+ *  @ingroup Input
  */
 GLFWAPI void glfwSetTime(double time);
 
@@ -5418,7 +5418,7 @@ GLFWAPI void glfwSetTime(double time);
  *
  *  @since Added in version 3.2.
  *
- *  @ingroup input
+ *  @ingroup Input
  */
 GLFWAPI uint64_t glfwGetTimerValue(void);
 
@@ -5438,7 +5438,7 @@ GLFWAPI uint64_t glfwGetTimerValue(void);
  *
  *  @since Added in version 3.2.
  *
- *  @ingroup input
+ *  @ingroup Input
  */
 GLFWAPI uint64_t glfwGetTimerFrequency(void);
 

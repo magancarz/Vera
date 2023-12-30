@@ -34,7 +34,7 @@
 // ADDITIONAL CONTRIBUTORS
 //
 //   Mikko Mononen: compound shape support, more cmap formats
-//   Tor Andersson: kerning, subpixel renderEngine
+//   Tor Andersson: kerning, subpixel RenderEngine
 //   Dougall Johnson: OpenType / Type 2 font handling
 //   Daniel Ribeiro Maciel: basic GPOS-based kerning
 //
@@ -84,7 +84,7 @@
 //   1.08 (2015-09-13) document stbtt_Rasterize(); fixes for vertical & horizontal edges
 //   1.07 (2015-08-01) allow PackFontRanges to accept arrays of sparse codepoints;
 //                     variant PackFontRanges to pack and renderScene in separate phases;
-//                     fix stbtt_GetFontOFfsetForIndex (never worked for non-0 input?);
+//                     fix stbtt_GetFontOFfsetForIndex (never worked for non-0 Input?);
 //                     fixed an assert() bug in the new rasterizer
 //                     replace assert() with STBTT_assert() in new rasterizer
 //
@@ -238,7 +238,7 @@
 //      hinted, this is very import for quality. (This is not possible with
 //      baked fonts.)
 //
-//    - Kerning is now supported, and if you're supporting subpixel renderEngine
+//    - Kerning is now supported, and if you're supporting subpixel RenderEngine
 //      then kerning is worth using to give your text a polished look.
 //
 //   Performance:
@@ -398,7 +398,7 @@ int main(int arg, char **argv)
       stbtt_GetCodepointBitmapBoxSubpixel(&font, text[ch], scale,scale,x_shift,0, &x0,&y0,&x1,&y1);
       stbtt_MakeCodepointBitmapSubpixel(&font, &screen[baseline + y0][(int) xpos + x0], x1-x0,y1-y0, 79, scale,scale,x_shift,0, text[ch]);
       // note that this stomps the old data, so where character boxes overlap (e.g. 'lj') it's wrong
-      // because this API is really for baking character bitmaps into textures. if you want to render
+      // because this API is really for baking character bitmaps into Textures. if you want to render
       // a sequence of characters, you really need to renderScene each bitmap to a temp buffer, then
       // "alpha blend" that into the working buffer
       xpos += (advance * scale);
@@ -596,7 +596,7 @@ STBTT_DEF int  stbtt_PackBegin(stbtt_pack_context *spc, unsigned char *pixels, i
 // in here: a 1-channel bitmap that is width * height. stride_in_bytes is
 // the distance from one row to the next (or 0 to mean they are packed tightly
 // together). "padding" is the amount of padding to leave between each
-// character (normally you want '1' for bitmaps you'll use as textures with
+// character (normally you want '1' for bitmaps you'll use as Textures with
 // bilinear filtering).
 //
 // Returns 0 on failure, 1 on success.
@@ -647,7 +647,7 @@ STBTT_DEF void stbtt_PackSetOversampling(stbtt_pack_context *spc, unsigned int h
 // and v_oversample=1. The total number of pixels required is
 // h_oversample*v_oversample larger than the default; for example, 2x2
 // oversampling requires 4x the storage of 1x1. For best results, renderScene
-// oversampled textures with bilinear filtering. Look at the readme in
+// oversampled Textures with bilinear filtering. Look at the readme in
 // stb/tests/oversample for information about oversampled fonts
 //
 // To use with PackFontRangesGather etc., you must set it before calls
@@ -937,15 +937,15 @@ STBTT_DEF void stbtt_Rasterize(stbtt__bitmap *result,        // 1-channel bitmap
                                float flatness_in_pixels,     // allowable error of curve in pixels
                                stbtt_vertex *vertices,       // array of vertices defining shape
                                int num_verts,                // number of vertices in above array
-                               float scale_x, float scale_y, // scale applied to input vertices
-                               float shift_x, float shift_y, // translation applied to input vertices
-                               int x_off, int y_off,         // another translation applied to input
+                               float scale_x, float scale_y, // scale applied to Input vertices
+                               float shift_x, float shift_y, // translation applied to Input vertices
+                               int x_off, int y_off,         // another translation applied to Input
                                int invert,                   // if non-zero, vertically flip shape
                                void *userdata);              // context for to STBTT_MALLOC
 
 //////////////////////////////////////////////////////////////////////////////
 //
-// Signed Distance Function (or Field) renderEngine
+// Signed Distance Function (or Field) RenderEngine
 
 STBTT_DEF void stbtt_FreeSDF(unsigned char *bitmap, void *userdata);
 // frees the SDF bitmap allocated below
@@ -991,9 +991,9 @@ STBTT_DEF unsigned char * stbtt_GetCodepointSDF(const stbtt_fontinfo *info, floa
 //      antialiasing of the font at *smaller* sizes)
 //
 // The function computes the SDF analytically at each SDF pixel, not by e.g.
-// building a higher-res bitmap and approximating it. In theory the quality
+// building a higher-Resources bitmap and approximating it. In theory the quality
 // should be as high as possible for an SDF of this size & representation, but
-// unclear if this is true in practice (perhaps building a higher-res bitmap
+// unclear if this is true in practice (perhaps building a higher-Resources bitmap
 // and computing from that can allow drop-out prevention).
 //
 // The algorithm has not been optimized at all, so expect it to be slow
@@ -5003,7 +5003,7 @@ STBTT_DEF int stbtt_CompareUTF8toUTF16_bigendian(const char *s1, int len1, const
 //   1.08 (2015-09-13) document stbtt_Rasterize(); fixes for vertical & horizontal edges
 //   1.07 (2015-08-01) allow PackFontRanges to accept arrays of sparse codepoints;
 //                     allow PackFontRanges to pack and renderScene in separate phases;
-//                     fix stbtt_GetFontOFfsetForIndex (never worked for non-0 input?);
+//                     fix stbtt_GetFontOFfsetForIndex (never worked for non-0 Input?);
 //                     fixed an assert() bug in the new rasterizer
 //                     replace assert() with STBTT_assert() in new rasterizer
 //   1.06 (2015-07-14) performance improvements (~35% faster on x86 and x64 on test machine)
@@ -5016,7 +5016,7 @@ STBTT_DEF int stbtt_CompareUTF8toUTF16_bigendian(const char *s1, int len1, const
 //   1.01 (2014-12-08) fix subpixel position when oversampling to exactly match
 //                        non-oversampled; STBTT_POINT_SIZE for packed case only
 //   1.00 (2014-12-06) add new PackBegin etc. API, w/ support for oversampling
-//   0.99 (2014-09-18) fix multiple bugs with subpixel renderEngine (ryg)
+//   0.99 (2014-09-18) fix multiple bugs with subpixel RenderEngine (ryg)
 //   0.9  (2014-08-07) support certain mac/iOS fonts without an MS platformID
 //   0.8b (2014-07-07) fix a warning
 //   0.8  (2014-05-25) fix a few more warnings
@@ -5029,7 +5029,7 @@ STBTT_DEF int stbtt_CompareUTF8toUTF16_bigendian(const char *s1, int len1, const
 //                        subpixel glyph renderer computed wrong bounding box
 //                        first vertex of shape can be off-curve (FreeSans)
 //   0.4b (2011-12-03) fixed an error in the font baking example
-//   0.4  (2011-12-01) kerning, subpixel renderEngine (tor)
+//   0.4  (2011-12-01) kerning, subpixel RenderEngine (tor)
 //                    bugfixes for:
 //                        codepoint-to-glyph conversion using table fmt=12
 //                        codepoint-to-glyph conversion using table fmt=4

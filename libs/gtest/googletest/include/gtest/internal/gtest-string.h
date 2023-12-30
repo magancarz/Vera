@@ -66,7 +66,7 @@ class GTEST_API_ String {
 
   // Clones a 0-terminated C string, allocating memory using new.  The
   // caller is responsible for deleting the return value using
-  // delete[].  Returns the cloned string, or NULL if the input is
+  // delete[].  Returns the cloned string, or NULL if the Input is
   // NULL.
   //
   // This is different from strdup() in string.h, which allocates
@@ -81,7 +81,7 @@ class GTEST_API_ String {
   // Creates a UTF-16 wide string from the given ANSI string, allocating
   // memory using new. The caller is responsible for deleting the return
   // value using delete[]. Returns the wide string, or NULL if the
-  // input is NULL.
+  // Input is NULL.
   //
   // The wide string is created using the ANSI codepage (CP_ACP) to
   // match the behaviour of the ANSI versions of Win32 calls and the
@@ -91,7 +91,7 @@ class GTEST_API_ String {
   // Creates an ANSI string from the given wide string, allocating
   // memory using new. The caller is responsible for deleting the return
   // value using delete[]. Returns the ANSI string, or NULL if the
-  // input is NULL.
+  // Input is NULL.
   //
   // The returned string is created using the ANSI codepage (CP_ACP) to
   // match the behaviour of the ANSI versions of Win32 calls and the

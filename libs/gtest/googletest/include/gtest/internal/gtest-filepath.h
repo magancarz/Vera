@@ -117,7 +117,7 @@ class GTEST_API_ FilePath {
   // Returns true if and only if the path is "".
   bool IsEmpty() const { return pathname_.empty(); }
 
-  // If input name has a trailing separator character, removes it and returns
+  // If Input name has a trailing separator character, removes it and returns
   // the name, otherwise return the name string unmodified.
   // On Windows platform, uses \ as the separator, other platforms use /.
   FilePath RemoveTrailingPathSeparator() const;

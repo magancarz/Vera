@@ -962,7 +962,7 @@ bool ImGui::ScrollbarEx(const ImRect& bb_frame, ImGuiID id, ImGuiAxis axis, ImS6
     const float grab_h_pixels = ImClamp(scrollbar_size_v * ((float)size_avail_v / (float)win_size_v), style.GrabMinSize, scrollbar_size_v);
     const float grab_h_norm = grab_h_pixels / scrollbar_size_v;
 
-    // Handle input right away. None of the code of Begin() is relying on scrolling position before calling Scrollbar().
+    // Handle Input right away. None of the code of Begin() is relying on scrolling position before calling Scrollbar().
     bool held = false;
     bool hovered = false;
     ItemAdd(bb_frame, id, NULL, ImGuiItemFlags_NoNav);
@@ -996,7 +996,7 @@ bool ImGui::ScrollbarEx(const ImRect& bb_frame, ImGuiID id, ImGuiAxis axis, ImS6
         const float scroll_v_norm = ImSaturate((clicked_v_norm - g.ScrollbarClickDeltaToGrabCenter - grab_h_norm * 0.5f) / (1.0f - grab_h_norm));
         *p_scroll_v = (ImS64)(scroll_v_norm * scroll_max);
 
-        // Update values for renderEngine
+        // Update values for RenderEngine
         scroll_ratio = ImSaturate((float)*p_scroll_v / (float)scroll_max);
         grab_v_norm = scroll_ratio * (scrollbar_size_v - grab_h_pixels) / scrollbar_size_v;
 
@@ -2085,7 +2085,7 @@ void ImGui::DataTypeApplyOp(ImGuiDataType data_type, int op, void* output, const
     IM_ASSERT(0);
 }
 
-// User can input math operators (e.g. +100) to edit a numerical values.
+// User can Input math operators (e.g. +100) to edit a numerical values.
 // NB: This is _not_ a full expression evaluator. We should probably add one and replace this dumb mess..
 bool ImGui::DataTypeApplyFromText(const char* buf, ImGuiDataType data_type, void* p_data, const char* format)
 {
@@ -2456,7 +2456,7 @@ bool ImGui::DragScalar(const char* label, ImGuiDataType data_type, void* p_data,
 
     if (temp_input_is_active)
     {
-        // Only clamp CTRL+Click input when ImGuiSliderFlags_AlwaysClamp is set
+        // Only clamp CTRL+Click Input when ImGuiSliderFlags_AlwaysClamp is set
         const bool is_clamp_input = (flags & ImGuiSliderFlags_AlwaysClamp) != 0 && (p_min == NULL || p_max == NULL || DataTypeCompare(data_type, p_min, p_max) < 0);
         return TempInputScalar(frame_bb, id, label, data_type, p_data, format, is_clamp_input ? p_min : NULL, is_clamp_input ? p_max : NULL);
     }
@@ -3018,7 +3018,7 @@ bool ImGui::SliderScalar(const char* label, ImGuiDataType data_type, void* p_dat
     bool temp_input_is_active = temp_input_allowed && TempInputIsActive(id);
     if (!temp_input_is_active)
     {
-        // Tabbing or CTRL-clicking on Slider turns it into an input box
+        // Tabbing or CTRL-clicking on Slider turns it into an Input box
         const bool input_requested_by_tabbing = temp_input_allowed && (g.LastItemData.StatusFlags & ImGuiItemStatusFlags_FocusedByTabbing) != 0;
         const bool clicked = hovered && IsMouseClicked(0, id);
         const bool make_active = (input_requested_by_tabbing || clicked || g.NavActivateId == id);
@@ -3039,7 +3039,7 @@ bool ImGui::SliderScalar(const char* label, ImGuiDataType data_type, void* p_dat
 
     if (temp_input_is_active)
     {
-        // Only clamp CTRL+Click input when ImGuiSliderFlags_AlwaysClamp is set
+        // Only clamp CTRL+Click Input when ImGuiSliderFlags_AlwaysClamp is set
         const bool is_clamp_input = (flags & ImGuiSliderFlags_AlwaysClamp) != 0;
         return TempInputScalar(frame_bb, id, label, data_type, p_data, format, is_clamp_input ? p_min : NULL, is_clamp_input ? p_max : NULL);
     }
@@ -3375,7 +3375,7 @@ int ImParseFormatPrecision(const char* fmt, int default_precision)
     return (precision == INT_MAX) ? default_precision : precision;
 }
 
-// Create text input in place of another active widget (e.g. used when doing a CTRL+Click on drag/slider widgets)
+// Create text Input in place of another active widget (e.g. used when doing a CTRL+Click on drag/slider widgets)
 // FIXME: Facilitate using this in variety of other situations.
 bool ImGui::TempInputText(const ImRect& bb, ImGuiID id, const char* label, char* buf, int buf_size, ImGuiInputTextFlags flags)
 {
@@ -3406,7 +3406,7 @@ static inline ImGuiInputTextFlags InputScalar_DefaultCharsFilter(ImGuiDataType d
 }
 
 // Note that Drag/Slider functions are only forwarding the min/max values clamping values if the ImGuiSliderFlags_AlwaysClamp flag is set!
-// This is intended: this way we allow CTRL+Click manual input to set a value out of bounds, for maximum flexibility.
+// This is intended: this way we allow CTRL+Click manual Input to set a value out of bounds, for maximum flexibility.
 // However this may not be ideal for all uses, as some user code may break on out of bound values.
 bool ImGui::TempInputScalar(const ImRect& bb, ImGuiID id, const char* label, ImGuiDataType data_type, void* p_data, const char* format, const void* p_clamp_min, const void* p_clamp_max)
 {
@@ -3584,7 +3584,7 @@ bool ImGui::InputFloat4(const char* label, float v[4], const char* format, ImGui
 
 bool ImGui::InputInt(const char* label, int* v, int step, int step_fast, ImGuiInputTextFlags flags)
 {
-    // Hexadecimal input provided as a convenience but the flag name is awkward. Typically you'd use InputText() to parse your own data, if you want to handle prefixes.
+    // Hexadecimal Input provided as a convenience but the flag name is awkward. Typically you'd use InputText() to parse your own data, if you want to handle prefixes.
     const char* format = (flags & ImGuiInputTextFlags_CharsHexadecimal) ? "%08X" : "%d";
     return InputScalar(label, ImGuiDataType_S32, (void*)v, (void*)(step > 0 ? &step : NULL), (void*)(step_fast > 0 ? &step_fast : NULL), format, flags);
 }
@@ -3805,22 +3805,22 @@ static bool STB_TEXTEDIT_INSERTCHARS(ImGuiInputTextState* obj, int pos, const Im
 }
 
 // We don't use an enum so we can build even with conflicting symbols (if another user of stb_textedit.h leak their STB_TEXTEDIT_K_* symbols)
-#define STB_TEXTEDIT_K_LEFT         0x200000 // keyboard input to move cursor left
-#define STB_TEXTEDIT_K_RIGHT        0x200001 // keyboard input to move cursor right
-#define STB_TEXTEDIT_K_UP           0x200002 // keyboard input to move cursor up
-#define STB_TEXTEDIT_K_DOWN         0x200003 // keyboard input to move cursor down
-#define STB_TEXTEDIT_K_LINESTART    0x200004 // keyboard input to move cursor to start of line
-#define STB_TEXTEDIT_K_LINEEND      0x200005 // keyboard input to move cursor to end of line
-#define STB_TEXTEDIT_K_TEXTSTART    0x200006 // keyboard input to move cursor to start of text
-#define STB_TEXTEDIT_K_TEXTEND      0x200007 // keyboard input to move cursor to end of text
-#define STB_TEXTEDIT_K_DELETE       0x200008 // keyboard input to delete selection or character under cursor
-#define STB_TEXTEDIT_K_BACKSPACE    0x200009 // keyboard input to delete selection or character left of cursor
-#define STB_TEXTEDIT_K_UNDO         0x20000A // keyboard input to perform undo
-#define STB_TEXTEDIT_K_REDO         0x20000B // keyboard input to perform redo
-#define STB_TEXTEDIT_K_WORDLEFT     0x20000C // keyboard input to move cursor left one word
-#define STB_TEXTEDIT_K_WORDRIGHT    0x20000D // keyboard input to move cursor right one word
-#define STB_TEXTEDIT_K_PGUP         0x20000E // keyboard input to move cursor up a page
-#define STB_TEXTEDIT_K_PGDOWN       0x20000F // keyboard input to move cursor down a page
+#define STB_TEXTEDIT_K_LEFT         0x200000 // keyboard Input to move cursor left
+#define STB_TEXTEDIT_K_RIGHT        0x200001 // keyboard Input to move cursor right
+#define STB_TEXTEDIT_K_UP           0x200002 // keyboard Input to move cursor up
+#define STB_TEXTEDIT_K_DOWN         0x200003 // keyboard Input to move cursor down
+#define STB_TEXTEDIT_K_LINESTART    0x200004 // keyboard Input to move cursor to start of line
+#define STB_TEXTEDIT_K_LINEEND      0x200005 // keyboard Input to move cursor to end of line
+#define STB_TEXTEDIT_K_TEXTSTART    0x200006 // keyboard Input to move cursor to start of text
+#define STB_TEXTEDIT_K_TEXTEND      0x200007 // keyboard Input to move cursor to end of text
+#define STB_TEXTEDIT_K_DELETE       0x200008 // keyboard Input to delete selection or character under cursor
+#define STB_TEXTEDIT_K_BACKSPACE    0x200009 // keyboard Input to delete selection or character left of cursor
+#define STB_TEXTEDIT_K_UNDO         0x20000A // keyboard Input to perform undo
+#define STB_TEXTEDIT_K_REDO         0x20000B // keyboard Input to perform redo
+#define STB_TEXTEDIT_K_WORDLEFT     0x20000C // keyboard Input to move cursor left one word
+#define STB_TEXTEDIT_K_WORDRIGHT    0x20000D // keyboard Input to move cursor right one word
+#define STB_TEXTEDIT_K_PGUP         0x20000E // keyboard Input to move cursor up a page
+#define STB_TEXTEDIT_K_PGDOWN       0x20000F // keyboard Input to move cursor down a page
 #define STB_TEXTEDIT_K_SHIFT        0x400000
 
 #define STB_TEXTEDIT_IMPLEMENTATION
@@ -3947,7 +3947,7 @@ static bool InputTextFilterCharacter(unsigned int* p_char, ImGuiInputTextFlags f
     // Generic named filters
     if (apply_named_filters && (flags & (ImGuiInputTextFlags_CharsDecimal | ImGuiInputTextFlags_CharsHexadecimal | ImGuiInputTextFlags_CharsUppercase | ImGuiInputTextFlags_CharsNoBlank | ImGuiInputTextFlags_CharsScientific)))
     {
-        // The libc allows overriding locale, with e.g. 'setlocale(LC_NUMERIC, "de_DE.UTF-8");' which affect the output/input of printf/scanf to use e.g. ',' instead of '.'.
+        // The libc allows overriding locale, with e.g. 'setlocale(LC_NUMERIC, "de_DE.UTF-8");' which affect the output/Input of printf/scanf to use e.g. ',' instead of '.'.
         // The standard mandate that programs starts in the "C" locale where the decimal point is '.'.
         // We don't really intend to provide widespread support for it, but out of empathy for people stuck with using odd API, we support the bare minimum aka overriding the decimal point.
         // Change the default decimal_point with:
@@ -4386,8 +4386,8 @@ bool ImGui::InputTextEx(const char* label, const char* hint, char* buf, int buf_
                 state->OnKeyPressed((int)c);
         }
 
-        // Process regular text input (before we check for Return because using some IME will effectively send a Return?)
-        // We ignore CTRL inputs, but need to allow ALT+CTRL as some keyboards (e.g. German) use AltGR (which _is_ Alt+Ctrl) to input certain characters.
+        // Process regular text Input (before we check for Return because using some IME will effectively send a Return?)
+        // We ignore CTRL inputs, but need to allow ALT+CTRL as some keyboards (e.g. German) use AltGR (which _is_ Alt+Ctrl) to Input certain characters.
         const bool ignore_char_inputs = (io.KeyCtrl && !io.KeyAlt) || (is_osx && io.KeySuper);
         if (io.InputQueueCharacters.Size > 0)
         {
@@ -4576,7 +4576,7 @@ bool ImGui::InputTextEx(const char* label, const char* hint, char* buf, int buf_
         {
             if (flags & ImGuiInputTextFlags_EscapeClearsAll)
             {
-                // Clear input
+                // Clear Input
                 apply_new_text = "";
                 apply_new_text_length = 0;
                 STB_TEXTEDIT_CHARTYPE empty_string;
@@ -4607,14 +4607,14 @@ bool ImGui::InputTextEx(const char* label, const char* hint, char* buf, int buf_
             ImTextStrToUtf8(state->TextA.Data, state->TextA.Size, state->TextW.Data, NULL);
         }
 
-        // When using 'ImGuiInputTextFlags_EnterReturnsTrue' as a special case we reapply the live buffer back to the input buffer before clearing ActiveId, even though strictly speaking it wasn't modified on this frame.
+        // When using 'ImGuiInputTextFlags_EnterReturnsTrue' as a special case we reapply the live buffer back to the Input buffer before clearing ActiveId, even though strictly speaking it wasn't modified on this frame.
         // If we didn't do that, code like InputInt() with ImGuiInputTextFlags_EnterReturnsTrue would fail.
         // This also allows the user to use InputText() with ImGuiInputTextFlags_EnterReturnsTrue without maintaining any user-side storage (please note that if you use this property along ImGuiInputTextFlags_CallbackResize you can end up with your temporary string object unnecessarily allocating once a frame, either store your string data, either if you don't then don't use ImGuiInputTextFlags_CallbackResize).
         const bool apply_edit_back_to_user_buffer = !revert_edit || (validated && (flags & ImGuiInputTextFlags_EnterReturnsTrue) != 0);
         if (apply_edit_back_to_user_buffer)
         {
             // Apply new value immediately - copy modified buffer back
-            // Note that as soon as the input box is active, the in-widget value gets priority over any underlying modification of the input buffer
+            // Note that as soon as the Input box is active, the in-widget value gets priority over any underlying modification of the Input buffer
             // FIXME: We actually always renderScene 'buf' when calling DrawList->AddText, making the comment above incorrect.
             // FIXME-OPT: CPU waste to do this every time the widget is active, should mark dirty state from the stb_textedit callbacks.
 
@@ -4750,7 +4750,7 @@ bool ImGui::InputTextEx(const char* label, const char* hint, char* buf, int buf_
     }
 
     // Release active ID at the end of the function (so e.g. pressing Return still does a final application of the value)
-    // Otherwise request text input ahead for next frame.
+    // Otherwise request text Input ahead for next frame.
     if (g.ActiveId == id && clear_active_id)
         ClearActiveID();
     else if (g.ActiveId == id)
@@ -4780,7 +4780,7 @@ bool ImGui::InputTextEx(const char* label, const char* hint, char* buf, int buf_
     }
 
     // Render text. We currently only renderScene selection when the widget is active or while scrolling.
-    // FIXME: We could remove the '&& render_cursor' to keep renderEngine selection when inactive.
+    // FIXME: We could remove the '&& render_cursor' to keep RenderEngine selection when inactive.
     if (render_cursor || render_selection)
     {
         IM_ASSERT(state != NULL);
@@ -4792,7 +4792,7 @@ bool ImGui::InputTextEx(const char* label, const char* hint, char* buf, int buf_
         // - Display the text (this alone can be more easily clipped)
         // - Handle scrolling, highlight selection, display cursor (those all requires some form of 1d->2d cursor position calculation)
         // - Measure text height (for scrollbar)
-        // We are attempting to do most of that in **one main pass** to minimize the computation cost (non-negligible for large amount of text) + 2nd pass for selection renderEngine (we could merge them by an extra refactoring effort)
+        // We are attempting to do most of that in **one main pass** to minimize the computation cost (non-negligible for large amount of text) + 2nd pass for selection RenderEngine (we could merge them by an extra refactoring effort)
         // FIXME: This should occur on buf_display but we'd need to maintain cursor/select_start/select_end for UTF-8.
         const ImWchar* text_begin = state->TextW.Data;
         ImVec2 cursor_offset, select_start_offset;
@@ -4936,7 +4936,7 @@ bool ImGui::InputTextEx(const char* label, const char* hint, char* buf, int buf_
             if (cursor_is_visible && cursor_screen_rect.Overlaps(clip_rect))
                 draw_window->DrawList->AddLine(cursor_screen_rect.Min, cursor_screen_rect.GetBL(), GetColorU32(ImGuiCol_Text));
 
-            // Notify OS of text input position for advanced IME (-1 x offset so that Windows IME can cover our cursor. Bit of an extra nicety.)
+            // Notify OS of text Input position for advanced IME (-1 x offset so that Windows IME can cover our cursor. Bit of an extra nicety.)
             if (!is_readonly)
             {
                 g.PlatformImeData.WantVisible = true;
@@ -5072,7 +5072,7 @@ static void ColorEditRestoreH(const float* col, float* H)
     *H = g.ColorEditSavedHue;
 }
 
-// ColorEdit supports RGB and HSV inputs. In case of RGB input resulting color may have undefined hue and/or saturation.
+// ColorEdit supports RGB and HSV inputs. In case of RGB Input resulting color may have undefined hue and/or saturation.
 // Since widget displays both RGB and HSV values we must preserve hue and saturation to prevent these values resetting.
 static void ColorEditRestoreHS(const float* col, float* H, float* S, float* V)
 {
@@ -5093,7 +5093,7 @@ static void ColorEditRestoreHS(const float* col, float* H, float* S, float* V)
 
 // Edit colors components (each component in 0.0f..1.0f range).
 // See enum ImGuiColorEditFlags_ for available options. e.g. Only access 3 floats if ImGuiColorEditFlags_NoAlpha flag is set.
-// With typical options: Left-click on color square to open color picker. Right-click to open option menu. CTRL-Click over input fields to edit them and TAB to go to next item.
+// With typical options: Left-click on color square to open color picker. Right-click to open option menu. CTRL-Click over Input fields to edit them and TAB to go to next item.
 bool ImGui::ColorEdit4(const char* label, float col[4], ImGuiColorEditFlags flags)
 {
     ImGuiWindow* window = GetCurrentWindow();
@@ -5571,7 +5571,7 @@ bool ImGui::ColorPicker4(const char* label, float col[4], ImGuiColorEditFlags fl
         }
     }
 
-    // R,G,B and H,S,V slider color editor
+    // R,G,B and H,S,V slider color Editor
     bool value_changed_fix_hue_wrap = false;
     if ((flags & ImGuiColorEditFlags_NoInputs) == 0)
     {
@@ -5582,7 +5582,7 @@ bool ImGui::ColorPicker4(const char* label, float col[4], ImGuiColorEditFlags fl
             if (ColorEdit4("##rgb", col, sub_flags | ImGuiColorEditFlags_DisplayRGB))
             {
                 // FIXME: Hackily differentiating using the DragInt (ActiveId != 0 && !ActiveIdAllowOverlap) vs. using the InputText or DropTarget.
-                // For the later we don't want to run the hue-wrap canceling code. If you are well versed in HSV picker please provide your input! (See #2050)
+                // For the later we don't want to run the hue-wrap canceling code. If you are well versed in HSV picker please provide your Input! (See #2050)
                 value_changed_fix_hue_wrap = (g.ActiveId != 0 && !g.ActiveIdAllowOverlap);
                 value_changed = true;
             }
@@ -5634,7 +5634,7 @@ bool ImGui::ColorPicker4(const char* label, float col[4], ImGuiColorEditFlags fl
 
     ImVec4 hue_color_f(1, 1, 1, style.Alpha); ColorConvertHSVtoRGB(H, 1, 1, hue_color_f.x, hue_color_f.y, hue_color_f.z);
     ImU32 hue_color32 = ColorConvertFloat4ToU32(hue_color_f);
-    ImU32 user_col32_striped_of_alpha = ColorConvertFloat4ToU32(ImVec4(R, G, B, style.Alpha)); // Important: this is still including the main renderEngine/style alpha!!
+    ImU32 user_col32_striped_of_alpha = ColorConvertFloat4ToU32(ImVec4(R, G, B, style.Alpha)); // Important: this is still including the main RenderEngine/style alpha!!
 
     ImVec2 sv_cursor_pos;
 
@@ -8650,7 +8650,7 @@ ImVec2 ImGui::TabItemCalcSize(ImGuiWindow* window)
 
 void ImGui::TabItemBackground(ImDrawList* draw_list, const ImRect& bb, ImGuiTabItemFlags flags, ImU32 col)
 {
-    // While renderEngine tabs, we trim 1 pixel off the top of our bounding box so they can fit within a regular frame height while looking "detached" from it.
+    // While RenderEngine tabs, we trim 1 pixel off the top of our bounding box so they can fit within a regular frame height while looking "detached" from it.
     ImGuiContext& g = *GImGui;
     const float width = bb.GetWidth();
     IM_UNUSED(flags);

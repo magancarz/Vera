@@ -357,13 +357,13 @@ vec computeCenter(const std::vector<vec>& testData)
 template<glm::length_t D, typename T, glm::qualifier Q>
 int testEigenvalueSort()
 {
-	// Test input data: four arbitrary values
+	// Test Input data: four arbitrary values
 	static const glm::vec<D, T, Q> refVal(
 		glm::vec<4, T, Q>(
 			10, 8, 6, 4
 		)
 	);
-	// Test input data: four arbitrary vectors, which can be matched to the above values
+	// Test Input data: four arbitrary vectors, which can be matched to the above values
 	static const glm::mat<D, D, T, Q> refVec(
 		glm::mat<4, 4, T, Q>(
 			10, 20, 5, 40,
@@ -372,7 +372,7 @@ int testEigenvalueSort()
 			4, 8, 2, 16
 		)
 	);
-	// Permutations of test input data for exhaustive check, based on `D` (1 <= D <= 4)
+	// Permutations of test Input data for exhaustive check, based on `D` (1 <= D <= 4)
 	static const int permutationCount[] = {
 		0,
 		1,
@@ -608,7 +608,7 @@ int rndTest(unsigned int randomEngineSeed)
 	glm::dvec3 z = glm::normalize(glm::cross(x, y));
 	y = glm::normalize(glm::cross(z, x));
 
-	// generate input point data
+	// generate Input point data
 	std::vector<glm::dvec3> ptData;
 	static const int pattern[] = {
 		8, 0, 0,

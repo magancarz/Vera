@@ -2,10 +2,10 @@ cmake_minimum_required(VERSION 3.25)
 set(CMAKE_CXX_STANDARD 20)
 project(Vera LANGUAGES CXX CUDA)
 
-add_library(Vera-Lib STATIC src/Vera.cu)
+add_library(Vera-Lib STATIC Source/Vera.cu)
 
-add_subdirectory(src)
-target_include_directories(Vera-Lib PUBLIC src)
+add_subdirectory(Source)
+target_include_directories(Vera-Lib PUBLIC Source)
 
 find_package(GLEW REQUIRED)
 include_directories(${GLEW_INCLUDE_DIRS})
@@ -33,7 +33,7 @@ set_target_properties(Vera-Lib PROPERTIES CUDA_SEPARABLE_COMPILATION ON)
 set(CUDA_NVCC_FLAGS ${CUDA_NVCC_FLAGS} -arch=sm_XX -O3)
 include_directories(libs/cuda)
 
-add_executable(Vera src/main.cu)
+add_executable(Vera Source/main.cu)
 target_link_libraries(Vera Vera-Lib)
 set_target_properties(Vera PROPERTIES CUDA_SEPARABLE_COMPILATION ON)
 

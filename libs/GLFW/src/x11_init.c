@@ -1093,7 +1093,7 @@ Cursor _glfwCreateCursorX11(const GLFWimage* image, int xhot, int yhot)
 int _glfwPlatformInit(void)
 {
     // HACK: If the application has left the locale as "C" then both wide
-    //       character text input and explicit UTF-8 input via XIM will break
+    //       character text Input and explicit UTF-8 Input via XIM will break
     //       This sets the CTYPE part of the current locale from the environment
     //       in the hope that it is set to something more sane than "C"
     if (strcmp(setlocale(LC_CTYPE, NULL), "C") == 0)

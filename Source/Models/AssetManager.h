@@ -21,13 +21,13 @@ struct RawModel;
 
 namespace locations
 {
-    static std::string res_folder_location = "res/";
-    static std::string textures_folder_location = "res/textures/";
+    static std::string res_folder_location = "Resources/";
+    static std::string textures_folder_location = "Resources/Textures/";
     static std::string image_extension = ".png";
-    static std::string models_folder_location = "res/models/";
+    static std::string models_folder_location = "Resources/Models/";
     static std::string model_extension = ".obj";
     static std::string shader_extension = ".glsl";
-    static std::string shader_folder_location = "res/shaders/";
+    static std::string shader_folder_location = "Resources/Shaders/";
 }
 
 struct RawModelAttributes

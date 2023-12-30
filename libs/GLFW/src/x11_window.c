@@ -1414,7 +1414,7 @@ static void processEvent(XEvent *event)
             else
             {
                 // Additional buttons after 7 are treated as regular buttons
-                // We subtract 4 to fill the gap left by scroll input above
+                // We subtract 4 to fill the gap left by scroll Input above
                 _glfwInputMouseClick(window,
                                      event->xbutton.button - Button1 - 4,
                                      GLFW_PRESS,
@@ -1452,7 +1452,7 @@ static void processEvent(XEvent *event)
             else if (event->xbutton.button > Button7)
             {
                 // Additional buttons after 7 are treated as regular buttons
-                // We subtract 4 to fill the gap left by scroll input above
+                // We subtract 4 to fill the gap left by scroll Input above
                 _glfwInputMouseClick(window,
                                      event->xbutton.button - Button1 - 4,
                                      GLFW_RELEASE,

@@ -443,7 +443,7 @@ static void char_callback(GLFWwindow* window, unsigned int codepoint)
     char string[5] = "";
 
     encode_utf8(string, codepoint);
-    printf("%08x to %i at %0.3f: Character 0x%08x (%s) input\n",
+    printf("%08x to %i at %0.3f: Character 0x%08x (%s) Input\n",
            counter++, slot->number, glfwGetTime(), codepoint, string);
 }
 
@@ -452,7 +452,7 @@ static void drop_callback(GLFWwindow* window, int count, const char* paths[])
     int i;
     Slot* slot = glfwGetWindowUserPointer(window);
 
-    printf("%08x to %i at %0.3f: Drop input\n",
+    printf("%08x to %i at %0.3f: Drop Input\n",
            counter++, slot->number, glfwGetTime());
 
     for (i = 0;  i < count;  i++)

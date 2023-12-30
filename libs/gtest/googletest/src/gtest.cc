@@ -1186,7 +1186,7 @@ TimeInMillis GetTimeInMillis() {
 // Creates a UTF-16 wide string from the given ANSI string, allocating
 // memory using new. The caller is responsible for deleting the return
 // value using delete[]. Returns the wide string, or NULL if the
-// input is NULL.
+// Input is NULL.
 LPCWSTR String::AnsiToUtf16(const char* ansi) {
   if (!ansi) return nullptr;
   const int length = strlen(ansi);
@@ -1201,7 +1201,7 @@ LPCWSTR String::AnsiToUtf16(const char* ansi) {
 // Creates an ANSI string from the given wide string, allocating
 // memory using new. The caller is responsible for deleting the return
 // value using delete[]. Returns the ANSI string, or NULL if the
-// input is NULL.
+// Input is NULL.
 const char* String::Utf16ToAnsi(LPCWSTR utf16_str) {
   if (!utf16_str) return nullptr;
   const int ansi_length = WideCharToMultiByte(CP_ACP, 0, utf16_str, -1, nullptr,
@@ -1502,7 +1502,7 @@ std::string CreateUnifiedDiff(const std::vector<std::string>& left,
       hunk.PushLine(' ', left[l_i - i].c_str());
     }
 
-    // Iterate the edits until we found enough suffix for the hunk or the input
+    // Iterate the edits until we found enough suffix for the hunk or the Input
     // is over.
     size_t n_suffix = 0;
     for (; edit_i < edits.size(); ++edit_i) {
@@ -3218,7 +3218,7 @@ static WORD GetNewColor(GTestColor color, WORD old_color_attrs) {
 #else
 
 // Returns the ANSI color code for the given color. GTestColor::kDefault is
-// an invalid input.
+// an invalid Input.
 static const char* GetAnsiColorCode(GTestColor color) {
   switch (color) {
     case GTestColor::kRed:
@@ -3918,7 +3918,7 @@ class XmlUnitTestResultPrinter : public EmptyTestEventListener {
     return IsNormalizableWhitespace(c) || c >= 0x20;
   }
 
-  // Returns an XML-escaped copy of the input string str.  If
+  // Returns an XML-escaped copy of the Input string str.  If
   // is_attribute is true, the text is meant to appear as an attribute
   // value, and normalizable whitespace is preserved by replacing it
   // with character references.
@@ -4015,7 +4015,7 @@ void XmlUnitTestResultPrinter::ListTestsMatchingFilter(
   fclose(xmlout);
 }
 
-// Returns an XML-escaped copy of the input string str.  If is_attribute
+// Returns an XML-escaped copy of the Input string str.  If is_attribute
 // is true, the text is meant to appear as an attribute value, and
 // normalizable whitespace is preserved by replacing it with character
 // references.
@@ -4462,7 +4462,7 @@ class JsonUnitTestResultPrinter : public EmptyTestEventListener {
                                 const std::vector<TestSuite*>& test_suites);
 
  private:
-  // Returns an JSON-escaped copy of the input string str.
+  // Returns an JSON-escaped copy of the Input string str.
   static std::string EscapeJson(const std::string& str);
 
   //// Verifies that the given attribute belongs to the given element and
@@ -4529,7 +4529,7 @@ void JsonUnitTestResultPrinter::OnTestIterationEnd(const UnitTest& unit_test,
   fclose(jsonout);
 }
 
-// Returns an JSON-escaped copy of the input string str.
+// Returns an JSON-escaped copy of the Input string str.
 std::string JsonUnitTestResultPrinter::EscapeJson(const std::string& str) {
   Message m;
 
@@ -4897,7 +4897,7 @@ std::string JsonUnitTestResultPrinter::TestPropertiesAsJson(
 // Checks if str contains '=', '&', '%' or '\n' characters. If yes,
 // replaces them by "%xx" where xx is their hexadecimal value. For
 // example, replaces "=" with "%3D".  This algorithm is O(strlen(str))
-// in both time and space -- important as the input str may contain an
+// in both time and space -- important as the Input str may contain an
 // arbitrarily long test failure message and stack trace.
 std::string StreamingListener::UrlEncode(const char* str) {
   std::string result;
@@ -5467,8 +5467,8 @@ int UnitTest::Run() {
           _WRITE_ABORT_MSG | _CALL_REPORTFAULT);  // pop-up window, core dump.
 
     // In debug mode, the Windows CRT can crash with an assertion over invalid
-    // input (e.g. passing an invalid file descriptor).  The default handling
-    // for these assertions is to pop up a dialog and wait for user input.
+    // Input (e.g. passing an invalid file descriptor).  The default handling
+    // for these assertions is to pop up a dialog and wait for user Input.
     // Instead ask the CRT to dump such assertions to stderr non-interactively.
     if (!IsDebuggerPresent()) {
       (void)_CrtSetReportMode(_CRT_ASSERT,
@@ -6221,8 +6221,8 @@ void UnitTestImpl::ListTestsMatchingFilter() {
 
 // Sets the OS stack trace getter.
 //
-// Does nothing if the input and the current OS stack trace getter are
-// the same; otherwise, deletes the old getter and makes the input the
+// Does nothing if the Input and the current OS stack trace getter are
+// the same; otherwise, deletes the old getter and makes the Input the
 // current getter.
 void UnitTestImpl::set_os_stack_trace_getter(
     OsStackTraceGetterInterface* getter) {

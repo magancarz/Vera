@@ -371,7 +371,7 @@ bool FilePath::CreateFolder() const {
   return true;  // No error.
 }
 
-// If input name has a trailing separator character, remove it and return the
+// If Input name has a trailing separator character, remove it and return the
 // name, otherwise return the name string unmodified.
 // On Windows platform, uses \ as the separator, other platforms use /.
 FilePath FilePath::RemoveTrailingPathSeparator() const {

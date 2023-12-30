@@ -89,7 +89,7 @@ void AssetManager::initializeAssets()
     createMaterialAsset("brick_wall", brick_wall);
 
     MaterialParameters bricks{
-            "bricks2", "bricks2_normal", "", 0.f, 0.f, 0.f, "bricks2_disp", .1f
+            "bricks2", "bricks2_normal", "", 0.f, 0.f, 0.f, "bricks2_disp", .05f
     };
     createMaterialAsset("bricks", bricks);
 

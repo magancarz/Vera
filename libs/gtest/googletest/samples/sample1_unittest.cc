@@ -109,7 +109,7 @@ TEST(FactorialTest, Positive) {
 
 // Tests IsPrime()
 
-// Tests negative input.
+// Tests negative Input.
 TEST(IsPrimeTest, Negative) {
   // This test belongs to the IsPrimeTest test case.
 
@@ -126,7 +126,7 @@ TEST(IsPrimeTest, Trivial) {
   EXPECT_TRUE(IsPrime(3));
 }
 
-// Tests positive input.
+// Tests positive Input.
 TEST(IsPrimeTest, Positive) {
   EXPECT_FALSE(IsPrime(4));
   EXPECT_TRUE(IsPrime(5));
@@ -137,7 +137,7 @@ TEST(IsPrimeTest, Positive) {
 
 // Step 3. Call RUN_ALL_TESTS() in main().
 //
-// We do this by linking in src/gtest_main.cc file, which consists of
+// We do this by linking in Source/gtest_main.cc file, which consists of
 // a main() function which calls RUN_ALL_TESTS() for us.
 //
 // This runs all the tests you've defined, prints the result, and

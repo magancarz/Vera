@@ -2607,7 +2607,7 @@ TEST(StringAssertionTest, STRNE_Wide) {
 
 // Tests for ::testing::IsSubstring().
 
-// Tests that IsSubstring() returns the correct result when the input
+// Tests that IsSubstring() returns the correct result when the Input
 // argument type is const char*.
 TEST(IsSubstringTest, ReturnsCorrectResultForCString) {
   EXPECT_FALSE(IsSubstring("", "", nullptr, "a"));
@@ -2618,7 +2618,7 @@ TEST(IsSubstringTest, ReturnsCorrectResultForCString) {
   EXPECT_TRUE(IsSubstring("", "", "needle", "two needles"));
 }
 
-// Tests that IsSubstring() returns the correct result when the input
+// Tests that IsSubstring() returns the correct result when the Input
 // argument type is const wchar_t*.
 TEST(IsSubstringTest, ReturnsCorrectResultForWideCString) {
   EXPECT_FALSE(IsSubstring("", "", kNull, L"a"));
@@ -2630,7 +2630,7 @@ TEST(IsSubstringTest, ReturnsCorrectResultForWideCString) {
   EXPECT_TRUE(IsSubstring("", "", L"needle", L"two needles"));
 }
 
-// Tests that IsSubstring() generates the correct message when the input
+// Tests that IsSubstring() generates the correct message when the Input
 // argument type is const char*.
 TEST(IsSubstringTest, GeneratesCorrectMessageForCString) {
   EXPECT_STREQ(
@@ -2642,7 +2642,7 @@ TEST(IsSubstringTest, GeneratesCorrectMessageForCString) {
           .failure_message());
 }
 
-// Tests that IsSubstring returns the correct result when the input
+// Tests that IsSubstring returns the correct result when the Input
 // argument type is ::std::string.
 TEST(IsSubstringTest, ReturnsCorrectResultsForStdString) {
   EXPECT_TRUE(IsSubstring("", "", std::string("hello"), "ahellob"));
@@ -2650,14 +2650,14 @@ TEST(IsSubstringTest, ReturnsCorrectResultsForStdString) {
 }
 
 #if GTEST_HAS_STD_WSTRING
-// Tests that IsSubstring returns the correct result when the input
+// Tests that IsSubstring returns the correct result when the Input
 // argument type is ::std::wstring.
 TEST(IsSubstringTest, ReturnsCorrectResultForStdWstring) {
   EXPECT_TRUE(IsSubstring("", "", ::std::wstring(L"needle"), L"two needles"));
   EXPECT_FALSE(IsSubstring("", "", L"needle", ::std::wstring(L"haystack")));
 }
 
-// Tests that IsSubstring() generates the correct message when the input
+// Tests that IsSubstring() generates the correct message when the Input
 // argument type is ::std::wstring.
 TEST(IsSubstringTest, GeneratesCorrectMessageForWstring) {
   EXPECT_STREQ(
@@ -2674,21 +2674,21 @@ TEST(IsSubstringTest, GeneratesCorrectMessageForWstring) {
 
 // Tests for ::testing::IsNotSubstring().
 
-// Tests that IsNotSubstring() returns the correct result when the input
+// Tests that IsNotSubstring() returns the correct result when the Input
 // argument type is const char*.
 TEST(IsNotSubstringTest, ReturnsCorrectResultForCString) {
   EXPECT_TRUE(IsNotSubstring("", "", "needle", "haystack"));
   EXPECT_FALSE(IsNotSubstring("", "", "needle", "two needles"));
 }
 
-// Tests that IsNotSubstring() returns the correct result when the input
+// Tests that IsNotSubstring() returns the correct result when the Input
 // argument type is const wchar_t*.
 TEST(IsNotSubstringTest, ReturnsCorrectResultForWideCString) {
   EXPECT_TRUE(IsNotSubstring("", "", L"needle", L"haystack"));
   EXPECT_FALSE(IsNotSubstring("", "", L"needle", L"two needles"));
 }
 
-// Tests that IsNotSubstring() generates the correct message when the input
+// Tests that IsNotSubstring() generates the correct message when the Input
 // argument type is const wchar_t*.
 TEST(IsNotSubstringTest, GeneratesCorrectMessageForWideCString) {
   EXPECT_STREQ(
@@ -2700,14 +2700,14 @@ TEST(IsNotSubstringTest, GeneratesCorrectMessageForWideCString) {
           .failure_message());
 }
 
-// Tests that IsNotSubstring returns the correct result when the input
+// Tests that IsNotSubstring returns the correct result when the Input
 // argument type is ::std::string.
 TEST(IsNotSubstringTest, ReturnsCorrectResultsForStdString) {
   EXPECT_FALSE(IsNotSubstring("", "", std::string("hello"), "ahellob"));
   EXPECT_TRUE(IsNotSubstring("", "", "hello", std::string("world")));
 }
 
-// Tests that IsNotSubstring() generates the correct message when the input
+// Tests that IsNotSubstring() generates the correct message when the Input
 // argument type is ::std::string.
 TEST(IsNotSubstringTest, GeneratesCorrectMessageForStdString) {
   EXPECT_STREQ(
@@ -2722,7 +2722,7 @@ TEST(IsNotSubstringTest, GeneratesCorrectMessageForStdString) {
 
 #if GTEST_HAS_STD_WSTRING
 
-// Tests that IsNotSubstring returns the correct result when the input
+// Tests that IsNotSubstring returns the correct result when the Input
 // argument type is ::std::wstring.
 TEST(IsNotSubstringTest, ReturnsCorrectResultForStdWstring) {
   EXPECT_FALSE(

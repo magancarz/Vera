@@ -103,7 +103,7 @@ namespace tinyobj {
 //  -texres resolution                     # texture resolution to create
 //  -clamp on | off                        # only renderScene texels in the clamped
 //  0-1 range (default off)
-//                                         #   When unclamped, textures are
+//                                         #   When unclamped, Textures are
 //                                         repeated across a surface,
 //                                         #   when clamped, only texels which
 //                                         fall within the 0-1

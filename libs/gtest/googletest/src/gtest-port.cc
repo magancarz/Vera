@@ -1300,7 +1300,7 @@ bool ParseInt32(const Message& src_text, const char* str, int32_t* value) {
   const auto result = static_cast<int32_t>(long_value);
   if (long_value == LONG_MAX || long_value == LONG_MIN ||
       // The parsed value overflows as a long.  (strtol() returns
-      // LONG_MAX or LONG_MIN when the input overflows.)
+      // LONG_MAX or LONG_MIN when the Input overflows.)
       result != long_value
       // The parsed value overflows as an int32_t.
   ) {

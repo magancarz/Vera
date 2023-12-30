@@ -40,7 +40,7 @@
 //////                         GLFW event API                       //////
 //////////////////////////////////////////////////////////////////////////
 
-// Notifies shared code that a window has lost or received input focus
+// Notifies shared code that a window has lost or received Input focus
 //
 void _glfwInputWindowFocus(_GLFWwindow* window, GLFWbool focused)
 {

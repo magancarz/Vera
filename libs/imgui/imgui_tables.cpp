@@ -257,7 +257,7 @@ Index of this file:
 static const int TABLE_DRAW_CHANNEL_BG0 = 0;
 static const int TABLE_DRAW_CHANNEL_BG2_FROZEN = 1;
 static const int TABLE_DRAW_CHANNEL_NOCLIP = 2;                     // When using ImGuiTableFlags_NoClip (this becomes the last visible channel)
-static const float TABLE_BORDER_SIZE                     = 1.0f;    // FIXME-TABLE: Currently hard-coded because of clipping assumptions with outer borders renderEngine.
+static const float TABLE_BORDER_SIZE                     = 1.0f;    // FIXME-TABLE: Currently hard-coded because of clipping assumptions with outer borders RenderEngine.
 static const float TABLE_RESIZE_SEPARATOR_HALF_THICKNESS = 4.0f;    // Extend outside inner borders.
 static const float TABLE_RESIZE_SEPARATOR_FEEDBACK_TIMER = 0.06f;   // Delay/timer before making the hover feedback (color+cursor) visible because tables/columns tends to be more cramped.
 
@@ -1620,7 +1620,7 @@ ImGuiTableColumnFlags ImGui::TableGetColumnFlags(int column_n)
 //   The only case where this is correct is if we provided a min_row_height to TableNextRow() and don't go below it, or in TableEndRow() when we locked that height.
 // - Important: if ImGuiTableFlags_PadOuterX is set but ImGuiTableFlags_PadInnerX is not set, the outer-most left and right
 //   columns report a small offset so their CellBgRect can extend up to the outer border.
-//   FIXME: But the renderEngine code in TableEndRow() nullifies that with clamping required for scrolling.
+//   FIXME: But the RenderEngine code in TableEndRow() nullifies that with clamping required for scrolling.
 ImRect ImGui::TableGetCellBgRect(const ImGuiTable* table, int column_n)
 {
     const ImGuiTableColumn* column = &table->Columns[column_n];
@@ -1851,7 +1851,7 @@ void ImGui::TableEndRow(ImGuiTable* table)
             for (ImGuiTableCellData* cell_data = &table->RowCellData[0]; cell_data <= cell_data_end; cell_data++)
             {
                 // As we renderScene the BG here we need to clip things (for layout we would not)
-                // FIXME: This cancels the OuterPadding addition done by TableGetCellBgRect(), need to keep it while renderEngine correctly while scrolling.
+                // FIXME: This cancels the OuterPadding addition done by TableGetCellBgRect(), need to keep it while RenderEngine correctly while scrolling.
                 const ImGuiTableColumn* column = &table->Columns[cell_data->Column];
                 ImRect cell_bg_rect = TableGetCellBgRect(table, cell_data->Column);
                 cell_bg_rect.ClipWith(table->BgClipRect);
@@ -2417,7 +2417,7 @@ void ImGui::TableMergeDrawChannels(ImGuiTable* table)
                 continue;
 
             // Find out the width of this merge group and check if it will fit in our column
-            // (note that we assume that renderEngine didn't stray on the left direction. we should need a CursorMinPos to detect it)
+            // (note that we assume that RenderEngine didn't stray on the left direction. we should need a CursorMinPos to detect it)
             if (!(column->Flags & ImGuiTableColumnFlags_NoClip))
             {
                 float content_max_x;
@@ -2844,7 +2844,7 @@ float ImGui::TableGetHeaderRowHeight()
 {
     // Caring for a minor edge case:
     // Calculate row height, for the unlikely case that some labels may be taller than others.
-    // If we didn't do that, uneven header height would highlight but smaller one before the tallest wouldn't catch input for all height.
+    // If we didn't do that, uneven header height would highlight but smaller one before the tallest wouldn't catch Input for all height.
     // In your custom header row you may omit this all together and just call TableNextRow() without a height...
     float row_height = GetTextLineHeight();
     int columns_count = TableGetColumnCount();

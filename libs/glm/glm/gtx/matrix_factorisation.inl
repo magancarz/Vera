@@ -28,14 +28,14 @@ namespace glm
 	GLM_FUNC_QUALIFIER void qr_decompose(mat<C, R, T, Q> const& in, mat<(C < R ? C : R), R, T, Q>& q, mat<C, (C < R ? C : R), T, Q>& r)
 	{
 		// Uses modified Gram-Schmidt method
-		// Source: https://en.wikipedia.org/wiki/Gram–Schmidt_process
+		// Source: https://en.wikipedia.org/wiki/Gramï¿½Schmidt_process
 		// And https://en.wikipedia.org/wiki/QR_decomposition
 
-		//For all the linearly independs columns of the input...
+		//For all the linearly independs columns of the Input...
 		// (there can be no more linearly independents columns than there are rows.)
 		for (length_t i = 0; i < (C < R ? C : R); i++)
 		{
-			//Copy in Q the input's i-th column.
+			//Copy in Q the Input's i-th column.
 			q[i] = in[i];
 
 			//j = [0,i[
@@ -51,7 +51,7 @@ namespace glm
 			q[i] = normalize(q[i]);
 
 			//j = [i,C[
-			//Finally, compute the corresponding coefficients of R by computing the projection of the resulting column on the other columns of the input.
+			//Finally, compute the corresponding coefficients of R by computing the projection of the resulting column on the other columns of the Input.
 			for (length_t j = i; j < C; j++)
 			{
 				r[j][i] = dot(in[j], q[i]);
@@ -64,8 +64,8 @@ namespace glm
 	{
 		// From https://en.wikipedia.org/wiki/QR_decomposition:
 		// The RQ decomposition transforms a matrix A into the product of an upper triangular matrix R (also known as right-triangular) and an orthogonal matrix Q. The only difference from QR decomposition is the order of these matrices.
-		// QR decomposition is Gram–Schmidt orthogonalization of columns of A, started from the first column.
-		// RQ decomposition is Gram–Schmidt orthogonalization of rows of A, started from the last row.
+		// QR decomposition is Gramï¿½Schmidt orthogonalization of columns of A, started from the first column.
+		// RQ decomposition is Gramï¿½Schmidt orthogonalization of rows of A, started from the last row.
 
 		mat<R, C, T, Q> tin = transpose(in);
 		tin = fliplr(tin);

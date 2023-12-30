@@ -95,7 +95,7 @@ TEST(MyString, Set) {
   s.Set(kHelloString);
   EXPECT_EQ(0, strcmp(s.c_string(), kHelloString));
 
-  // Set should work when the input pointer is the same as the one
+  // Set should work when the Input pointer is the same as the one
   // already in the MyString object.
   s.Set(s.c_string());
   EXPECT_EQ(0, strcmp(s.c_string(), kHelloString));

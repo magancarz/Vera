@@ -2497,7 +2497,7 @@ class PredicateFormatterFromMatcherTest : public ::testing::Test {
   enum Behavior { kInitialSuccess, kAlwaysFail, kFlaky };
 
   // A matcher that can return different results when used multiple times on the
-  // same input. No real matcher should do this; but this lets us test that we
+  // same Input. No real matcher should do this; but this lets us test that we
   // detect such behavior and fail appropriately.
   class MockMatcher : public MatcherInterface<Behavior> {
    public:

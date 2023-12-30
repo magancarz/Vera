@@ -88,7 +88,7 @@
 //
 // The print primitives print the elements of an STL-style container
 // using the compiler-inferred type of *iter where iter is a
-// const_iterator of the container.  When const_iterator is an input
+// const_iterator of the container.  When const_iterator is an Input
 // iterator but not a forward iterator, this inferred type may not
 // match value_type, and the print output may be incorrect.  In
 // practice, this is rarely a problem as for most containers

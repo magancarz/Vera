@@ -1,5 +1,5 @@
 //========================================================================
-// Cursor & input mode tests
+// Cursor & Input mode tests
 // Copyright (c) Camilla Löwy <elmindreda@glfw.org>
 //
 // This software is provided 'as-is', without any express or implied
@@ -203,12 +203,12 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
             if (glfwGetInputMode(window, GLFW_RAW_MOUSE_MOTION))
             {
                 glfwSetInputMode(window, GLFW_RAW_MOUSE_MOTION, GLFW_FALSE);
-                printf("(( raw input is disabled ))\n");
+                printf("(( raw Input is disabled ))\n");
             }
             else
             {
                 glfwSetInputMode(window, GLFW_RAW_MOUSE_MOTION, GLFW_TRUE);
-                printf("(( raw input is enabled ))\n");
+                printf("(( raw Input is enabled ))\n");
             }
             break;
 

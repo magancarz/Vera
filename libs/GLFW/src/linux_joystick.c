@@ -73,7 +73,7 @@ static void handleAbsEvent(_GLFWjoystick* js, int code, int value)
         const int axis = (code - ABS_HAT0X) % 2;
         int* state = js->linjs.hats[hat];
 
-        // NOTE: Looking at several input drivers, it seems all hat events use
+        // NOTE: Looking at several Input drivers, it seems all hat events use
         //       -1 for left / up, 0 for centered and 1 for right / down
         if (value == 0)
             state[axis] = 0;
@@ -150,7 +150,7 @@ static GLFWbool openJoystickDevice(const char* path)
         ioctl(linjs.fd, EVIOCGID, &id) < 0)
     {
         _glfwInputError(GLFW_PLATFORM_ERROR,
-                        "Linux: Failed to query input device: %s",
+                        "Linux: Failed to query Input device: %s",
                         strerror(errno));
         close(linjs.fd);
         return GLFW_FALSE;
@@ -268,7 +268,7 @@ static int compareJoysticks(const void* fp, const void* sp)
 //
 GLFWbool _glfwInitJoysticksLinux(void)
 {
-    const char* dirname = "/dev/input";
+    const char* dirname = "/dev/Input";
 
     _glfw.linjs.inotify = inotify_init1(IN_NONBLOCK | IN_CLOEXEC);
     if (_glfw.linjs.inotify > 0)
@@ -364,7 +364,7 @@ void _glfwDetectJoystickConnectionLinux(void)
             continue;
 
         char path[PATH_MAX];
-        snprintf(path, sizeof(path), "/dev/input/%s", e->name);
+        snprintf(path, sizeof(path), "/dev/Input/%s", e->name);
 
         if (e->mask & (IN_CREATE | IN_ATTRIB))
             openJoystickDevice(path);

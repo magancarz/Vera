@@ -29,7 +29,7 @@ namespace glm
 	/// @addtogroup ext_scalar_ulp
 	/// @{
 
-	/// Return the next ULP value(s) after the input value(s).
+	/// Return the next ULP value(s) after the Input value(s).
 	///
 	/// @tparam genType A floating-point scalar type.
 	///
@@ -37,7 +37,7 @@ namespace glm
 	template<typename genType>
 	GLM_FUNC_DECL genType nextFloat(genType x);
 
-	/// Return the previous ULP value(s) before the input value(s).
+	/// Return the previous ULP value(s) before the Input value(s).
 	///
 	/// @tparam genType A floating-point scalar type.
 	///
@@ -45,7 +45,7 @@ namespace glm
 	template<typename genType>
 	GLM_FUNC_DECL genType prevFloat(genType x);
 
-	/// Return the value(s) ULP distance after the input value(s).
+	/// Return the value(s) ULP distance after the Input value(s).
 	///
 	/// @tparam genType A floating-point scalar type.
 	///
@@ -53,7 +53,7 @@ namespace glm
 	template<typename genType>
 	GLM_FUNC_DECL genType nextFloat(genType x, int ULPs);
 
-	/// Return the value(s) ULP distance before the input value(s).
+	/// Return the value(s) ULP distance before the Input value(s).
 	///
 	/// @tparam genType A floating-point scalar type.
 	///

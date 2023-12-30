@@ -118,6 +118,10 @@ void main(void)
 	if (depth_map_loaded > 0)
 	{
 		tex_coords = parallaxMapping(pass_texture_coords, view_dir);
+		if (tex_coords.x < 0 || tex_coords.x > 1.0 || tex_coords.y < 0 || tex_coords.y > 1.0)
+		{
+			discard;
+		}
 	}
 
 	if (normal_map_loaded > 0)

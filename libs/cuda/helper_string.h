@@ -281,7 +281,7 @@ inline char *sdkFindFilePath(const char *filename,
   // executable
 
   // Typical relative search paths to locate needed companion files (e.g. sample
-  // input data, or JIT source files) The origin for the relative search may be
+  // Input data, or JIT source files) The origin for the relative search may be
   // the .exe file, a .bat file launching an .exe, a browser .exe launching the
   // .exe or .bat, etc
   const char *searchPath[] = {

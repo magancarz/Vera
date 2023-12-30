@@ -175,12 +175,12 @@ enum EditType { kMatch, kAdd, kRemove, kReplace };
 GTEST_API_ std::vector<EditType> CalculateOptimalEdits(
     const std::vector<size_t>& left, const std::vector<size_t>& right);
 
-// Same as above, but the input is represented as strings.
+// Same as above, but the Input is represented as strings.
 GTEST_API_ std::vector<EditType> CalculateOptimalEdits(
     const std::vector<std::string>& left,
     const std::vector<std::string>& right);
 
-// Create a diff of the input strings in Unified diff format.
+// Create a diff of the Input strings in Unified diff format.
 GTEST_API_ std::string CreateUnifiedDiff(const std::vector<std::string>& left,
                                          const std::vector<std::string>& right,
                                          size_t context = 2);
@@ -1122,7 +1122,7 @@ class NativeArray {
   static_assert(!std::is_reference<Element>::value,
                 "Type must not be a reference");
 
-  // Initializes this object with a copy of the input.
+  // Initializes this object with a copy of the Input.
   void InitCopy(const Element* array, size_t a_size) {
     Element* const copy = new Element[a_size];
     CopyArray(array, a_size, copy);
@@ -1131,7 +1131,7 @@ class NativeArray {
     clone_ = &NativeArray::InitCopy;
   }
 
-  // Initializes this object with a reference of the input.
+  // Initializes this object with a reference of the Input.
   void InitRef(const Element* array, size_t a_size) {
     array_ = array;
     size_ = a_size;

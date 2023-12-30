@@ -15,7 +15,7 @@ int test_qr(glm::mat<C, R, T, Q> m)
 
 	glm::qr_decompose(m, q, r);
 
-	//Test if q*r really equals the input matrix
+	//Test if q*r really equals the Input matrix
 	glm::mat<C, R, T, Q> tm = q*r;
 	glm::mat<C, R, T, Q> err = tm - m;
 
@@ -52,7 +52,7 @@ int test_rq(glm::mat<C, R, T, Q> m)
 
 	glm::rq_decompose(m, r, q);
 
-	//Test if q*r really equals the input matrix
+	//Test if q*r really equals the Input matrix
 	glm::mat<C, R, T, Q> tm = r*q;
 	glm::mat<C, R, T, Q> err = tm - m;
 
