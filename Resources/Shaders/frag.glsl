@@ -10,8 +10,10 @@ struct Light
 	float cutoff_angle_offset;
 };
 const int NUM_OF_LIGHTS = 4;
+const float ambient = 0.1;
 
 in vec4 fragment_world_position;
+in vec4 fragment_world_position_in_light_space;
 in vec2 pass_texture_coords;
 in vec3 view_position;
 in vec3 surface_normal;
@@ -22,6 +24,7 @@ layout (location = 0) out vec4 out_Color;
 uniform sampler2D color_texture_sampler;
 uniform sampler2D normal_texture_sampler;
 uniform sampler2D depth_texture_sampler;
+uniform sampler2D shadow_map_texture_sampler;
 
 uniform Light lights[NUM_OF_LIGHTS];
 
@@ -111,6 +114,16 @@ vec2 parallaxMapping(vec2 tex_coords, vec3 view_dir)
 	return final_tex_coords;
 }
 
+float shadowCalculation()
+{
+	vec3 proj_coords = fragment_world_position_in_light_space.xyz / fragment_world_position_in_light_space.w;
+	proj_coords = proj_coords * 0.5 + 0.5;
+	float closest_depth = texture(shadow_map_texture_sampler, proj_coords.xy).r;
+	float current_depth = proj_coords.z;
+	float shadow = current_depth > closest_depth ? 1.0 : 0.0;
+	return shadow;
+}
+
 void main(void)
 {
 	vec3 view_dir = normalize(view_position - fragment_world_position.xyz);
@@ -151,7 +164,6 @@ void main(void)
 		{
 			calculateBrightnessFromDirectionalLight(i);
 		}
-		brightness = max(brightness, 0.1f);
 		total_diffuse = total_diffuse + (brightness * lights[i].light_color);
 		total_specular = total_specular + (specular * lights[i].light_color);
 	}
@@ -159,5 +171,7 @@ void main(void)
 	total_diffuse = max(total_diffuse, 0);
 
 	vec4 texture_color = texture(color_texture_sampler, tex_coords);
-	out_Color = vec4(total_diffuse, 1.0) * texture_color + vec4(total_specular, 1.0);
+	float shadow = shadowCalculation();
+	vec3 lighting = (ambient + (1.0 - shadow) * (total_diffuse + total_specular)) * texture_color.rgb;
+	out_Color = vec4(lighting, 1.0);
 }

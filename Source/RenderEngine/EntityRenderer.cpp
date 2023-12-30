@@ -4,7 +4,6 @@
 
 #include "RenderEngine/Renderer.h"
 #include "Utils/Algorithms.h"
-#include "Objects/Object.h"
 #include "Objects/TriangleMesh.h"
 #include "Materials/Material.h"
 #include "Objects/Lights/Light.h"
@@ -12,13 +11,11 @@
 EntityRenderer::EntityRenderer()
 {
     static_shader.start();
-    static_shader.bindAttributes();
     static_shader.getAllUniformLocations();
     static_shader.connectTextureUnits();
     ShaderProgram::stop();
 
     outline_shader.start();
-    outline_shader.bindAttributes();
     outline_shader.getAllUniformLocations();
     outline_shader.connectTextureUnits();
     ShaderProgram::stop();
@@ -27,12 +24,17 @@ EntityRenderer::EntityRenderer()
 void EntityRenderer::render(
     const std::map<std::shared_ptr<RawModel>, std::vector<std::weak_ptr<TriangleMesh>>>& entity_map,
     const std::vector<std::weak_ptr<Light>>& lights,
-    const std::shared_ptr<Camera>& camera) const
+    const std::shared_ptr<Camera>& camera)
 {
+    shadow_map_renderer.renderSceneToDepthBuffer(entity_map);
+
     static_shader.start();
     static_shader.loadLights(lights);
     static_shader.loadViewMatrix(camera);
     static_shader.loadProjectionMatrix(camera);
+    glActiveTexture(GL_TEXTURE3);
+    shadow_map_renderer.bindShadowMapTexture();
+    static_shader.loadLightViewMatrix(shadow_map_renderer.getToLightSpaceTransform());
     ShaderProgram::stop();
 
     outline_shader.start();

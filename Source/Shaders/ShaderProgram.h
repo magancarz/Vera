@@ -13,13 +13,9 @@ public:
     void start() const;
     static void stop();
 
-    virtual void bindAttributes() = 0;
-
     virtual void getAllUniformLocations() = 0;
 
 protected:
-    void bindAttribute(unsigned int attribute, const char* variable_name) const;
-
     int getUniformLocation(const std::string& uniform_name) const;
 
     static void loadInt(int location, int value);

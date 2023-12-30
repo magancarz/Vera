@@ -7,6 +7,7 @@
 #include "Shaders/StaticShader.h"
 #include "Objects/Object.h"
 #include "../models/AssetManager.h"
+#include "Shadows/ShadowMapRenderer.h"
 
 class TriangleMesh;
 class Light;
@@ -19,13 +20,15 @@ public:
     void render(
         const std::map<std::shared_ptr<RawModel>, std::vector<std::weak_ptr<TriangleMesh>>>& entity_map,
         const std::vector<std::weak_ptr<Light>>& lights,
-        const std::shared_ptr<Camera>& camera) const;
+        const std::shared_ptr<Camera>& camera);
 
 private:
     void prepareTexturedModel(const std::shared_ptr<RawModel>& raw_model) const;
     void prepareInstance(const std::weak_ptr<TriangleMesh>& entity) const;
 
     static void unbindTexturedModel();
+
+    ShadowMapRenderer shadow_map_renderer;
 
     StaticShader static_shader;
     OutlineShader outline_shader;

@@ -1,8 +1,8 @@
 #version 330 core
 
-in vec3 position;
-in vec2 texture_coords;
-in vec3 normal;
+layout (location = 0) in vec3 position;
+layout (location = 1) in vec2 texture_coords;
+layout (location = 2) in vec3 normal;
 
 uniform mat4 model;
 uniform mat4 view;

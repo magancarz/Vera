@@ -7,19 +7,16 @@ Renderer::Renderer()
 {
     quad = AssetManager::loadSimpleModel(quad_positions, quad_textures);
     ray_traced_image_shader.start();
-    ray_traced_image_shader.bindAttributes();
     ray_traced_image_shader.getAllUniformLocations();
     ray_traced_image_shader.connectTextureUnits();
     ShaderProgram::stop();
-
-    entity_renderer = std::make_unique<EntityRenderer>();
 }
 
 void Renderer::renderScene(const std::shared_ptr<Camera>& camera, const std::vector<std::weak_ptr<Light>>& lights, const std::vector<std::weak_ptr<TriangleMesh>>& entities)
 {
     prepare();
     processEntities(entities);
-    entity_renderer->render(entities_map, lights, camera);
+    entity_renderer.render(entities_map, lights, camera);
     cleanUpObjectsMaps();
 }
 

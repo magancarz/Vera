@@ -31,11 +31,6 @@ void ShaderProgram::stop()
     glUseProgram(0);
 }
 
-void ShaderProgram::bindAttribute(const unsigned int attribute, const char* variable_name) const
-{
-    glBindAttribLocation(program_id, attribute, variable_name);
-}
-
 int ShaderProgram::getUniformLocation(const std::string& uniform_name) const
 {
     return glGetUniformLocation(program_id, uniform_name.c_str());
