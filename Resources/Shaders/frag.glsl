@@ -118,9 +118,27 @@ float shadowCalculation()
 {
 	vec3 proj_coords = fragment_world_position_in_light_space.xyz / fragment_world_position_in_light_space.w;
 	proj_coords = proj_coords * 0.5 + 0.5;
+
+	float shadow = 0.0;
 	float closest_depth = texture(shadow_map_texture_sampler, proj_coords.xy).r;
 	float current_depth = proj_coords.z;
-	float shadow = current_depth > closest_depth ? 1.0 : 0.0;
+	float bias = max(0.005 * (1.0 - dot(normal, vec3(0, -1, 0))), 0.0005);
+	vec2 texel_size = 1.0 / textureSize(shadow_map_texture_sampler, 0);
+	for (int x = -1; x <= 1; ++x)
+	{
+		for (int y = -1; y <= 1; ++y)
+		{
+			float pcf_depth = texture(shadow_map_texture_sampler, proj_coords.xy + vec2(x, y) * texel_size).r;
+			shadow += current_depth - bias > pcf_depth ? 1.0 : 0.0;
+		}
+	}
+	shadow /= 9.0;
+
+	if (proj_coords.z > 1.0)
+	{
+		shadow =  0.0;
+	}
+
 	return shadow;
 }
 
