@@ -45,10 +45,14 @@ std::shared_ptr<Light> SpotlightCreator::fromLightInfo(Scene* parent_scene, cons
     iss >> cutoff_angle_outer;
     const float fcutoff_angle_outer = std::stof(cutoff_angle_outer);
 
-    return std::make_shared<Spotlight>(parent_scene, position, direction, light_color, attenuation, fcutoff_angle, fcutoff_angle_outer);
+    auto light = std::make_shared<Spotlight>(parent_scene, position, direction, light_color, attenuation, fcutoff_angle, fcutoff_angle_outer);
+    light->prepare();
+    return light;
 }
 
 std::shared_ptr<Light> SpotlightCreator::create(Scene* parent_scene)
 {
-    return std::make_shared<Spotlight>(parent_scene);
+    auto light = std::make_shared<Spotlight>(parent_scene);
+    light->prepare();
+    return light;
 }

@@ -19,4 +19,8 @@ public:
     void renderObjectInformationGUI() override;
 
     inline static std::string SPOTLIGHT_TAG{"spotlight"};
+
+protected:
+    virtual void createShadowMapTexture() {};
+    virtual void createLightSpaceTransform() {};
 };

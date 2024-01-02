@@ -16,4 +16,8 @@ public:
     void renderObjectInformationGUI() override;
 
     inline static std::string DIRECTIONAL_LIGHT_TAG{"directional_light"};
+
+protected:
+    void createShadowMapTexture() override;
+    void createLightSpaceTransform() override;
 };

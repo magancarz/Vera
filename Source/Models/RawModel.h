@@ -45,6 +45,7 @@ namespace utils
     {
     public:
         unsigned int texture_id{0};
+        GLenum type{GL_TEXTURE_2D};
 
         Texture()
         {
@@ -54,6 +55,27 @@ namespace utils
         ~Texture()
         {
             glDeleteTextures(1, &texture_id);
+        }
+
+        void setAsCubeMapTexture()
+        {
+            type = GL_TEXTURE_CUBE_MAP;
+        }
+    };
+
+    class FBO
+    {
+    public:
+        unsigned int FBO_id{0};
+
+        FBO()
+        {
+            glGenFramebuffers(1, &FBO_id);
+        }
+
+        ~FBO()
+        {
+            glDeleteFramebuffers(1, &FBO_id);
         }
     };
 }

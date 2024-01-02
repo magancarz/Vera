@@ -4,6 +4,7 @@
 #include "Models/AssetManager.h"
 #include "Shaders/RayTracedImageShader.h"
 #include "Camera.h"
+#include "Objects/Lights/Light.h"
 
 class Renderer
 {
@@ -11,7 +12,7 @@ public:
     Renderer();
 
     void renderScene(const std::shared_ptr<Camera>& camera, const std::vector<std::weak_ptr<Light>>& lights, const std::vector<std::weak_ptr<TriangleMesh>>& entities);
-    void renderRayTracedImage(unsigned int texture_id) const;
+    void renderRayTracedImage(unsigned texture_id) const;
 
 private:
     static void prepare();

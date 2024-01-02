@@ -32,10 +32,14 @@ std::shared_ptr<Light> DirectionalLightCreator::fromLightInfo(Scene* parent_scen
     iss >> direction_z;
     glm::vec3 direction{std::stof(direction_x), std::stof(direction_y), std::stof(direction_z)};
 
-    return std::make_shared<DirectionalLight>(parent_scene, direction, light_color);
+    auto light = std::make_shared<DirectionalLight>(parent_scene, direction, light_color);
+    light->prepare();
+    return light;
 }
 
 std::shared_ptr<Light> DirectionalLightCreator::create(Scene* parent_scene)
 {
-    return std::make_shared<DirectionalLight>(parent_scene);
+    auto light = std::make_shared<DirectionalLight>(parent_scene);
+    light->prepare();
+    return light;
 }

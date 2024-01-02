@@ -21,16 +21,16 @@ Material::Material(std::string name, std::shared_ptr<TextureAsset> texture, cons
         has_normal_map = true;
     }
 
-    if (this->depth_map_texture)
-    {
-        cuda_depth_map_texture.copyFrom(this->depth_map_texture.get());
-        has_depth_map = true;
-    }
-
     if (this->specular_map_texture)
     {
         cuda_specular_map_texture.copyFrom(this->specular_map_texture.get());
         has_specular_map = true;
+    }
+
+    if (this->depth_map_texture)
+    {
+        cuda_depth_map_texture.copyFrom(this->depth_map_texture.get());
+        has_depth_map = true;
     }
 }
 

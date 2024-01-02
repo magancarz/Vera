@@ -18,7 +18,8 @@ public:
     void loadTransformationMatrix(const glm::mat4& matrix) const;
     void loadViewMatrix(const std::shared_ptr<Camera>& camera) const;
     void loadProjectionMatrix(const std::shared_ptr<Camera>& camera) const;
-    void loadLightViewMatrix(const glm::mat4& matrix) const;
+    void loadLightsCount(size_t count);
+    void loadLightViewMatrices(const std::vector<std::weak_ptr<Light>>& lights) const;
     void loadReflectivity(float reflectivity) const;
     void loadHeightScale(float height_scale) const;
     void loadNormalMapLoadedBool(bool value) const;
@@ -29,22 +30,24 @@ public:
 
     void loadLights(const std::vector<std::weak_ptr<Light>>& lights) const;
 
+    inline static constexpr int MAX_LIGHTS = 4;
+
 private:
     int location_transformation_matrix;
     int location_projection_matrix;
     int location_view_matrix;
-    int location_light_view_matrix;
+    int location_light_view_matrices[MAX_LIGHTS];
 
     int location_model_texture;
     int location_normal_texture;
     int location_depth_texture;
-    int location_shadow_map_texture;
+    int location_shadow_map_textures[MAX_LIGHTS];
 
     int location_normal_map_loaded;
     int location_depth_map_loaded;
     int location_height_scale;
 
-    inline static constexpr int MAX_LIGHTS = 4;
+    int location_lights_count;
     int location_light_position[MAX_LIGHTS];
     int location_light_direction[MAX_LIGHTS];
     int location_light_color[MAX_LIGHTS];

@@ -8,8 +8,5 @@ uniform sampler2D texture_sampler;
 
 void main(void)
 {
-	//out_Color = texture(texture_sampler, pass_texture_coords);
-
-	float depthValue = texture(texture_sampler, pass_texture_coords).r;
-	out_Color = vec4(vec3(depthValue), 1.0);
+	out_Color = texture(texture_sampler, pass_texture_coords);
 }

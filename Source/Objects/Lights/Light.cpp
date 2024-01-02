@@ -23,6 +23,47 @@ void Light::createNameForLight()
     name = "light" + std::to_string(object_id);
 }
 
+void Light::prepare()
+{
+    createShadowMapShader();
+    createShadowMapTexture();
+    createLightSpaceTransform();
+}
+
+void Light::createShadowMapShader()
+{
+    shadow_map_shader = std::make_unique<ShadowMapShader>();
+    shadow_map_shader->getAllUniformLocations();
+}
+
+void Light::prepareForShadowMapRendering()
+{
+    glViewport(0, 0, shadow_map_width, shadow_map_height);
+    bindShadowMapTextureToFramebuffer();
+    shadow_map_shader->start();
+    shadow_map_shader->loadLightSpaceMatrix(light_space_transform);
+}
+
+void Light::bindShadowMapTexture() const
+{
+    glBindTexture(shadow_map_texture.type, shadow_map_texture.texture_id);
+}
+
+void Light::bindShadowMapTextureToFramebuffer() const
+{
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, shadow_map_texture.texture_id, 0);
+}
+
+glm::mat4 Light::getLightSpaceTransform() const
+{
+    return light_space_transform;
+}
+
+void Light::loadTransformationMatrixToShadowMapShader(const glm::mat4& mat)
+{
+    shadow_map_shader->loadTransformationMatrix(mat);
+}
+
 std::string Light::getObjectInfo()
 {
     return Algorithms::vec3ToString(position) + " " + Algorithms::vec3ToString(light_color);
@@ -47,6 +88,12 @@ void Light::renderObjectInformationGUI()
     {
         setLightColor(light_color_value.value());
     }
+}
+
+void Light::setPosition(const glm::vec3& value)
+{
+    Object::setPosition(value);
+    createLightSpaceTransform();
 }
 
 glm::vec3 Light::getLightDirection() const

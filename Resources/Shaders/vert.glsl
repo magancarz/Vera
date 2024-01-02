@@ -18,7 +18,7 @@ layout (location = 3) in vec3 tangent;
 layout (location = 4) in vec3 bitangent;
 
 out vec4 fragment_world_position;
-out vec4 fragment_world_position_in_light_space;
+out vec4 fragment_world_position_in_light_space[NUM_OF_LIGHTS];
 out vec2 pass_texture_coords;
 out vec3 view_position;
 out vec3 surface_normal;
@@ -27,23 +27,24 @@ out vec3 light_positions[NUM_OF_LIGHTS];
 uniform mat4 model;
 uniform mat4 view;
 uniform mat4 proj;
-uniform mat4 light_view;
+uniform mat4 light_view[NUM_OF_LIGHTS];
 
 uniform Light lights[NUM_OF_LIGHTS];
 uniform int normal_map_loaded;
+uniform int lights_count;
 
 void main(void) {
 	fragment_world_position = model * vec4(position, 1.0);
-	fragment_world_position_in_light_space = light_view * fragment_world_position;
 	gl_Position = proj * view * fragment_world_position;
 	pass_texture_coords = texture_coords;
 
 	mat3 normal_matrix = transpose(inverse(mat3(model)));
 	surface_normal = normalize(normal_matrix * normal);
 	view_position = (inverse(view) * vec4(0, 0, 0, 1)).xyz;
-	for (int i = 0; i < NUM_OF_LIGHTS; ++i)
+	for (int i = 0; i < lights_count; ++i)
 	{
 		light_positions[i] = lights[i].light_position;
+		fragment_world_position_in_light_space[i] = light_view[i] * fragment_world_position;
 	}
 
 	if (normal_map_loaded > 0)

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Objects/Object.h"
+#include "RenderEngine/Shadows/ShadowMapShader.h"
 
 class Light : public Object
 {
@@ -16,11 +17,20 @@ public:
 
     ~Light() override = default;
 
+    virtual void prepare();
+
+    void prepareForShadowMapRendering();
+    virtual void bindShadowMapTexture() const;
+    virtual void bindShadowMapTextureToFramebuffer() const;
+    glm::mat4 getLightSpaceTransform() const;
+    void loadTransformationMatrixToShadowMapShader(const glm::mat4& mat);
+
     std::string getObjectInfo() override;
     void renderObjectInformationGUI() override;
 
     bool shouldBeOutlined() const override;
 
+    void setPosition(const glm::vec3& value) override;
     glm::vec3 getLightDirection() const;
     void setLightDirection(const glm::vec3& in_light_direction);
     glm::vec3 getLightColor() const;
@@ -34,6 +44,20 @@ public:
 
 protected:
     void createNameForLight();
+    virtual void createShadowMapShader();
+    virtual void createShadowMapTexture() = 0;
+    virtual void createLightSpaceTransform() = 0;
+
+    unsigned int shadow_map_width = 1024;
+    unsigned int shadow_map_height = 1024;
+    float shadow_map_orthographic_projection_x_span = 10.f;
+    float shadow_map_orthographic_projection_y_span = 10.f;
+    float near_plane = 1.0f;
+    float far_plane = 30.f;
+
+    std::unique_ptr<ShadowMapShader> shadow_map_shader;
+    utils::Texture shadow_map_texture;
+    glm::mat4 light_space_transform;
 
     glm::vec3 light_direction{0, -1, 0};
     glm::vec3 light_color{1, 1, 1};

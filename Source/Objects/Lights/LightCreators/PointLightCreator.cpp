@@ -33,10 +33,14 @@ std::shared_ptr<Light> PointLightCreator::fromLightInfo(Scene* parent_scene, con
     iss >> attenuation_z;
     glm::vec3 attenuation{std::stof(attenuation_x), std::stof(attenuation_y), std::stof(attenuation_z)};
 
-    return std::make_shared<PointLight>(parent_scene, position, light_color, attenuation);
+    auto light = std::make_shared<PointLight>(parent_scene, position, light_color, attenuation);
+    light->prepare();
+    return light;
 }
 
 std::shared_ptr<Light> PointLightCreator::create(Scene* parent_scene)
 {
-    return std::make_shared<PointLight>(parent_scene);
+    auto light = std::make_shared<PointLight>(parent_scene);
+    light->prepare();
+    return light;
 }

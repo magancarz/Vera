@@ -67,8 +67,6 @@ __host__ __device__ glm::vec2 TextureAsset::fixUVCoordinates(const glm::vec2& uv
         fixed_uv.y -= glm::floor(fixed_uv.y);
     }
 
-    assert(fixed_uv.x >= 0 && fixed_uv.x < 1.f && fixed_uv.y >= 0 && fixed_uv.y < 1.f);
-
     return fixed_uv;
 }
 
@@ -76,8 +74,6 @@ __host__ __device__ unsigned TextureAsset::calculatePixelIndex(const glm::vec2& 
 {
     const auto x = static_cast<unsigned int>(uv.x * static_cast<float>(width));
     const auto y = static_cast<unsigned int>(uv.y * static_cast<float>(height));
-
-    assert(x >= 0 && x < width && y >= 0 && y < height);
 
     return (y * width + x) * NUM_OF_CHANNELS;
 }

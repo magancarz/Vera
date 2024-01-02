@@ -9,7 +9,7 @@
 #include "RenderEngine/RayTracing/IntersectionAccelerators/BVHTreeBuilder.h"
 #include "Objects/Lights/Light.h"
 #include "Objects/TriangleMesh.h"
-
+#include "Shaders/StaticShader.h"
 
 void Scene::notifyOnObjectChange()
 {
@@ -115,9 +115,16 @@ void Scene::createTriangleMesh(std::shared_ptr<RawModel> model)
 
 void Scene::createSceneLight(const std::shared_ptr<LightCreator>& light_creator)
 {
-    std::shared_ptr<Light> light = light_creator->create(this);
-    objects.push_back(light);
-    lights.push_back(light);
+    if (lights.size() < StaticShader::MAX_LIGHTS)
+    {
+        std::shared_ptr<Light> light = light_creator->create(this);
+        objects.push_back(light);
+        lights.push_back(light);
+    }
+    else
+    {
+        std::cerr << "Couldn't create new light, because number of lights is already at max limit!\n";
+    }
 }
 
 void Scene::buildSceneIntersectionAccelerator()

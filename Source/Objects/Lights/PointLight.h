@@ -18,4 +18,8 @@ public:
     void renderObjectInformationGUI() override;
 
     inline static std::string POINT_LIGHT_TAG{"point_light"};
+
+protected:
+    virtual void createShadowMapTexture() {};
+    virtual void createLightSpaceTransform() {};
 };

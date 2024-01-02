@@ -7,41 +7,26 @@
 #include "ShadowMapShader.h"
 #include "Models/RawModel.h"
 #include "Objects/TriangleMesh.h"
+#include "Objects/Lights/Light.h"
 
 class ShadowMapRenderer
 {
 public:
     ShadowMapRenderer();
 
-    void renderSceneToDepthBuffer(
-        const std::map<std::shared_ptr<RawModel>, std::vector<std::weak_ptr<TriangleMesh>>>& entity_map);
-
-    void bindShadowMapTexture() const;
-    glm::mat4 getToLightSpaceTransform() const;
+    void renderSceneToDepthBuffers(
+        const std::map<std::shared_ptr<RawModel>, std::vector<std::weak_ptr<TriangleMesh>>>& entity_map,
+        const std::vector<std::weak_ptr<Light>>& lights);
 
 private:
-    void createDepthMapTexture();
     void createShadowMapFrameBuffer();
-    void configureShaderAndMatrices();
 
-    void draw(const std::map<std::shared_ptr<RawModel>, std::vector<std::weak_ptr<TriangleMesh>>>& entity_map);
+    void draw(
+        const std::map<std::shared_ptr<RawModel>, std::vector<std::weak_ptr<TriangleMesh>>>& entity_map,
+        const std::weak_ptr<Light>& light);
     void prepareTexturedModel(const std::shared_ptr<RawModel>& raw_model) const;
     void unbindTexturedModel();
-    void prepareInstance(const std::weak_ptr<TriangleMesh>& entity) const;
+    void prepareInstance(const std::weak_ptr<TriangleMesh>& entity, const std::weak_ptr<Light>& light) const;
 
-    ShadowMapShader shadow_map_shader;
-
-    unsigned int shadow_map_width = 1024;
-    unsigned int shadow_map_height = 1024;
-    float shadow_map_projection_x_span = 10.f;
-    float shadow_map_projection_y_span = 10.f;
-    float near_plane = 1.0f;
-    float far_plane = 30.f;
-
-    unsigned int depth_map_FBO;
-    unsigned int depth_map_texture;
-
-    glm::mat4 to_light_space_transform;
-    glm::mat4 light_projection;
-    glm::mat4 light_view;
+    utils::FBO depth_map_FBO;
 };

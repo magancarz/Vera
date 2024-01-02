@@ -26,15 +26,23 @@ void EntityRenderer::render(
     const std::vector<std::weak_ptr<Light>>& lights,
     const std::shared_ptr<Camera>& camera)
 {
-    shadow_map_renderer.renderSceneToDepthBuffer(entity_map);
+    shadow_map_renderer.renderSceneToDepthBuffers(entity_map, lights);
 
     static_shader.start();
     static_shader.loadLights(lights);
     static_shader.loadViewMatrix(camera);
     static_shader.loadProjectionMatrix(camera);
-    glActiveTexture(GL_TEXTURE3);
-    shadow_map_renderer.bindShadowMapTexture();
-    static_shader.loadLightViewMatrix(shadow_map_renderer.getToLightSpaceTransform());
+
+    GLenum current_texture = GL_TEXTURE3;
+    for (const auto& light : lights)
+    {
+        glActiveTexture(current_texture);
+        light.lock()->bindShadowMapTexture();
+        ++current_texture;
+    }
+
+    static_shader.loadLightsCount(lights.size());
+    static_shader.loadLightViewMatrices(lights);
     ShaderProgram::stop();
 
     outline_shader.start();

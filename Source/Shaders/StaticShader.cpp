@@ -28,9 +28,17 @@ void StaticShader::loadProjectionMatrix(const std::shared_ptr<Camera>& camera) c
     loadMatrix(location_projection_matrix, projection_matrix);
 }
 
-void StaticShader::loadLightViewMatrix(const glm::mat4& matrix) const
+void StaticShader::loadLightsCount(size_t count)
 {
-    loadMatrix(location_light_view_matrix, matrix);
+    loadInt(location_lights_count, count);
+}
+
+void StaticShader::loadLightViewMatrices(const std::vector<std::weak_ptr<Light>>& lights) const
+{
+    for (size_t i = 0; i < lights.size(); ++i)
+    {
+        loadMatrix(location_light_view_matrices[i], lights[i].lock()->getLightSpaceTransform());
+    }
 }
 
 void StaticShader::loadReflectivity(float reflectivity) const
@@ -58,7 +66,11 @@ void StaticShader::connectTextureUnits() const
     loadInt(location_model_texture, 0);
     loadInt(location_normal_texture, 1);
     loadInt(location_depth_texture, 2);
-    loadInt(location_shadow_map_texture, 3);
+
+    for (size_t i = 3; i < MAX_LIGHTS + 3; ++i)
+    {
+        loadInt(location_shadow_map_textures[i - 3], i);
+    }
 }
 
 void StaticShader::getAllUniformLocations()
@@ -66,15 +78,17 @@ void StaticShader::getAllUniformLocations()
     location_transformation_matrix = getUniformLocation("model");
     location_view_matrix = getUniformLocation("view");
     location_projection_matrix = getUniformLocation("proj");
-    location_light_view_matrix = getUniformLocation("light_view");
 
     location_model_texture = getUniformLocation("color_texture_sampler");
     location_normal_texture = getUniformLocation("normal_texture_sampler");
     location_depth_texture = getUniformLocation("depth_texture_sampler");
-    location_shadow_map_texture = getUniformLocation("shadow_map_texture_sampler");
 
+    location_lights_count = getUniformLocation("lights_count");
     for (const int i : std::views::iota(0, MAX_LIGHTS))
     {
+        location_light_view_matrices[i] = getUniformLocation("light_view[" + std::to_string(i) + "]");
+        location_shadow_map_textures[i] = getUniformLocation("shadow_map_texture_sampler[" + std::to_string(i) + "]");
+
         location_light_position[i] = getUniformLocation("lights[" + std::to_string(i) + "].light_position");
         location_light_direction[i] = getUniformLocation("lights[" + std::to_string(i) + "].light_direction");
         location_light_color[i] = getUniformLocation("lights[" + std::to_string(i) + "].light_color");
