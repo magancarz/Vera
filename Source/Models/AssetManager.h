@@ -54,6 +54,7 @@ public:
 
     static std::shared_ptr<utils::Texture> loadTexture(const std::string& file_name, float lod_value);
     static std::shared_ptr<utils::Texture> loadTexture(const std::string& file_name);
+    static std::shared_ptr<utils::Texture> loadCubeMap(const std::vector<std::string>& file_names);
 
     static std::vector<std::shared_ptr<RawModel>> getAvailableModelAssets();
     static std::shared_ptr<RawModel> findModelAsset(const std::string& file_name);

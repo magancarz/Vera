@@ -28,12 +28,19 @@ void Light::prepare()
     createShadowMapShader();
     createShadowMapTexture();
     createLightSpaceTransform();
+    shadow_map_texture = std::make_shared<utils::Texture>();
 }
 
-void Light::createShadowMapShader()
+void Light::createShadowMapTexture()
 {
-    shadow_map_shader = std::make_unique<ShadowMapShader>();
-    shadow_map_shader->getAllUniformLocations();
+    shadow_map_texture->bindTexture();
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, shadow_map_width, shadow_map_height, 0, GL_DEPTH_COMPONENT, GL_FLOAT, nullptr);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+    float border_color[] = { 1.0f, 1.0f, 1.0f, 1.0f };
+    glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, border_color);
 }
 
 void Light::prepareForShadowMapRendering()
@@ -41,17 +48,16 @@ void Light::prepareForShadowMapRendering()
     glViewport(0, 0, shadow_map_width, shadow_map_height);
     bindShadowMapTextureToFramebuffer();
     shadow_map_shader->start();
-    shadow_map_shader->loadLightSpaceMatrix(light_space_transform);
 }
 
 void Light::bindShadowMapTexture() const
 {
-    glBindTexture(shadow_map_texture.type, shadow_map_texture.texture_id);
+    shadow_map_texture->bindTexture();
 }
 
 void Light::bindShadowMapTextureToFramebuffer() const
 {
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, shadow_map_texture.texture_id, 0);
+    shadow_map_texture->bindToCurrentFramebufferAsDepthAttachment();
 }
 
 glm::mat4 Light::getLightSpaceTransform() const
@@ -59,9 +65,9 @@ glm::mat4 Light::getLightSpaceTransform() const
     return light_space_transform;
 }
 
-void Light::loadTransformationMatrixToShadowMapShader(const glm::mat4& mat)
+std::shared_ptr<utils::Texture> Light::getShadowMap() const
 {
-    shadow_map_shader->loadTransformationMatrix(mat);
+    return shadow_map_texture;
 }
 
 std::string Light::getObjectInfo()

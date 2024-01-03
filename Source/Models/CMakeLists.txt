@@ -1,4 +1,5 @@
 target_sources(Vera-Lib PRIVATE
-        AssetManager.cpp)
+        AssetManager.cpp
+        TextureData.cpp)
 
 add_subdirectory(OBJUtils)

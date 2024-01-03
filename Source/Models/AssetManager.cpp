@@ -145,7 +145,7 @@ RawModelAttributes AssetManager::loadSimpleModel(
 std::shared_ptr<utils::Texture> AssetManager::loadTexture(const std::string& file_name, const float lod_value)
 {
     const auto texture = std::make_shared<utils::Texture>();
-    glBindTexture(GL_TEXTURE_2D, texture->texture_id);
+    texture->bindTexture();
 
     const auto data = loadImageFromFile(file_name);
     const int width = data->width,
@@ -180,8 +180,6 @@ std::shared_ptr<utils::Texture> AssetManager::loadTexture(const std::string& fil
         std::cout << "WARNING: Anisotropic filtering is not supported\n";
     }
 
-    stbi_image_free(data->texture_data);
-
     return texture;
 }
 
@@ -199,6 +197,29 @@ std::shared_ptr<TextureData> AssetManager::loadImageFromFile(const std::string& 
 std::shared_ptr<utils::Texture> AssetManager::loadTexture(const std::string& file_name)
 {
     return loadTexture(file_name, -0.4f);
+}
+
+std::shared_ptr<utils::Texture> AssetManager::loadCubeMap(const std::vector<std::string>& file_names)
+{
+    const auto texture = std::make_shared<utils::Texture>();
+    texture->setAsCubeMapTexture();
+    texture->bindTexture();
+    for (unsigned int i = 0; i < file_names.size(); i++)
+    {
+        auto data = loadImageFromFile(file_names[i]);
+        if (data)
+        {
+            glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i,
+                         0, GL_RGBA, data->width, data->height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data->texture_data);
+        }
+    }
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+
+    return texture;
 }
 
 std::shared_ptr<utils::VAO> AssetManager::createVao()

@@ -4,4 +4,5 @@ target_sources(Vera-Lib PRIVATE
         Camera.cpp)
 
 add_subdirectory(Shadows)
+add_subdirectory(Skybox)
 add_subdirectory(RayTracing)
