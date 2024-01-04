@@ -5,7 +5,6 @@
 #include "GUI/Display.h"
 #include "Objects/TriangleMesh.h"
 #include "Objects/Lights/Light.h"
-#include "Objects/Lights/DirectionalLight.h"
 
 ShadowMapRenderer::ShadowMapRenderer()
 {
@@ -28,12 +27,8 @@ void ShadowMapRenderer::renderSceneToDepthBuffers(
 
     for (const auto& light : lights)
     {
-        if (auto temp = dynamic_cast<DirectionalLight*>(light.lock().get()))
-        {
-            light.lock()->prepareForShadowMapRendering();
-            draw(entity_map, light);
-        }
-        ShaderProgram::stop();
+        light.lock()->prepareForShadowMapRendering();
+        draw(entity_map, light);
     }
 
     glBindFramebuffer(GL_FRAMEBUFFER, 0);

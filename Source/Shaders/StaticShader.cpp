@@ -9,7 +9,11 @@
 #include "Objects/Lights/Light.h"
 
 StaticShader::StaticShader()
-    : ShaderProgram("Resources/Shaders/vert.glsl", "Resources/Shaders/frag.glsl") {}
+    : ShaderProgram("Resources/Shaders/vert.glsl", "Resources/Shaders/frag.glsl")
+{
+    glGetIntegerv(GL_MAX_TEXTURE_IMAGE_UNITS, &MAX_NUMBER_OF_TEXTURES);
+    std::cout << "Max number of textures to bind in shader is " << MAX_NUMBER_OF_TEXTURES << ".\n";
+}
 
 void StaticShader::loadTransformationMatrix(const glm::mat4& matrix) const
 {
@@ -61,16 +65,27 @@ void StaticShader::loadDepthMapLoadedBool(bool value) const
     loadInt(location_depth_map_loaded, value);
 }
 
-void StaticShader::connectTextureUnits() const
+void StaticShader::connectTextureUnits(GLenum texture) const
 {
-    loadInt(location_model_texture, 0);
-    loadInt(location_normal_texture, 1);
-    loadInt(location_depth_texture, 2);
-
-    for (size_t i = 3; i < MAX_LIGHTS + 3; ++i)
+    int texture_index = texture - GL_TEXTURE0;
+    if (texture_index + 3 > MAX_NUMBER_OF_TEXTURES)
     {
-        loadInt(location_shadow_map_textures[i - 3], i);
+        std::cerr << "[ERROR] StaticShader: There is no texture binding left!\n";
+        return;
     }
+    loadInt(location_model_texture, texture_index + 0);
+    loadInt(location_normal_texture, texture_index + 1);
+    loadInt(location_depth_texture, texture_index + 2);
+}
+
+void StaticShader::loadTextureIndexToShadowMap(size_t shadow_map_index, unsigned int texture_index)
+{
+    loadInt(location_shadow_map_textures[shadow_map_index], texture_index);
+}
+
+void StaticShader::loadTextureIndexToCubeShadowMap(size_t cube_shadow_map_index, unsigned int texture_index)
+{
+    loadInt(location_shadow_cube_map_textures[cube_shadow_map_index], texture_index);
 }
 
 void StaticShader::getAllUniformLocations()
@@ -88,7 +103,8 @@ void StaticShader::getAllUniformLocations()
     {
         location_light_view_matrices[i] = getUniformLocation("light_view[" + std::to_string(i) + "]");
         location_shadow_map_textures[i] = getUniformLocation("shadow_map_texture_sampler[" + std::to_string(i) + "]");
-
+        location_shadow_cube_map_textures[i] = getUniformLocation("shadow_cube_map_texture_sampler[" + std::to_string(i) + "]");
+        location_light_type[i] = getUniformLocation("lights[" + std::to_string(i) + "].light_type");
         location_light_position[i] = getUniformLocation("lights[" + std::to_string(i) + "].light_position");
         location_light_direction[i] = getUniformLocation("lights[" + std::to_string(i) + "].light_direction");
         location_light_color[i] = getUniformLocation("lights[" + std::to_string(i) + "].light_color");
@@ -109,6 +125,7 @@ void StaticShader::loadLights(const std::vector<std::weak_ptr<Light>>& lights) c
     size_t loaded_lights = 0;
     for (const auto& light : lights)
     {
+        loadInt(location_light_type[loaded_lights], light.lock()->getLightType());
         loadVector3(location_light_position[loaded_lights], light.lock()->getPosition());
         loadVector3(location_light_direction[loaded_lights], light.lock()->getLightDirection());
         loadVector3(location_light_color[loaded_lights], light.lock()->getLightColor());

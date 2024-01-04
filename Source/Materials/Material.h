@@ -6,7 +6,6 @@
 #include "Utils/DeviceMemoryPointer.h"
 
 struct ScatterRecord;
-
 struct HitRecord;
 
 class Material

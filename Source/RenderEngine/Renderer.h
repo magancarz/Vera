@@ -5,6 +5,7 @@
 #include "Shaders/RayTracedImageShader.h"
 #include "Camera.h"
 #include "Objects/Lights/Light.h"
+#include "RenderEngine/Skybox/SkyboxRenderer.h"
 
 class Renderer
 {
@@ -21,6 +22,7 @@ private:
     void cleanUpObjectsMaps();
 
     EntityRenderer entity_renderer;
+    SkyboxRenderer skybox_renderer;
     RayTracedImageShader ray_traced_image_shader;
     std::map<std::shared_ptr<RawModel>, std::vector<std::weak_ptr<TriangleMesh>>> entities_map;
 

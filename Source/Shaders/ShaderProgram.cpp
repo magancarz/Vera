@@ -12,11 +12,18 @@ ShaderProgram::ShaderProgram(const std::string& vertex_file, const std::string& 
     loadShaders(vertex_file, fragment_file);
 }
 
+ShaderProgram::ShaderProgram(const std::string& vertex_file, const std::string& geometry_file, const std::string& fragment_file)
+{
+    loadShaders(vertex_file, geometry_file, fragment_file);
+}
+
 ShaderProgram::~ShaderProgram()
 {
     glDetachShader(program_id, vertex_shader_id);
+    glDetachShader(program_id, geometry_shader_id);
     glDetachShader(program_id, fragment_shader_id);
     glDeleteShader(vertex_shader_id);
+    glDeleteShader(geometry_shader_id);
     glDeleteShader(fragment_shader_id);
     glDeleteProgram(program_id);
 }
@@ -36,28 +43,49 @@ int ShaderProgram::getUniformLocation(const std::string& uniform_name) const
     return glGetUniformLocation(program_id, uniform_name.c_str());
 }
 
-void ShaderProgram::loadInt(const int location, const int value)
+void ShaderProgram::loadInt(const int location, const int value) const
 {
+    activateProgramIfNotActivatedYet();
     glUniform1i(location, value);
 }
 
-void ShaderProgram::loadFloat(int location, float value)
+void ShaderProgram::activateProgramIfNotActivatedYet() const
 {
+    if (!checkIfProgramIsActivated())
+    {
+        std::cerr << "[ERROR] ShaderProgram: Trying to load uniform value to wrong program!\n";
+        start();
+    }
+}
+
+bool ShaderProgram::checkIfProgramIsActivated() const
+{
+    int program;
+    glGetIntegerv(GL_CURRENT_PROGRAM, &program);
+    return program == program_id;
+}
+
+void ShaderProgram::loadFloat(int location, float value) const
+{
+    activateProgramIfNotActivatedYet();
     glUniform1f(location, value);
 }
 
-void ShaderProgram::loadMatrix(const int location, const glm::mat4& matrix)
+void ShaderProgram::loadMatrix(const int location, const glm::mat4& matrix) const
 {
+    activateProgramIfNotActivatedYet();
     glUniformMatrix4fv(location, 1, GL_FALSE, value_ptr(matrix));
 }
 
-void ShaderProgram::loadVector3(const int location, const glm::vec3& vector)
+void ShaderProgram::loadVector3(const int location, const glm::vec3& vector) const
 {
+    activateProgramIfNotActivatedYet();
     glUniform3f(location, vector.x, vector.y, vector.z);
 }
 
-void ShaderProgram::loadVector4(int location, const glm::vec4& vector)
+void ShaderProgram::loadVector4(int location, const glm::vec4& vector) const
 {
+    activateProgramIfNotActivatedYet();
     glUniform4f(location, vector.x, vector.y, vector.z, vector.w);
 }
 
@@ -67,6 +95,19 @@ void ShaderProgram::loadShaders(const std::string& vertex_file, const std::strin
     fragment_shader_id = loadShader(fragment_file, GL_FRAGMENT_SHADER);
     program_id = glCreateProgram();
     glAttachShader(program_id, vertex_shader_id);
+    glAttachShader(program_id, fragment_shader_id);
+    glLinkProgram(program_id);
+    glValidateProgram(program_id);
+}
+
+void ShaderProgram::loadShaders(const std::string& vertex_file, const std::string& geometry_file, const std::string& fragment_file)
+{
+    vertex_shader_id = loadShader(vertex_file, GL_VERTEX_SHADER);
+    geometry_shader_id = loadShader(geometry_file, GL_GEOMETRY_SHADER);
+    fragment_shader_id = loadShader(fragment_file, GL_FRAGMENT_SHADER);
+    program_id = glCreateProgram();
+    glAttachShader(program_id, vertex_shader_id);
+    glAttachShader(program_id, geometry_shader_id);
     glAttachShader(program_id, fragment_shader_id);
     glLinkProgram(program_id);
     glValidateProgram(program_id);

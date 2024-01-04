@@ -61,6 +61,21 @@ namespace utils
         {
             type = GL_TEXTURE_CUBE_MAP;
         }
+
+        void bindToCurrentFramebufferAsDepthAttachment() const
+        {
+            if (type == GL_TEXTURE_2D)
+            {
+                glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, type, texture_id, 0);
+                return;
+            }
+            glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, texture_id, 0);
+        }
+
+        void bindTexture() const
+        {
+            glBindTexture(type, texture_id);
+        }
     };
 
     class FBO

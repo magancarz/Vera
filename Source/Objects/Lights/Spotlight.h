@@ -15,12 +15,18 @@ public:
         float cutoff_angle, float cutoff_angle_outer);
     ~Spotlight() override = default;
 
+    void loadTransformationMatrixToShadowMapShader(const glm::mat4& mat) override;
+
+    int getLightType() const override;
     std::string getObjectInfo() override;
     void renderObjectInformationGUI() override;
 
     inline static std::string SPOTLIGHT_TAG{"spotlight"};
 
 protected:
-    virtual void createShadowMapTexture() {};
-    virtual void createLightSpaceTransform() {};
+    void createShadowMapShader() override;
+    void createLightSpaceTransform() override;
+
+private:
+    ShadowMapShader* shader_program_as_shadow_map_shader{nullptr};
 };

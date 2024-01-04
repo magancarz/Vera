@@ -28,7 +28,6 @@ void Light::prepare()
     createShadowMapShader();
     createShadowMapTexture();
     createLightSpaceTransform();
-    shadow_map_texture = std::make_shared<utils::Texture>();
 }
 
 void Light::createShadowMapTexture()

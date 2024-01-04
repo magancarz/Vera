@@ -2,6 +2,7 @@
 
 struct Light
 {
+	int light_type;
 	vec3 light_position;
 	vec3 light_direction;
 	vec3 light_color;
@@ -25,6 +26,7 @@ uniform sampler2D color_texture_sampler;
 uniform sampler2D normal_texture_sampler;
 uniform sampler2D depth_texture_sampler;
 uniform sampler2D shadow_map_texture_sampler[NUM_OF_LIGHTS];
+uniform samplerCube shadow_cube_map_texture_sampler[NUM_OF_LIGHTS];
 
 uniform int lights_count;
 uniform Light lights[NUM_OF_LIGHTS];
@@ -115,38 +117,56 @@ vec2 parallaxMapping(vec2 tex_coords, vec3 view_dir)
 	return final_tex_coords;
 }
 
-vec3 color;
-
 float shadowCalculation()
 {
+	int shadow_map_index = 0;
+	int cube_shadow_map_index = 0;
+
 	float total_shadow = 0.0;
 
 	for (int i = 0; i < lights_count; ++i)
 	{
-		vec3 proj_coords = fragment_world_position_in_light_space[i].xyz / fragment_world_position_in_light_space[i].w;
-		proj_coords = proj_coords * 0.5 + 0.5;
-
-		float shadow = 0.0;
-		float closest_depth = texture(shadow_map_texture_sampler[i], proj_coords.xy).r;
-		float current_depth = proj_coords.z;
-		float bias = max(0.005 * (1.0 - dot(normal, vec3(0, -1, 0))), 0.0005);
-		vec2 texel_size = 1.0 / textureSize(shadow_map_texture_sampler[i], 0);
-		for (int x = -1; x <= 1; ++x)
+		if (lights[i].light_type == 1)
 		{
-			for (int y = -1; y <= 1; ++y)
-			{
-				float pcf_depth = texture(shadow_map_texture_sampler[i], proj_coords.xy + vec2(x, y) * texel_size).r;
-				shadow += current_depth - bias > pcf_depth ? 1.0 : 0.0;
-			}
-		}
-		shadow /= 9.0;
+			vec3 fragment_to_light = fragment_world_position.xyz - lights[i].light_position;
+			float closest_depth = texture(shadow_cube_map_texture_sampler[cube_shadow_map_index], fragment_to_light).r;
+			closest_depth *= 30.0;
+			float current_depth = length(fragment_to_light);
+			float bias = 0.05;
+			float shadow = current_depth - bias > closest_depth ? 1.0 : 0.0;
+			total_shadow += shadow;
 
-		if (proj_coords.z > 1.0)
-		{
-			shadow =  0.0;
+			++cube_shadow_map_index;
 		}
-
-		total_shadow += shadow;
+//		else
+//		{
+//			vec3 proj_coords = fragment_world_position_in_light_space[i].xyz / fragment_world_position_in_light_space[i].w;
+//			proj_coords = proj_coords * 0.5 + 0.5;
+//
+//			float shadow = 0.0;
+//			float closest_depth = texture(shadow_map_texture_sampler[shadow_map_index], proj_coords.xy).r;
+//			float current_depth = proj_coords.z;
+//			float bias = max(0.005 * (1.0 - dot(normal, vec3(0, -1, 0))), 0.0005);
+//			vec2 texel_size = 1.0 / textureSize(shadow_map_texture_sampler[shadow_map_index], 0);
+//			for (int x = -1; x <= 1; ++x)
+//			{
+//				for (int y = -1; y <= 1; ++y)
+//				{
+//					float pcf_depth = texture(shadow_map_texture_sampler[shadow_map_index], proj_coords.xy + vec2(x, y) * texel_size).r;
+//					shadow += current_depth - bias > pcf_depth ? 1.0 : 0.0;
+//				}
+//			}
+//			shadow /= 9.0;
+//
+//			if (proj_coords.z > 1.0)
+//			{
+//				shadow =  0.0;
+//			}
+//
+//			total_shadow += shadow;
+//
+//			++shadow_map_index;
+//		}
 	}
 
 	total_shadow /= lights_count;
@@ -182,24 +202,23 @@ void main(void)
 
 	for(int i = 0; i < lights_count; ++i)
 	{
-		if (lights[i].cutoff_angle > 0)
+		switch(lights[i].light_type)
 		{
-			calculateBrightnessFromSpotlight(i);
-		}
-		else if (lights[i].attenuation.y > 0)
-		{
-			calculateBrightnessFromPointLight(i);
-		}
-		else
-		{
+			case 0:
 			calculateBrightnessFromDirectionalLight(i);
+			break;
+			case 1:
+			calculateBrightnessFromPointLight(i);
+			break;
+			case 2:
+			calculateBrightnessFromSpotlight(i);
+			break;
 		}
+
 		total_diffuse = total_diffuse + (brightness * lights[i].light_color);
 		total_specular = total_specular + (specular * lights[i].light_color);
 	}
-	total_diffuse /= lights_count;
-	total_specular /= lights_count;
-
+	
 	total_diffuse = max(total_diffuse, 0);
 	total_specular = max(total_specular, 0);
 

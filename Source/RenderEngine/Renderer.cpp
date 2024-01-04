@@ -8,7 +8,7 @@ Renderer::Renderer()
     quad = AssetManager::loadSimpleModel(quad_positions, quad_textures);
     ray_traced_image_shader.start();
     ray_traced_image_shader.getAllUniformLocations();
-    ray_traced_image_shader.connectTextureUnits();
+    ray_traced_image_shader.connectTextureUnits(GL_TEXTURE0);
     ShaderProgram::stop();
 }
 

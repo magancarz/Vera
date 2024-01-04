@@ -25,7 +25,7 @@ void SkyboxRenderer::renderSkybox(const std::shared_ptr<Camera>& camera, const s
     glDepthMask(GL_FALSE);
     glDisable(GL_CULL_FACE);
     glActiveTexture(GL_TEXTURE0);
-    cube_map->bindTexture();
+    skybox->bindTexture();
     glBindVertexArray(cube_model->vao->vao_id);
     glEnableVertexAttribArray(0);
     glDrawElements(GL_TRIANGLES, static_cast<int>(cube_model->vertex_count), GL_UNSIGNED_INT, nullptr);

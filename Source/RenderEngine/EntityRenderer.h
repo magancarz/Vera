@@ -24,7 +24,7 @@ public:
 
 private:
     void prepareTexturedModel(const std::shared_ptr<RawModel>& raw_model) const;
-    void prepareInstance(const std::weak_ptr<TriangleMesh>& entity) const;
+    void prepareInstance(const std::weak_ptr<TriangleMesh>& entity);
 
     static void unbindTexturedModel();
 
@@ -32,4 +32,6 @@ private:
 
     StaticShader static_shader;
     OutlineShader outline_shader;
+
+    GLenum current_texture{GL_TEXTURE0};
 };

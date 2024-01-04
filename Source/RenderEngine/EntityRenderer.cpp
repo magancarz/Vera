@@ -12,12 +12,10 @@ EntityRenderer::EntityRenderer()
 {
     static_shader.start();
     static_shader.getAllUniformLocations();
-    static_shader.connectTextureUnits();
     ShaderProgram::stop();
 
     outline_shader.start();
     outline_shader.getAllUniformLocations();
-    outline_shader.connectTextureUnits();
     ShaderProgram::stop();
 }
 
@@ -33,13 +31,26 @@ void EntityRenderer::render(
     static_shader.loadViewMatrix(camera);
     static_shader.loadProjectionMatrix(camera);
 
-    GLenum current_texture = GL_TEXTURE3;
+    current_texture = GL_TEXTURE0;
+    size_t shadow_map_index = 0;
+    size_t cube_shadow_map_index = 0;
     for (const auto& light : lights)
     {
         glActiveTexture(current_texture);
         light.lock()->bindShadowMapTexture();
+        if (auto is_point_light = dynamic_cast<PointLight*>(light.lock().get()))
+        {
+            static_shader.loadTextureIndexToCubeShadowMap(cube_shadow_map_index, shadow_map_index + cube_shadow_map_index);
+            ++cube_shadow_map_index;
+        }
+        else
+        {
+            static_shader.loadTextureIndexToShadowMap(shadow_map_index, shadow_map_index + cube_shadow_map_index);
+            ++shadow_map_index;
+        }
         ++current_texture;
     }
+    static_shader.connectTextureUnits(current_texture);
 
     static_shader.loadLightsCount(lights.size());
     static_shader.loadLightViewMatrices(lights);
@@ -109,7 +120,7 @@ void EntityRenderer::unbindTexturedModel()
     glBindVertexArray(0);
 }
 
-void EntityRenderer::prepareInstance(const std::weak_ptr<TriangleMesh>& entity) const
+void EntityRenderer::prepareInstance(const std::weak_ptr<TriangleMesh>& entity)
 {
     const auto entity_rotation = entity.lock()->getRotation();
     const auto transformation_matrix = Algorithms::createTransformationMatrix
@@ -124,22 +135,22 @@ void EntityRenderer::prepareInstance(const std::weak_ptr<TriangleMesh>& entity) 
     static_shader.start();
     static_shader.loadTransformationMatrix(transformation_matrix);
     static_shader.loadReflectivity(1.f - entity.lock()->getMaterial()->getFuzziness());
-    glActiveTexture(GL_TEXTURE0);
+    glActiveTexture(current_texture + 0);
     entity.lock()->getMaterial()->bindColorTexture();
-    if (entity.lock()->getMaterial()->hasNormalMap())
+    //if (entity.lock()->getMaterial()->hasNormalMap())
     {
-        glActiveTexture(GL_TEXTURE1);
+        glActiveTexture(current_texture + 1);
         entity.lock()->getMaterial()->bindNormalMap();
         static_shader.loadNormalMapLoadedBool(true);
     }
-    else
+    //else
     {
         static_shader.loadNormalMapLoadedBool(false);
     }
 
     if (entity.lock()->getMaterial()->hasDepthMap())
     {
-        glActiveTexture(GL_TEXTURE2);
+        glActiveTexture(current_texture + 2);
         entity.lock()->getMaterial()->bindDepthMap();
         static_shader.loadDepthMapLoadedBool(true);
         static_shader.loadHeightScale(entity.lock()->getMaterial()->getDepthMapHeightScale());

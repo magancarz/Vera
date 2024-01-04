@@ -13,16 +13,16 @@ DirectionalLight::DirectionalLight(Scene* parent_scene)
 DirectionalLight::DirectionalLight(Scene* parent_scene, const glm::vec3& light_direction, const glm::vec3& light_color)
     : Light(parent_scene, {0, 0, 0}, light_direction, light_color) {}
 
-void DirectionalLight::createShadowMapTexture()
+void DirectionalLight::createShadowMapShader()
 {
-    glBindTexture(GL_TEXTURE_2D, shadow_map_texture.texture_id);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, shadow_map_width, shadow_map_height, 0, GL_DEPTH_COMPONENT, GL_FLOAT, nullptr);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
-    float border_color[] = { 1.0f, 1.0f, 1.0f, 1.0f };
-    glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, border_color);
+    shadow_map_shader = std::make_unique<ShadowMapShader>();
+    shadow_map_shader->getAllUniformLocations();
+    shader_program_as_shadow_map_shader = dynamic_cast<ShadowMapShader*>(shadow_map_shader.get());
+}
+
+void DirectionalLight::loadTransformationMatrixToShadowMapShader(const glm::mat4& mat)
+{
+    shader_program_as_shadow_map_shader->loadTransformationMatrix(mat);
 }
 
 void DirectionalLight::createLightSpaceTransform()
@@ -35,6 +35,12 @@ void DirectionalLight::createLightSpaceTransform()
     glm::mat4 light_view = glm::lookAt(-light_direction * 10.f, {0, 0, 0}, {0, 0, 1});
 
     light_space_transform = light_projection * light_view;
+    shader_program_as_shadow_map_shader->loadLightSpaceMatrix(light_space_transform);
+}
+
+int DirectionalLight::getLightType() const
+{
+    return 0;
 }
 
 std::string DirectionalLight::getObjectInfo()

@@ -2,6 +2,7 @@
 
 struct Light
 {
+	int light_type;
 	vec3 light_position;
 	vec3 light_direction;
 	vec3 light_color;
@@ -47,16 +48,17 @@ void main(void) {
 		fragment_world_position_in_light_space[i] = light_view[i] * fragment_world_position;
 	}
 
-	if (normal_map_loaded > 0)
-	{
-		vec3 T = normalize(mat3(normal_matrix) * tangent);
-		vec3 B = normalize(mat3(normal_matrix) * bitangent);
-		mat3 TBN = transpose(mat3(T, B, surface_normal));
-		fragment_world_position = vec4(TBN * vec3(fragment_world_position), 1.0);
-		view_position = TBN * view_position;
-		for (int i = 0; i < NUM_OF_LIGHTS; ++i)
-		{
-			light_positions[i] = TBN * lights[i].light_position;
-		}
-	}
+//	if (normal_map_loaded > 0)
+//	{
+//		vec3 T = normalize(mat3(normal_matrix) * tangent);
+//		vec3 B = normalize(mat3(normal_matrix) * bitangent);
+//		mat3 TBN = transpose(mat3(T, B, surface_normal));
+//		fragment_world_position = vec4(TBN * vec3(fragment_world_position), 1.0);
+//		view_position = TBN * view_position;
+//		for (int i = 0; i < NUM_OF_LIGHTS; ++i)
+//		{
+//			light_positions[i] = TBN * lights[i].light_position;
+//			fragment_world_position_in_light_space[i] = vec4(TBN * vec3(fragment_world_position_in_light_space[i]), 1.0);
+//		}
+//	}
 }
