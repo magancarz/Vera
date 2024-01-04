@@ -1,43 +1,43 @@
-#include "StaticShader.h"
+#include "SceneObjectsShader.h"
 
 #include <memory>
 #include <ranges>
 
 #include "Materials/Material.h"
 #include "Objects/Object.h"
-#include "renderEngine/Camera.h"
+#include "RenderEngine/Camera.h"
 #include "Objects/Lights/Light.h"
 
-StaticShader::StaticShader()
-    : ShaderProgram("Resources/Shaders/vert.glsl", "Resources/Shaders/frag.glsl")
+SceneObjectsShader::SceneObjectsShader()
+    : ShaderProgram("Resources/Shaders/SceneObjectVert.glsl", "Resources/Shaders/SceneObjectFrag.glsl")
 {
     glGetIntegerv(GL_MAX_TEXTURE_IMAGE_UNITS, &MAX_NUMBER_OF_TEXTURES);
     std::cout << "Max number of textures to bind in shader is " << MAX_NUMBER_OF_TEXTURES << ".\n";
 }
 
-void StaticShader::loadTransformationMatrix(const glm::mat4& matrix) const
+void SceneObjectsShader::loadTransformationMatrix(const glm::mat4& matrix) const
 {
     loadMatrix(location_transformation_matrix, matrix);
 }
 
-void StaticShader::loadViewMatrix(const std::shared_ptr<Camera>& camera) const
+void SceneObjectsShader::loadViewMatrix(const std::shared_ptr<Camera>& camera) const
 {
     const auto view = camera->getCameraViewMatrix();
     loadMatrix(location_view_matrix, view);
 }
 
-void StaticShader::loadProjectionMatrix(const std::shared_ptr<Camera>& camera) const
+void SceneObjectsShader::loadProjectionMatrix(const std::shared_ptr<Camera>& camera) const
 {
     const auto projection_matrix = camera->getPerspectiveProjectionMatrix();
     loadMatrix(location_projection_matrix, projection_matrix);
 }
 
-void StaticShader::loadLightsCount(size_t count)
+void SceneObjectsShader::loadLightsCount(size_t count)
 {
     loadInt(location_lights_count, count);
 }
 
-void StaticShader::loadLightViewMatrices(const std::vector<std::weak_ptr<Light>>& lights) const
+void SceneObjectsShader::loadLightViewMatrices(const std::vector<std::weak_ptr<Light>>& lights) const
 {
     for (size_t i = 0; i < lights.size(); ++i)
     {
@@ -45,82 +45,82 @@ void StaticShader::loadLightViewMatrices(const std::vector<std::weak_ptr<Light>>
     }
 }
 
-void StaticShader::loadReflectivity(float reflectivity) const
+void SceneObjectsShader::loadReflectivity(float reflectivity) const
 {
     loadFloat(location_reflectivity, reflectivity);
 }
 
-void StaticShader::loadHeightScale(float height_scale) const
+void SceneObjectsShader::loadHeightScale(float height_scale) const
 {
     loadFloat(location_height_scale, height_scale);
 }
 
-void StaticShader::loadNormalMapLoadedBool(bool value) const
+void SceneObjectsShader::loadNormalMapLoadedBool(bool value) const
 {
     loadInt(location_normal_map_loaded, value);
 }
 
-void StaticShader::loadDepthMapLoadedBool(bool value) const
+void SceneObjectsShader::loadDepthMapLoadedBool(bool value) const
 {
     loadInt(location_depth_map_loaded, value);
 }
 
-void StaticShader::connectTextureUnits(GLenum texture) const
+void SceneObjectsShader::connectTextureUnits(GLenum texture) const
 {
     int texture_index = texture - GL_TEXTURE0;
     if (texture_index + 3 > MAX_NUMBER_OF_TEXTURES)
     {
-        std::cerr << "[ERROR] StaticShader: There is no texture binding left!\n";
+        std::cerr << "[ERROR] SceneObjectsShader: There is no texture binding left!\n";
         return;
     }
     loadInt(location_model_texture, texture_index + 0);
-    loadInt(location_normal_texture, texture_index + 1);
-    loadInt(location_depth_texture, texture_index + 2);
+//    loadInt(location_normal_texture, texture_index + 1);
+//    loadInt(location_depth_texture, texture_index + 2);
 }
 
-void StaticShader::loadTextureIndexToShadowMap(size_t shadow_map_index, unsigned int texture_index)
+void SceneObjectsShader::loadTextureIndexToShadowMap(size_t shadow_map_index, unsigned int texture_index)
 {
     loadInt(location_shadow_map_textures[shadow_map_index], texture_index);
 }
 
-void StaticShader::loadTextureIndexToCubeShadowMap(size_t cube_shadow_map_index, unsigned int texture_index)
+void SceneObjectsShader::loadTextureIndexToCubeShadowMap(size_t cube_shadow_map_index, unsigned int texture_index)
 {
     loadInt(location_shadow_cube_map_textures[cube_shadow_map_index], texture_index);
 }
 
-void StaticShader::getAllUniformLocations()
+void SceneObjectsShader::getAllUniformLocations()
 {
     location_transformation_matrix = getUniformLocation("model");
     location_view_matrix = getUniformLocation("view");
     location_projection_matrix = getUniformLocation("proj");
 
     location_model_texture = getUniformLocation("color_texture_sampler");
-    location_normal_texture = getUniformLocation("normal_texture_sampler");
-    location_depth_texture = getUniformLocation("depth_texture_sampler");
+//    location_normal_texture = getUniformLocation("normal_texture_sampler");
+//    location_depth_texture = getUniformLocation("depth_texture_sampler");
 
     location_lights_count = getUniformLocation("lights_count");
     for (const int i : std::views::iota(0, MAX_LIGHTS))
     {
-        location_light_view_matrices[i] = getUniformLocation("light_view[" + std::to_string(i) + "]");
-        location_shadow_map_textures[i] = getUniformLocation("shadow_map_texture_sampler[" + std::to_string(i) + "]");
+//        location_light_view_matrices[i] = getUniformLocation("light_view[" + std::to_string(i) + "]");
+//        location_shadow_map_textures[i] = getUniformLocation("shadow_map_texture_sampler[" + std::to_string(i) + "]");
         location_shadow_cube_map_textures[i] = getUniformLocation("shadow_cube_map_texture_sampler[" + std::to_string(i) + "]");
-        location_light_type[i] = getUniformLocation("lights[" + std::to_string(i) + "].light_type");
+//        location_light_type[i] = getUniformLocation("lights[" + std::to_string(i) + "].light_type");
         location_light_position[i] = getUniformLocation("lights[" + std::to_string(i) + "].light_position");
-        location_light_direction[i] = getUniformLocation("lights[" + std::to_string(i) + "].light_direction");
+//        location_light_direction[i] = getUniformLocation("lights[" + std::to_string(i) + "].light_direction");
         location_light_color[i] = getUniformLocation("lights[" + std::to_string(i) + "].light_color");
         location_attenuation[i] = getUniformLocation("lights[" + std::to_string(i) + "].attenuation");
-        location_cutoff_angle[i] = getUniformLocation("lights[" + std::to_string(i) + "].cutoff_angle");
-        location_cutoff_angle_offset[i] = getUniformLocation("lights[" + std::to_string(i) + "].cutoff_angle_offset");
+//        location_cutoff_angle[i] = getUniformLocation("lights[" + std::to_string(i) + "].cutoff_angle");
+//        location_cutoff_angle_offset[i] = getUniformLocation("lights[" + std::to_string(i) + "].cutoff_angle_offset");
     }
 
     location_reflectivity = getUniformLocation("reflectivity");
     location_height_scale = getUniformLocation("height_scale");
 
-    location_normal_map_loaded = getUniformLocation("normal_map_loaded");
-    location_depth_map_loaded = getUniformLocation("depth_map_loaded");
+//    location_normal_map_loaded = getUniformLocation("normal_map_loaded");
+//    location_depth_map_loaded = getUniformLocation("depth_map_loaded");
 }
 
-void StaticShader::loadLights(const std::vector<std::weak_ptr<Light>>& lights) const
+void SceneObjectsShader::loadLights(const std::vector<std::weak_ptr<Light>>& lights) const
 {
     size_t loaded_lights = 0;
     for (const auto& light : lights)

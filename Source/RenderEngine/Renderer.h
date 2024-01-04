@@ -1,8 +1,8 @@
 #pragma once
 
-#include "RenderEngine/EntityRenderer.h"
+#include "RenderEngine/SceneObjects/SceneObjectsRenderer.h"
 #include "Models/AssetManager.h"
-#include "Shaders/RayTracedImageShader.h"
+#include "Images/RayTracedImageShader.h"
 #include "Camera.h"
 #include "Objects/Lights/Light.h"
 #include "RenderEngine/Skybox/SkyboxRenderer.h"
@@ -21,7 +21,7 @@ private:
     void processEntity(const std::weak_ptr<TriangleMesh>& entity);
     void cleanUpObjectsMaps();
 
-    EntityRenderer entity_renderer;
+    SceneObjectsRenderer entity_renderer;
     SkyboxRenderer skybox_renderer;
     RayTracedImageShader ray_traced_image_shader;
     std::map<std::shared_ptr<RawModel>, std::vector<std::weak_ptr<TriangleMesh>>> entities_map;

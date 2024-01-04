@@ -1,6 +1,6 @@
-#include "EntityRenderer.h"
+#include "SceneObjectsRenderer.h"
 
-#include <GL/glew.h>
+#include "GL/glew.h"
 
 #include "RenderEngine/Renderer.h"
 #include "Utils/Algorithms.h"
@@ -8,7 +8,7 @@
 #include "Materials/Material.h"
 #include "Objects/Lights/Light.h"
 
-EntityRenderer::EntityRenderer()
+SceneObjectsRenderer::SceneObjectsRenderer()
 {
     static_shader.start();
     static_shader.getAllUniformLocations();
@@ -19,7 +19,7 @@ EntityRenderer::EntityRenderer()
     ShaderProgram::stop();
 }
 
-void EntityRenderer::render(
+void SceneObjectsRenderer::render(
     const std::map<std::shared_ptr<RawModel>, std::vector<std::weak_ptr<TriangleMesh>>>& entity_map,
     const std::vector<std::weak_ptr<Light>>& lights,
     const std::shared_ptr<Camera>& camera)
@@ -100,27 +100,27 @@ void EntityRenderer::render(
     }
 }
 
-void EntityRenderer::prepareTexturedModel(const std::shared_ptr<RawModel>& raw_model) const
+void SceneObjectsRenderer::prepareTexturedModel(const std::shared_ptr<RawModel>& raw_model) const
 {
     glBindVertexArray(raw_model->vao->vao_id);
     glEnableVertexAttribArray(0);
     glEnableVertexAttribArray(1);
     glEnableVertexAttribArray(2);
-    glEnableVertexAttribArray(3);
-    glEnableVertexAttribArray(4);
+//    glEnableVertexAttribArray(3);
+//    glEnableVertexAttribArray(4);
 }
 
-void EntityRenderer::unbindTexturedModel()
+void SceneObjectsRenderer::unbindTexturedModel()
 {
     glDisableVertexAttribArray(0);
     glDisableVertexAttribArray(1);
     glDisableVertexAttribArray(2);
-    glDisableVertexAttribArray(3);
-    glDisableVertexAttribArray(4);
+//    glDisableVertexAttribArray(3);
+//    glDisableVertexAttribArray(4);
     glBindVertexArray(0);
 }
 
-void EntityRenderer::prepareInstance(const std::weak_ptr<TriangleMesh>& entity)
+void SceneObjectsRenderer::prepareInstance(const std::weak_ptr<TriangleMesh>& entity)
 {
     const auto entity_rotation = entity.lock()->getRotation();
     const auto transformation_matrix = Algorithms::createTransformationMatrix
@@ -137,28 +137,28 @@ void EntityRenderer::prepareInstance(const std::weak_ptr<TriangleMesh>& entity)
     static_shader.loadReflectivity(1.f - entity.lock()->getMaterial()->getFuzziness());
     glActiveTexture(current_texture + 0);
     entity.lock()->getMaterial()->bindColorTexture();
-    //if (entity.lock()->getMaterial()->hasNormalMap())
-    {
-        glActiveTexture(current_texture + 1);
-        entity.lock()->getMaterial()->bindNormalMap();
-        static_shader.loadNormalMapLoadedBool(true);
-    }
-    //else
-    {
-        static_shader.loadNormalMapLoadedBool(false);
-    }
-
-    if (entity.lock()->getMaterial()->hasDepthMap())
-    {
-        glActiveTexture(current_texture + 2);
-        entity.lock()->getMaterial()->bindDepthMap();
-        static_shader.loadDepthMapLoadedBool(true);
-        static_shader.loadHeightScale(entity.lock()->getMaterial()->getDepthMapHeightScale());
-    }
-    else
-    {
-        static_shader.loadDepthMapLoadedBool(false);
-    }
+//    if (entity.lock()->getMaterial()->hasNormalMap())
+//    {
+//        glActiveTexture(current_texture + 1);
+//        entity.lock()->getMaterial()->bindNormalMap();
+//        static_shader.loadNormalMapLoadedBool(true);
+//    }
+//    else
+//    {
+//        static_shader.loadNormalMapLoadedBool(false);
+//    }
+//
+//    if (entity.lock()->getMaterial()->hasDepthMap())
+//    {
+//        glActiveTexture(current_texture + 2);
+//        entity.lock()->getMaterial()->bindDepthMap();
+//        static_shader.loadDepthMapLoadedBool(true);
+//        static_shader.loadHeightScale(entity.lock()->getMaterial()->getDepthMapHeightScale());
+//    }
+//    else
+//    {
+//        static_shader.loadDepthMapLoadedBool(false);
+//    }
 
     ShaderProgram::stop();
 

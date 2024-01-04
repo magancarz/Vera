@@ -4,17 +4,17 @@
 #include <memory>
 #include <vector>
 
-#include "../shaders/ShaderProgram.h"
+#include "Shaders/ShaderProgram.h"
 #include "GL/glew.h"
 
 struct RawModel;
 class Camera;
 class Light;
 
-class StaticShader : public ShaderProgram
+class SceneObjectsShader : public ShaderProgram
 {
 public:
-    StaticShader();
+    SceneObjectsShader();
 
     void loadTransformationMatrix(const glm::mat4& matrix) const;
     void loadViewMatrix(const std::shared_ptr<Camera>& camera) const;

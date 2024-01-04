@@ -2,13 +2,9 @@
 
 struct Light
 {
-	int light_type;
 	vec3 light_position;
-	vec3 light_direction;
 	vec3 light_color;
 	vec3 attenuation;
-	float cutoff_angle;
-	float cutoff_angle_offset;
 };
 const int NUM_OF_LIGHTS = 4;
 

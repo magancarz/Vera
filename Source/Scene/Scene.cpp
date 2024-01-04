@@ -9,7 +9,7 @@
 #include "RenderEngine/RayTracing/IntersectionAccelerators/BVHTreeBuilder.h"
 #include "Objects/Lights/Light.h"
 #include "Objects/TriangleMesh.h"
-#include "Shaders/StaticShader.h"
+#include "RenderEngine/SceneObjects/SceneObjectsShader.h"
 
 void Scene::notifyOnObjectChange()
 {
@@ -115,7 +115,7 @@ void Scene::createTriangleMesh(std::shared_ptr<RawModel> model)
 
 void Scene::createSceneLight(const std::shared_ptr<LightCreator>& light_creator)
 {
-    if (lights.size() < StaticShader::MAX_LIGHTS)
+    if (lights.size() < SceneObjectsShader::MAX_LIGHTS)
     {
         std::shared_ptr<Light> light = light_creator->create(this);
         objects.push_back(light);

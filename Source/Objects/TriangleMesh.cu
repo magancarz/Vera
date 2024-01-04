@@ -228,6 +228,16 @@ void TriangleMesh::changeMaterial(std::shared_ptr<MaterialAsset> new_material)
     parent_scene->notifyOnObjectMaterialChange();
 }
 
+bool TriangleMesh::isNormalMapped() const
+{
+    return material->cuda_material->hasNormalMap();
+}
+
+bool TriangleMesh::isParallaxMapped() const
+{
+    return material->cuda_material->hasDepthMap();
+}
+
 void TriangleMesh::setPosition(const glm::vec3 &value)
 {
     position = value;

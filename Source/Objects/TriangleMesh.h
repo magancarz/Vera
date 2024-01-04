@@ -23,7 +23,6 @@ public:
 
     std::string getObjectInfo() override;
 
-    void changeMaterial(std::shared_ptr<MaterialAsset> new_material);
     void createShapesForRayTracedMesh();
     void renderObjectInformationGUI() override;
 
@@ -34,6 +33,10 @@ public:
     void setScale(float value);
 
     Material* getMaterial() const;
+    void changeMaterial(std::shared_ptr<MaterialAsset> new_material);
+    bool isNormalMapped() const;
+    bool isParallaxMapped() const;
+
     std::shared_ptr<RawModel> getModelData() const;
     Shape** getShapes();
     ShapeInfo* getShapesInfos();

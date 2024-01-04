@@ -2,13 +2,9 @@
 
 struct Light
 {
-	int light_type;
 	vec3 light_position;
-	vec3 light_direction;
 	vec3 light_color;
 	vec3 attenuation;
-	float cutoff_angle;
-	float cutoff_angle_offset;
 };
 const int NUM_OF_LIGHTS = 4;
 const float ambient = 0.1;
@@ -39,6 +35,7 @@ uniform int depth_map_loaded;
 
 float brightness = 0;
 float specular = 0;
+
 vec3 normal;
 vec2 tex_coords;
 
@@ -49,14 +46,6 @@ void calculateSpecularValue(vec3 to_light_dir, float attenuation)
 	specular = pow(max(dot(normal, halfway_dir), 0.0), 32.0) / attenuation * reflectivity;
 }
 
-void calculateBrightnessFromDirectionalLight(int i)
-{
-	vec3 to_light_vector = normalize(-lights[i].light_direction);
-	float n_dot1 = dot(normal, to_light_vector);
-	brightness = max(n_dot1, 0.0);
-	calculateSpecularValue(to_light_vector, 1.0);
-}
-
 void calculateBrightnessFromPointLight(int i)
 {
 	vec3 to_light_vector = normalize(light_positions[i] - fragment_world_position.xyz);
@@ -65,25 +54,6 @@ void calculateBrightnessFromPointLight(int i)
 	float attenuation = 1.0f / (lights[i].attenuation.x + lights[i].attenuation.y * distance + lights[i].attenuation.z * (distance * distance));
 	brightness = max(n_dot1 * attenuation, 0.0);
 	calculateSpecularValue(to_light_vector, attenuation);
-}
-
-void calculateBrightnessFromSpotlight(int i)
-{
-	vec3 to_light_vector = normalize(lights[i].light_position - fragment_world_position.xyz);
-	float to_light_dot = dot(to_light_vector, normalize(-lights[i].light_direction));
-	if (to_light_dot > lights[i].cutoff_angle_offset)
-	{
-		float n_dot1 = dot(normal, to_light_vector);
-		float distance = length(lights[i].light_position - fragment_world_position.xyz);
-		float attenuation = 1.0f / (lights[i].attenuation.x + lights[i].attenuation.y * distance + lights[i].attenuation.z * (distance * distance));
-		brightness = max(n_dot1, 0.0);
-		float intensity = clamp((to_light_dot - lights[i].cutoff_angle_offset) / (lights[i].cutoff_angle - lights[i].cutoff_angle_offset), 0.0, 1.0);
-		brightness *= intensity * attenuation;
-		calculateSpecularValue(to_light_vector, attenuation);
-		return;
-	}
-
-	brightness = 0;
 }
 
 vec2 parallaxMapping(vec2 tex_coords, vec3 view_dir)
@@ -129,36 +99,6 @@ float pointLightShadowCalculation(int light_index, int texture_index)
 	return shadow;
 }
 
-float directionalLightShadowCalculation(int light_index, int texture_index)
-{
-	return 0.0;
-
-	vec3 proj_coords = fragment_world_position_in_light_space[light_index].xyz / fragment_world_position_in_light_space[light_index].w;
-	proj_coords = proj_coords * 0.5 + 0.5;
-
-	float shadow = 0.0;
-	float closest_depth = texture(shadow_map_texture_sampler[texture_index], proj_coords.xy).r;
-	float current_depth = proj_coords.z;
-	float bias = max(0.005 * (1.0 - dot(normal, vec3(0, -1, 0))), 0.0005);
-	vec2 texel_size = 1.0 / textureSize(shadow_map_texture_sampler[texture_index], 0);
-	for (int x = -1; x <= 1; ++x)
-	{
-		for (int y = -1; y <= 1; ++y)
-		{
-			float pcf_depth = texture(shadow_map_texture_sampler[texture_index], proj_coords.xy + vec2(x, y) * texel_size).r;
-			shadow += current_depth - bias > pcf_depth ? 1.0 : 0.0;
-		}
-	}
-	shadow /= 9.0;
-
-	if (proj_coords.z > 1.0)
-	{
-		shadow =  0.0;
-	}
-
-	return shadow;
-}
-
 void main(void)
 {
 	vec3 view_dir = normalize(view_position - fragment_world_position.xyz);
@@ -191,24 +131,9 @@ void main(void)
 
 	for(int i = 0; i < lights_count; ++i)
 	{
-		switch(lights[i].light_type)
-		{
-			case 0:
-				calculateBrightnessFromDirectionalLight(i);
-				total_shadow += directionalLightShadowCalculation(i, shadow_map_index);
-				++shadow_map_index;
-			break;
-			case 1:
-				calculateBrightnessFromPointLight(i);
-				total_shadow += pointLightShadowCalculation(i, cube_shadow_map_index);
-				++cube_shadow_map_index;
-			break;
-			case 2:
-				calculateBrightnessFromSpotlight(i);
-				total_shadow += directionalLightShadowCalculation(i, shadow_map_index);
-				++shadow_map_index;
-			break;
-		}
+		calculateBrightnessFromPointLight(i);
+		total_shadow += pointLightShadowCalculation(i, cube_shadow_map_index);
+		++cube_shadow_map_index;
 
 		total_diffuse = total_diffuse + (brightness * lights[i].light_color);
 		total_specular = total_specular + (specular * lights[i].light_color);
