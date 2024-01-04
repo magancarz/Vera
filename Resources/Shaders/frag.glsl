@@ -117,61 +117,46 @@ vec2 parallaxMapping(vec2 tex_coords, vec3 view_dir)
 	return final_tex_coords;
 }
 
-float shadowCalculation()
+float pointLightShadowCalculation(int light_index, int texture_index)
 {
-	int shadow_map_index = 0;
-	int cube_shadow_map_index = 0;
+	vec3 fragment_to_light = fragment_world_position.xyz - lights[light_index].light_position;
+	float closest_depth = texture(shadow_cube_map_texture_sampler[texture_index], fragment_to_light).r;
+	closest_depth *= 30.0;
+	float current_depth = length(fragment_to_light);
+	float bias = 0.05;
+	float shadow = current_depth - bias > closest_depth ? 1.0 : 0.0;
 
-	float total_shadow = 0.0;
+	return shadow;
+}
 
-	for (int i = 0; i < lights_count; ++i)
+float directionalLightShadowCalculation(int light_index, int texture_index)
+{
+	return 0.0;
+
+	vec3 proj_coords = fragment_world_position_in_light_space[light_index].xyz / fragment_world_position_in_light_space[light_index].w;
+	proj_coords = proj_coords * 0.5 + 0.5;
+
+	float shadow = 0.0;
+	float closest_depth = texture(shadow_map_texture_sampler[texture_index], proj_coords.xy).r;
+	float current_depth = proj_coords.z;
+	float bias = max(0.005 * (1.0 - dot(normal, vec3(0, -1, 0))), 0.0005);
+	vec2 texel_size = 1.0 / textureSize(shadow_map_texture_sampler[texture_index], 0);
+	for (int x = -1; x <= 1; ++x)
 	{
-		if (lights[i].light_type == 1)
+		for (int y = -1; y <= 1; ++y)
 		{
-			vec3 fragment_to_light = fragment_world_position.xyz - lights[i].light_position;
-			float closest_depth = texture(shadow_cube_map_texture_sampler[cube_shadow_map_index], fragment_to_light).r;
-			closest_depth *= 30.0;
-			float current_depth = length(fragment_to_light);
-			float bias = 0.05;
-			float shadow = current_depth - bias > closest_depth ? 1.0 : 0.0;
-			total_shadow += shadow;
-
-			++cube_shadow_map_index;
+			float pcf_depth = texture(shadow_map_texture_sampler[texture_index], proj_coords.xy + vec2(x, y) * texel_size).r;
+			shadow += current_depth - bias > pcf_depth ? 1.0 : 0.0;
 		}
-//		else
-//		{
-//			vec3 proj_coords = fragment_world_position_in_light_space[i].xyz / fragment_world_position_in_light_space[i].w;
-//			proj_coords = proj_coords * 0.5 + 0.5;
-//
-//			float shadow = 0.0;
-//			float closest_depth = texture(shadow_map_texture_sampler[shadow_map_index], proj_coords.xy).r;
-//			float current_depth = proj_coords.z;
-//			float bias = max(0.005 * (1.0 - dot(normal, vec3(0, -1, 0))), 0.0005);
-//			vec2 texel_size = 1.0 / textureSize(shadow_map_texture_sampler[shadow_map_index], 0);
-//			for (int x = -1; x <= 1; ++x)
-//			{
-//				for (int y = -1; y <= 1; ++y)
-//				{
-//					float pcf_depth = texture(shadow_map_texture_sampler[shadow_map_index], proj_coords.xy + vec2(x, y) * texel_size).r;
-//					shadow += current_depth - bias > pcf_depth ? 1.0 : 0.0;
-//				}
-//			}
-//			shadow /= 9.0;
-//
-//			if (proj_coords.z > 1.0)
-//			{
-//				shadow =  0.0;
-//			}
-//
-//			total_shadow += shadow;
-//
-//			++shadow_map_index;
-//		}
+	}
+	shadow /= 9.0;
+
+	if (proj_coords.z > 1.0)
+	{
+		shadow =  0.0;
 	}
 
-	total_shadow /= lights_count;
-
-	return total_shadow;
+	return shadow;
 }
 
 void main(void)
@@ -200,18 +185,28 @@ void main(void)
 	vec3 total_diffuse = vec3(0.0);
 	vec3 total_specular = vec3(0.0);
 
+	int shadow_map_index = 0;
+	int cube_shadow_map_index = 0;
+	float total_shadow = 0.0;
+
 	for(int i = 0; i < lights_count; ++i)
 	{
 		switch(lights[i].light_type)
 		{
 			case 0:
-			calculateBrightnessFromDirectionalLight(i);
+				calculateBrightnessFromDirectionalLight(i);
+				total_shadow += directionalLightShadowCalculation(i, shadow_map_index);
+				++shadow_map_index;
 			break;
 			case 1:
-			calculateBrightnessFromPointLight(i);
+				calculateBrightnessFromPointLight(i);
+				total_shadow += pointLightShadowCalculation(i, cube_shadow_map_index);
+				++cube_shadow_map_index;
 			break;
 			case 2:
-			calculateBrightnessFromSpotlight(i);
+				calculateBrightnessFromSpotlight(i);
+				total_shadow += directionalLightShadowCalculation(i, shadow_map_index);
+				++shadow_map_index;
 			break;
 		}
 
@@ -221,9 +216,9 @@ void main(void)
 	
 	total_diffuse = max(total_diffuse, 0);
 	total_specular = max(total_specular, 0);
+	total_shadow /= lights_count;
 
 	vec4 texture_color = texture(color_texture_sampler, tex_coords);
-	float shadow = shadowCalculation();
-	vec3 lighting = (ambient + (1.0 - shadow) * (total_diffuse + total_specular)) * texture_color.rgb;
+	vec3 lighting = (ambient + (1.0 - total_shadow) * (total_diffuse + total_specular)) * texture_color.rgb;
 	out_Color = vec4(lighting, 1.0);
 }

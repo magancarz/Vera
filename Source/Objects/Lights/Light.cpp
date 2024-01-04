@@ -32,6 +32,7 @@ void Light::prepare()
 
 void Light::createShadowMapTexture()
 {
+    shadow_map_texture = std::make_shared<utils::Texture>();
     shadow_map_texture->bindTexture();
     glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, shadow_map_width, shadow_map_height, 0, GL_DEPTH_COMPONENT, GL_FLOAT, nullptr);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
