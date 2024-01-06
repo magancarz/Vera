@@ -238,6 +238,11 @@ bool TriangleMesh::isParallaxMapped() const
     return material->cuda_material->hasDepthMap();
 }
 
+glm::mat4 TriangleMesh::getTransform() const
+{
+    return Algorithms::createTransformationMatrix(position, rotation, scale);
+}
+
 void TriangleMesh::setPosition(const glm::vec3 &value)
 {
     position = value;

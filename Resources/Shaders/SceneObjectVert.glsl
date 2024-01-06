@@ -9,9 +9,9 @@ out vec2 pass_texture_coords;
 out vec3 view_position;
 out vec3 surface_normal;
 
-uniform mat4 model;
-layout (std140) uniform ProjectionMatrices
+layout (std140) uniform TransformationMatrices
 {
+	mat4 model;
 	mat4 view;
 	mat4 proj;
 };

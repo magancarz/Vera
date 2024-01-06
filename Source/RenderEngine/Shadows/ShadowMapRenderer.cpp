@@ -73,9 +73,7 @@ void ShadowMapRenderer::prepareInstance(const std::weak_ptr<TriangleMesh>& entit
     const auto transformation_matrix = Algorithms::createTransformationMatrix
     (
             entity.lock()->getPosition(),
-            entity_rotation.x,
-            entity_rotation.y,
-            entity_rotation.z,
+            entity_rotation,
             entity.lock()->getScale()
     );
 

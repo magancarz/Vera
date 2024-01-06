@@ -8,7 +8,7 @@
 
 namespace Algorithms
 {
-    glm::mat4 createTransformationMatrix(const glm::vec3& translation, float rx, float ry, float rz, float scale);
+    glm::mat4 createTransformationMatrix(const glm::vec3& translation, const glm::vec3& rotation, const float scale);
     __host__ __device__ bool equal(float a, float b, float round_error = 0.000000000000000001f);
     std::string floatToString(float val);
     std::string vec3ToString(const glm::vec3& vec);

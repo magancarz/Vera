@@ -15,21 +15,22 @@ class Light;
 class SceneObjectsRenderer
 {
 public:
-    virtual bool apply();
-    void render(
-        const std::map<std::shared_ptr<RawModel>, std::vector<std::weak_ptr<TriangleMesh>>>& entity_map,
-        const std::vector<std::weak_ptr<Light>>& lights,
-        const std::shared_ptr<Camera>& camera);
-
     virtual void prepare();
+
+    virtual bool apply();
+    virtual void prepareTexturedModel(const std::shared_ptr<RawModel>& raw_model) const;
+    virtual void prepareInstance(const std::weak_ptr<TriangleMesh>& entity);
+    void prepareShader();
+    virtual void unbindTexturedModel();
+
+    template <typename T>
+    void bindUniformBuffer(const UniformBuffer<T>& uniform_buffer)
+    {
+        scene_object_shader->bindUniformBlockToShader(uniform_buffer.getName(), uniform_buffer.getUniformBlockIndex());
+    }
 
 private:
     virtual void createSceneObjectShader();
-    virtual void prepareTexturedModel(const std::shared_ptr<RawModel>& raw_model) const;
-    virtual void unbindTexturedModel();
-    virtual void prepareInstance(const std::weak_ptr<TriangleMesh>& entity);
 
-    std::unique_ptr<SceneObjectsShader> static_shader;
-
-    GLenum current_texture{GL_TEXTURE0};
+    std::unique_ptr<SceneObjectsShader> scene_object_shader;
 };

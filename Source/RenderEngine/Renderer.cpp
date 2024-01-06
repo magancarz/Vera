@@ -9,16 +9,13 @@ Renderer::Renderer()
 //    ray_traced_image_shader.start();
 //    ray_traced_image_shader.getAllUniformLocations();
     ShaderProgram::stop();
-
-    entity_renderer.prepare();
 }
 
 void Renderer::renderScene(const std::shared_ptr<Camera>& camera, const std::vector<std::weak_ptr<Light>>& lights, const std::vector<std::weak_ptr<TriangleMesh>>& entities)
 {
     prepare();
     processEntities(entities);
-    shadow_map_renderer.renderSceneToDepthBuffers(objects_map, lights);
-    entity_renderer.render(entities_map, lights, camera);
+    scene_objects_master_renderer.render(objects_map, lights, camera);
 //    normal_mapped_entity_renderer.render(normal_mapped_entities_map, lights, camera);
 //    parallax_mapped_entity_renderer.render(parallax_mapped_entities_map, lights, camera);
     cleanUpObjectsMaps();
@@ -59,18 +56,6 @@ void Renderer::processEntities(const std::vector<std::weak_ptr<TriangleMesh>>& e
     for (const auto& entity : entities)
     {
         processEntity(objects_map, entity);
-        if (entity.lock()->isParallaxMapped())
-        {
-            processEntity(parallax_mapped_entities_map, entity);
-        }
-        else if (entity.lock()->isNormalMapped())
-        {
-            processEntity(normal_mapped_entities_map, entity);
-        }
-        else
-        {
-            processEntity(entities_map, entity);
-        }
     }
 }
 
@@ -95,7 +80,4 @@ void Renderer::processEntity(std::map<std::shared_ptr<RawModel>, std::vector<std
 void Renderer::cleanUpObjectsMaps()
 {
     objects_map.clear();
-    entities_map.clear();
-    normal_mapped_entities_map.clear();
-    parallax_mapped_entities_map.clear();
 }

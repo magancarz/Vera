@@ -33,6 +33,14 @@ public:
         glBindBuffer(GL_UNIFORM_BUFFER, 0);
     }
 
+    template <typename U>
+    void setValue(const U& val, size_t offset) const
+    {
+        glBindBuffer(GL_UNIFORM_BUFFER, buffer.vbo_id);
+        glBufferSubData(GL_UNIFORM_BUFFER, offset, sizeof(U), &val);
+        glBindBuffer(GL_UNIFORM_BUFFER, 0);
+    }
+
     unsigned int getUniformBlockIndex() const
     {
         return uniform_block_index;

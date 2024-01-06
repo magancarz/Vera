@@ -38,4 +38,6 @@ private:
     int vertex_shader_id;
     int geometry_shader_id;
     int fragment_shader_id;
+
+    inline static int last_used_shader_program{-1};
 };

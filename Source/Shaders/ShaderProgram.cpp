@@ -31,11 +31,13 @@ ShaderProgram::~ShaderProgram()
 void ShaderProgram::start() const
 {
     glUseProgram(program_id);
+    last_used_shader_program = program_id;
 }
 
 void ShaderProgram::stop()
 {
     glUseProgram(0);
+    last_used_shader_program = 0;
 }
 
 int ShaderProgram::getUniformLocation(const std::string& uniform_name) const
@@ -69,9 +71,7 @@ void ShaderProgram::activateProgramIfNotActivatedYet() const
 
 bool ShaderProgram::checkIfProgramIsActivated() const
 {
-    int program;
-    glGetIntegerv(GL_CURRENT_PROGRAM, &program);
-    return program == program_id;
+    return last_used_shader_program == program_id;
 }
 
 void ShaderProgram::loadFloat(int location, float value) const

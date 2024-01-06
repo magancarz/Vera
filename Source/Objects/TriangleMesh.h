@@ -26,6 +26,7 @@ public:
     void createShapesForRayTracedMesh();
     void renderObjectInformationGUI() override;
 
+    glm::mat4 getTransform() const;
     void setPosition(const glm::vec3 &value) override;
     glm::vec3 getRotation() const;
     float getScale() const;
