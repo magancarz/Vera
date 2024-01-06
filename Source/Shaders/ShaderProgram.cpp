@@ -43,6 +43,16 @@ int ShaderProgram::getUniformLocation(const std::string& uniform_name) const
     return glGetUniformLocation(program_id, uniform_name.c_str());
 }
 
+void ShaderProgram::bindUniformBlockToShader(const std::string& uniform_block_name, unsigned int block_index) const
+{
+    int shader_uniform_block_index = glGetUniformBlockIndex(program_id, uniform_block_name.c_str());
+    if (shader_uniform_block_index == -1)
+    {
+        return;
+    }
+    glUniformBlockBinding(program_id, shader_uniform_block_index, block_index);
+}
+
 void ShaderProgram::loadInt(const int location, const int value) const
 {
     activateProgramIfNotActivatedYet();
@@ -53,7 +63,6 @@ void ShaderProgram::activateProgramIfNotActivatedYet() const
 {
     if (!checkIfProgramIsActivated())
     {
-        std::cerr << "[ERROR] ShaderProgram: Trying to load uniform value to wrong program!\n";
         start();
     }
 }
@@ -81,12 +90,6 @@ void ShaderProgram::loadVector3(const int location, const glm::vec3& vector) con
 {
     activateProgramIfNotActivatedYet();
     glUniform3f(location, vector.x, vector.y, vector.z);
-}
-
-void ShaderProgram::loadVector4(int location, const glm::vec4& vector) const
-{
-    activateProgramIfNotActivatedYet();
-    glUniform4f(location, vector.x, vector.y, vector.z, vector.w);
 }
 
 void ShaderProgram::loadShaders(const std::string& vertex_file, const std::string& fragment_file)

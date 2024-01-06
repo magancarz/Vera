@@ -10,8 +10,11 @@ out vec3 view_position;
 out vec3 surface_normal;
 
 uniform mat4 model;
-uniform mat4 view;
-uniform mat4 proj;
+layout (std140) uniform ProjectionMatrices
+{
+	mat4 view;
+	mat4 proj;
+};
 
 void main(void)
 {

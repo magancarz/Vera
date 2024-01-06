@@ -8,28 +8,30 @@
 #include "Objects/Object.h"
 #include "Models/AssetManager.h"
 #include "RenderEngine/Shadows/ShadowMapRenderer.h"
+#include "NormalMappedSceneObjectsShader.h"
+#include "ParallaxMappedSceneObjectsShader.h"
 
 class TriangleMesh;
 class Light;
 
-class SceneObjectsRenderer
+class ParallaxMappedSceneObjectsRenderer
 {
 public:
-    virtual bool apply();
+    ParallaxMappedSceneObjectsRenderer();
+
     void render(
         const std::map<std::shared_ptr<RawModel>, std::vector<std::weak_ptr<TriangleMesh>>>& entity_map,
         const std::vector<std::weak_ptr<Light>>& lights,
         const std::shared_ptr<Camera>& camera);
 
-    virtual void prepare();
-
 private:
-    virtual void createSceneObjectShader();
-    virtual void prepareTexturedModel(const std::shared_ptr<RawModel>& raw_model) const;
-    virtual void unbindTexturedModel();
-    virtual void prepareInstance(const std::weak_ptr<TriangleMesh>& entity);
+    void prepareTexturedModel(const std::shared_ptr<RawModel>& raw_model) const;
+    void prepareInstance(const std::weak_ptr<TriangleMesh>& entity);
 
-    std::unique_ptr<SceneObjectsShader> static_shader;
+    static void unbindTexturedModel();
+
+    ParallaxMappedSceneObjectsShader parallax_mapped_scene_objects_shader;
+    OutlineShader outline_shader;
 
     GLenum current_texture{GL_TEXTURE0};
 };

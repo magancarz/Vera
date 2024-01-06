@@ -7,3 +7,5 @@ add_subdirectory(RayTracing)
 add_subdirectory(SceneObjects)
 add_subdirectory(Skybox)
 add_subdirectory(Shadows)
+
+target_include_directories(Vera-Lib PUBLIC GLObjects)

@@ -14,6 +14,8 @@ public:
     void start() const;
     static void stop();
 
+    void bindUniformBlockToShader(const std::string& uniform_block_name, unsigned int block_index) const;
+
     virtual void getAllUniformLocations() = 0;
 
 protected:
@@ -23,7 +25,6 @@ protected:
     void loadFloat(int location, float value) const;
     void loadMatrix(int location, const glm::mat4& matrix) const;
     void loadVector3(int location, const glm::vec3& vector) const;
-    void loadVector4(int location, const glm::vec4& vector) const;
 
     void loadShaders(const std::string& vertex_file, const std::string& fragment_file);
     void loadShaders(const std::string& vertex_file, const std::string& geometry_file, const std::string& fragment_file);

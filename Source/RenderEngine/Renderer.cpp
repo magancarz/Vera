@@ -6,17 +6,21 @@
 Renderer::Renderer()
 {
     quad = AssetManager::loadSimpleModel(quad_positions, quad_textures);
-    ray_traced_image_shader.start();
-    ray_traced_image_shader.getAllUniformLocations();
-    ray_traced_image_shader.connectTextureUnits(GL_TEXTURE0);
+//    ray_traced_image_shader.start();
+//    ray_traced_image_shader.getAllUniformLocations();
     ShaderProgram::stop();
+
+    entity_renderer.prepare();
 }
 
 void Renderer::renderScene(const std::shared_ptr<Camera>& camera, const std::vector<std::weak_ptr<Light>>& lights, const std::vector<std::weak_ptr<TriangleMesh>>& entities)
 {
     prepare();
     processEntities(entities);
+    shadow_map_renderer.renderSceneToDepthBuffers(objects_map, lights);
     entity_renderer.render(entities_map, lights, camera);
+//    normal_mapped_entity_renderer.render(normal_mapped_entities_map, lights, camera);
+//    parallax_mapped_entity_renderer.render(parallax_mapped_entities_map, lights, camera);
     cleanUpObjectsMaps();
 }
 
@@ -27,7 +31,7 @@ void Renderer::renderRayTracedImage(unsigned texture_id) const
     glEnableVertexAttribArray(1);
     glDisable(GL_DEPTH_TEST);
 
-    ray_traced_image_shader.start();
+//    ray_traced_image_shader.start();
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, texture_id);
     glClear(GL_COLOR_BUFFER_BIT);
@@ -54,16 +58,28 @@ void Renderer::processEntities(const std::vector<std::weak_ptr<TriangleMesh>>& e
 {
     for (const auto& entity : entities)
     {
-        processEntity(entity);
+        processEntity(objects_map, entity);
+        if (entity.lock()->isParallaxMapped())
+        {
+            processEntity(parallax_mapped_entities_map, entity);
+        }
+        else if (entity.lock()->isNormalMapped())
+        {
+            processEntity(normal_mapped_entities_map, entity);
+        }
+        else
+        {
+            processEntity(entities_map, entity);
+        }
     }
 }
 
-void Renderer::processEntity(const std::weak_ptr<TriangleMesh>& entity)
+void Renderer::processEntity(std::map<std::shared_ptr<RawModel>, std::vector<std::weak_ptr<TriangleMesh>>>& map, const std::weak_ptr<TriangleMesh>& entity)
 {
     auto entity_model = entity.lock()->getModelData();
 
-    const auto it = entities_map.find(entity_model);
-    if (it != entities_map.end())
+    const auto it = map.find(entity_model);
+    if (it != map.end())
     {
         auto& batch = it->second;
         batch.push_back(entity);
@@ -72,11 +88,14 @@ void Renderer::processEntity(const std::weak_ptr<TriangleMesh>& entity)
     {
         std::vector<std::weak_ptr<TriangleMesh>> new_batch;
         new_batch.push_back(entity);
-        entities_map.insert(std::make_pair(entity_model, new_batch));
+        map.insert(std::make_pair(entity_model, new_batch));
     }
 }
 
 void Renderer::cleanUpObjectsMaps()
 {
+    objects_map.clear();
     entities_map.clear();
+    normal_mapped_entities_map.clear();
+    parallax_mapped_entities_map.clear();
 }

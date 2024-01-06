@@ -7,12 +7,40 @@
 #include "Objects/Object.h"
 #include "RenderEngine/Camera.h"
 #include "Objects/Lights/Light.h"
+#include "Objects/Lights/PointLight.h"
 
 SceneObjectsShader::SceneObjectsShader()
-    : ShaderProgram("Resources/Shaders/SceneObjectVert.glsl", "Resources/Shaders/SceneObjectFrag.glsl")
+    : ShaderProgram("Resources/Shaders/SceneObjectVert.glsl", "Resources/Shaders/SceneObjectFrag.glsl"),
+      light_info_uniform_buffer(LIGHT_INFO_UNIFORM_BLOCK_NAME),
+      projection_matrices_uniform_buffer(PROJECTION_MATRICES_UNIFORM_BLOCK_NAME)
 {
-    glGetIntegerv(GL_MAX_TEXTURE_IMAGE_UNITS, &MAX_NUMBER_OF_TEXTURES);
-    std::cout << "Max number of textures to bind in shader is " << MAX_NUMBER_OF_TEXTURES << ".\n";
+    prepareUniformBuffers();
+    connectTextureUnits();
+}
+
+void SceneObjectsShader::prepareUniformBuffers()
+{
+    bindUniformBlockToShader(light_info_uniform_buffer.getName(), light_info_uniform_buffer.getUniformBlockIndex());
+    bindUniformBlockToShader(projection_matrices_uniform_buffer.getName(), projection_matrices_uniform_buffer.getUniformBlockIndex());
+}
+
+SceneObjectsShader::SceneObjectsShader(const std::string& vertex_file, const std::string& fragment_file)
+    : ShaderProgram(vertex_file, fragment_file), light_info_uniform_buffer(LIGHT_INFO_UNIFORM_BLOCK_NAME),
+      projection_matrices_uniform_buffer(PROJECTION_MATRICES_UNIFORM_BLOCK_NAME)
+{
+    prepareUniformBuffers();
+    connectTextureUnits();
+}
+
+SceneObjectsShader::SceneObjectsShader(
+        const std::string& vertex_file,
+        const std::string& geometry_file,
+        const std::string& fragment_file)
+    : ShaderProgram(vertex_file, geometry_file, fragment_file), light_info_uniform_buffer(LIGHT_INFO_UNIFORM_BLOCK_NAME),
+      projection_matrices_uniform_buffer(PROJECTION_MATRICES_UNIFORM_BLOCK_NAME)
+{
+    prepareUniformBuffers();
+    connectTextureUnits();
 }
 
 void SceneObjectsShader::loadTransformationMatrix(const glm::mat4& matrix) const
@@ -20,29 +48,11 @@ void SceneObjectsShader::loadTransformationMatrix(const glm::mat4& matrix) const
     loadMatrix(location_transformation_matrix, matrix);
 }
 
-void SceneObjectsShader::loadViewMatrix(const std::shared_ptr<Camera>& camera) const
+void SceneObjectsShader::loadViewAndProjectionMatrices(const std::shared_ptr<Camera>& camera) const
 {
     const auto view = camera->getCameraViewMatrix();
-    loadMatrix(location_view_matrix, view);
-}
-
-void SceneObjectsShader::loadProjectionMatrix(const std::shared_ptr<Camera>& camera) const
-{
-    const auto projection_matrix = camera->getPerspectiveProjectionMatrix();
-    loadMatrix(location_projection_matrix, projection_matrix);
-}
-
-void SceneObjectsShader::loadLightsCount(size_t count)
-{
-    loadInt(location_lights_count, count);
-}
-
-void SceneObjectsShader::loadLightViewMatrices(const std::vector<std::weak_ptr<Light>>& lights) const
-{
-    for (size_t i = 0; i < lights.size(); ++i)
-    {
-        loadMatrix(location_light_view_matrices[i], lights[i].lock()->getLightSpaceTransform());
-    }
+    const auto projection = camera->getPerspectiveProjectionMatrix();
+    projection_matrices_uniform_buffer.setValue({view, projection});
 }
 
 void SceneObjectsShader::loadReflectivity(float reflectivity) const
@@ -50,103 +60,33 @@ void SceneObjectsShader::loadReflectivity(float reflectivity) const
     loadFloat(location_reflectivity, reflectivity);
 }
 
-void SceneObjectsShader::loadHeightScale(float height_scale) const
+void SceneObjectsShader::connectTextureUnits() const
 {
-    loadFloat(location_height_scale, height_scale);
-}
-
-void SceneObjectsShader::loadNormalMapLoadedBool(bool value) const
-{
-    loadInt(location_normal_map_loaded, value);
-}
-
-void SceneObjectsShader::loadDepthMapLoadedBool(bool value) const
-{
-    loadInt(location_depth_map_loaded, value);
-}
-
-void SceneObjectsShader::connectTextureUnits(GLenum texture) const
-{
-    int texture_index = texture - GL_TEXTURE0;
-    if (texture_index + 3 > MAX_NUMBER_OF_TEXTURES)
-    {
-        std::cerr << "[ERROR] SceneObjectsShader: There is no texture binding left!\n";
-        return;
-    }
-    loadInt(location_model_texture, texture_index + 0);
-//    loadInt(location_normal_texture, texture_index + 1);
-//    loadInt(location_depth_texture, texture_index + 2);
-}
-
-void SceneObjectsShader::loadTextureIndexToShadowMap(size_t shadow_map_index, unsigned int texture_index)
-{
-    loadInt(location_shadow_map_textures[shadow_map_index], texture_index);
-}
-
-void SceneObjectsShader::loadTextureIndexToCubeShadowMap(size_t cube_shadow_map_index, unsigned int texture_index)
-{
-    loadInt(location_shadow_cube_map_textures[cube_shadow_map_index], texture_index);
+    loadInt(location_model_texture, 0);
 }
 
 void SceneObjectsShader::getAllUniformLocations()
 {
     location_transformation_matrix = getUniformLocation("model");
-    location_view_matrix = getUniformLocation("view");
-    location_projection_matrix = getUniformLocation("proj");
-
     location_model_texture = getUniformLocation("color_texture_sampler");
-//    location_normal_texture = getUniformLocation("normal_texture_sampler");
-//    location_depth_texture = getUniformLocation("depth_texture_sampler");
-
-    location_lights_count = getUniformLocation("lights_count");
-    for (const int i : std::views::iota(0, MAX_LIGHTS))
-    {
-//        location_light_view_matrices[i] = getUniformLocation("light_view[" + std::to_string(i) + "]");
-//        location_shadow_map_textures[i] = getUniformLocation("shadow_map_texture_sampler[" + std::to_string(i) + "]");
-        location_shadow_cube_map_textures[i] = getUniformLocation("shadow_cube_map_texture_sampler[" + std::to_string(i) + "]");
-//        location_light_type[i] = getUniformLocation("lights[" + std::to_string(i) + "].light_type");
-        location_light_position[i] = getUniformLocation("lights[" + std::to_string(i) + "].light_position");
-//        location_light_direction[i] = getUniformLocation("lights[" + std::to_string(i) + "].light_direction");
-        location_light_color[i] = getUniformLocation("lights[" + std::to_string(i) + "].light_color");
-        location_attenuation[i] = getUniformLocation("lights[" + std::to_string(i) + "].attenuation");
-//        location_cutoff_angle[i] = getUniformLocation("lights[" + std::to_string(i) + "].cutoff_angle");
-//        location_cutoff_angle_offset[i] = getUniformLocation("lights[" + std::to_string(i) + "].cutoff_angle_offset");
-    }
-
     location_reflectivity = getUniformLocation("reflectivity");
-    location_height_scale = getUniformLocation("height_scale");
-
-//    location_normal_map_loaded = getUniformLocation("normal_map_loaded");
-//    location_depth_map_loaded = getUniformLocation("depth_map_loaded");
+    location_shadow_map = getUniformLocation("shadow_map");
 }
 
 void SceneObjectsShader::loadLights(const std::vector<std::weak_ptr<Light>>& lights) const
 {
-    size_t loaded_lights = 0;
+    glActiveTexture(GL_TEXTURE1);
+    lights[0].lock()->getShadowMap()->bindTexture();
+    loadInt(location_shadow_map, 1);
+
     for (const auto& light : lights)
     {
-        loadInt(location_light_type[loaded_lights], light.lock()->getLightType());
-        loadVector3(location_light_position[loaded_lights], light.lock()->getPosition());
-        loadVector3(location_light_direction[loaded_lights], light.lock()->getLightDirection());
-        loadVector3(location_light_color[loaded_lights], light.lock()->getLightColor());
-        loadVector3(location_attenuation[loaded_lights], light.lock()->getAttenuation());
-        loadFloat(location_cutoff_angle[loaded_lights], light.lock()->getCutoffAngle());
-        loadFloat(location_cutoff_angle_offset[loaded_lights], light.lock()->getCutoffAngleOffset());
-
-        if (++loaded_lights >= MAX_LIGHTS)
+        LightInfo light_info
         {
-            std::cerr << "Number of lights in the scene is larger than capable value: " << MAX_LIGHTS << ".\n";
-            return;
-        }
-    }
-
-    for (size_t i = loaded_lights; i < MAX_LIGHTS; ++i)
-    {
-        loadVector3(location_light_position[loaded_lights], glm::vec3(0));
-        loadVector3(location_light_direction[loaded_lights], glm::vec3{0, 0, 0});
-        loadVector3(location_light_color[loaded_lights], glm::vec3(0));
-        loadVector3(location_attenuation[loaded_lights], {1, 0, 0});
-        loadFloat(location_cutoff_angle[loaded_lights], 0);
-        loadFloat(location_cutoff_angle_offset[loaded_lights], 0);
+            light.lock()->getPosition(),
+            light.lock()->getLightColor(),
+            light.lock()->getAttenuation()
+        };
+        light_info_uniform_buffer.setValue(light_info);
     }
 }
