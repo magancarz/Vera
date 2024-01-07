@@ -22,7 +22,7 @@ public:
     SceneObjectsShader();
     ~SceneObjectsShader() override = default;
 
-    virtual void connectTextureUnits() const;
+    virtual size_t connectTextureUnits() const;
     void getAllUniformLocations() override;
 
     void loadReflectivity(float reflectivity) const;

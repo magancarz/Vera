@@ -19,38 +19,24 @@ void SceneObjectsRenderer::createSceneObjectShader()
     scene_object_shader->connectTextureUnits();
 }
 
-bool SceneObjectsRenderer::apply()
+bool SceneObjectsRenderer::apply(const std::shared_ptr<TriangleMesh>& entity)
 {
     return true;
 }
 
-void SceneObjectsRenderer::prepareTexturedModel(const std::shared_ptr<RawModel>& raw_model) const
+GLenum SceneObjectsRenderer::prepareInstance(const std::shared_ptr<TriangleMesh>& entity)
 {
-    glBindVertexArray(raw_model->vao->vao_id);
-    glEnableVertexAttribArray(0);
-    glEnableVertexAttribArray(1);
-    glEnableVertexAttribArray(2);
-}
+    auto material = entity->getMaterial();
 
-void SceneObjectsRenderer::prepareInstance(const std::weak_ptr<TriangleMesh>& entity)
-{
-    auto material = entity.lock()->getMaterial();
-
-    glActiveTexture(GL_TEXTURE0 + RendererDefines::MODEL_TEXTURES_STARTING_INDEX);
+    glActiveTexture(GL_TEXTURE0 + RendererDefines::MODEL_TEXTURES_STARTING_INDEX + 0);
     material->bindColorTexture();
 
-    scene_object_shader->loadReflectivity(1.f - entity.lock()->getMaterial()->getFuzziness());
+    scene_object_shader->loadReflectivity(1.f - entity->getMaterial()->getFuzziness());
+
+    return GL_TEXTURE0 + RendererDefines::MODEL_TEXTURES_STARTING_INDEX + 1;
 }
 
 void SceneObjectsRenderer::prepareShader()
 {
     scene_object_shader->start();
-}
-
-void SceneObjectsRenderer::unbindTexturedModel()
-{
-    glDisableVertexAttribArray(0);
-    glDisableVertexAttribArray(1);
-    glDisableVertexAttribArray(2);
-    glBindVertexArray(0);
 }

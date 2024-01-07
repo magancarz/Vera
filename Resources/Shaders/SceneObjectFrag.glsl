@@ -1,7 +1,5 @@
 #version 330 core
 
-const float ambient = 0.1;
-
 in vec4 fragment_world_position;
 in vec2 pass_texture_coords;
 in vec3 view_position;
@@ -20,11 +18,13 @@ struct Light
 	vec3 attenuation;
 };
 const int NUM_OF_LIGHTS = 4;
+const int lights_count = 1;
+const float ambient = 0.1;
+
 layout (std140) uniform LightInfos
 {
 	Light light;
 };
-const int lights_count = 1;
 
 uniform samplerCube shadow_map;
 

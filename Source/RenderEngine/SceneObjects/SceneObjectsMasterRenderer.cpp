@@ -20,33 +20,35 @@ void SceneObjectsMasterRenderer::prepareSceneObjectsRenderers()
     }
 }
 
-void SceneObjectsMasterRenderer::render(
+void SceneObjectsMasterRenderer::renderSceneObjects(
         const std::map<std::shared_ptr<RawModel>, std::vector<std::weak_ptr<TriangleMesh>>>& entity_map,
         const std::vector<std::weak_ptr<Light>>& lights, const std::shared_ptr<Camera>& camera)
 {
-    shadow_map_renderer.renderSceneToDepthBuffers(entity_map, lights);
     prepareLights(lights);
     prepareTransformationMatrices(camera);
+
+    renderShadowMap(entity_map, lights);
 
     glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
     for (const auto& [raw_model, entities] : entity_map)
     {
-        std::shared_ptr<SceneObjectsRenderer> applied_renderer;
-        for (const auto& scene_object_renderer : scene_objects_renderers)
-        {
-            if (scene_object_renderer->apply())
-            {
-                applied_renderer = scene_object_renderer;
-            }
-        }
-        applied_renderer->prepareTexturedModel(raw_model);
-
+        prepareTexturedModel(raw_model);
         for (const auto& entity : entities)
         {
-            applied_renderer->prepareInstance(entity);
-            loadTransformationMatrix(entity.lock()->getTransform());
+            auto entity_shared_ptr = entity.lock();
+            std::shared_ptr<SceneObjectsRenderer> applied_renderer;
+            for (const auto& scene_object_renderer : scene_objects_renderers)
+            {
+                if (scene_object_renderer->apply(entity_shared_ptr))
+                {
+                    applied_renderer = scene_object_renderer;
+                    break;
+                }
+            }
+            applied_renderer->prepareInstance(entity_shared_ptr);
+            loadTransformationMatrix(entity_shared_ptr->getTransform());
 
-            if (entity.lock()->shouldBeOutlined())
+            if (entity_shared_ptr->shouldBeOutlined())
             {
                 glStencilFunc(GL_ALWAYS, 1, 0xFF);
                 glStencilMask(0xFF);
@@ -59,7 +61,7 @@ void SceneObjectsMasterRenderer::render(
             applied_renderer->prepareShader();
             glDrawElements(GL_TRIANGLES, static_cast<int>(raw_model->vertex_count), GL_UNSIGNED_INT, nullptr);
 
-            if (entity.lock()->shouldBeOutlined())
+            if (entity_shared_ptr->shouldBeOutlined())
             {
                 glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
                 glStencilMask(0x00);
@@ -70,8 +72,7 @@ void SceneObjectsMasterRenderer::render(
                 ShaderProgram::stop();
             }
         }
-
-        applied_renderer->unbindTexturedModel();
+        unbindTexturedModel();
     }
 }
 
@@ -113,4 +114,31 @@ void SceneObjectsMasterRenderer::prepareTransformationMatrices(const std::shared
 void SceneObjectsMasterRenderer::loadTransformationMatrix(const glm::mat4& model) const
 {
     transformation_matrices_uniform_buffer.setValue(model, 0);
+}
+
+void SceneObjectsMasterRenderer::renderShadowMap(
+        const std::map<std::shared_ptr<RawModel>, std::vector<std::weak_ptr<TriangleMesh>>>& entity_map,
+        const std::vector<std::weak_ptr<Light>>& lights)
+{
+    shadow_map_renderer.renderSceneToDepthBuffers(entity_map, lights);
+}
+
+void SceneObjectsMasterRenderer::prepareTexturedModel(const std::shared_ptr<RawModel>& raw_model) const
+{
+    glBindVertexArray(raw_model->vao->vao_id);
+    glEnableVertexAttribArray(0);
+    glEnableVertexAttribArray(1);
+    glEnableVertexAttribArray(2);
+    glEnableVertexAttribArray(3);
+    glEnableVertexAttribArray(4);
+}
+
+void SceneObjectsMasterRenderer::unbindTexturedModel()
+{
+    glDisableVertexAttribArray(0);
+    glDisableVertexAttribArray(1);
+    glDisableVertexAttribArray(2);
+    glDisableVertexAttribArray(3);
+    glDisableVertexAttribArray(4);
+    glBindVertexArray(0);
 }

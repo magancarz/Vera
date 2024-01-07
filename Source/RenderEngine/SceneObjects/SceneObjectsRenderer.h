@@ -17,11 +17,9 @@ class SceneObjectsRenderer
 public:
     virtual void prepare();
 
-    virtual bool apply();
-    virtual void prepareTexturedModel(const std::shared_ptr<RawModel>& raw_model) const;
-    virtual void prepareInstance(const std::weak_ptr<TriangleMesh>& entity);
+    virtual bool apply(const std::shared_ptr<TriangleMesh>& entity);
     void prepareShader();
-    virtual void unbindTexturedModel();
+    virtual GLenum prepareInstance(const std::shared_ptr<TriangleMesh>& entity);
 
     template <typename T>
     void bindUniformBuffer(const UniformBuffer<T>& uniform_buffer)
@@ -29,8 +27,9 @@ public:
         scene_object_shader->bindUniformBlockToShader(uniform_buffer.getName(), uniform_buffer.getUniformBlockIndex());
     }
 
+protected:
+    std::unique_ptr<SceneObjectsShader> scene_object_shader;
+
 private:
     virtual void createSceneObjectShader();
-
-    std::unique_ptr<SceneObjectsShader> scene_object_shader;
 };

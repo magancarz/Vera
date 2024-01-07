@@ -18,10 +18,11 @@ SceneObjectsShader::SceneObjectsShader(
         const std::string& fragment_file)
     : ShaderProgram(vertex_file, geometry_file, fragment_file) {}
 
-void SceneObjectsShader::connectTextureUnits() const
+size_t SceneObjectsShader::connectTextureUnits() const
 {
     loadInt(location_shadow_map, RendererDefines::SHADOW_MAPS_TEXTURES_STARTING_INDEX);
     loadInt(location_model_texture, RendererDefines::MODEL_TEXTURES_STARTING_INDEX + 0);
+    return RendererDefines::MODEL_TEXTURES_STARTING_INDEX + 1;
 }
 
 void SceneObjectsShader::getAllUniformLocations()

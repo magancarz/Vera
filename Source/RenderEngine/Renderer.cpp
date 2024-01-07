@@ -15,9 +15,9 @@ void Renderer::renderScene(const std::shared_ptr<Camera>& camera, const std::vec
 {
     prepare();
     processEntities(entities);
-    scene_objects_master_renderer.render(objects_map, lights, camera);
-//    normal_mapped_entity_renderer.render(normal_mapped_entities_map, lights, camera);
-//    parallax_mapped_entity_renderer.render(parallax_mapped_entities_map, lights, camera);
+    scene_objects_master_renderer.renderSceneObjects(objects_map, lights, camera);
+//    normal_mapped_entity_renderer.renderSceneObjects(normal_mapped_entities_map, lights, camera);
+//    parallax_mapped_entity_renderer.renderSceneObjects(parallax_mapped_entities_map, lights, camera);
     cleanUpObjectsMaps();
 }
 
