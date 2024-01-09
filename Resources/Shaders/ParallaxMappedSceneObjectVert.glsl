@@ -5,13 +5,10 @@ struct Light
 	vec3 light_position;
 	vec3 light_color;
 	vec3 attenuation;
-	samplerCube shadow_map;
 };
-const int NUM_OF_LIGHTS = 4;
-layout (std140) uniform Lights
+layout (std140) uniform LightInfos
 {
-	int lights_count;
-	Light lights[NUM_OF_LIGHTS];
+	Light light;
 };
 
 layout (location = 0) in vec3 position;
@@ -24,11 +21,14 @@ out vec4 fragment_world_position;
 out vec4 tangent_space_fragment_world_position;
 out vec2 pass_texture_coords;
 out vec3 tangent_space_view_position;
-out vec3 tangent_space_light_positions[NUM_OF_LIGHTS];
+out vec3 tangent_space_light_position;
 
-uniform mat4 model;
-uniform mat4 view;
-uniform mat4 proj;
+layout (std140) uniform TransformationMatrices
+{
+	mat4 model;
+	mat4 view;
+	mat4 proj;
+};
 
 void main(void) {
 	fragment_world_position = model * vec4(position, 1.0);
@@ -44,8 +44,5 @@ void main(void) {
 	mat3 TBN = transpose(mat3(T, B, N));
 	tangent_space_fragment_world_position = vec4(TBN * vec3(fragment_world_position), 1.0);
 	tangent_space_view_position = TBN * tangent_space_view_position;
-	for (int i = 0; i < lights_count; ++i)
-	{
-		tangent_space_light_positions[i] = TBN * lights[i].light_position;
-	}
+	tangent_space_light_position = TBN * light.light_position;
 }

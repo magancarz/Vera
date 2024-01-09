@@ -64,7 +64,7 @@ void AssetManager::initializeAssets()
     createMaterialAsset("mirror", mirror_material_parameters);
 
     MaterialParameters barrel_material_parameters{
-        "barrel", "barrel_normal", "barrel_specular", 0.f, 1.f, 0.f
+        "barrel", "barrel_normal", "barrel_specular", 0.f, .5f, 0.f
     };
     createMaterialAsset("barrel", barrel_material_parameters);
 

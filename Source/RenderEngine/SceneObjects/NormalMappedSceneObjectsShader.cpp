@@ -13,7 +13,9 @@ NormalMappedSceneObjectsShader::NormalMappedSceneObjectsShader()
 size_t NormalMappedSceneObjectsShader::connectTextureUnits() const
 {
     size_t first_free_texture = SceneObjectsShader::connectTextureUnits();
+
     loadInt(location_normal_texture, first_free_texture + 0);
+
     return first_free_texture + 1;
 }
 

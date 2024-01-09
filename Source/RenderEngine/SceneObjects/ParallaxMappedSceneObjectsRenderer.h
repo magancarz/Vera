@@ -1,37 +1,16 @@
 #pragma once
 
-#include <map>
-#include <vector>
+#include "RenderEngine/SceneObjects/ParallaxMappedSceneObjectsShader.h"
+#include "RenderEngine/SceneObjects/SceneObjectsRenderer.h"
 
-#include "OutlineShader.h"
-#include "SceneObjectsShader.h"
-#include "Objects/Object.h"
-#include "Models/AssetManager.h"
-#include "RenderEngine/Shadows/ShadowMapRenderer.h"
-#include "NormalMappedSceneObjectsShader.h"
-#include "ParallaxMappedSceneObjectsShader.h"
-
-class TriangleMesh;
-class Light;
-
-class ParallaxMappedSceneObjectsRenderer
+class ParallaxMappedSceneObjectsRenderer : public SceneObjectsRenderer
 {
 public:
-    ParallaxMappedSceneObjectsRenderer();
-
-    void render(
-        const std::map<std::shared_ptr<RawModel>, std::vector<std::weak_ptr<TriangleMesh>>>& entity_map,
-        const std::vector<std::weak_ptr<Light>>& lights,
-        const std::shared_ptr<Camera>& camera);
+    bool apply(const std::shared_ptr<TriangleMesh>& entity) override;
+    GLenum prepareInstance(const std::shared_ptr<TriangleMesh>& entity) override;
 
 private:
-    void prepareTexturedModel(const std::shared_ptr<RawModel>& raw_model) const;
-    void prepareInstance(const std::weak_ptr<TriangleMesh>& entity);
+    void createSceneObjectShader() override;
 
-    static void unbindTexturedModel();
-
-    ParallaxMappedSceneObjectsShader parallax_mapped_scene_objects_shader;
-    OutlineShader outline_shader;
-
-    GLenum current_texture{GL_TEXTURE0};
+    ParallaxMappedSceneObjectsShader* parallax_mapped_scene_object_shader;
 };

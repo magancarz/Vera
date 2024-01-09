@@ -6,7 +6,7 @@ struct Light
 	vec3 light_color;
 	vec3 attenuation;
 };
-layout (std140) uniform Lights
+layout (std140) uniform LightInfos
 {
 	Light light;
 };

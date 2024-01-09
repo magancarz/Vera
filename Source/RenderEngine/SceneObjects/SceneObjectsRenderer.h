@@ -18,7 +18,7 @@ public:
     virtual void prepare();
 
     virtual bool apply(const std::shared_ptr<TriangleMesh>& entity);
-    void prepareShader();
+    virtual void prepareShader();
     virtual GLenum prepareInstance(const std::shared_ptr<TriangleMesh>& entity);
 
     template <typename T>

@@ -5,20 +5,13 @@ struct Light
 	vec3 light_position;
 	vec3 light_color;
 	vec3 attenuation;
-	samplerCube shadow_map;
-};
-const int NUM_OF_LIGHTS = 4;
-layout (std140) uniform Lights
-{
-	int lights_count;
-	Light lights[NUM_OF_LIGHTS];
 };
 
 in vec4 fragment_world_position;
 in vec4 tangent_space_fragment_world_position;
 in vec2 pass_texture_coords;
 in vec3 tangent_space_view_position;
-in vec3 tangent_space_light_positions[NUM_OF_LIGHTS];
+in vec3 tangent_space_light_position;
 
 layout (location = 0) out vec4 out_Color;
 
@@ -26,8 +19,15 @@ uniform sampler2D color_texture_sampler;
 uniform sampler2D normal_texture_sampler;
 uniform sampler2D depth_texture_sampler;
 
+uniform samplerCube shadow_map;
+
 uniform float reflectivity;
 uniform float height_scale;
+
+layout (std140) uniform LightInfos
+{
+	Light light;
+};
 
 float calculateSpecularValue(vec3 to_light_dir, float attenuation, vec3 sampled_normal)
 {
@@ -50,8 +50,8 @@ float calculateBrightnessFromPointLight(int i, vec3 to_light_dir, float attenuat
 
 float pointLightShadowCalculation(int light_index, int texture_index)
 {
-	vec3 fragment_to_light = fragment_world_position.xyz - lights[light_index].light_position;
-	float closest_depth = texture(shadow_cube_map_texture_sampler[texture_index], fragment_to_light).r;
+	vec3 fragment_to_light = fragment_world_position.xyz - light.light_position;
+	float closest_depth = texture(shadow_map, fragment_to_light).r;
 	closest_depth *= 30.0;
 	float current_depth = length(fragment_to_light);
 	float bias = 0.05;
@@ -108,24 +108,23 @@ void main(void)
 
 	float total_shadow = 0.0;
 
-	for(int i = 0; i < lights_count; ++i)
+	for(int i = 0; i < 1; ++i)
 	{
-		vec3 to_light_vector = tangent_space_light_positions[i] - tangent_space_fragment_world_position.xyz;
+		vec3 to_light_vector = tangent_space_light_position - tangent_space_fragment_world_position.xyz;
 		float distance = length(to_light_vector);
-		float attenuation = 1.0f / (lights[i].attenuation.x + lights[i].attenuation.y * distance + lights[i].attenuation.z * (distance * distance));
+		float attenuation = 1.0f / (light.attenuation.x + light.attenuation.y * distance + light.attenuation.z * (distance * distance));
 		float brightness = calculateBrightnessFromPointLight(i, to_light_vector, attenuation, sampled_normal);
 		float specular = calculateSpecularValue(to_light_vector, attenuation, sampled_normal);
 		total_shadow += pointLightShadowCalculation(i, i);
 
-		total_diffuse = total_diffuse + (brightness * lights[i].light_color);
-		total_specular = total_specular + (specular * lights[i].light_color);
+		total_diffuse = total_diffuse + (brightness * light.light_color);
+		total_specular = total_specular + (specular * light.light_color);
 	}
 
 	total_diffuse = max(total_diffuse, 0);
 	total_specular = max(total_specular, 0);
-	total_shadow /= lights_count;
 
 	vec4 texture_color = texture(color_texture_sampler, texture_coords);
-	vec3 lighting = (ambient + (1.0 - total_shadow) * (total_diffuse + total_specular)) * texture_color.rgb;
+	vec3 lighting = (0.1 + (1.0 - total_shadow) * (total_diffuse + total_specular)) * texture_color.rgb;
 	out_Color = vec4(lighting, 1.0);
 }

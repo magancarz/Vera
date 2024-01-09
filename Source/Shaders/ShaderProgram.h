@@ -16,6 +16,7 @@ public:
 
     void bindUniformBlockToShader(const std::string& uniform_block_name, unsigned int block_index) const;
 
+    virtual void connectTextureUnits() {}
     virtual void getAllUniformLocations() = 0;
 
 protected:
@@ -29,15 +30,15 @@ protected:
     void loadShaders(const std::string& vertex_file, const std::string& fragment_file);
     void loadShaders(const std::string& vertex_file, const std::string& geometry_file, const std::string& fragment_file);
 
-private:
-    unsigned int loadShader(const std::string& file, unsigned int type) const;
-    void activateProgramIfNotActivatedYet() const;
-    bool checkIfProgramIsActivated() const;
-
     int program_id;
     int vertex_shader_id;
     int geometry_shader_id;
     int fragment_shader_id;
+
+private:
+    unsigned int loadShader(const std::string& file, unsigned int type) const;
+    void activateProgramIfNotActivatedYet() const;
+    bool checkIfProgramIsActivated() const;
 
     inline static int last_used_shader_program{-1};
 };
