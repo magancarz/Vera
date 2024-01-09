@@ -106,6 +106,42 @@ __device__ void Triangle::applyTransform(const glm::mat4& transform)
     computeTangentSpaceMatrix();
 }
 
+__device__ void Triangle::transformNormal(const glm::mat4& transform)
+{
+    auto transposed_inverse = glm::mat3{transform};
+    transposed_inverse = glm::transpose(glm::inverse(transposed_inverse));
+
+    x.normal = glm::normalize(transposed_inverse * x.normal);
+    y.normal = glm::normalize(transposed_inverse * y.normal);
+    z.normal = glm::normalize(transposed_inverse * z.normal);
+    computeAverageNormal();
+}
+
+__device__ void Triangle::computeAverageNormal()
+{
+    if (!areTriangleNormalsValid())
+    {
+        average_normal = normalize(glm::cross(y.position - x.position, z.position - x.position));
+        x.normal = y.normal = z.normal = average_normal;
+        return;
+    }
+
+    constexpr float one_third = 1.f / 3;
+    average_normal = getNormalAt(one_third, one_third, one_third);
+}
+
+__device__ void Triangle::computeTangentSpaceMatrix()
+{
+    glm::vec3 tangent = glm::normalize(*object_to_world * glm::vec4{x.tangent, 0.0f});
+    glm::vec3 bitangent = glm::normalize(*object_to_world * glm::vec4{x.bitangent, 0.0f});
+    tangent_space_matrix = glm::mat3
+    {
+        tangent,
+        bitangent,
+        average_normal
+    };
+}
+
 __device__ void Triangle::calculateObjectBounds()
 {
     object_bounds = boundsFromUnion(x.position, y.position, z.position);
@@ -127,8 +163,8 @@ __device__ void Triangle::calculateShapeSurfaceArea()
 __device__ bool Triangle::isEmittingLight() const
 {
     return material->getSpecularValue(x.texture_coordinate).g > 0.5f ||
-        material->getSpecularValue(y.texture_coordinate).g > 0.5f ||
-        material->getSpecularValue(z.texture_coordinate).g > 0.5f;
+           material->getSpecularValue(y.texture_coordinate).g > 0.5f ||
+           material->getSpecularValue(z.texture_coordinate).g > 0.5f;
 }
 
 __device__ glm::vec3 Triangle::getNormalAt(float u, float v, float w) const
@@ -136,45 +172,9 @@ __device__ glm::vec3 Triangle::getNormalAt(float u, float v, float w) const
     return x.normal * u + y.normal * v + z.normal * w;
 }
 
-__device__ void Triangle::computeAverageNormal()
-{
-    if (!areTriangleNormalsValid())
-    {
-        average_normal = normalize(glm::cross(y.position - x.position, z.position - x.position));
-        x.normal = y.normal = z.normal = average_normal;
-        return;
-    }
-
-    constexpr float one_third = 1.f / 3;
-    average_normal = getNormalAt(one_third, one_third, one_third);
-}
-
 __device__ bool Triangle::areTriangleNormalsValid() const
 {
     return glm::length(x.normal) < 0.0001f && glm::length(y.normal) < 0.0001f && glm::length(z.normal) < 0.0001f;
-}
-
-__device__ void Triangle::transformNormal(const glm::mat4& transform)
-{
-    auto transposed_inverse = glm::mat3{transform};
-    transposed_inverse = glm::transpose(glm::inverse(transposed_inverse));
-
-    x.normal = glm::normalize(transposed_inverse * x.normal);
-    y.normal = glm::normalize(transposed_inverse * y.normal);
-    z.normal = glm::normalize(transposed_inverse * z.normal);
-    average_normal = glm::normalize(transposed_inverse * average_normal);
-}
-
-__device__ void Triangle::computeTangentSpaceMatrix()
-{
-    glm::vec3 tangent = *object_to_world * glm::vec4{x.tangent, 0.0f};
-    glm::vec3 bitangent = *object_to_world * glm::vec4{x.bitangent, 0.0f};
-    tangent_space_matrix = glm::mat3
-    {
-        tangent,
-        bitangent,
-        average_normal
-    };
 }
 
 __device__ bool Triangle::scatter(const Ray* r_in, const HitRecord* rec, ScatterRecord* scatter_record)

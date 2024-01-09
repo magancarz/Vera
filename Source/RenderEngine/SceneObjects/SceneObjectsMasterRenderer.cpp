@@ -6,8 +6,6 @@
 SceneObjectsMasterRenderer::SceneObjectsMasterRenderer()
 {
     prepareSceneObjectsRenderers();
-
-    outline_shader.getAllUniformLocations();
 }
 
 void SceneObjectsMasterRenderer::prepareSceneObjectsRenderers()
@@ -18,6 +16,10 @@ void SceneObjectsMasterRenderer::prepareSceneObjectsRenderers()
         scene_object_renderer->bindUniformBuffer(light_info_uniform_buffer);
         scene_object_renderer->bindUniformBuffer(transformation_matrices_uniform_buffer);
     }
+
+    outline_shader.getAllUniformLocations();
+    outline_shader.loadOutlineColor(glm::vec3{0, 1, 1});
+    outline_shader.bindUniformBuffer(transformation_matrices_uniform_buffer);
 }
 
 void SceneObjectsMasterRenderer::renderSceneObjects(

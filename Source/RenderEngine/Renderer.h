@@ -26,7 +26,7 @@ private:
 
     SkyboxRenderer skybox_renderer;
     SceneObjectsMasterRenderer scene_objects_master_renderer;
-    //RayTracedImageShader ray_traced_image_shader;
+    RayTracedImageShader ray_traced_image_shader;
     std::map<std::shared_ptr<RawModel>, std::vector<std::weak_ptr<TriangleMesh>>> objects_map;
 
     RawModelAttributes quad;

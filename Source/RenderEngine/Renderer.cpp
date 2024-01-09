@@ -6,8 +6,9 @@
 Renderer::Renderer()
 {
     quad = AssetManager::loadSimpleModel(quad_positions, quad_textures);
-//    ray_traced_image_shader.start();
-//    ray_traced_image_shader.getAllUniformLocations();
+    ray_traced_image_shader.start();
+    ray_traced_image_shader.getAllUniformLocations();
+    ray_traced_image_shader.connectTextureUnits();
     ShaderProgram::stop();
 }
 
@@ -16,8 +17,6 @@ void Renderer::renderScene(const std::shared_ptr<Camera>& camera, const std::vec
     prepare();
     processEntities(entities);
     scene_objects_master_renderer.renderSceneObjects(objects_map, lights, camera);
-//    normal_mapped_entity_renderer.renderSceneObjects(normal_mapped_entities_map, lights, camera);
-//    parallax_mapped_entity_renderer.renderSceneObjects(parallax_mapped_entities_map, lights, camera);
     cleanUpObjectsMaps();
 }
 
@@ -28,7 +27,7 @@ void Renderer::renderRayTracedImage(unsigned texture_id) const
     glEnableVertexAttribArray(1);
     glDisable(GL_DEPTH_TEST);
 
-//    ray_traced_image_shader.start();
+    ray_traced_image_shader.start();
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, texture_id);
     glClear(GL_COLOR_BUFFER_BIT);

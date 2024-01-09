@@ -3,6 +3,7 @@
 #include <glm/glm.hpp>
 
 #include <string>
+#include "UniformBuffer.h"
 
 class ShaderProgram
 {
@@ -14,7 +15,16 @@ public:
     void start() const;
     static void stop();
 
-    void bindUniformBlockToShader(const std::string& uniform_block_name, unsigned int block_index) const;
+    template <typename T>
+    void bindUniformBuffer(const UniformBuffer<T>& uniform_buffer)
+    {
+        int shader_uniform_block_index = glGetUniformBlockIndex(program_id, uniform_buffer.getName().c_str());
+        if (shader_uniform_block_index == -1)
+        {
+            return;
+        }
+        glUniformBlockBinding(program_id, shader_uniform_block_index, uniform_buffer.getUniformBlockIndex());
+    }
 
     virtual void connectTextureUnits() {}
     virtual void getAllUniformLocations() = 0;

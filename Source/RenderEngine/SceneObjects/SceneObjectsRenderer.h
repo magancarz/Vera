@@ -24,7 +24,7 @@ public:
     template <typename T>
     void bindUniformBuffer(const UniformBuffer<T>& uniform_buffer)
     {
-        scene_object_shader->bindUniformBlockToShader(uniform_buffer.getName(), uniform_buffer.getUniformBlockIndex());
+        scene_object_shader->bindUniformBuffer(uniform_buffer);
     }
 
 protected:
