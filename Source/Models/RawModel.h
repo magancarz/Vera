@@ -92,6 +92,37 @@ namespace utils
         {
             glDeleteFramebuffers(1, &FBO_id);
         }
+
+        void bindFramebuffer() const
+        {
+            glBindFramebuffer(GL_FRAMEBUFFER, FBO_id);
+        }
+
+        void unbind() const
+        {
+            glBindFramebuffer(GL_FRAMEBUFFER, 0);
+        }
+    };
+
+    class Renderbuffer
+    {
+    public:
+        unsigned int buffer_id{0};
+
+        Renderbuffer()
+        {
+            glGenRenderbuffers(1, &buffer_id);
+        }
+
+        ~Renderbuffer()
+        {
+            glDeleteRenderbuffers(1, &buffer_id);
+        }
+
+        void bindRenderbuffer() const
+        {
+            glBindRenderbuffer(GL_RENDERBUFFER, buffer_id);
+        }
     };
 }
 

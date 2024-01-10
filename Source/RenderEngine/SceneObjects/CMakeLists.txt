@@ -1,5 +1,5 @@
 target_sources(Vera-Lib PRIVATE
-        SceneObjectsMasterRenderer.cpp
+        DeferredShadingRenderer.cpp
         SceneObjectsRenderer.cpp
         SceneObjectsShader.cpp
         NormalMappedSceneObjectsRenderer.cpp

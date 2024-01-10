@@ -20,7 +20,6 @@ SceneObjectsShader::SceneObjectsShader(
 
 size_t SceneObjectsShader::connectTextureUnits() const
 {
-    loadInt(location_shadow_map, RendererDefines::SHADOW_MAPS_TEXTURES_STARTING_INDEX);
     loadInt(location_model_texture, RendererDefines::MODEL_TEXTURES_STARTING_INDEX + 0);
 
     return RendererDefines::MODEL_TEXTURES_STARTING_INDEX + 1;
@@ -30,7 +29,6 @@ void SceneObjectsShader::getAllUniformLocations()
 {
     location_reflectivity = getUniformLocation("reflectivity");
     location_model_texture = getUniformLocation("color_texture_sampler");
-    location_shadow_map = getUniformLocation("shadow_map");
 }
 
 void SceneObjectsShader::loadReflectivity(float reflectivity) const

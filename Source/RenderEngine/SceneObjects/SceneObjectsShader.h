@@ -34,5 +34,4 @@ protected:
 private:
     int location_reflectivity;
     int location_model_texture;
-    int location_shadow_map;
 };

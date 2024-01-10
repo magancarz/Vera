@@ -8,7 +8,7 @@
 #include "Objects/Lights/Light.h"
 #include "RenderEngine/Skybox/SkyboxRenderer.h"
 #include "RenderEngine/SceneObjects/ParallaxMappedSceneObjectsRenderer.h"
-#include "RenderEngine/SceneObjects/SceneObjectsMasterRenderer.h"
+#include "RenderEngine/SceneObjects/DeferredShadingRenderer.h"
 
 class Renderer
 {
@@ -25,7 +25,7 @@ private:
     void cleanUpObjectsMaps();
 
     SkyboxRenderer skybox_renderer;
-    SceneObjectsMasterRenderer scene_objects_master_renderer;
+    DeferredShadingRenderer deferred_shading_renderer;
     RayTracedImageShader ray_traced_image_shader;
     std::map<std::shared_ptr<RawModel>, std::vector<std::weak_ptr<TriangleMesh>>> objects_map;
 

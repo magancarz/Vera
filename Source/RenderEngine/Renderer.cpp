@@ -17,7 +17,8 @@ void Renderer::renderScene(const std::shared_ptr<Camera>& camera, const std::vec
     prepare();
     processEntities(entities);
     skybox_renderer.renderSkybox(camera);
-    scene_objects_master_renderer.renderSceneObjects(objects_map, lights, camera);
+    deferred_shading_renderer.renderSceneObjects(objects_map, lights, camera);
+    renderRayTracedImage(deferred_shading_renderer.g_color_spec.texture_id);
     cleanUpObjectsMaps();
 }
 
