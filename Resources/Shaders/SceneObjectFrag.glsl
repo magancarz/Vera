@@ -1,12 +1,12 @@
 #version 330 core
 
-layout (location = 0) out vec3 g_position;
-layout (location = 1) out vec3 g_normal;
-layout (location = 2) out vec4 g_color_spec;
-
 in vec4 fragment_world_position;
 in vec2 pass_texture_coords;
 in vec3 surface_normal;
+
+layout (location = 0) out vec3 g_position;
+layout (location = 1) out vec3 g_normal;
+layout (location = 2) out vec4 g_color_spec;
 
 uniform sampler2D color_texture_sampler;
 

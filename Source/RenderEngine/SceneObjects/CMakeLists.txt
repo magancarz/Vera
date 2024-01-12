@@ -6,4 +6,6 @@ target_sources(Vera-Lib PRIVATE
         NormalMappedSceneObjectsShader.cpp
         ParallaxMappedSceneObjectsRenderer.cpp
         ParallaxMappedSceneObjectsShader.cpp
+        LightingPassRenderer.cpp
+        LightingPassShader.cpp
         OutlineShader.cpp)

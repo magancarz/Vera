@@ -21,6 +21,8 @@ void DeferredShadingRenderer::prepareSceneObjectsRenderers()
     outline_shader.getAllUniformLocations();
     outline_shader.loadOutlineColor(glm::vec3{0, 1, 1});
     outline_shader.bindUniformBuffer(transformation_matrices_uniform_buffer);
+
+    lighting_pass_renderer.bindUniformBuffer(light_info_uniform_buffer);
 }
 
 void DeferredShadingRenderer::createGBuffer()
@@ -37,16 +39,14 @@ void DeferredShadingRenderer::createGBuffer()
 
     g_normal.bindTexture();
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F,
-                 Display::WINDOW_WIDTH, Display::WINDOW_HEIGHT,
-                 0, GL_RGBA, GL_FLOAT, nullptr);
+         Display::WINDOW_WIDTH, Display::WINDOW_HEIGHT,
+         0, GL_RGBA, GL_FLOAT, nullptr);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, g_normal.texture_id, 0);
 
     g_color_spec.bindTexture();
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA,
-                 Display::WINDOW_WIDTH, Display::WINDOW_HEIGHT,
-                 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, Display::WINDOW_WIDTH, Display::WINDOW_HEIGHT, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, GL_TEXTURE_2D, g_color_spec.texture_id, 0);
@@ -100,6 +100,8 @@ void DeferredShadingRenderer::renderSceneObjects(
     }
 
     g_buffer.unbind();
+
+    lighting_pass_renderer.render(g_position, g_normal, g_color_spec);
 }
 
 void DeferredShadingRenderer::prepareLights(const std::vector<std::weak_ptr<Light>>& lights)

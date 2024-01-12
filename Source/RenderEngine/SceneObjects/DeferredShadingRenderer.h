@@ -6,6 +6,7 @@
 #include "ParallaxMappedSceneObjectsRenderer.h"
 #include "NormalMappedSceneObjectsRenderer.h"
 #include "RenderEngine/GLObjects/UniformBuffer.h"
+#include "LightingPassRenderer.h"
 
 class DeferredShadingRenderer
 {
@@ -47,5 +48,6 @@ private:
         //std::make_shared<NormalMappedSceneObjectsRenderer>(),
         std::make_shared<SceneObjectsRenderer>()
     };
+    LightingPassRenderer lighting_pass_renderer;
     OutlineShader outline_shader;
 };

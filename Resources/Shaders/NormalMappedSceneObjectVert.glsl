@@ -6,10 +6,6 @@ struct Light
 	vec3 light_color;
 	vec3 attenuation;
 };
-layout (std140) uniform LightInfos
-{
-	Light light;
-};
 
 layout (location = 0) in vec3 position;
 layout (location = 1) in vec2 texture_coords;
