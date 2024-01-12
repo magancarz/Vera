@@ -44,7 +44,7 @@ private:
     ShadowMapRenderer shadow_map_renderer;
     std::vector<std::shared_ptr<SceneObjectsRenderer>> scene_objects_renderers =
     {
-        //std::make_shared<ParallaxMappedSceneObjectsRenderer>(),
+        std::make_shared<ParallaxMappedSceneObjectsRenderer>(),
         std::make_shared<NormalMappedSceneObjectsRenderer>(),
         std::make_shared<SceneObjectsRenderer>()
     };
