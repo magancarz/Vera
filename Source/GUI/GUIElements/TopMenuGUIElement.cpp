@@ -9,6 +9,7 @@
 #include "Editor/Editor.h"
 #include "editor/editorCommands/ChangeProjectNameCommand.h"
 #include "editor/editorCommands/LoadProjectCommand.h"
+#include "GUI/Display.h"
 
 std::vector<std::shared_ptr<EditorCommand>> TopMenuGUIElement::renderGUIElement(const EditorInfo& editor_info)
 {
@@ -46,6 +47,9 @@ std::vector<std::shared_ptr<EditorCommand>> TopMenuGUIElement::renderGUIElement(
         }
         ImGui::EndMenu();
     }
+
+    ImGui::SameLine(Display::WINDOW_WIDTH - 110);
+    ImGui::Text("%s FPS", std::to_string(1.0 / Display::getFrameTimeSeconds()).c_str());
     ImGui::EndMainMenuBar();
 
     if (show_loading_project_window)
