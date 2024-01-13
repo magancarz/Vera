@@ -18,6 +18,9 @@ void LightingPassRenderer::render(
         const utils::Texture& g_normal,
         const utils::Texture& g_color_spec)
 {
+    glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
+    glStencilMask(0x00);
+
     glActiveTexture(GL_TEXTURE0 + RendererDefines::G_BUFFER_STARTING_INDEX + 0);
     g_position.bindTexture();
     glActiveTexture(GL_TEXTURE0 + RendererDefines::G_BUFFER_STARTING_INDEX + 1);

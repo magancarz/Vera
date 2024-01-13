@@ -15,5 +15,5 @@ const mat4 enlarge = mat4(vec4(1.02f, 0, 0, 0),
 						  vec4(0, 0, 0, 1));
 
 void main(void) {
-	gl_Position = proj * view * enlarge * model * vec4(position, 1.0);
+	gl_Position = proj * view * model * enlarge * vec4(position, 1.0);
 }

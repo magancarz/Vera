@@ -9,4 +9,6 @@ target_sources(Vera-Lib PRIVATE
         LightingPassRenderer.cpp
         LightingPassShader.cpp
         LightObjectsShader.cpp
+        OutlineRenderer.cpp
+        OutlineMarkShader.cpp
         OutlineShader.cpp)

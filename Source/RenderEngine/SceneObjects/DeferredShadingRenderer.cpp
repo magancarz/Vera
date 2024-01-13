@@ -9,6 +9,7 @@ DeferredShadingRenderer::DeferredShadingRenderer()
 {
     prepareSceneObjectsRenderers();
     createGBuffer();
+    quad = AssetManager::loadSimpleModel(quad_positions, quad_textures);
 }
 
 void DeferredShadingRenderer::prepareSceneObjectsRenderers()
@@ -19,9 +20,10 @@ void DeferredShadingRenderer::prepareSceneObjectsRenderers()
         scene_object_renderer->bindUniformBuffer(transformation_matrices_uniform_buffer);
     }
 
+    outline_mark_shader.bindUniformBuffer(transformation_matrices_uniform_buffer);
+
     outline_shader.getAllUniformLocations();
     outline_shader.loadOutlineColor(glm::vec3{0, 1, 1});
-    outline_shader.bindUniformBuffer(transformation_matrices_uniform_buffer);
 
     lighting_pass_renderer.bindUniformBuffer(light_info_uniform_buffer);
 
@@ -59,8 +61,8 @@ void DeferredShadingRenderer::createGBuffer()
     glDrawBuffers(3, attachments);
 
     rbo_depth.bindRenderbuffer();
-    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, Display::WINDOW_WIDTH, Display::WINDOW_HEIGHT);
-    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, rbo_depth.buffer_id);
+    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, Display::WINDOW_WIDTH, Display::WINDOW_HEIGHT);
+    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, rbo_depth.buffer_id);
     if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
     {
         std::cout << "Framebuffer not complete!" << std::endl;
@@ -81,7 +83,11 @@ void DeferredShadingRenderer::renderSceneObjects(
     std::map<std::shared_ptr<RawModel>, std::vector<std::shared_ptr<TriangleMesh>>> light_objects;
 
     g_buffer.bindFramebuffer();
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+
+    glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
+    glStencilFunc(GL_ALWAYS, 0, 0x00);
+    glStencilMask(0xFF);
     for (const auto& [raw_model, entities] : entity_map)
     {
         raw_model->prepareModel();
@@ -102,7 +108,20 @@ void DeferredShadingRenderer::renderSceneObjects(
                 }
             }
             applied_renderer->prepareInstance(entity_shared_ptr);
+
             loadTransformationMatrix(entity_shared_ptr->getTransform());
+            if (entity_shared_ptr->shouldBeOutlined())
+            {
+                glStencilFunc(GL_ALWAYS, 1, 0xFF);
+                glStencilMask(0xFF);
+                glDisable(GL_DEPTH_TEST);
+                outline_mark_shader.start();
+                glDrawElements(GL_TRIANGLES, static_cast<int>(raw_model->vertex_count), GL_UNSIGNED_INT, nullptr);
+                glEnable(GL_DEPTH_TEST);
+                ShaderProgram::stop();
+            }
+            glStencilFunc(GL_ALWAYS, 0, 0x00);
+
             applied_renderer->prepareShader();
             glDrawElements(GL_TRIANGLES, static_cast<int>(raw_model->vertex_count), GL_UNSIGNED_INT, nullptr);
         }
@@ -117,9 +136,12 @@ void DeferredShadingRenderer::renderSceneObjects(
     glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
     glBlitFramebuffer(0, 0, Display::WINDOW_WIDTH, Display::WINDOW_HEIGHT,
                       0, 0, Display::WINDOW_WIDTH, Display::WINDOW_HEIGHT, GL_DEPTH_BUFFER_BIT, GL_NEAREST);
+    glBlitFramebuffer(0, 0, Display::WINDOW_WIDTH, Display::WINDOW_HEIGHT,
+                      0, 0, Display::WINDOW_WIDTH, Display::WINDOW_HEIGHT, GL_STENCIL_BUFFER_BIT, GL_NEAREST);
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
     renderLightObjects(light_objects);
+    renderOutlines();
 }
 
 void DeferredShadingRenderer::prepareLights(const std::vector<std::weak_ptr<Light>>& lights)
@@ -184,4 +206,22 @@ void DeferredShadingRenderer::renderLightObjects(
         }
         raw_model->unbindModel();
     }
+}
+
+void DeferredShadingRenderer::renderOutlines()
+{
+    glStencilFunc(GL_EQUAL, 1, 0xFF);
+
+    glBindVertexArray(quad.vao->vao_id);
+    glEnableVertexAttribArray(0);
+    glEnableVertexAttribArray(1);
+
+    glDisable(GL_DEPTH_TEST);
+    outline_shader.start();
+    glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+    glEnable(GL_DEPTH_TEST);
+
+    glDisableVertexAttribArray(0);
+    glDisableVertexAttribArray(1);
+    glBindVertexArray(0);
 }

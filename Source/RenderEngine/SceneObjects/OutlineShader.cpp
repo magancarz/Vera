@@ -1,7 +1,7 @@
 #include "OutlineShader.h"
 
 OutlineShader::OutlineShader()
-    : ShaderProgram("Resources/Shaders/outlineVert.glsl", "Resources/Shaders/outlineFrag.glsl") {}
+    : ShaderProgram("Resources/Shaders/texture_vert.glsl", "Resources/Shaders/outlineFrag.glsl") {}
 
 void OutlineShader::getAllUniformLocations()
 {

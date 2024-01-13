@@ -8,6 +8,7 @@
 #include "RenderEngine/GLObjects/UniformBuffer.h"
 #include "LightingPassRenderer.h"
 #include "LightObjectsShader.h"
+#include "OutlineMarkShader.h"
 
 class DeferredShadingRenderer
 {
@@ -30,12 +31,14 @@ private:
         const std::map<std::shared_ptr<RawModel>, std::vector<std::weak_ptr<TriangleMesh>>>& entity_map,
         const std::vector<std::weak_ptr<Light>>& lights);
     void renderLightObjects(const std::map<std::shared_ptr<RawModel>, std::vector<std::shared_ptr<TriangleMesh>>>& light_objects);
+    void renderOutlines();
 
     utils::FBO g_buffer;
     utils::Texture g_position;
     utils::Texture g_normal;
     utils::Texture g_color_spec;
     utils::Renderbuffer rbo_depth;
+    utils::Renderbuffer rbo_stencil;
 
     UniformBuffer<LightInfo> light_info_uniform_buffer{"LightInfos"};
     UniformBuffer<TransformationMatrices> transformation_matrices_uniform_buffer{"TransformationMatrices"};
@@ -48,6 +51,23 @@ private:
         std::make_shared<SceneObjectsRenderer>()
     };
     LightingPassRenderer lighting_pass_renderer;
+    OutlineMarkShader outline_mark_shader;
     OutlineShader outline_shader;
     LightObjectsShader light_objects_shader;
+
+    RawModelAttributes quad;
+    inline static const std::vector<float> quad_positions =
+            {
+                    -1.0f, 1.0f,
+                    -1.0f, -1.0f,
+                    1.0f, 1.0f,
+                    1.0f, -1.0f
+            };
+    inline static const std::vector<float> quad_textures =
+            {
+                    0.0f, 0.0f,
+                    0.0, 1.0,
+                    1.0, 0.0,
+                    1.0, 1.0,
+            };
 };
