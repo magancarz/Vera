@@ -4,6 +4,7 @@
 #include "RenderEngine/RendererDefines.h"
 #include "GUI/Display.h"
 #include "Materials/Material.h"
+#include "RenderEngine/RenderingUtils/RenderingUtils.h"
 
 DeferredShadingRenderer::DeferredShadingRenderer()
 {
@@ -24,7 +25,10 @@ void DeferredShadingRenderer::prepareSceneObjectsRenderers()
     outline_shader.getAllUniformLocations();
     outline_shader.loadOutlineColor(glm::vec3{0, 1, 1});
 
+    ssao_renderer.bindUniformBuffer(transformation_matrices_uniform_buffer);
+
     lighting_pass_renderer.bindUniformBuffer(light_info_uniform_buffer);
+    lighting_pass_renderer.bindUniformBuffer(transformation_matrices_uniform_buffer);
 
     light_objects_shader.getAllUniformLocations();
     light_objects_shader.bindUniformBuffer(transformation_matrices_uniform_buffer);
@@ -40,6 +44,8 @@ void DeferredShadingRenderer::createGBuffer()
          0, GL_RGBA, GL_FLOAT, nullptr);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, g_position.texture_id, 0);
 
     g_normal.bindTexture();
@@ -127,9 +133,20 @@ void DeferredShadingRenderer::renderSceneObjects(
         raw_model->unbindModel();
     }
 
+    glStencilMask(0x00);
+
     g_buffer.unbind();
 
-    lighting_pass_renderer.render(camera, g_position, g_normal, g_color_spec);
+    glActiveTexture(GL_TEXTURE0 + RendererDefines::G_BUFFER_STARTING_INDEX + 0);
+    g_position.bindTexture();
+    glActiveTexture(GL_TEXTURE0 + RendererDefines::G_BUFFER_STARTING_INDEX + 1);
+    g_normal.bindTexture();
+    glActiveTexture(GL_TEXTURE0 + RendererDefines::G_BUFFER_STARTING_INDEX + 2);
+    g_color_spec.bindTexture();
+
+    ssao_renderer.render();
+
+    lighting_pass_renderer.render(camera, ssao_renderer.ssao_blur_color_buffer);
 
     glBindFramebuffer(GL_READ_FRAMEBUFFER, g_buffer.FBO_id);
     glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
@@ -210,19 +227,9 @@ void DeferredShadingRenderer::renderLightObjects(
 void DeferredShadingRenderer::renderOutlines()
 {
     glStencilFunc(GL_EQUAL, 1, 0xFF);
-
-    glBindVertexArray(AssetManager::texture_quad.vao->vao_id);
-    glEnableVertexAttribArray(0);
-    glEnableVertexAttribArray(1);
-
-    glDisable(GL_DEPTH_TEST);
     outline_shader.start();
-    glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-    glEnable(GL_DEPTH_TEST);
 
-    glDisableVertexAttribArray(0);
-    glDisableVertexAttribArray(1);
-    glBindVertexArray(0);
+    RenderingUtils::renderQuad();
 
     glStencilFunc(GL_ALWAYS, 0, 0x00);
     glStencilMask(0x00);

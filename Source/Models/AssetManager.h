@@ -98,17 +98,17 @@ private:
     };
     inline static const std::vector<float> texture_quad_textures =
     {
-        0.0f, 0.0f,
-        0.0, 1.0,
-        1.0, 0.0,
-        1.0, 1.0,
-    };
-
-    inline static const std::vector<float> y_inverse_texture_quad_textures =
-    {
         0.0f, 1.0f,
         0.0, 0.0,
         1.0, 1.0,
         1.0, 0.0,
+    };
+
+    inline static const std::vector<float> y_inverse_texture_quad_textures =
+    {
+        0.0f, 0.0f,
+        0.0, 1.0,
+        1.0, 0.0,
+        1.0, 1.0,
     };
 };

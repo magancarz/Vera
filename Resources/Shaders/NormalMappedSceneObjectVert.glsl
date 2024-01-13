@@ -18,13 +18,13 @@ layout (std140) uniform TransformationMatrices
 };
 
 void main(void) {
-	fragment_world_position = model * vec4(position, 1.0);
-	gl_Position = proj * view * fragment_world_position;
+	fragment_world_position = view * model * vec4(position, 1.0);
+	gl_Position = proj * fragment_world_position;
 	pass_texture_coords = texture_coords;
 
 	mat3 normal_matrix = transpose(inverse(mat3(model)));
 	vec3 T = normalize(mat3(normal_matrix) * tangent);
 	vec3 B = normalize(mat3(normal_matrix) * bitangent);
 	vec3 N = normalize(mat3(normal_matrix) * normal);
-	TBN = mat3(T, B, N);
+	TBN = mat3(view) * mat3(T, B, N);
 }

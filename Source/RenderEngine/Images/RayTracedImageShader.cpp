@@ -1,7 +1,7 @@
 #include "RayTracedImageShader.h"
 
 RayTracedImageShader::RayTracedImageShader()
-    : ShaderProgram("Resources/Shaders/texture_vert.glsl", "Resources/Shaders/texture_frag.glsl") {}
+    : ShaderProgram("Resources/Shaders/QuadVert.glsl", "Resources/Shaders/texture_frag.glsl") {}
 
 void RayTracedImageShader::getAllUniformLocations()
 {

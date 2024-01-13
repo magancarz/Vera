@@ -9,6 +9,7 @@
 #include "LightingPassRenderer.h"
 #include "LightObjectsShader.h"
 #include "OutlineMarkShader.h"
+#include "RenderEngine/SSAO/SSAORenderer.h"
 
 class DeferredShadingRenderer
 {
@@ -50,6 +51,7 @@ private:
         std::make_shared<NormalMappedSceneObjectsRenderer>(),
         std::make_shared<SceneObjectsRenderer>()
     };
+    SSAORenderer ssao_renderer;
     LightingPassRenderer lighting_pass_renderer;
     OutlineMarkShader outline_mark_shader;
     OutlineShader outline_shader;

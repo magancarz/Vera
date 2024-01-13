@@ -7,6 +7,7 @@ out vec4 out_Color;
 uniform sampler2D g_position;
 uniform sampler2D g_normal;
 uniform sampler2D g_color_spec;
+uniform sampler2D ssao;
 
 uniform samplerCube shadow_map;
 
@@ -19,6 +20,13 @@ struct Light
 layout (std140) uniform LightInfos
 {
     Light light;
+};
+
+layout (std140) uniform TransformationMatrices
+{
+    mat4 model;
+    mat4 view;
+    mat4 proj;
 };
 
 uniform vec3 view_position;
@@ -43,13 +51,17 @@ void main(void)
     vec3 normal = texture(g_normal, pass_texture_coords).rgb;
     vec3 color = texture(g_color_spec, pass_texture_coords).rgb;
     float reflectivity = texture(g_color_spec, pass_texture_coords).a;
+    float ambient_occlusion = texture(ssao, pass_texture_coords).r;
 
-    vec3 to_light_vector = light.light_position - position;
+    vec3 world_space_position = vec3(inverse(view) * vec4(position, 1.0));
+    vec3 world_space_normal = mat3(inverse(view)) * normal;
+
+    vec3 to_light_vector = light.light_position - world_space_position;
     float distance = length(to_light_vector);
     float attenuation = 1.0f / (light.attenuation.x + light.attenuation.y * distance + light.attenuation.z * (distance * distance));
-    float brightness = calculateBrightnessFromPointLight(normal, to_light_vector, attenuation);
-    float specular = calculateSpecularValue(position, normal, reflectivity, to_light_vector, attenuation);
-    float shadow = pointLightShadowCalculation(position);
+    float brightness = calculateBrightnessFromPointLight(world_space_normal, to_light_vector, attenuation);
+    float specular = calculateSpecularValue(world_space_position, world_space_normal, reflectivity, to_light_vector, attenuation);
+    float shadow = pointLightShadowCalculation(world_space_position);
 
     vec3 total_diffuse = brightness * light.light_color;
     vec3 total_specular = specular * light.light_color;
@@ -57,7 +69,7 @@ void main(void)
     total_specular = max(total_specular, 0);
 
     vec3 lighting = (ambient + (1.0 - shadow) * (total_diffuse + total_specular));
-    vec3 final_color = lighting * color;
+    vec3 final_color = lighting * color * ambient_occlusion;
     out_Color = vec4(final_color, 1.0);
 }
 
@@ -89,7 +101,7 @@ float pointLightShadowCalculation(vec3 position)
     float bias = 0.15;
     float samples = 20;
     float offset = 0.1;
-    float view_distance = length(view_position - position);
+    float view_distance = length(position);
     float disk_radius = (1.0 + (view_distance / 30.0)) / 25.0;
 
     for(int i = 0; i < samples; ++i)
