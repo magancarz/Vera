@@ -54,20 +54,4 @@ private:
     OutlineMarkShader outline_mark_shader;
     OutlineShader outline_shader;
     LightObjectsShader light_objects_shader;
-
-    RawModelAttributes quad;
-    inline static const std::vector<float> quad_positions =
-            {
-                    -1.0f, 1.0f,
-                    -1.0f, -1.0f,
-                    1.0f, 1.0f,
-                    1.0f, -1.0f
-            };
-    inline static const std::vector<float> quad_textures =
-            {
-                    0.0f, 0.0f,
-                    0.0, 1.0,
-                    1.0, 0.0,
-                    1.0, 1.0,
-            };
 };

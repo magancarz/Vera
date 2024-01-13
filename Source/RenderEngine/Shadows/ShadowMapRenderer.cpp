@@ -23,6 +23,7 @@ void ShadowMapRenderer::renderSceneToDepthBuffers(
         const std::map<std::shared_ptr<RawModel>, std::vector<std::weak_ptr<TriangleMesh>>>& entity_map,
         const std::vector<std::weak_ptr<Light>>& lights)
 {
+    glCullFace(GL_FRONT);
     glBindFramebuffer(GL_FRAMEBUFFER, depth_map_FBO.FBO_id);
 
     for (const auto& light : lights)
@@ -33,6 +34,7 @@ void ShadowMapRenderer::renderSceneToDepthBuffers(
 
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     glViewport(0, 0, Display::WINDOW_WIDTH, Display::WINDOW_HEIGHT);
+    glCullFace(GL_BACK);
 }
 
 void ShadowMapRenderer::draw(

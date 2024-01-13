@@ -9,7 +9,6 @@ DeferredShadingRenderer::DeferredShadingRenderer()
 {
     prepareSceneObjectsRenderers();
     createGBuffer();
-    quad = AssetManager::loadSimpleModel(quad_positions, quad_textures);
 }
 
 void DeferredShadingRenderer::prepareSceneObjectsRenderers()
@@ -212,7 +211,7 @@ void DeferredShadingRenderer::renderOutlines()
 {
     glStencilFunc(GL_EQUAL, 1, 0xFF);
 
-    glBindVertexArray(quad.vao->vao_id);
+    glBindVertexArray(AssetManager::texture_quad.vao->vao_id);
     glEnableVertexAttribArray(0);
     glEnableVertexAttribArray(1);
 

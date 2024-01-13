@@ -24,6 +24,14 @@ layout (std140) uniform LightInfos
 uniform vec3 view_position;
 
 const float ambient = 0.1;
+vec3 sample_offset_directions[20] = vec3[]
+(
+vec3( 1, 1, 1), vec3( 1, -1, 1), vec3(-1, -1, 1), vec3(-1, 1, 1),
+vec3( 1, 1, -1), vec3( 1, -1, -1), vec3(-1, -1, -1), vec3(-1, 1, -1),
+vec3( 1, 1, 0), vec3( 1, -1, 0), vec3(-1, -1, 0), vec3(-1, 1, 0),
+vec3( 1, 0, 1), vec3(-1, 0, 1), vec3( 1, 0, -1), vec3(-1, 0, -1),
+vec3( 0, 1, 1), vec3( 0, -1, 1), vec3( 0, -1, -1), vec3( 0, 1, -1)
+);
 
 float calculateSpecularValue(vec3 position, vec3 normal, float reflectivity, vec3 to_light_dir, float attenuation);
 float calculateBrightnessFromPointLight(vec3 normal, vec3 to_light_dir, float attenuation);
@@ -75,11 +83,23 @@ float calculateBrightnessFromPointLight(vec3 normal, vec3 to_light_dir, float at
 float pointLightShadowCalculation(vec3 position)
 {
     vec3 fragment_to_light = position - light.light_position;
-    float closest_depth = texture(shadow_map, fragment_to_light).r;
-    closest_depth *= 30.0;
     float current_depth = length(fragment_to_light);
-    float bias = 0.05;
-    float shadow = current_depth - bias > closest_depth ? 1.0 : 0.0;
+
+    float shadow = 0.0;
+    float bias = 0.15;
+    float samples = 20;
+    float offset = 0.1;
+    float view_distance = length(view_position - position);
+    float disk_radius = (1.0 + (view_distance / 30.0)) / 25.0;
+
+    for(int i = 0; i < samples; ++i)
+    {
+        float closest_depth = texture(shadow_map, fragment_to_light + sample_offset_directions[i] * disk_radius).r;
+        closest_depth *= 30.0;
+        if(current_depth - bias > closest_depth)
+            shadow += 1.0;
+    }
+    shadow /= float(samples);
 
     return shadow;
 }

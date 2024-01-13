@@ -28,6 +28,9 @@ void AssetManager::initializeAssets()
     loadModelAsset("bunny");
     loadModelAsset("primitive_handled_pot");
 
+    texture_quad = loadSimpleModel(texture_quad_positions, texture_quad_textures);
+    y_inverse_texture_quad = loadSimpleModel(texture_quad_positions, y_inverse_texture_quad_textures);
+
     MaterialParameters white_material_parameters{
         "white"
     };
