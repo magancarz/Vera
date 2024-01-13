@@ -8,4 +8,5 @@ target_sources(Vera-Lib PRIVATE
         ParallaxMappedSceneObjectsShader.cpp
         LightingPassRenderer.cpp
         LightingPassShader.cpp
+        LightObjectsShader.cpp
         OutlineShader.cpp)

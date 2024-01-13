@@ -3,6 +3,7 @@
 #include "RenderEngine/Camera.h"
 #include "RenderEngine/RendererDefines.h"
 #include "GUI/Display.h"
+#include "Materials/Material.h"
 
 DeferredShadingRenderer::DeferredShadingRenderer()
 {
@@ -23,6 +24,9 @@ void DeferredShadingRenderer::prepareSceneObjectsRenderers()
     outline_shader.bindUniformBuffer(transformation_matrices_uniform_buffer);
 
     lighting_pass_renderer.bindUniformBuffer(light_info_uniform_buffer);
+
+    light_objects_shader.getAllUniformLocations();
+    light_objects_shader.bindUniformBuffer(transformation_matrices_uniform_buffer);
 }
 
 void DeferredShadingRenderer::createGBuffer()
@@ -74,14 +78,20 @@ void DeferredShadingRenderer::renderSceneObjects(
 
     renderShadowMap(entity_map, lights);
 
+    std::map<std::shared_ptr<RawModel>, std::vector<std::shared_ptr<TriangleMesh>>> light_objects;
+
     g_buffer.bindFramebuffer();
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     for (const auto& [raw_model, entities] : entity_map)
     {
-        prepareTexturedModel(raw_model);
+        raw_model->prepareModel();
         for (const auto& entity : entities)
         {
             auto entity_shared_ptr = entity.lock();
+            if (entity_shared_ptr->getMaterial()->isEmittingLight()) {
+                light_objects[raw_model].push_back(entity_shared_ptr);
+                continue;
+            }
             std::shared_ptr<SceneObjectsRenderer> applied_renderer;
             for (const auto& scene_object_renderer : scene_objects_renderers)
             {
@@ -96,12 +106,20 @@ void DeferredShadingRenderer::renderSceneObjects(
             applied_renderer->prepareShader();
             glDrawElements(GL_TRIANGLES, static_cast<int>(raw_model->vertex_count), GL_UNSIGNED_INT, nullptr);
         }
-        unbindTexturedModel();
+        raw_model->unbindModel();
     }
 
     g_buffer.unbind();
 
     lighting_pass_renderer.render(camera, g_position, g_normal, g_color_spec);
+
+    glBindFramebuffer(GL_READ_FRAMEBUFFER, g_buffer.FBO_id);
+    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+    glBlitFramebuffer(0, 0, Display::WINDOW_WIDTH, Display::WINDOW_HEIGHT,
+                      0, 0, Display::WINDOW_WIDTH, Display::WINDOW_HEIGHT, GL_DEPTH_BUFFER_BIT, GL_NEAREST);
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+    renderLightObjects(light_objects);
 }
 
 void DeferredShadingRenderer::prepareLights(const std::vector<std::weak_ptr<Light>>& lights)
@@ -151,22 +169,19 @@ void DeferredShadingRenderer::renderShadowMap(
     shadow_map_renderer.renderSceneToDepthBuffers(entity_map, lights);
 }
 
-void DeferredShadingRenderer::prepareTexturedModel(const std::shared_ptr<RawModel>& raw_model) const
+void DeferredShadingRenderer::renderLightObjects(
+        const std::map<std::shared_ptr<RawModel>, std::vector<std::shared_ptr<TriangleMesh>>>& light_objects)
 {
-    glBindVertexArray(raw_model->vao->vao_id);
-    glEnableVertexAttribArray(0);
-    glEnableVertexAttribArray(1);
-    glEnableVertexAttribArray(2);
-    glEnableVertexAttribArray(3);
-    glEnableVertexAttribArray(4);
-}
-
-void DeferredShadingRenderer::unbindTexturedModel()
-{
-    glDisableVertexAttribArray(0);
-    glDisableVertexAttribArray(1);
-    glDisableVertexAttribArray(2);
-    glDisableVertexAttribArray(3);
-    glDisableVertexAttribArray(4);
-    glBindVertexArray(0);
+    light_objects_shader.start();
+    for (const auto& [raw_model, entities] : light_objects)
+    {
+        raw_model->prepareModel();
+        for (auto& entity : entities)
+        {
+            light_objects_shader.loadLightColor(entity->getMaterial()->getColor());
+            transformation_matrices_uniform_buffer.setValue(entity->getTransform(), 0);
+            glDrawElements(GL_TRIANGLES, static_cast<int>(raw_model->vertex_count), GL_UNSIGNED_INT, nullptr);
+        }
+        raw_model->unbindModel();
+    }
 }

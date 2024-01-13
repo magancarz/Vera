@@ -137,4 +137,24 @@ struct RawModel
     {
         return vao->vao_id > other.lock()->vao->vao_id;
     }
+
+    void prepareModel()
+    {
+        glBindVertexArray(vao->vao_id);
+        glEnableVertexAttribArray(0);
+        glEnableVertexAttribArray(1);
+        glEnableVertexAttribArray(2);
+        glEnableVertexAttribArray(3);
+        glEnableVertexAttribArray(4);
+    }
+
+    void unbindModel()
+    {
+        glDisableVertexAttribArray(0);
+        glDisableVertexAttribArray(1);
+        glDisableVertexAttribArray(2);
+        glDisableVertexAttribArray(3);
+        glDisableVertexAttribArray(4);
+        glBindVertexArray(0);
+    }
 };

@@ -7,6 +7,7 @@
 #include "NormalMappedSceneObjectsRenderer.h"
 #include "RenderEngine/GLObjects/UniformBuffer.h"
 #include "LightingPassRenderer.h"
+#include "LightObjectsShader.h"
 
 class DeferredShadingRenderer
 {
@@ -18,24 +19,22 @@ public:
             const std::vector<std::weak_ptr<Light>>& lights,
             const std::shared_ptr<Camera>& camera);
 
-    utils::Texture g_position;
-    utils::Texture g_normal;
-    utils::Texture g_color_spec;
-
 private:
     void createGBuffer();
     void prepareSceneObjectsRenderers();
     void prepareLights(const std::vector<std::weak_ptr<Light>>& lights);
     void bindShadowMaps(const std::vector<std::weak_ptr<Light>>& lights);
-    void prepareTexturedModel(const std::shared_ptr<RawModel>& raw_model) const;
-    void unbindTexturedModel();
     void prepareTransformationMatrices(const std::shared_ptr<Camera>& camera) const;
     void loadTransformationMatrix(const glm::mat4& model) const;
     void renderShadowMap(
         const std::map<std::shared_ptr<RawModel>, std::vector<std::weak_ptr<TriangleMesh>>>& entity_map,
         const std::vector<std::weak_ptr<Light>>& lights);
+    void renderLightObjects(const std::map<std::shared_ptr<RawModel>, std::vector<std::shared_ptr<TriangleMesh>>>& light_objects);
 
     utils::FBO g_buffer;
+    utils::Texture g_position;
+    utils::Texture g_normal;
+    utils::Texture g_color_spec;
     utils::Renderbuffer rbo_depth;
 
     UniformBuffer<LightInfo> light_info_uniform_buffer{"LightInfos"};
@@ -50,4 +49,5 @@ private:
     };
     LightingPassRenderer lighting_pass_renderer;
     OutlineShader outline_shader;
+    LightObjectsShader light_objects_shader;
 };
