@@ -223,4 +223,7 @@ void DeferredShadingRenderer::renderOutlines()
     glDisableVertexAttribArray(0);
     glDisableVertexAttribArray(1);
     glBindVertexArray(0);
+
+    glStencilFunc(GL_ALWAYS, 0, 0x00);
+    glStencilMask(0x00);
 }
