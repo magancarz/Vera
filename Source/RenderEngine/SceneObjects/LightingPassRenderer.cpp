@@ -2,6 +2,7 @@
 
 #include "Models/AssetManager.h"
 #include "RenderEngine/RendererDefines.h"
+#include "RenderEngine/Camera.h"
 
 LightingPassRenderer::LightingPassRenderer()
 {
@@ -12,6 +13,7 @@ LightingPassRenderer::LightingPassRenderer()
 }
 
 void LightingPassRenderer::render(
+        const std::shared_ptr<Camera>& camera,
         const utils::Texture& g_position,
         const utils::Texture& g_normal,
         const utils::Texture& g_color_spec)
@@ -22,6 +24,8 @@ void LightingPassRenderer::render(
     g_normal.bindTexture();
     glActiveTexture(GL_TEXTURE0 + RendererDefines::G_BUFFER_STARTING_INDEX + 2);
     g_color_spec.bindTexture();
+
+    lighting_pass_shader.loadViewPosition(camera->getPosition());
 
     glBindVertexArray(quad.vao->vao_id);
     glEnableVertexAttribArray(0);

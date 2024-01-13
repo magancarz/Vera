@@ -7,6 +7,7 @@ LightingPassShader::LightingPassShader()
 
 void LightingPassShader::getAllUniformLocations()
 {
+    location_shadow_map = getUniformLocation("shadow_map");
     location_g_position = getUniformLocation("g_position");
     location_g_normal = getUniformLocation("g_normal");
     location_g_color_spec = getUniformLocation("g_color_spec");
@@ -15,6 +16,7 @@ void LightingPassShader::getAllUniformLocations()
 
 void LightingPassShader::connectTextureUnits()
 {
+    loadInt(location_shadow_map, RendererDefines::SHADOW_MAPS_TEXTURES_STARTING_INDEX + 0);
     loadInt(location_g_position, RendererDefines::G_BUFFER_STARTING_INDEX + 0);
     loadInt(location_g_normal, RendererDefines::G_BUFFER_STARTING_INDEX + 1);
     loadInt(location_g_color_spec, RendererDefines::G_BUFFER_STARTING_INDEX + 2);

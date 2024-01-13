@@ -18,7 +18,7 @@ layout (std140) uniform TransformationMatrices
 };
 
 void main(void) {
-	vec4 fragment_world_position = model * vec4(position, 1.0);
+	fragment_world_position = model * vec4(position, 1.0);
 	gl_Position = proj * view * fragment_world_position;
 	pass_texture_coords = texture_coords;
 

@@ -4,12 +4,19 @@
 #include "LightingPassShader.h"
 #include "Models/AssetManager.h"
 
+class Camera;
+
 class LightingPassRenderer
 {
 public:
     LightingPassRenderer();
 
-    void render(const utils::Texture& g_position, const utils::Texture& g_normal, const utils::Texture& g_color_spec);
+    void render(
+        const std::shared_ptr<Camera>& camera,
+        const utils::Texture& g_position,
+        const utils::Texture& g_normal,
+        const utils::Texture& g_color_spec
+    );
 
     template <typename T>
     void bindUniformBuffer(const UniformBuffer<T>& uniform_buffer)

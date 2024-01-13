@@ -101,7 +101,7 @@ void DeferredShadingRenderer::renderSceneObjects(
 
     g_buffer.unbind();
 
-    lighting_pass_renderer.render(g_position, g_normal, g_color_spec);
+    lighting_pass_renderer.render(camera, g_position, g_normal, g_color_spec);
 }
 
 void DeferredShadingRenderer::prepareLights(const std::vector<std::weak_ptr<Light>>& lights)
