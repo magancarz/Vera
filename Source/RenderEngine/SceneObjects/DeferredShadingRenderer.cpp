@@ -77,6 +77,7 @@ void DeferredShadingRenderer::createGBuffer()
 }
 
 void DeferredShadingRenderer::renderSceneObjects(
+        const utils::FBO& hdr_fbo,
         const std::map<std::shared_ptr<RawModel>, std::vector<std::weak_ptr<TriangleMesh>>>& entity_map,
         const std::vector<std::weak_ptr<Light>>& lights, const std::shared_ptr<Camera>& camera)
 {
@@ -146,18 +147,21 @@ void DeferredShadingRenderer::renderSceneObjects(
 
     ssao_renderer.render();
 
+    hdr_fbo.bindFramebuffer();
+
     lighting_pass_renderer.render(camera, ssao_renderer.ssao_blur_color_buffer);
 
     glBindFramebuffer(GL_READ_FRAMEBUFFER, g_buffer.FBO_id);
-    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, hdr_fbo.FBO_id);
     glBlitFramebuffer(0, 0, Display::WINDOW_WIDTH, Display::WINDOW_HEIGHT,
                       0, 0, Display::WINDOW_WIDTH, Display::WINDOW_HEIGHT, GL_DEPTH_BUFFER_BIT, GL_NEAREST);
     glBlitFramebuffer(0, 0, Display::WINDOW_WIDTH, Display::WINDOW_HEIGHT,
                       0, 0, Display::WINDOW_WIDTH, Display::WINDOW_HEIGHT, GL_STENCIL_BUFFER_BIT, GL_NEAREST);
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
     renderLightObjects(light_objects);
     renderOutlines();
+
+    hdr_fbo.unbind();
 }
 
 void DeferredShadingRenderer::prepareLights(const std::vector<std::weak_ptr<Light>>& lights)

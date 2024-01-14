@@ -17,9 +17,10 @@ public:
     DeferredShadingRenderer();
 
     void renderSceneObjects(
-            const std::map<std::shared_ptr<RawModel>, std::vector<std::weak_ptr<TriangleMesh>>>& entity_map,
-            const std::vector<std::weak_ptr<Light>>& lights,
-            const std::shared_ptr<Camera>& camera);
+        const utils::FBO& hdr_fbo,
+        const std::map<std::shared_ptr<RawModel>, std::vector<std::weak_ptr<TriangleMesh>>>& entity_map,
+        const std::vector<std::weak_ptr<Light>>& lights,
+        const std::shared_ptr<Camera>& camera);
 
 private:
     void createGBuffer();
