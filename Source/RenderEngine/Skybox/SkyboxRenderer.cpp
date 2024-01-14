@@ -16,8 +16,13 @@ SkyboxRenderer::SkyboxRenderer()
     });
 }
 
-void SkyboxRenderer::renderSkybox(const std::shared_ptr<Camera>& camera, const std::shared_ptr<utils::Texture>& skybox)
+void SkyboxRenderer::renderSkybox(
+        const utils::FBO& hdr_fbo,
+        const std::shared_ptr<Camera>& camera,
+        const std::shared_ptr<utils::Texture>& skybox)
 {
+    hdr_fbo.bindFramebuffer();
+
     skybox_shader.start();
     skybox_shader.loadViewMatrix(camera);
     skybox_shader.loadProjectionMatrix(camera);
@@ -33,10 +38,16 @@ void SkyboxRenderer::renderSkybox(const std::shared_ptr<Camera>& camera, const s
     glBindVertexArray(0);
     glEnable(GL_CULL_FACE);
     glDepthFunc(GL_LESS);
+
+    hdr_fbo.unbind();
 }
 
-void SkyboxRenderer::renderSkybox(const std::shared_ptr<Camera>& camera)
+void SkyboxRenderer::renderSkybox(
+        const utils::FBO& hdr_fbo,
+        const std::shared_ptr<Camera>& camera)
 {
+    hdr_fbo.bindFramebuffer();
+
     skybox_shader.start();
     skybox_shader.loadViewMatrix(camera);
     skybox_shader.loadProjectionMatrix(camera);
@@ -50,4 +61,6 @@ void SkyboxRenderer::renderSkybox(const std::shared_ptr<Camera>& camera)
     glBindVertexArray(0);
     glEnable(GL_CULL_FACE);
     glDepthFunc(GL_LESS);
+
+    hdr_fbo.unbind();
 }

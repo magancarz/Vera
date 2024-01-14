@@ -10,10 +10,13 @@ public:
     SkyboxRenderer();
 
     void renderSkybox(
+        const utils::FBO& hdr_fbo,
         const std::shared_ptr<Camera>& camera,
         const std::shared_ptr<utils::Texture>& skybox);
 
-    void renderSkybox(const std::shared_ptr<Camera>& camera);
+    void renderSkybox(
+        const utils::FBO& hdr_fbo,
+        const std::shared_ptr<Camera>& camera);
 
 private:
     SkyboxShader skybox_shader;

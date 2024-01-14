@@ -2,6 +2,7 @@ target_sources(Vera-Lib PRIVATE
         Renderer.cpp
         Camera.cpp)
 
+add_subdirectory(HDR)
 add_subdirectory(Images)
 add_subdirectory(RayTracing)
 add_subdirectory(RenderingUtils)

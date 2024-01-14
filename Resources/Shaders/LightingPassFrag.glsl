@@ -98,7 +98,7 @@ float pointLightShadowCalculation(vec3 position)
     float current_depth = length(fragment_to_light);
 
     float shadow = 0.0;
-    float bias = 0.15;
+    float bias = -0.00005;
     float samples = 20;
     float offset = 0.1;
     float view_distance = length(position);
