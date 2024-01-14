@@ -20,6 +20,7 @@ public:
     __device__ glm::vec3 emitted(const glm::vec2& uv);
     __host__ __device__ glm::vec3 getColor(const glm::vec2& uv) const;
     __host__ __device__ glm::vec3 getColor() const;
+    __host__ __device__ glm::vec3 getLightColor() const;
     __host__ __device__ float getColorAlphaValue(const glm::vec2& uv) const;
     __host__ __device__ glm::vec3 getNormal(const glm::vec2& uv) const;
     __host__ __device__ glm::vec3 getSpecularValue(const glm::vec2& uv) const;

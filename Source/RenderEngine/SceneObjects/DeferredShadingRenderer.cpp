@@ -220,7 +220,7 @@ void DeferredShadingRenderer::renderLightObjects(
         raw_model->prepareModel();
         for (auto& entity : entities)
         {
-            light_objects_shader.loadLightColor(entity->getMaterial()->getColor());
+            light_objects_shader.loadLightColor(entity->getMaterial()->getLightColor());
             transformation_matrices_uniform_buffer.setValue(entity->getTransform(), 0);
             glDrawElements(GL_TRIANGLES, static_cast<int>(raw_model->vertex_count), GL_UNSIGNED_INT, nullptr);
         }

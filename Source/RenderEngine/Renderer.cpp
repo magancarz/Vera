@@ -47,7 +47,8 @@ void Renderer::renderScene(const std::shared_ptr<Camera>& camera, const std::vec
     processEntities(entities);
     deferred_shading_renderer.renderSceneObjects(hdr_fbo, objects_map, lights, camera);
     skybox_renderer.renderSkybox(hdr_fbo, camera);
-    applyToneMappingAndRender();
+    bloom_effect_renderer.apply(hdr_color_texture, hdr_color_texture);
+    applyToneMappingAndRenderToDefaultFramebuffer();
     cleanUpObjectsMaps();
 }
 
@@ -96,7 +97,7 @@ void Renderer::processEntity(std::map<std::shared_ptr<RawModel>, std::vector<std
     }
 }
 
-void Renderer::applyToneMappingAndRender()
+void Renderer::applyToneMappingAndRenderToDefaultFramebuffer()
 {
     hdr_shader.start();
     glActiveTexture(GL_TEXTURE0 + RendererDefines::HDR_BUFFER_INDEX);

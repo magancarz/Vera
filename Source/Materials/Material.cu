@@ -146,6 +146,11 @@ __host__ __device__ glm::vec3 Material::getColor() const
     return cuda_color_texture->getColorAtGivenUVCoordinates({0.5f, 0.5f});
 }
 
+__host__ __device__ glm::vec3 Material::getLightColor() const
+{
+    return cuda_color_texture->getColorAtGivenUVCoordinates({0.5f, 0.5f}) * brightness;
+}
+
 __host__ __device__ float Material::getColorAlphaValue(const glm::vec2& uv) const
 {
     return cuda_color_texture->getAlphaValueAtGivenUVCoordinates(uv);
