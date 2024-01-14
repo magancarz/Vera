@@ -27,7 +27,7 @@ public:
     }
 
     virtual void connectTextureUnits() {}
-    virtual void getAllUniformLocations() = 0;
+    virtual void getAllUniformLocations() {};
 
 protected:
     int getUniformLocation(const std::string& uniform_name) const;

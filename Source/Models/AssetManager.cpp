@@ -28,6 +28,9 @@ void AssetManager::initializeAssets()
     loadModelAsset("bunny");
     loadModelAsset("primitive_handled_pot");
 
+    texture_quad = loadSimpleModel(texture_quad_positions, texture_quad_textures);
+    y_inverse_texture_quad = loadSimpleModel(texture_quad_positions, y_inverse_texture_quad_textures);
+
     MaterialParameters white_material_parameters{
         "white"
     };
@@ -64,7 +67,7 @@ void AssetManager::initializeAssets()
     createMaterialAsset("mirror", mirror_material_parameters);
 
     MaterialParameters barrel_material_parameters{
-        "white", "barrel_normal", "barrel_specular", 0.f, .5f, 0.f
+        "barrel", "barrel_normal", "barrel_specular", 0.f, .5f, 0.f
     };
     createMaterialAsset("barrel", barrel_material_parameters);
 

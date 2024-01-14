@@ -5,7 +5,7 @@
 SkyboxShader::SkyboxShader()
     : ShaderProgram(
         "Source/RenderEngine/Skybox/skybox_vert.glsl",
-        "Source/RenderEngine/Skybox/skybox_frag.glsl") {}
+        "Source/RenderEngine/Skybox/skybox_default_frag.glsl") {}
 
 void SkyboxShader::loadViewMatrix(const std::shared_ptr<Camera>& camera) const
 {

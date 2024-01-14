@@ -9,6 +9,7 @@
 #include "Editor/Editor.h"
 #include "editor/editorCommands/ChangeProjectNameCommand.h"
 #include "editor/editorCommands/LoadProjectCommand.h"
+#include "GUI/Display.h"
 
 std::vector<std::shared_ptr<EditorCommand>> TopMenuGUIElement::renderGUIElement(const EditorInfo& editor_info)
 {
@@ -38,7 +39,7 @@ std::vector<std::shared_ptr<EditorCommand>> TopMenuGUIElement::renderGUIElement(
                 if (file_path.ends_with(ProjectUtils::PROJECT_FILE_EXTENSION))
                 {
                     std::string file_name = file_path.substr(ProjectUtils::PROJECTS_DIRECTORY.size());
-                    const auto dot_position = file_name.find_first_of(".");
+                    const auto dot_position = file_name.find_first_of('.');
                     file_name = file_name.substr(0, dot_position);
                     available_project_files.push_back(file_name);
                 }
@@ -46,6 +47,9 @@ std::vector<std::shared_ptr<EditorCommand>> TopMenuGUIElement::renderGUIElement(
         }
         ImGui::EndMenu();
     }
+
+    ImGui::SameLine(Display::WINDOW_WIDTH - 110);
+    ImGui::Text("%s FPS", std::to_string(1.0 / Display::getFrameTimeSeconds()).c_str());
     ImGui::EndMainMenuBar();
 
     if (show_loading_project_window)
@@ -57,11 +61,11 @@ std::vector<std::shared_ptr<EditorCommand>> TopMenuGUIElement::renderGUIElement(
             std::string project_name = available_project_files[i];
             if (i == selected_project_idx)
             {
-				ImGui::TextColored(ImVec4(1, 1, 0, 1), project_name.c_str());
+				ImGui::TextColored(ImVec4(1, 1, 0, 1), "%s", project_name.c_str());
             }
         	else
             {
-                ImGui::Text(project_name.c_str());
+                ImGui::Text("%s", project_name.c_str());
             }
             if (ImGui::IsItemClicked())
             {

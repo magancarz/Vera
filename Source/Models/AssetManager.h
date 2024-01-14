@@ -62,6 +62,9 @@ public:
     static std::shared_ptr<MaterialAsset> findMaterialAsset(const std::string& material_name);
     static std::vector<std::shared_ptr<LightCreator>> getAvailableLightCreators();
 
+    inline static RawModelAttributes texture_quad;
+    inline static RawModelAttributes y_inverse_texture_quad;
+
 private:
     static RawModelAttributes loadModel(const ModelData& model_data);
 
@@ -84,5 +87,28 @@ private:
             std::make_shared<DirectionalLightCreator>(),
             std::make_shared<PointLightCreator>(),
             std::make_shared<SpotlightCreator>()
+    };
+
+    inline static const std::vector<float> texture_quad_positions =
+    {
+        -1.0f, 1.0f,
+        -1.0f, -1.0f,
+        1.0f, 1.0f,
+        1.0f, -1.0f
+    };
+    inline static const std::vector<float> texture_quad_textures =
+    {
+        0.0f, 1.0f,
+        0.0, 0.0,
+        1.0, 1.0,
+        1.0, 0.0,
+    };
+
+    inline static const std::vector<float> y_inverse_texture_quad_textures =
+    {
+        0.0f, 0.0f,
+        0.0, 1.0,
+        1.0, 0.0,
+        1.0, 1.0,
     };
 };

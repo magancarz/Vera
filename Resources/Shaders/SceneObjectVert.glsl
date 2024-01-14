@@ -6,7 +6,6 @@ layout (location = 2) in vec3 normal;
 
 out vec4 fragment_world_position;
 out vec2 pass_texture_coords;
-out vec3 view_position;
 out vec3 surface_normal;
 
 layout (std140) uniform TransformationMatrices
@@ -18,10 +17,8 @@ layout (std140) uniform TransformationMatrices
 
 void main(void)
 {
-	fragment_world_position = model * vec4(position, 1.0);
-	gl_Position = proj * view * fragment_world_position;
+	fragment_world_position = view * model * vec4(position, 1.0);
+	gl_Position = proj * fragment_world_position;
 	pass_texture_coords = texture_coords;
-
-	surface_normal = normalize(mat3(model) * normal);
-	view_position = (inverse(view) * vec4(0, 0, 0, 1)).xyz;
+	surface_normal = normalize(mat3(view * model) * normal);
 }

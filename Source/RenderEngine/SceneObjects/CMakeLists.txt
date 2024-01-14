@@ -1,9 +1,14 @@
 target_sources(Vera-Lib PRIVATE
-        SceneObjectsMasterRenderer.cpp
+        DeferredShadingRenderer.cpp
         SceneObjectsRenderer.cpp
         SceneObjectsShader.cpp
         NormalMappedSceneObjectsRenderer.cpp
         NormalMappedSceneObjectsShader.cpp
         ParallaxMappedSceneObjectsRenderer.cpp
         ParallaxMappedSceneObjectsShader.cpp
+        LightingPassRenderer.cpp
+        LightingPassShader.cpp
+        LightObjectsShader.cpp
+        OutlineRenderer.cpp
+        OutlineMarkShader.cpp
         OutlineShader.cpp)
