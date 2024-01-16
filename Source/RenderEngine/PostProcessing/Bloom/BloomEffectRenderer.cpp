@@ -27,7 +27,7 @@ void BloomEffectRenderer::prepareShaders()
 
 void BloomEffectRenderer::createBrightColorExtractFramebuffer()
 {
-    bloom_fbo.bindFramebuffer();
+    bright_colors_extract_fbo.bindFramebuffer();
 
     unsigned int color_buffers[2] = {color_texture.texture_id, bright_color_texture.texture_id};
     for (unsigned int i = 0; i < 2; i++)
@@ -48,13 +48,13 @@ void BloomEffectRenderer::createBrightColorExtractFramebuffer()
         std::cout << "Framebuffer not complete!\n";
     }
 
-    bloom_fbo.unbind();
+    bright_colors_extract_fbo.unbind();
 }
 
 void BloomEffectRenderer::createBlurFramebuffers()
 {
-    unsigned int ping_pong_FBO[2] = {ping_pong_fbo1.FBO_id, ping_pong_fbo2.FBO_id};
-    unsigned int ping_pong_color_buffers[2] = {ping_pong_color_buffer1.texture_id, ping_pong_color_buffer2.texture_id};
+    unsigned int ping_pong_FBO[2] = {horizontal_blur_fbo.FBO_id, vertical_blur_fbo.FBO_id};
+    unsigned int ping_pong_color_buffers[2] = {horizontal_blur_color_buffer.texture_id, vertical_blur_color_buffer.texture_id};
     for (size_t i = 0; i < 2; ++i)
     {
         glBindFramebuffer(GL_FRAMEBUFFER, ping_pong_FBO[i]);
@@ -69,46 +69,48 @@ void BloomEffectRenderer::createBlurFramebuffers()
         {
             std::cout << "Framebuffer not complete!\n";
         }
-
-        glBindFramebuffer(GL_FRAMEBUFFER, 0);
     }
+
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
-void BloomEffectRenderer::apply(const utils::Texture& hdr_color_buffer, const utils::Texture& output_texture)
+void BloomEffectRenderer::apply(const utils::Texture& in_out_hdr_color_buffer)
+{
+    extractBrightColors(in_out_hdr_color_buffer);
+    runGaussianBlurIterations();
+    combineHDRColorBufferAndBlurredBrightColorTexture(in_out_hdr_color_buffer);
+}
+
+void BloomEffectRenderer::extractBrightColors(const utils::Texture& in_out_hdr_color_buffer)
 {
     glActiveTexture(GL_TEXTURE0 + RendererDefines::POST_PROCESSING_TEXTURE_INDEX + 0);
-    hdr_color_buffer.bindTexture();
-
-    bloom_fbo.bindFramebuffer();
+    in_out_hdr_color_buffer.bindTexture();
+    bright_colors_extract_fbo.bindFramebuffer();
     bright_colors_extract_shader.start();
     RenderingUtils::renderQuad();
-    bloom_fbo.unbind();
-
-    runGaussianBlurIterations();
-    combineHDRColorBufferAndBlurredBrightColorTexture(output_texture);
+    bright_colors_extract_fbo.unbind();
 }
 
 void BloomEffectRenderer::runGaussianBlurIterations()
 {
-    bool horizontal = true;
-    size_t iterations = 10;
     glActiveTexture(GL_TEXTURE0 + RendererDefines::POST_PROCESSING_TEXTURE_INDEX + 0);
-    utils::Texture* texture_to_bind = &bright_color_texture;
-    for (size_t i = 0; i < iterations; ++i)
+    utils::Texture* next_texture_to_bind = &bright_color_texture;
+    bool horizontal = true;
+    for (size_t i = 0; i < blur_iterations; ++i)
     {
-        texture_to_bind->bindTexture();
+        next_texture_to_bind->bindTexture();
 
         if (horizontal)
         {
-            ping_pong_fbo1.bindFramebuffer();
+            horizontal_blur_fbo.bindFramebuffer();
             horizontal_bloom_shader.start();
-            texture_to_bind = &ping_pong_color_buffer1;
+            next_texture_to_bind = &horizontal_blur_color_buffer;
         }
         else
         {
-            ping_pong_fbo2.bindFramebuffer();
+            vertical_blur_fbo.bindFramebuffer();
             vertical_bloom_shader.start();
-            texture_to_bind = &ping_pong_color_buffer2;
+            next_texture_to_bind = &vertical_blur_color_buffer;
         }
 
         RenderingUtils::renderQuad();
@@ -119,13 +121,13 @@ void BloomEffectRenderer::runGaussianBlurIterations()
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
-void BloomEffectRenderer::combineHDRColorBufferAndBlurredBrightColorTexture(const utils::Texture& output_texture)
+void BloomEffectRenderer::combineHDRColorBufferAndBlurredBrightColorTexture(const utils::Texture& in_out_hdr_color_buffer)
 {
     combine_fbo.bindFramebuffer();
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, output_texture.texture_id, 0);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, in_out_hdr_color_buffer.texture_id, 0);
 
     glActiveTexture(GL_TEXTURE0 + RendererDefines::POST_PROCESSING_TEXTURE_INDEX + 0);
-    ping_pong_color_buffer2.bindTexture();
+    vertical_blur_color_buffer.bindTexture();
 
     glActiveTexture(GL_TEXTURE0 + RendererDefines::POST_PROCESSING_TEXTURE_INDEX + 1);
     color_texture.bindTexture();

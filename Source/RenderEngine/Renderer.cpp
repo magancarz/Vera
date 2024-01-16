@@ -47,7 +47,7 @@ void Renderer::renderScene(const std::shared_ptr<Camera>& camera, const std::vec
     processEntities(entities);
     deferred_shading_renderer.renderSceneObjects(hdr_fbo, objects_map, lights, camera);
     skybox_renderer.renderSkybox(hdr_fbo, camera);
-    bloom_effect_renderer.apply(hdr_color_texture, hdr_color_texture);
+    bloom_effect_renderer.apply(hdr_color_texture);
     applyToneMappingAndRenderToDefaultFramebuffer();
     cleanUpObjectsMaps();
 }
