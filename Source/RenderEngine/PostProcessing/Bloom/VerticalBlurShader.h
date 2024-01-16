@@ -2,10 +2,10 @@
 
 #include "Shaders/ShaderProgram.h"
 
-class VerticalBloomShader : public ShaderProgram
+class VerticalBlurShader : public ShaderProgram
 {
 public:
-    VerticalBloomShader();
+    VerticalBlurShader();
 
     void getAllUniformLocations() override;
     void connectTextureUnits() override;

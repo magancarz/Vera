@@ -2,10 +2,10 @@
 
 #include "Shaders/ShaderProgram.h"
 
-class HDRShader : public ShaderProgram
+class ToneMappingShader : public ShaderProgram
 {
 public:
-    HDRShader();
+    ToneMappingShader();
 
     void getAllUniformLocations() override;
     void connectTextureUnits() override;

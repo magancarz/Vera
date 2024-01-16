@@ -2,11 +2,11 @@
 
 #include "RenderEngine/SceneObjects/SceneObjectsShader.h"
 
-class RayTracedImageShader : public ShaderProgram
+class ImageShader : public ShaderProgram
 {
 public:
-    RayTracedImageShader();
-    virtual ~RayTracedImageShader() = default;
+    ImageShader();
+    virtual ~ImageShader() = default;
 
     void connectTextureUnits() const;
     void getAllUniformLocations() override;

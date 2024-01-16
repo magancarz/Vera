@@ -2,10 +2,10 @@
 
 #include "Shaders/ShaderProgram.h"
 
-class HorizontalBloomShader : public ShaderProgram
+class HorizontalBlurShader : public ShaderProgram
 {
 public:
-    HorizontalBloomShader();
+    HorizontalBlurShader();
 
     void getAllUniformLocations() override;
     void connectTextureUnits() override;

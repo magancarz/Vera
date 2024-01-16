@@ -1,15 +1,15 @@
-#include "VerticalBloomShader.h"
+#include "VerticalBlurShader.h"
 #include "RenderEngine/RendererDefines.h"
 
-VerticalBloomShader::VerticalBloomShader()
+VerticalBlurShader::VerticalBlurShader()
     : ShaderProgram("Resources/Shaders/QuadVert.glsl", "Resources/Shaders/VerticalBlurFrag.glsl") {}
 
-void VerticalBloomShader::getAllUniformLocations()
+void VerticalBlurShader::getAllUniformLocations()
 {
     location_blurred_texture = getUniformLocation("image");
 }
 
-void VerticalBloomShader::connectTextureUnits()
+void VerticalBlurShader::connectTextureUnits()
 {
     loadInt(location_blurred_texture, RendererDefines::POST_PROCESSING_TEXTURE_INDEX + 0);
 }

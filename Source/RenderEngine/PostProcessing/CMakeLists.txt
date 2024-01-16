@@ -1,4 +1,4 @@
 target_sources(Vera-Lib PRIVATE
-        PostProcessingRenderer.cpp)
+        PostProcessingChainRenderer.cpp)
 
 add_subdirectory(Bloom)

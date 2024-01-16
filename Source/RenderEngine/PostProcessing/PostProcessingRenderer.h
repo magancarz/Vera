@@ -1,13 +1,11 @@
 #pragma once
 
 #include "Models/RawModel.h"
-#include "RenderEngine/PostProcessing/Bloom/BloomEffectRenderer.h"
 
 class PostProcessingRenderer
 {
 public:
-    void render(const utils::Texture& hdr_color_buffer, const utils::Texture& output_texture);
+    virtual ~PostProcessingRenderer() = default;
 
-private:
-    BloomEffectRenderer bloom_effect_renderer;
+    virtual void apply(const utils::Texture& in_out_hdr_color_buffer) = 0;
 };

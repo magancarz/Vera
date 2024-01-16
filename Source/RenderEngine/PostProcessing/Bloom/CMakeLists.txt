@@ -1,6 +1,6 @@
 target_sources(Vera-Lib PRIVATE
         BloomEffectRenderer.cpp
         BrightColorsExtractShader.cpp
-        HorizontalBloomShader.cpp
-        VerticalBloomShader.cpp
+        HorizontalBlurShader.cpp
+        VerticalBlurShader.cpp
         CombineShader.cpp)

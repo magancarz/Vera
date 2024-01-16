@@ -1,15 +1,15 @@
-#include "HorizontalBloomShader.h"
+#include "HorizontalBlurShader.h"
 #include "RenderEngine/RendererDefines.h"
 
-HorizontalBloomShader::HorizontalBloomShader()
+HorizontalBlurShader::HorizontalBlurShader()
     : ShaderProgram("Resources/Shaders/QuadVert.glsl", "Resources/Shaders/HorizontalBlurFrag.glsl") {}
 
-void HorizontalBloomShader::getAllUniformLocations()
+void HorizontalBlurShader::getAllUniformLocations()
 {
     location_blurred_texture = getUniformLocation("image");
 }
 
-void HorizontalBloomShader::connectTextureUnits()
+void HorizontalBlurShader::connectTextureUnits()
 {
     loadInt(location_blurred_texture, RendererDefines::POST_PROCESSING_TEXTURE_INDEX + 0);
 }

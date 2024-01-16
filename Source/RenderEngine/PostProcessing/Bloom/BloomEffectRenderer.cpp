@@ -15,11 +15,11 @@ void BloomEffectRenderer::prepareShaders()
     bright_colors_extract_shader.getAllUniformLocations();
     bright_colors_extract_shader.connectTextureUnits();
 
-    horizontal_bloom_shader.getAllUniformLocations();
-    horizontal_bloom_shader.connectTextureUnits();
+    horizontal_blur_shader.getAllUniformLocations();
+    horizontal_blur_shader.connectTextureUnits();
 
-    vertical_bloom_shader.getAllUniformLocations();
-    vertical_bloom_shader.connectTextureUnits();
+    vertical_blur_shader.getAllUniformLocations();
+    vertical_blur_shader.connectTextureUnits();
 
     combine_shader.getAllUniformLocations();
     combine_shader.connectTextureUnits();
@@ -103,13 +103,13 @@ void BloomEffectRenderer::runGaussianBlurIterations()
         if (horizontal)
         {
             horizontal_blur_fbo.bindFramebuffer();
-            horizontal_bloom_shader.start();
+            horizontal_blur_shader.start();
             next_texture_to_bind = &horizontal_blur_color_buffer;
         }
         else
         {
             vertical_blur_fbo.bindFramebuffer();
-            vertical_bloom_shader.start();
+            vertical_blur_shader.start();
             next_texture_to_bind = &vertical_blur_color_buffer;
         }
 

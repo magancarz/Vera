@@ -1,17 +1,19 @@
 #pragma once
 
 #include "Models/RawModel.h"
-#include "HorizontalBloomShader.h"
-#include "VerticalBloomShader.h"
+#include "HorizontalBlurShader.h"
+#include "VerticalBlurShader.h"
 #include "CombineShader.h"
 #include "BrightColorsExtractShader.h"
+#include "RenderEngine/PostProcessing/PostProcessingRenderer.h"
 
-class BloomEffectRenderer
+class BloomEffectRenderer : public PostProcessingRenderer
 {
 public:
     BloomEffectRenderer();
+    ~BloomEffectRenderer() override = default;
 
-    void apply(const utils::Texture& in_out_hdr_color_buffer);
+    void apply(const utils::Texture& in_out_hdr_color_buffer) override;
 
 private:
     void prepareShaders();
@@ -35,7 +37,7 @@ private:
     utils::FBO combine_fbo;
 
     BrightColorsExtractShader bright_colors_extract_shader;
-    HorizontalBloomShader horizontal_bloom_shader;
-    VerticalBloomShader vertical_bloom_shader;
+    HorizontalBlurShader horizontal_blur_shader;
+    VerticalBlurShader vertical_blur_shader;
     CombineShader combine_shader;
 };
