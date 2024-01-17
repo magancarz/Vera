@@ -47,15 +47,16 @@ void Renderer::prepareRenderer()
     glStencilMask(0x00);
 }
 
-void Renderer::renderScene(const std::shared_ptr<Camera>& camera, const std::vector<std::weak_ptr<Light>>& lights, const std::vector<std::weak_ptr<TriangleMesh>>& entities)
+void Renderer::renderScene(
+        const std::shared_ptr<Camera>& camera,
+        const std::vector<std::weak_ptr<Light>>& lights,
+        const std::map<std::shared_ptr<RawModel>, std::vector<std::weak_ptr<TriangleMesh>>>& triangle_meshes)
 {
     prepareForRendering();
-    processEntities(entities);
-    deferred_shading_renderer.renderSceneObjects(hdr_fbo, objects_map, lights, camera);
+    deferred_shading_renderer.renderSceneObjects(hdr_fbo, triangle_meshes, lights, camera);
     skybox_renderer.renderSkybox(hdr_fbo, camera);
     post_processing_chain_renderer.applyPostProcessing(hdr_color_buffer);
     applyToneMappingAndRenderToDefaultFramebuffer();
-    cleanUpObjectsMaps();
 }
 
 void Renderer::renderImage(unsigned texture_id)
@@ -71,41 +72,10 @@ void Renderer::prepareForRendering()
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 }
 
-void Renderer::processEntities(const std::vector<std::weak_ptr<TriangleMesh>>& entities)
-{
-    for (const auto& entity : entities)
-    {
-        processEntity(objects_map, entity);
-    }
-}
-
-void Renderer::processEntity(std::map<std::shared_ptr<RawModel>, std::vector<std::weak_ptr<TriangleMesh>>>& map, const std::weak_ptr<TriangleMesh>& entity)
-{
-    auto entity_model = entity.lock()->getModelData();
-
-    const auto it = map.find(entity_model);
-    if (it != map.end())
-    {
-        auto& batch = it->second;
-        batch.push_back(entity);
-    }
-    else
-    {
-        std::vector<std::weak_ptr<TriangleMesh>> new_batch;
-        new_batch.push_back(entity);
-        map.insert(std::make_pair(entity_model, new_batch));
-    }
-}
-
 void Renderer::applyToneMappingAndRenderToDefaultFramebuffer()
 {
     tone_mapping_shader.start();
     glActiveTexture(GL_TEXTURE0 + RendererDefines::HDR_BUFFER_INDEX);
     hdr_color_buffer.bindTexture();
     RenderingUtils::renderQuad();
-}
-
-void Renderer::cleanUpObjectsMaps()
-{
-    objects_map.clear();
 }

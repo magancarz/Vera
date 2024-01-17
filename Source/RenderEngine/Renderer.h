@@ -17,24 +17,23 @@ class Renderer
 public:
     Renderer();
 
-    void renderScene(const std::shared_ptr<Camera>& camera, const std::vector<std::weak_ptr<Light>>& lights, const std::vector<std::weak_ptr<TriangleMesh>>& entities);
+    void renderScene(
+        const std::shared_ptr<Camera>& camera,
+        const std::vector<std::weak_ptr<Light>>& lights,
+        const std::map<std::shared_ptr<RawModel>, std::vector<std::weak_ptr<TriangleMesh>>>& triangle_meshes);
     void renderImage(unsigned texture_id);
 
 private:
     void createHDRFramebuffer();
     void prepareRenderer();
-    void processEntities(const std::vector<std::weak_ptr<TriangleMesh>>& entities);
-    void processEntity(std::map<std::shared_ptr<RawModel>, std::vector<std::weak_ptr<TriangleMesh>>>& map, const std::weak_ptr<TriangleMesh>& entity);
     void prepareForRendering();
     void applyToneMappingAndRenderToDefaultFramebuffer();
-    void cleanUpObjectsMaps();
 
     utils::FBO hdr_fbo;
     utils::Texture hdr_color_buffer;
     utils::Renderbuffer hdr_rbo_depth;
     ToneMappingShader tone_mapping_shader;
 
-    std::map<std::shared_ptr<RawModel>, std::vector<std::weak_ptr<TriangleMesh>>> objects_map;
     DeferredShadingRenderer deferred_shading_renderer;
     SkyboxRenderer skybox_renderer;
     PostProcessingChainRenderer post_processing_chain_renderer;

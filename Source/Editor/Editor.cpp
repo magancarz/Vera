@@ -83,7 +83,7 @@ void Editor::renderScene()
         return;
     }
 
-    master_renderer.renderScene(camera, scene->lights, scene->triangle_meshes);
+    master_renderer.renderScene(camera, scene->lights, scene->triangle_meshes_map);
 }
 
 EditorInfo Editor::prepareEditorInfo()
