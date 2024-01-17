@@ -7,12 +7,12 @@ CubeShadowMapShader::CubeShadowMapShader()
         "Source/RenderEngine/Shadows/cube_map_depth_geom.glsl",
         "Source/RenderEngine/Shadows/cube_map_depth_frag.glsl") {}
 
-void CubeShadowMapShader::loadTransformationMatrix(const glm::mat4& matrix) const
+void CubeShadowMapShader::loadTransformationMatrix(const glm::mat4& matrix)
 {
     loadMatrix(location_transformation_matrix, matrix);
 }
 
-void CubeShadowMapShader::loadLightSpaceMatrices(const std::vector<glm::mat4>& matrices) const
+void CubeShadowMapShader::loadLightSpaceMatrices(const std::vector<glm::mat4>& matrices)
 {
     if (matrices.size() < 6)
     {
@@ -25,12 +25,12 @@ void CubeShadowMapShader::loadLightSpaceMatrices(const std::vector<glm::mat4>& m
     }
 }
 
-void CubeShadowMapShader::loadLightPosition(const glm::vec3& position) const
+void CubeShadowMapShader::loadLightPosition(const glm::vec3& position)
 {
     loadVector3(location_light_position, position);
 }
 
-void CubeShadowMapShader::loadFarPlane(float value) const
+void CubeShadowMapShader::loadFarPlane(float value)
 {
     loadFloat(location_far_plane, value);
 }

@@ -8,7 +8,7 @@ public:
     ImageShader();
     virtual ~ImageShader() = default;
 
-    void connectTextureUnits() const;
+    void connectTextureUnits() override;
     void getAllUniformLocations() override;
 
 private:

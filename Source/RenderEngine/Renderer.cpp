@@ -7,8 +7,6 @@
 
 Renderer::Renderer()
 {
-    image_shader.getAllUniformLocations();
-    image_shader.connectTextureUnits();
     createHDRFramebuffer();
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_STENCIL_TEST);
@@ -38,13 +36,10 @@ void Renderer::createHDRFramebuffer()
     glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, hdr_rbo_depth.buffer_id);
     if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
     {
-        std::cout << "Framebuffer not complete!\n";
+        std::cout << "HDR framebuffer not complete yet!\n";
     }
 
     hdr_fbo.unbind();
-
-    tone_mapping_shader.getAllUniformLocations();
-    tone_mapping_shader.connectTextureUnits();
 }
 
 void Renderer::renderScene(const std::shared_ptr<Camera>& camera, const std::vector<std::weak_ptr<Light>>& lights, const std::vector<std::weak_ptr<TriangleMesh>>& entities)
@@ -58,7 +53,7 @@ void Renderer::renderScene(const std::shared_ptr<Camera>& camera, const std::vec
     cleanUpObjectsMaps();
 }
 
-void Renderer::renderImage(unsigned texture_id) const
+void Renderer::renderImage(unsigned texture_id)
 {
     image_shader.start();
     glActiveTexture(GL_TEXTURE0);

@@ -18,7 +18,7 @@ public:
     Renderer();
 
     void renderScene(const std::shared_ptr<Camera>& camera, const std::vector<std::weak_ptr<Light>>& lights, const std::vector<std::weak_ptr<TriangleMesh>>& entities);
-    void renderImage(unsigned texture_id) const;
+    void renderImage(unsigned texture_id);
 
 private:
     static void prepare();

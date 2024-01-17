@@ -22,6 +22,8 @@ public:
         const std::vector<std::weak_ptr<Light>>& lights,
         const std::shared_ptr<Camera>& camera);
 
+    SSAORenderer ssao_renderer;
+
 private:
     void createGBuffer();
     void prepareSceneObjectsRenderers();
@@ -52,7 +54,6 @@ private:
         std::make_shared<NormalMappedSceneObjectsRenderer>(),
         std::make_shared<SceneObjectsRenderer>()
     };
-    SSAORenderer ssao_renderer;
     LightingPassRenderer lighting_pass_renderer;
     OutlineMarkShader outline_mark_shader;
     OutlineShader outline_shader;

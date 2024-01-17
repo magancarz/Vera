@@ -22,7 +22,6 @@ void DeferredShadingRenderer::prepareSceneObjectsRenderers()
 
     outline_mark_shader.bindUniformBuffer(transformation_matrices_uniform_buffer);
 
-    outline_shader.getAllUniformLocations();
     outline_shader.loadOutlineColor(glm::vec3{0, 1, 1});
 
     ssao_renderer.bindUniformBuffer(transformation_matrices_uniform_buffer);
@@ -30,7 +29,6 @@ void DeferredShadingRenderer::prepareSceneObjectsRenderers()
     lighting_pass_renderer.bindUniformBuffer(light_info_uniform_buffer);
     lighting_pass_renderer.bindUniformBuffer(transformation_matrices_uniform_buffer);
 
-    light_objects_shader.getAllUniformLocations();
     light_objects_shader.bindUniformBuffer(transformation_matrices_uniform_buffer);
 }
 

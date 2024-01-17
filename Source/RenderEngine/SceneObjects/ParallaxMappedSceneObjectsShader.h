@@ -7,10 +7,10 @@ class ParallaxMappedSceneObjectsShader : public SceneObjectsShader
 public:
     ParallaxMappedSceneObjectsShader();
 
-    size_t connectTextureUnits() const override;
+    void connectTextureUnits() override;
     void getAllUniformLocations() override;
 
-    void loadHeightScale(float height_scale) const;
+    void loadHeightScale(float height_scale);
 
 private:
     int location_normal_texture;

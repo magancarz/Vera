@@ -16,7 +16,6 @@ public:
     void apply(const utils::Texture& in_out_hdr_color_buffer) override;
 
 private:
-    void prepareShaders();
     void createBrightColorExtractFramebuffer();
     void createBlurFramebuffers();
     void extractBrightColors(const utils::Texture& in_out_hdr_color_buffer);

@@ -11,8 +11,8 @@ class SkyboxShader : public ShaderProgram
 public:
     SkyboxShader();
 
-    void loadViewMatrix(const std::shared_ptr<Camera>& camera) const;
-    void loadProjectionMatrix(const std::shared_ptr<Camera>& camera) const;
+    void loadViewMatrix(const std::shared_ptr<Camera>& camera);
+    void loadProjectionMatrix(const std::shared_ptr<Camera>& camera);
 
     void connectTextureUnits();
     void getAllUniformLocations() override;

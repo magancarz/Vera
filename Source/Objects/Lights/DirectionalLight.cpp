@@ -16,7 +16,6 @@ DirectionalLight::DirectionalLight(Scene* parent_scene, const glm::vec3& light_d
 void DirectionalLight::createShadowMapShader()
 {
     shadow_map_shader = std::make_unique<ShadowMapShader>();
-    shadow_map_shader->getAllUniformLocations();
     shader_program_as_shadow_map_shader = dynamic_cast<ShadowMapShader*>(shadow_map_shader.get());
 }
 

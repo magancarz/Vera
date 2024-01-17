@@ -1,22 +1,14 @@
 #include "NormalMappedSceneObjectsShader.h"
-
-#include <memory>
-#include <ranges>
-
-#include "Materials/Material.h"
-#include "RenderEngine/Camera.h"
-#include "Objects/Lights/Light.h"
+#include "RenderEngine/RendererDefines.h"
 
 NormalMappedSceneObjectsShader::NormalMappedSceneObjectsShader()
     : SceneObjectsShader("Resources/Shaders/NormalMappedSceneObjectVert.glsl", "Resources/Shaders/NormalMappedSceneObjectFrag.glsl") {}
 
-size_t NormalMappedSceneObjectsShader::connectTextureUnits() const
+void NormalMappedSceneObjectsShader::connectTextureUnits()
 {
-    size_t first_free_texture = SceneObjectsShader::connectTextureUnits();
+    SceneObjectsShader::connectTextureUnits();
 
-    loadInt(location_normal_texture, first_free_texture + 0);
-
-    return first_free_texture + 1;
+    loadInt(location_normal_texture, RendererDefines::MODEL_TEXTURES_STARTING_INDEX + 1);
 }
 
 void NormalMappedSceneObjectsShader::getAllUniformLocations()

@@ -8,7 +8,7 @@ void ImageShader::getAllUniformLocations()
     location_texture = getUniformLocation("texture_sampler");
 }
 
-void ImageShader::connectTextureUnits() const
+void ImageShader::connectTextureUnits()
 {
     loadInt(location_texture, 0);
 }

@@ -22,10 +22,10 @@ public:
     SceneObjectsShader();
     ~SceneObjectsShader() override = default;
 
-    virtual size_t connectTextureUnits() const;
+    void connectTextureUnits() override;
     void getAllUniformLocations() override;
 
-    void loadReflectivity(float reflectivity) const;
+    void loadReflectivity(float reflectivity);
 
 protected:
     SceneObjectsShader(const std::string& vertex_file, const std::string& fragment_file);

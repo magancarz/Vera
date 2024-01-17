@@ -9,8 +9,6 @@ class Camera;
 class LightingPassRenderer
 {
 public:
-    LightingPassRenderer();
-
     void render(const std::shared_ptr<Camera>& camera, const utils::Texture& ssao);
 
     template <typename T>

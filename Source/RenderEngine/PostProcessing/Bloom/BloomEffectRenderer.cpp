@@ -5,24 +5,8 @@
 
 BloomEffectRenderer::BloomEffectRenderer()
 {
-    prepareShaders();
     createBrightColorExtractFramebuffer();
     createBlurFramebuffers();
-}
-
-void BloomEffectRenderer::prepareShaders()
-{
-    bright_colors_extract_shader.getAllUniformLocations();
-    bright_colors_extract_shader.connectTextureUnits();
-
-    horizontal_blur_shader.getAllUniformLocations();
-    horizontal_blur_shader.connectTextureUnits();
-
-    vertical_blur_shader.getAllUniformLocations();
-    vertical_blur_shader.connectTextureUnits();
-
-    combine_shader.getAllUniformLocations();
-    combine_shader.connectTextureUnits();
 }
 
 void BloomEffectRenderer::createBrightColorExtractFramebuffer()

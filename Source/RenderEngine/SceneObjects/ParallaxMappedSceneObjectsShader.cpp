@@ -1,16 +1,15 @@
 #include "ParallaxMappedSceneObjectsShader.h"
+#include "RenderEngine/RendererDefines.h"
 
 ParallaxMappedSceneObjectsShader::ParallaxMappedSceneObjectsShader()
     : SceneObjectsShader("Resources/Shaders/ParallaxMappedSceneObjectVert.glsl", "Resources/Shaders/ParallaxMappedSceneObjectFrag.glsl") {}
 
-size_t ParallaxMappedSceneObjectsShader::connectTextureUnits() const
+void ParallaxMappedSceneObjectsShader::connectTextureUnits()
 {
-    size_t first_free_texture = SceneObjectsShader::connectTextureUnits();
+    SceneObjectsShader::connectTextureUnits();
 
-    loadInt(location_normal_texture, first_free_texture + 0);
-    loadInt(location_depth_texture, first_free_texture + 1);
-
-    return first_free_texture + 2;
+    loadInt(location_normal_texture, RendererDefines::MODEL_TEXTURES_STARTING_INDEX + 1);
+    loadInt(location_depth_texture, RendererDefines::MODEL_TEXTURES_STARTING_INDEX + 2);
 }
 
 void ParallaxMappedSceneObjectsShader::getAllUniformLocations()
@@ -22,7 +21,7 @@ void ParallaxMappedSceneObjectsShader::getAllUniformLocations()
     location_height_scale = getUniformLocation("height_scale");
 }
 
-void ParallaxMappedSceneObjectsShader::loadHeightScale(float height_scale) const
+void ParallaxMappedSceneObjectsShader::loadHeightScale(float height_scale)
 {
     loadFloat(location_height_scale, height_scale);
 }
