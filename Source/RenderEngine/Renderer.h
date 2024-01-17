@@ -21,10 +21,11 @@ public:
     void renderImage(unsigned texture_id);
 
 private:
-    static void prepare();
     void createHDRFramebuffer();
+    void prepareRenderer();
     void processEntities(const std::vector<std::weak_ptr<TriangleMesh>>& entities);
     void processEntity(std::map<std::shared_ptr<RawModel>, std::vector<std::weak_ptr<TriangleMesh>>>& map, const std::weak_ptr<TriangleMesh>& entity);
+    void prepareForRendering();
     void applyToneMappingAndRenderToDefaultFramebuffer();
     void cleanUpObjectsMaps();
 

@@ -8,12 +8,7 @@
 Renderer::Renderer()
 {
     createHDRFramebuffer();
-    glEnable(GL_DEPTH_TEST);
-    glEnable(GL_STENCIL_TEST);
-    glEnable(GL_CULL_FACE);
-    glCullFace(GL_BACK);
-    glClearColor(0, 0, 0, 1);
-    glStencilMask(0xFF);
+    prepareRenderer();
 }
 
 void Renderer::createHDRFramebuffer()
@@ -42,9 +37,19 @@ void Renderer::createHDRFramebuffer()
     hdr_fbo.unbind();
 }
 
+void Renderer::prepareRenderer()
+{
+    glEnable(GL_DEPTH_TEST);
+    glEnable(GL_STENCIL_TEST);
+    glEnable(GL_CULL_FACE);
+    glCullFace(GL_BACK);
+    glClearColor(0, 0, 0, 1);
+    glStencilMask(0x00);
+}
+
 void Renderer::renderScene(const std::shared_ptr<Camera>& camera, const std::vector<std::weak_ptr<Light>>& lights, const std::vector<std::weak_ptr<TriangleMesh>>& entities)
 {
-    prepare();
+    prepareForRendering();
     processEntities(entities);
     deferred_shading_renderer.renderSceneObjects(hdr_fbo, objects_map, lights, camera);
     skybox_renderer.renderSkybox(hdr_fbo, camera);
@@ -61,7 +66,7 @@ void Renderer::renderImage(unsigned texture_id)
     RenderingUtils::renderYInvertedQuad();
 }
 
-void Renderer::prepare()
+void Renderer::prepareForRendering()
 {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 }

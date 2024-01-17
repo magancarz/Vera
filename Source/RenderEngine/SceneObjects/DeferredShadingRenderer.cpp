@@ -84,21 +84,23 @@ void DeferredShadingRenderer::renderSceneObjects(
 
     renderShadowMap(entity_map, lights);
 
-    std::map<std::shared_ptr<RawModel>, std::vector<std::shared_ptr<TriangleMesh>>> light_objects;
 
     g_buffer.bindFramebuffer();
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+    g_buffer.clearFramebuffer();
 
     glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
     glStencilFunc(GL_ALWAYS, 0, 0x00);
     glStencilMask(0xFF);
+
+    std::map<std::shared_ptr<RawModel>, std::vector<std::shared_ptr<TriangleMesh>>> light_objects;
     for (const auto& [raw_model, entities] : entity_map)
     {
         raw_model->prepareModel();
         for (const auto& entity : entities)
         {
             auto entity_shared_ptr = entity.lock();
-            if (entity_shared_ptr->getMaterial()->isEmittingLight()) {
+            if (entity_shared_ptr->getMaterial()->isEmittingLight())
+            {
                 light_objects[raw_model].push_back(entity_shared_ptr);
                 continue;
             }
