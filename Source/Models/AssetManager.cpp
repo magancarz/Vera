@@ -52,9 +52,14 @@ void AssetManager::initializeAssets()
     createMaterialAsset("blue", blue_material_parameters);
 
     MaterialParameters light_material_parameters{
-        "white", "", "specular", 15.f
+        "white", "", "specular", 40.f
     };
     createMaterialAsset("light", light_material_parameters);
+
+    MaterialParameters red_light_material_parameters{
+            "red", "", "specular", 40.f
+    };
+    createMaterialAsset("red_light", red_light_material_parameters);
 
     MaterialParameters transparent_material_parameters{
         "white", "", "blue", 0.f, 0.f, 1.5f
