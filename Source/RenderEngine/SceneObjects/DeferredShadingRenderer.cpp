@@ -22,7 +22,6 @@ void DeferredShadingRenderer::prepareSceneObjectsRenderers()
 
     outline_mark_shader.bindUniformBuffer(transformation_matrices_uniform_buffer);
 
-    outline_shader.getAllUniformLocations();
     outline_shader.loadOutlineColor(glm::vec3{0, 1, 1});
 
     ssao_renderer.bindUniformBuffer(transformation_matrices_uniform_buffer);
@@ -30,7 +29,6 @@ void DeferredShadingRenderer::prepareSceneObjectsRenderers()
     lighting_pass_renderer.bindUniformBuffer(light_info_uniform_buffer);
     lighting_pass_renderer.bindUniformBuffer(transformation_matrices_uniform_buffer);
 
-    light_objects_shader.getAllUniformLocations();
     light_objects_shader.bindUniformBuffer(transformation_matrices_uniform_buffer);
 }
 
@@ -86,21 +84,23 @@ void DeferredShadingRenderer::renderSceneObjects(
 
     renderShadowMap(entity_map, lights);
 
-    std::map<std::shared_ptr<RawModel>, std::vector<std::shared_ptr<TriangleMesh>>> light_objects;
 
     g_buffer.bindFramebuffer();
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+    g_buffer.clearFramebuffer();
 
     glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
     glStencilFunc(GL_ALWAYS, 0, 0x00);
     glStencilMask(0xFF);
+
+    std::map<std::shared_ptr<RawModel>, std::vector<std::shared_ptr<TriangleMesh>>> light_objects;
     for (const auto& [raw_model, entities] : entity_map)
     {
         raw_model->prepareModel();
         for (const auto& entity : entities)
         {
             auto entity_shared_ptr = entity.lock();
-            if (entity_shared_ptr->getMaterial()->isEmittingLight()) {
+            if (entity_shared_ptr->getMaterial()->isEmittingLight())
+            {
                 light_objects[raw_model].push_back(entity_shared_ptr);
                 continue;
             }
@@ -220,7 +220,7 @@ void DeferredShadingRenderer::renderLightObjects(
         raw_model->prepareModel();
         for (auto& entity : entities)
         {
-            light_objects_shader.loadLightColor(entity->getMaterial()->getColor());
+            light_objects_shader.loadLightColor(entity->getMaterial()->getLightColor());
             transformation_matrices_uniform_buffer.setValue(entity->getTransform(), 0);
             glDrawElements(GL_TRIANGLES, static_cast<int>(raw_model->vertex_count), GL_UNSIGNED_INT, nullptr);
         }

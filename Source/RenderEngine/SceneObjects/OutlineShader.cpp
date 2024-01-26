@@ -8,7 +8,7 @@ void OutlineShader::getAllUniformLocations()
     location_color = getUniformLocation("color");
 }
 
-void OutlineShader::loadOutlineColor(const glm::vec3& color) const
+void OutlineShader::loadOutlineColor(const glm::vec3& color)
 {
     loadVector3(location_color, color);
 }

@@ -12,7 +12,7 @@ public:
     ShaderProgram(const std::string& vertex_file, const std::string& geometry_file, const std::string& fragment_file);
     virtual ~ShaderProgram();
 
-    void start() const;
+    void start();
     static void stop();
 
     template <typename T>
@@ -26,16 +26,17 @@ public:
         glUniformBlockBinding(program_id, shader_uniform_block_index, uniform_buffer.getUniformBlockIndex());
     }
 
-    virtual void connectTextureUnits() {}
-    virtual void getAllUniformLocations() {};
-
 protected:
+    virtual void checkIfShaderIsPrepared();
+    virtual void connectTextureUnits() {}
+    virtual void getAllUniformLocations() {}
+
     int getUniformLocation(const std::string& uniform_name) const;
 
-    void loadInt(int location, int value) const;
-    void loadFloat(int location, float value) const;
-    void loadMatrix(int location, const glm::mat4& matrix) const;
-    void loadVector3(int location, const glm::vec3& vector) const;
+    void loadInt(int location, int value);
+    void loadFloat(int location, float value);
+    void loadMatrix(int location, const glm::mat4& matrix);
+    void loadVector3(int location, const glm::vec3& vector);
 
     void loadShaders(const std::string& vertex_file, const std::string& fragment_file);
     void loadShaders(const std::string& vertex_file, const std::string& geometry_file, const std::string& fragment_file);
@@ -47,8 +48,11 @@ protected:
 
 private:
     unsigned int loadShader(const std::string& file, unsigned int type) const;
-    void activateProgramIfNotActivatedYet() const;
+    void prepareShaderIfNotPreparedYet();
+    bool checkIfProgramIsPrepared() const;
+    void activateProgramIfNotActivatedYet();
     bool checkIfProgramIsActivated() const;
 
     inline static int last_used_shader_program{-1};
+    bool prepared_shader{false};
 };

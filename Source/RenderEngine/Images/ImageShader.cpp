@@ -1,14 +1,14 @@
-#include "RayTracedImageShader.h"
+#include "ImageShader.h"
 
-RayTracedImageShader::RayTracedImageShader()
+ImageShader::ImageShader()
     : ShaderProgram("Resources/Shaders/QuadVert.glsl", "Resources/Shaders/texture_frag.glsl") {}
 
-void RayTracedImageShader::getAllUniformLocations()
+void ImageShader::getAllUniformLocations()
 {
     location_texture = getUniformLocation("texture_sampler");
 }
 
-void RayTracedImageShader::connectTextureUnits() const
+void ImageShader::connectTextureUnits()
 {
     loadInt(location_texture, 0);
 }

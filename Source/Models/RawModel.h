@@ -98,6 +98,11 @@ namespace utils
             glBindFramebuffer(GL_FRAMEBUFFER, FBO_id);
         }
 
+        void clearFramebuffer() const
+        {
+            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+        }
+
         void unbind() const
         {
             glBindFramebuffer(GL_FRAMEBUFFER, 0);

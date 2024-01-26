@@ -18,11 +18,9 @@ SceneObjectsShader::SceneObjectsShader(
         const std::string& fragment_file)
     : ShaderProgram(vertex_file, geometry_file, fragment_file) {}
 
-size_t SceneObjectsShader::connectTextureUnits() const
+void SceneObjectsShader::connectTextureUnits()
 {
     loadInt(location_model_texture, RendererDefines::MODEL_TEXTURES_STARTING_INDEX + 0);
-
-    return RendererDefines::MODEL_TEXTURES_STARTING_INDEX + 1;
 }
 
 void SceneObjectsShader::getAllUniformLocations()
@@ -31,7 +29,7 @@ void SceneObjectsShader::getAllUniformLocations()
     location_model_texture = getUniformLocation("color_texture_sampler");
 }
 
-void SceneObjectsShader::loadReflectivity(float reflectivity) const
+void SceneObjectsShader::loadReflectivity(float reflectivity)
 {
     loadFloat(location_reflectivity, reflectivity);
 }

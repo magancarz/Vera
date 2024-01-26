@@ -4,6 +4,7 @@ target_sources(Vera-Lib PRIVATE
 
 add_subdirectory(HDR)
 add_subdirectory(Images)
+add_subdirectory(PostProcessing)
 add_subdirectory(RayTracing)
 add_subdirectory(RenderingUtils)
 add_subdirectory(SceneObjects)

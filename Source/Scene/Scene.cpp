@@ -31,19 +31,25 @@ void Scene::notifyOnObjectMaterialChange()
     need_to_build_intersection_accelerator = true;
 }
 
-void Scene::deleteObject(const Object* scene_object)
+void Scene::deleteObject(Object* scene_object)
 {
-    for (int i = 0; i < objects.size(); ++i)
+    std::erase_if(objects, [&](const std::shared_ptr<Object>& object)
     {
-        if (objects[i]->object_id == scene_object->object_id)
-        {
-            objects.erase(objects.begin() + i);
-            objects.shrink_to_fit();
-        }
-    }
-    Algorithms::removeExpiredWeakPointers(triangle_meshes);
-    Algorithms::removeExpiredWeakPointers(lights);
+       return object->object_id == scene_object->object_id;
+    });
     need_to_build_intersection_accelerator = true;
+
+    if (auto as_light = dynamic_cast<Light*>(scene_object))
+    {
+        Algorithms::removeExpiredWeakPointers(lights);
+    }
+
+    if (auto as_triangle_mesh = dynamic_cast<TriangleMesh*>(scene_object))
+    {
+        Algorithms::removeExpiredWeakPointers(triangle_meshes);
+        removeTriangleMeshFromMapOfModels(as_triangle_mesh);
+        return;
+    }
 }
 
 std::weak_ptr<Object> Scene::findObjectByID(unsigned id)
@@ -83,6 +89,7 @@ void Scene::loadTriangleMeshes(const std::vector<std::string>& triangle_meshes_i
         triangle_mesh->createShapesForRayTracedMesh();
         objects.push_back(triangle_mesh);
         triangle_meshes.push_back(triangle_mesh);
+        putTriangleMeshToMapOfModels(triangle_mesh);
     }
 }
 
@@ -110,6 +117,7 @@ void Scene::createTriangleMesh(std::shared_ptr<RawModel> model)
     triangle_mesh->createShapesForRayTracedMesh();
     objects.push_back(triangle_mesh);
     triangle_meshes.push_back(triangle_mesh);
+    putTriangleMeshToMapOfModels(triangle_mesh);
     need_to_build_intersection_accelerator = true;
 }
 
@@ -124,6 +132,34 @@ void Scene::createSceneLight(const std::shared_ptr<LightCreator>& light_creator)
     else
     {
         std::cerr << "Couldn't create new light, because number of lights is already at max limit!\n";
+    }
+}
+
+void Scene::putTriangleMeshToMapOfModels(const std::weak_ptr<TriangleMesh>& triangle_mesh)
+{
+    auto entity_model = triangle_mesh.lock()->getModelData();
+    const auto it = triangle_meshes_map.find(entity_model);
+    if (it != triangle_meshes_map.end())
+    {
+        auto& batch = it->second;
+        batch.push_back(triangle_mesh);
+    }
+    else
+    {
+        std::vector<std::weak_ptr<TriangleMesh>> new_batch;
+        new_batch.push_back(triangle_mesh);
+        triangle_meshes_map.insert(std::make_pair(entity_model, new_batch));
+    }
+}
+
+void Scene::removeTriangleMeshFromMapOfModels(const TriangleMesh* triangle_mesh)
+{
+    auto entity_model = triangle_mesh->getModelData();
+    const auto it = triangle_meshes_map.find(entity_model);
+    if (it != triangle_meshes_map.end())
+    {
+        auto& batch = it->second;
+        Algorithms::removeExpiredWeakPointers(batch);
     }
 }
 

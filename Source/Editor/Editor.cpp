@@ -55,7 +55,7 @@ void Editor::renderScene()
     {
         scene->buildSceneIntersectionAcceleratorIfNeeded();
         ray_tracer.generateRayTracedImage(scene.get(), camera, current_texture);
-        master_renderer.renderRayTracedImage(getCurrentRayTracedTexture());
+        master_renderer.renderImage(getCurrentRayTracedTexture());
 
         return;
     }
@@ -67,7 +67,7 @@ void Editor::renderScene()
         ray_tracer.generateRayTracedImage(scene.get(), camera, current_texture);
         max_time_during_generating += timer.getTimeInMillis();
 
-        master_renderer.renderRayTracedImage(getCurrentRayTracedTexture());
+        master_renderer.renderImage(getCurrentRayTracedTexture());
 
         ++iterations_completed;
         --num_of_iterations_left;
@@ -83,7 +83,7 @@ void Editor::renderScene()
         return;
     }
 
-    master_renderer.renderScene(camera, scene->lights, scene->triangle_meshes);
+    master_renderer.renderScene(camera, scene->lights, scene->triangle_meshes_map);
 }
 
 EditorInfo Editor::prepareEditorInfo()

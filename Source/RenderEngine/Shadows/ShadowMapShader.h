@@ -7,8 +7,8 @@ class ShadowMapShader : public ShaderProgram
 public:
     ShadowMapShader();
 
-    void loadTransformationMatrix(const glm::mat4& matrix) const;
-    void loadLightSpaceMatrix(const glm::mat4& matrix) const;
+    void loadTransformationMatrix(const glm::mat4& matrix);
+    void loadLightSpaceMatrix(const glm::mat4& matrix);
 
     void getAllUniformLocations() override;
 

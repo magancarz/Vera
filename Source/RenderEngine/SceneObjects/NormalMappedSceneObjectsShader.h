@@ -7,7 +7,7 @@ class NormalMappedSceneObjectsShader : public SceneObjectsShader
 public:
     NormalMappedSceneObjectsShader();
 
-    size_t connectTextureUnits() const override;
+    void connectTextureUnits() override;
     void getAllUniformLocations() override;
 
 private:

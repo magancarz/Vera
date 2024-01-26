@@ -10,7 +10,7 @@ public:
 
     void getAllUniformLocations() override;
 
-    void loadOutlineColor(const glm::vec3& color) const;
+    void loadOutlineColor(const glm::vec3& color);
 
 private:
     int location_color;

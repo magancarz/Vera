@@ -2,14 +2,14 @@
 
 #include "Shaders/ShaderProgram.h"
 
-class HDRShader : public ShaderProgram
+class BrightColorsExtractShader : public ShaderProgram
 {
 public:
-    HDRShader();
+    BrightColorsExtractShader();
 
     void getAllUniformLocations() override;
     void connectTextureUnits() override;
 
 private:
-    int location_hdr_buffer;
+    int location_hdr_color_buffer;
 };

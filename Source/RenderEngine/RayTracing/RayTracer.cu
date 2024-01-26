@@ -111,7 +111,7 @@ namespace RayTracing
             delete curand_state;
 
             color /= static_cast<float>(samples_per_pixel);
-            color = glm::clamp(color, 0.f, 1.f);
+            color = glm::vec3{1.0f} - glm::exp(-color * 2.f);
 
             const size_t index = y * image_width + x;
 

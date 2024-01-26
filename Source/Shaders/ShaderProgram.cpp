@@ -28,8 +28,9 @@ ShaderProgram::~ShaderProgram()
     glDeleteProgram(program_id);
 }
 
-void ShaderProgram::start() const
+void ShaderProgram::start()
 {
+    prepareShaderIfNotPreparedYet();
     glUseProgram(program_id);
     last_used_shader_program = program_id;
 }
@@ -45,13 +46,34 @@ int ShaderProgram::getUniformLocation(const std::string& uniform_name) const
     return glGetUniformLocation(program_id, uniform_name.c_str());
 }
 
-void ShaderProgram::loadInt(const int location, const int value) const
+void ShaderProgram::loadInt(const int location, const int value)
 {
-    activateProgramIfNotActivatedYet();
+    checkIfShaderIsPrepared();
     glUniform1i(location, value);
 }
 
-void ShaderProgram::activateProgramIfNotActivatedYet() const
+void ShaderProgram::checkIfShaderIsPrepared()
+{
+    prepareShaderIfNotPreparedYet();
+    activateProgramIfNotActivatedYet();
+}
+
+void ShaderProgram::prepareShaderIfNotPreparedYet()
+{
+    if (!checkIfProgramIsPrepared())
+    {
+        getAllUniformLocations();
+        prepared_shader = true;
+        connectTextureUnits();
+    }
+}
+
+bool ShaderProgram::checkIfProgramIsPrepared() const
+{
+    return prepared_shader;
+}
+
+void ShaderProgram::activateProgramIfNotActivatedYet()
 {
     if (!checkIfProgramIsActivated())
     {
@@ -64,21 +86,21 @@ bool ShaderProgram::checkIfProgramIsActivated() const
     return last_used_shader_program == program_id;
 }
 
-void ShaderProgram::loadFloat(int location, float value) const
+void ShaderProgram::loadFloat(int location, float value)
 {
-    activateProgramIfNotActivatedYet();
+    checkIfShaderIsPrepared();
     glUniform1f(location, value);
 }
 
-void ShaderProgram::loadMatrix(const int location, const glm::mat4& matrix) const
+void ShaderProgram::loadMatrix(const int location, const glm::mat4& matrix)
 {
-    activateProgramIfNotActivatedYet();
+    checkIfShaderIsPrepared();
     glUniformMatrix4fv(location, 1, GL_FALSE, value_ptr(matrix));
 }
 
-void ShaderProgram::loadVector3(const int location, const glm::vec3& vector) const
+void ShaderProgram::loadVector3(const int location, const glm::vec3& vector)
 {
-    activateProgramIfNotActivatedYet();
+    checkIfShaderIsPrepared();
     glUniform3f(location, vector.x, vector.y, vector.z);
 }
 

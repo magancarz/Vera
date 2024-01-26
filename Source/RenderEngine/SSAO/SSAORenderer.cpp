@@ -90,12 +90,7 @@ void SSAORenderer::createSSAOBlurFramebuffer()
 
 void SSAORenderer::prepareSSAOShader()
 {
-    ssao_shader.getAllUniformLocations();
-    ssao_shader.connectTextureUnits();
     ssao_shader.loadSamples(ssao_kernel);
-
-    ssao_blur_shader.getAllUniformLocations();
-    ssao_blur_shader.connectTextureUnits();
 }
 
 void SSAORenderer::render()
