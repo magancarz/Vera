@@ -7,7 +7,8 @@ add_library(Vera-Lib STATIC Source/Vera.cpp)
 add_subdirectory(Source)
 target_include_directories(Vera-Lib PUBLIC Source)
 
-find_package(Vulkan REQUIRED)
+find_package(Vulkan REQUIRED COMPONENTS glslc)
+find_program(glslc_executable NAMES glslc HINTS Vulkan::glslc)
 include_directories(${Vulkan_INCLUDE_DIRS})
 link_libraries(${Vulkan_LIBRARIES})
 
@@ -23,6 +24,31 @@ target_include_directories(Vera-Lib PUBLIC libs)
 
 add_executable(Vera Source/main.cpp)
 target_link_libraries(Vera Vera-Lib)
+
+set(SHADER_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/Shaders)
+set(SHADER_BINARY_DIR ${CMAKE_CURRENT_SOURCE_DIR}/Shaders)
+file(GLOB SHADERS
+        ${SHADER_SOURCE_DIR}/*.vert
+        ${SHADER_SOURCE_DIR}/*.frag)
+
+add_custom_command(
+        COMMAND ${CMAKE_COMMAND} -E make_directory ${SHADER_BINARY_DIR}
+        OUTPUT ${SHADER_BINARY_DIR}
+        COMMENT "Creating ${SHADER_BINARY_DIR}"
+)
+
+foreach (source IN LISTS SHADERS)
+    get_filename_component(FILENAME ${source} NAME)
+    add_custom_command(
+            COMMAND ${glslc_executable} -o ${SHADER_BINARY_DIR}/${FILENAME}.spv ${source}
+            OUTPUT ${SHADER_BINARY_DIR}/${FILENAME}.spv
+            COMMENT "Compiling ${FILENAME}"
+    )
+    list(APPEND SPV_SHADERS ${SHADER_BINARY_DIR}/${FILENAME}.spv)
+endforeach ()
+
+add_custom_target(SHADERS ALL DEPENDS ${SPV_SHADERS})
+add_dependencies(Vera SHADERS)
 
 #include(CTest)
 #add_subdirectory(libs/gtest)

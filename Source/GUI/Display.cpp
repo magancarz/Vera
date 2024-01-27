@@ -1,10 +1,9 @@
 #include "Display.h"
 
-#include <iostream>
 #include <stdexcept>
 
-#define GLFW_INCLUDE_NONE
 #define GLFW_INCLUDE_VULKAN
+#include <GLFW/glfw3.h>
 #include "../input/Input.h"
 
 void Display::keyCallback(GLFWwindow* window, int key, int scan_code, int action, int mods)
@@ -93,9 +92,8 @@ void Display::createDisplay()
         throw std::runtime_error("Couldn't initialize GLFW!\n");
     }
 
+    glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
     glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
-
-    glfwWindowHint(GLFW_SAMPLES, 4);
 
     window = glfwCreateWindow(WINDOW_WIDTH, WINDOW_HEIGHT, WINDOW_TITLE, nullptr, nullptr);
     if (!window)
