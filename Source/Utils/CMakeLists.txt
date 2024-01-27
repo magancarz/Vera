@@ -1,4 +1,3 @@
 target_sources(Vera-Lib PRIVATE
-        Algorithms.cu
-        Timer.cpp
-        CurandUtils.cu)
+        Algorithms.cpp
+        Timer.cpp)

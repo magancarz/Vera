@@ -1,3 +1,0 @@
-add_subdirectory(IntersectionAccelerators)
-add_subdirectory(PDF)
-add_subdirectory(Shapes)

@@ -3,9 +3,9 @@
 #include <iostream>
 #include <stdexcept>
 
+#define GLFW_INCLUDE_NONE
+#define GLFW_INCLUDE_VULKAN
 #include "../input/Input.h"
-#include "imgui/imgui_impl_glfw.h"
-#include "imgui/imgui_impl_opengl3.h"
 
 void Display::keyCallback(GLFWwindow* window, int key, int scan_code, int action, int mods)
 {
@@ -93,11 +93,6 @@ void Display::createDisplay()
         throw std::runtime_error("Couldn't initialize GLFW!\n");
     }
 
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
-
     glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
 
     glfwWindowHint(GLFW_SAMPLES, 4);
@@ -111,28 +106,20 @@ void Display::createDisplay()
 
     glfwMakeContextCurrent(window);
 
-    glEnable(GL_MULTISAMPLE);
-
     glfwSetKeyCallback(window, keyCallback);
     glfwSetMouseButtonCallback(window, mouseButtonCallback);
     glfwSetCursorPosCallback(window, cursorPosCallback);
     glfwSetScrollCallback(window, scrollCallback);
     glfwSetInputMode(window, GLFW_RAW_MOUSE_MOTION, GLFW_TRUE);
 
-    glewExperimental = GL_TRUE;
-    if (glewInit() != GLEW_OK)
-        std::cout << "[GLEW] failed to initialize GLEW!" << std::endl;
-
-    std::cout << "OpenGL version supported by this platform: " << glGetString(GL_VERSION) << std::endl;
-
-    IMGUI_CHECKVERSION();
-    ImGui::CreateContext();
-    ImGuiIO& io = ImGui::GetIO();
-    (void)io;
-    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
-    ImGui::StyleColorsDark();
-    ImGui_ImplGlfw_InitForOpenGL(window, true);
-    ImGui_ImplOpenGL3_Init("#version 330");
+//    IMGUI_CHECKVERSION();
+//    ImGui::CreateContext();
+//    ImGuiIO& io = ImGui::GetIO();
+//    (void)io;
+//    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
+//    ImGui::StyleColorsDark();
+//    ImGui_ImplGlfw_InitForOpenGL(window, true);
+//    ImGui_ImplOpenGL3_Init("#version 330");
 
     last_frame_time = getCurrentTime();
 }
@@ -147,9 +134,9 @@ void Display::updateDisplay()
 
 void Display::closeDisplay()
 {
-    ImGui_ImplOpenGL3_Shutdown();
-    ImGui_ImplGlfw_Shutdown();
-    ImGui::DestroyContext();
+//    ImGui_ImplOpenGL3_Shutdown();
+//    ImGui_ImplGlfw_Shutdown();
+//    ImGui::DestroyContext();
     glfwTerminate();
 }
 

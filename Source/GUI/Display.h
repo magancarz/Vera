@@ -1,8 +1,6 @@
 #pragma once
 
-#include <GL/glew.h>
 #include <GLFW/glfw3.h>
-#include "../RenderEngine/RayTracing//RayTracerConfig.h"
 
 class Display
 {
@@ -36,7 +34,7 @@ public:
     inline static const int WINDOW_HEIGHT = 800;
     inline static const float ASPECT = static_cast<float>(WINDOW_WIDTH) / WINDOW_HEIGHT;
 
-    inline static const char* WINDOW_TITLE = "Ray Tracing";
+    inline static const char* WINDOW_TITLE = "Vera";
 
 private:
     inline static bool is_close_requested = false;
