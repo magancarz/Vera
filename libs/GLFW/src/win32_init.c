@@ -359,7 +359,7 @@ static GLFWbool createHelperWindow(void)
     //       process passed along a STARTUPINFO, so clear that with a no-op call
     ShowWindow(_glfw.win32.helperWindowHandle, SW_HIDE);
 
-    // Register for HID device notifications
+    // Register for HID getDevice notifications
     {
         DEV_BROADCAST_DEVICEINTERFACE_W dbi;
         ZeroMemory(&dbi, sizeof(dbi));

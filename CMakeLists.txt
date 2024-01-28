@@ -47,8 +47,8 @@ foreach (source IN LISTS SHADERS)
     list(APPEND SPV_SHADERS ${SHADER_BINARY_DIR}/${FILENAME}.spv)
 endforeach ()
 
-add_custom_target(SHADERS ALL DEPENDS ${SPV_SHADERS})
-add_dependencies(Vera SHADERS)
+add_custom_target(shaders ALL DEPENDS ${SPV_SHADERS})
+add_dependencies(Vera shaders)
 
 #include(CTest)
 #add_subdirectory(libs/gtest)
@@ -62,3 +62,7 @@ add_dependencies(Vera SHADERS)
 #	gtest_discover_tests(Tests)
 #	add_subdirectory(Tests)
 #endif()
+
+set_target_properties(
+    Vera PROPERTIES
+    VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}")

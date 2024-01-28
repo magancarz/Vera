@@ -276,7 +276,7 @@ static void enableRawMouseMotion(_GLFWwindow* window)
     if (!RegisterRawInputDevices(&rid, 1, sizeof(rid)))
     {
         _glfwInputErrorWin32(GLFW_PLATFORM_ERROR,
-                             "Win32: Failed to register raw Input device");
+                             "Win32: Failed to register raw Input getDevice");
     }
 }
 
@@ -289,7 +289,7 @@ static void disableRawMouseMotion(_GLFWwindow* window)
     if (!RegisterRawInputDevices(&rid, 1, sizeof(rid)))
     {
         _glfwInputErrorWin32(GLFW_PLATFORM_ERROR,
-                             "Win32: Failed to remove raw Input device");
+                             "Win32: Failed to remove raw Input getDevice");
     }
 }
 

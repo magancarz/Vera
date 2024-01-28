@@ -2,8 +2,6 @@
 
 #include <stdexcept>
 
-#define GLFW_INCLUDE_VULKAN
-#include <GLFW/glfw3.h>
 #include "../input/Input.h"
 
 void Display::keyCallback(GLFWwindow* window, int key, int scan_code, int action, int mods)
@@ -120,6 +118,14 @@ void Display::createDisplay()
 //    ImGui_ImplOpenGL3_Init("#version 330");
 
     last_frame_time = getCurrentTime();
+}
+
+void Display::createWindowSurface(VkInstance instance, VkSurfaceKHR* surface)
+{
+    if (glfwCreateWindowSurface(instance, window, nullptr, surface) != VK_SUCCESS)
+    {
+        throw std::runtime_error("Failed to create window surface!");
+    }
 }
 
 void Display::updateDisplay()

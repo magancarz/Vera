@@ -37,7 +37,7 @@
 #define _GLFW_TYPE_BUTTON   2
 #define _GLFW_TYPE_POV      3
 
-// Data produced with DirectInput device object enumeration
+// Data produced with DirectInput getDevice object enumeration
 //
 typedef struct _GLFWobjenumWin32
 {
@@ -174,7 +174,7 @@ static const char* getDeviceDescription(const XINPUT_CAPABILITIES* xic)
     return "Unknown XInput Device";
 }
 
-// Lexically compare device objects
+// Lexically compare getDevice objects
 //
 static int compareJoystickObjects(const void* first, const void* second)
 {
@@ -187,7 +187,7 @@ static int compareJoystickObjects(const void* first, const void* second)
     return fo->offset - so->offset;
 }
 
-// Checks whether the specified device supports XInput
+// Checks whether the specified getDevice supports XInput
 // Technique from FDInputJoystickManager::IsXInputDeviceFast in ZDoom
 //
 static GLFWbool supportsXInput(const GUID* guid)
@@ -268,7 +268,7 @@ static void closeJoystick(_GLFWjoystick* js)
     _glfwFreeJoystick(js);
 }
 
-// DirectInput device object enumeration callback
+// DirectInput getDevice object enumeration callback
 // Insights gleaned from SDL
 //
 static BOOL CALLBACK deviceObjectCallback(const DIDEVICEOBJECTINSTANCEW* doi,
@@ -341,7 +341,7 @@ static BOOL CALLBACK deviceObjectCallback(const DIDEVICEOBJECTINSTANCEW* doi,
     return DIENUM_CONTINUE;
 }
 
-// DirectInput device enumeration callback
+// DirectInput getDevice enumeration callback
 //
 static BOOL CALLBACK deviceCallback(const DIDEVICEINSTANCE* di, void* user)
 {
@@ -372,14 +372,14 @@ static BOOL CALLBACK deviceCallback(const DIDEVICEINSTANCE* di, void* user)
                                           &device,
                                           NULL)))
     {
-        _glfwInputError(GLFW_PLATFORM_ERROR, "Win32: Failed to create device");
+        _glfwInputError(GLFW_PLATFORM_ERROR, "Win32: Failed to create getDevice");
         return DIENUM_CONTINUE;
     }
 
     if (FAILED(IDirectInputDevice8_SetDataFormat(device, &_glfwDataFormat)))
     {
         _glfwInputError(GLFW_PLATFORM_ERROR,
-                        "Win32: Failed to set device data format");
+                        "Win32: Failed to set getDevice data format");
 
         IDirectInputDevice8_Release(device);
         return DIENUM_CONTINUE;
@@ -391,7 +391,7 @@ static BOOL CALLBACK deviceCallback(const DIDEVICEINSTANCE* di, void* user)
     if (FAILED(IDirectInputDevice8_GetCapabilities(device, &dc)))
     {
         _glfwInputError(GLFW_PLATFORM_ERROR,
-                        "Win32: Failed to query device capabilities");
+                        "Win32: Failed to query getDevice capabilities");
 
         IDirectInputDevice8_Release(device);
         return DIENUM_CONTINUE;
@@ -408,7 +408,7 @@ static BOOL CALLBACK deviceCallback(const DIDEVICEINSTANCE* di, void* user)
                                                &dipd.diph)))
     {
         _glfwInputError(GLFW_PLATFORM_ERROR,
-                        "Win32: Failed to set device axis mode");
+                        "Win32: Failed to set getDevice axis mode");
 
         IDirectInputDevice8_Release(device);
         return DIENUM_CONTINUE;
@@ -425,7 +425,7 @@ static BOOL CALLBACK deviceCallback(const DIDEVICEINSTANCE* di, void* user)
                                                DIDFT_AXIS | DIDFT_BUTTON | DIDFT_POV)))
     {
         _glfwInputError(GLFW_PLATFORM_ERROR,
-                        "Win32: Failed to enumerate device objects");
+                        "Win32: Failed to enumerate getDevice objects");
 
         IDirectInputDevice8_Release(device);
         free(data.objects);

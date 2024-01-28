@@ -4772,7 +4772,7 @@ GLFWAPI GLFWcursorenterfun glfwSetCursorEnterCallback(GLFWwindow* window, GLFWcu
 /*! @brief Sets the scroll callback.
  *
  *  This function sets the scroll callback of the specified window, which is
- *  called when a scrolling device is used, such as a mouse wheel or scrolling
+ *  called when a scrolling getDevice is used, such as a mouse wheel or scrolling
  *  area of a touchpad.
  *
  *  The scroll callback receives all scrolling Input, like that from a mouse
@@ -5670,7 +5670,7 @@ GLFWAPI GLFWglproc glfwGetProcAddress(const char* procname);
  *  surface creation or even instance creation is possible.  Call @ref
  *  glfwGetRequiredInstanceExtensions to check whether the extensions necessary for Vulkan
  *  surface creation are available and @ref glfwGetPhysicalDevicePresentationSupport to
- *  check whether a queue family of a physical device supports image presentation.
+ *  check whether a queue family of a physical getDevice supports image presentation.
  *
  *  @return `GLFW_TRUE` if Vulkan is minimally available, or `GLFW_FALSE`
  *  otherwise.
@@ -5777,7 +5777,7 @@ GLFWAPI GLFWvkproc glfwGetInstanceProcAddress(VkInstance instance, const char* p
 /*! @brief Returns whether the specified queue family can present images.
  *
  *  This function returns whether the specified queue family of the specified
- *  physical device supports presentation to the platform GLFW was built for.
+ *  physical getDevice supports presentation to the platform GLFW was built for.
  *
  *  If Vulkan or the required window surface creation instance extensions are
  *  not available on the machine, or if the specified instance was not created
@@ -5787,8 +5787,8 @@ GLFWAPI GLFWvkproc glfwGetInstanceProcAddress(VkInstance instance, const char* p
  *  glfwGetRequiredInstanceExtensions to check what instance extensions are
  *  required.
  *
- *  @param[in] instance The instance that the physical device belongs to.
- *  @param[in] device The physical device that the queue family belongs to.
+ *  @param[in] instance The instance that the physical getDevice belongs to.
+ *  @param[in] device The physical getDevice that the queue family belongs to.
  *  @param[in] queuefamily The index of the queue family to query.
  *  @return `GLFW_TRUE` if the queue family supports presentation, or
  *  `GLFW_FALSE` otherwise.

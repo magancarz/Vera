@@ -183,11 +183,11 @@ const char* _glfwGetVulkanResultString(VkResult result)
         case VK_ERROR_OUT_OF_HOST_MEMORY:
             return "A host memory allocation has failed";
         case VK_ERROR_OUT_OF_DEVICE_MEMORY:
-            return "A device memory allocation has failed";
+            return "A getDevice memory allocation has failed";
         case VK_ERROR_INITIALIZATION_FAILED:
             return "Initialization of an object could not be completed for implementation-specific reasons";
         case VK_ERROR_DEVICE_LOST:
-            return "The logical or physical device has been lost";
+            return "The logical or physical getDevice has been lost";
         case VK_ERROR_MEMORY_MAP_FAILED:
             return "Mapping of a memory object has failed";
         case VK_ERROR_LAYER_NOT_PRESENT:
@@ -201,7 +201,7 @@ const char* _glfwGetVulkanResultString(VkResult result)
         case VK_ERROR_TOO_MANY_OBJECTS:
             return "Too many objects of the type have already been created";
         case VK_ERROR_FORMAT_NOT_SUPPORTED:
-            return "A requested format is not supported on this device";
+            return "A requested format is not supported on this getDevice";
         case VK_ERROR_SURFACE_LOST_KHR:
             return "A surface is no longer available";
         case VK_SUBOPTIMAL_KHR:
