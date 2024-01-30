@@ -3,21 +3,28 @@
 #include "Camera.h"
 #include "RenderEngine/RenderingAPI/Pipeline.h"
 #include "GUI/Display.h"
+#include "RenderEngine/RenderingAPI/SwapChain.h"
 
 class Renderer
 {
 public:
     Renderer();
+    ~Renderer();
+
+    Renderer(const Renderer&) = delete;
+    Renderer& operator=(const Renderer&) = delete;
 
     void renderScene();
 
 private:
+    void createPipelineLayout();
+    void createPipeline();
+    void createCommandBuffers();
+    void drawFrame();
+
     Device device;
-    Pipeline simple_pipeline
-    {
-        device,
-        "Shaders/SimpleShader.vert.spv",
-        "Shaders/SimpleShader.frag.spv",
-        Pipeline::defaultPipelineConfigInfo(Display::WINDOW_WIDTH, Display::WINDOW_HEIGHT)
-    };
+    SwapChain swap_chain{device, Display::getExtent()};
+    std::unique_ptr<Pipeline> simple_pipeline;
+    VkPipelineLayout pipeline_layout;
+    std::vector<VkCommandBuffer> command_buffers;
 };

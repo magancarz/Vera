@@ -23,5 +23,7 @@ void Vera::run()
 
 void Vera::close()
 {
+    //TODO:
+    //vkDeviceWaitIdle(device.getDevice());
     Display::closeDisplay();
 }

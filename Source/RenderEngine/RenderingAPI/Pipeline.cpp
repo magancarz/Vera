@@ -21,6 +21,11 @@ Pipeline::~Pipeline()
     vkDestroyPipeline(device.getDevice(), graphics_pipeline, VulkanDefines::NO_CALLBACK);
 }
 
+void Pipeline::bind(VkCommandBuffer command_buffer)
+{
+    vkCmdBindPipeline(command_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, graphics_pipeline);
+}
+
 void Pipeline::createGraphicsPipeline(const std::string& vertex_file_path, const std::string& fragment_file_path, const PipelineConfigInfo& config_info)
 {
     assert(config_info.pipeline_layout != VK_NULL_HANDLE && "Cannot create graphics pipeline: no pipeline layout provided in config info!");
@@ -41,13 +46,13 @@ void Pipeline::createGraphicsPipeline(const std::string& vertex_file_path, const
     shader_stage_create_infos[0].pNext = nullptr;
     shader_stage_create_infos[0].pSpecializationInfo = nullptr;
 
-    shader_stage_create_infos[0].sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
-    shader_stage_create_infos[0].stage = VK_SHADER_STAGE_FRAGMENT_BIT;
-    shader_stage_create_infos[0].module = fragment_shader_module;
-    shader_stage_create_infos[0].pName = "main";
-    shader_stage_create_infos[0].flags = 0;
-    shader_stage_create_infos[0].pNext = nullptr;
-    shader_stage_create_infos[0].pSpecializationInfo = nullptr;
+    shader_stage_create_infos[1].sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+    shader_stage_create_infos[1].stage = VK_SHADER_STAGE_FRAGMENT_BIT;
+    shader_stage_create_infos[1].module = fragment_shader_module;
+    shader_stage_create_infos[1].pName = "main";
+    shader_stage_create_infos[1].flags = 0;
+    shader_stage_create_infos[1].pNext = nullptr;
+    shader_stage_create_infos[1].pSpecializationInfo = nullptr;
 
     VkPipelineVertexInputStateCreateInfo vertex_input_state_create_info{};
     vertex_input_state_create_info.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
@@ -56,13 +61,20 @@ void Pipeline::createGraphicsPipeline(const std::string& vertex_file_path, const
     vertex_input_state_create_info.pVertexAttributeDescriptions = nullptr;
     vertex_input_state_create_info.pVertexBindingDescriptions = nullptr;
 
+    VkPipelineViewportStateCreateInfo viewport_info{};
+    viewport_info.sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
+    viewport_info.viewportCount = 1;
+    viewport_info.pViewports = &config_info.viewport;
+    viewport_info.scissorCount = 1;
+    viewport_info.pScissors = &config_info.scissor;
+
     VkGraphicsPipelineCreateInfo pipeline_create_info{};
     pipeline_create_info.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
     pipeline_create_info.stageCount = 2;
     pipeline_create_info.pStages = shader_stage_create_infos;
     pipeline_create_info.pVertexInputState = &vertex_input_state_create_info;
     pipeline_create_info.pInputAssemblyState = &config_info.input_assembly_info;
-    pipeline_create_info.pViewportState = &config_info.viewport_info;
+    pipeline_create_info.pViewportState = &viewport_info;
     pipeline_create_info.pRasterizationState = &config_info.rasterization_info;
     pipeline_create_info.pMultisampleState = &config_info.multisample_info;
     pipeline_create_info.pColorBlendState = &config_info.color_blend_info;
@@ -129,12 +141,6 @@ PipelineConfigInfo Pipeline::defaultPipelineConfigInfo(uint32_t width, uint32_t 
 
     config_info.scissor.offset = {0, 0};
     config_info.scissor.extent = {width, height};
-
-    config_info.viewport_info.sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
-    config_info.viewport_info.viewportCount = 1;
-    config_info.viewport_info.pViewports = &config_info.viewport;
-    config_info.viewport_info.scissorCount = 1;
-    config_info.viewport_info.pScissors = &config_info.scissor;
 
     config_info.rasterization_info.sType = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO;
     config_info.rasterization_info.depthClampEnable = VK_FALSE;

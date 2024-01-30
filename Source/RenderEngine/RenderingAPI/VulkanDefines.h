@@ -1,6 +1,7 @@
 #pragma once
 
-namespace VulkanDefines
+class VulkanDefines
 {
-    const VkAllocationCallbacks* NO_CALLBACK = nullptr;
-}
+public:
+    inline static const VkAllocationCallbacks* NO_CALLBACK = nullptr;
+};

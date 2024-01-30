@@ -35,6 +35,8 @@ public:
     static double getFrameTimeSeconds();
     static bool closeNotRequested();
 
+    static VkExtent2D getExtent() { return {static_cast<uint32_t>(WINDOW_WIDTH), static_cast<uint32_t>(WINDOW_HEIGHT)}; }
+
     inline static const int WINDOW_WIDTH = 1280;
     inline static const int WINDOW_HEIGHT = 800;
     inline static const float ASPECT = static_cast<float>(WINDOW_WIDTH) / WINDOW_HEIGHT;
