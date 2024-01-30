@@ -1,0 +1,12 @@
+{
+  "name" : "tiny-ray-tracing",
+  "version-string" : "1.0.0",
+  "builtin-baseline" : "a293ce5897b839da7c22fbb2dc07943e3646f58a",
+  "dependencies" : [ {
+    "name" : "glew",
+    "version>=" : "2.2.0#3"
+  }, {
+    "name" : "cuda",
+    "version>=" : "10.1#13"
+  } ]
+}
