@@ -42,13 +42,14 @@ foreach (source IN LISTS SHADERS)
     add_custom_command(
             COMMAND ${glslc_executable} -o ${SHADER_BINARY_DIR}/${FILENAME}.spv ${source}
             OUTPUT ${SHADER_BINARY_DIR}/${FILENAME}.spv
+            DEPENDS ${source} ${SHADER_BINARY_DIR}
             COMMENT "Compiling ${FILENAME}"
     )
     list(APPEND SPV_SHADERS ${SHADER_BINARY_DIR}/${FILENAME}.spv)
 endforeach ()
 
-add_custom_target(shaders ALL DEPENDS ${SHADERS})
-add_dependencies(Vera shaders)
+add_custom_target(SHADERS ALL DEPENDS ${SPV_SHADERS})
+add_dependencies(Vera SHADERS)
 
 #include(CTest)
 #add_subdirectory(libs/gtest)
