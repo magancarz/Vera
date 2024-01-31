@@ -1,15 +1,17 @@
 #include "SwapChain.h"
 
 #include <array>
-#include <cstdlib>
-#include <cstring>
 #include <iostream>
 #include <limits>
-#include <set>
 #include <stdexcept>
 
 SwapChain::SwapChain(Device& device_ref, VkExtent2D window_extent)
         : device{device_ref}, window_extent{window_extent}
+{
+    init();
+}
+
+void SwapChain::init()
 {
     createSwapChain();
     createImageViews();
@@ -17,6 +19,14 @@ SwapChain::SwapChain(Device& device_ref, VkExtent2D window_extent)
     createDepthResources();
     createFramebuffers();
     createSyncObjects();
+}
+
+SwapChain::SwapChain(Device& device_ref, VkExtent2D window_extent, std::shared_ptr<SwapChain> previous)
+        : device{device_ref}, window_extent{window_extent}, old_swap_chain{std::move(previous)}
+{
+    init();
+
+    old_swap_chain = nullptr;
 }
 
 SwapChain::~SwapChain()
@@ -27,10 +37,10 @@ SwapChain::~SwapChain()
     }
     swap_chain_image_views.clear();
 
-    if (swapchain != nullptr)
+    if (swap_chain != nullptr)
     {
-        vkDestroySwapchainKHR(device.getDevice(), swapchain, nullptr);
-        swapchain = nullptr;
+        vkDestroySwapchainKHR(device.getDevice(), swap_chain, nullptr);
+        swap_chain = nullptr;
     }
 
     for (int i = 0; i < depth_images.size(); i++)
@@ -66,7 +76,7 @@ VkResult SwapChain::acquireNextImage(uint32_t* image_index)
 
     VkResult result = vkAcquireNextImageKHR(
             device.getDevice(),
-            swapchain,
+            swap_chain,
             std::numeric_limits<uint64_t>::max(),
             image_available_semaphores[current_frame],
             VK_NULL_HANDLE,
@@ -112,7 +122,7 @@ VkResult SwapChain::submitCommandBuffers(const VkCommandBuffer* buffers, uint32_
     present_info.waitSemaphoreCount = 1;
     present_info.pWaitSemaphores = signal_semaphores;
 
-    VkSwapchainKHR swap_chains[] = {swapchain};
+    VkSwapchainKHR swap_chains[] = {swap_chain};
     present_info.swapchainCount = 1;
     present_info.pSwapchains = swap_chains;
 
@@ -172,16 +182,16 @@ void SwapChain::createSwapChain()
     create_info.presentMode = present_mode;
     create_info.clipped = VK_TRUE;
 
-    create_info.oldSwapchain = VK_NULL_HANDLE;
+    create_info.oldSwapchain = old_swap_chain == nullptr ? VK_NULL_HANDLE : old_swap_chain->swap_chain;
 
-    if (vkCreateSwapchainKHR(device.getDevice(), &create_info, nullptr, &swapchain) != VK_SUCCESS)
+    if (vkCreateSwapchainKHR(device.getDevice(), &create_info, nullptr, &swap_chain) != VK_SUCCESS)
     {
         throw std::runtime_error("failed to create swap chain!");
     }
 
-    vkGetSwapchainImagesKHR(device.getDevice(), swapchain, &image_count, nullptr);
+    vkGetSwapchainImagesKHR(device.getDevice(), swap_chain, &image_count, nullptr);
     swap_chain_images.resize(image_count);
-    vkGetSwapchainImagesKHR(device.getDevice(), swapchain, &image_count, swap_chain_images.data());
+    vkGetSwapchainImagesKHR(device.getDevice(), swap_chain, &image_count, swap_chain_images.data());
 
     swap_chain_image_format = surface_format.format;
     swap_chain_extent = extent;
@@ -378,7 +388,7 @@ VkSurfaceFormatKHR SwapChain::chooseSwapSurfaceFormat(const std::vector<VkSurfac
 {
     for (const auto& available_format: available_formats)
     {
-        if (available_format.format == VK_FORMAT_B8G8R8A8_UNORM &&
+        if (available_format.format == VK_FORMAT_B8G8R8A8_SRGB &&
             available_format.colorSpace == VK_COLOR_SPACE_SRGB_NONLINEAR_KHR)
         {
             return available_format;

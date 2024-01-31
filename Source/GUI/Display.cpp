@@ -83,6 +83,13 @@ void Display::scrollCallback(GLFWwindow* window, double x_offset, double y_offse
     mouse_wheel += y_offset;
 }
 
+void Display::framebufferResizeCallback(GLFWwindow* window, int width, int height)
+{
+    framebuffer_resized = true;
+    WINDOW_WIDTH = width;
+    WINDOW_HEIGHT = height;
+}
+
 void Display::createDisplay()
 {
     if (!glfwInit())
@@ -91,7 +98,7 @@ void Display::createDisplay()
     }
 
     glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
-    glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
+    glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
 
     window = glfwCreateWindow(WINDOW_WIDTH, WINDOW_HEIGHT, WINDOW_TITLE, nullptr, nullptr);
     if (!window)
@@ -106,6 +113,7 @@ void Display::createDisplay()
     glfwSetMouseButtonCallback(window, mouseButtonCallback);
     glfwSetCursorPosCallback(window, cursorPosCallback);
     glfwSetScrollCallback(window, scrollCallback);
+    glfwSetFramebufferSizeCallback(window, framebufferResizeCallback);
     glfwSetInputMode(window, GLFW_RAW_MOUSE_MOTION, GLFW_TRUE);
 
 //    IMGUI_CHECKVERSION();

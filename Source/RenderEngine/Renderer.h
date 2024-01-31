@@ -4,6 +4,7 @@
 #include "RenderEngine/RenderingAPI/Pipeline.h"
 #include "GUI/Display.h"
 #include "RenderEngine/RenderingAPI/SwapChain.h"
+#include "RenderEngine/RenderingAPI/Model.h"
 
 class Renderer
 {
@@ -17,14 +18,18 @@ public:
     void renderScene();
 
 private:
+    void loadModels();
     void createPipelineLayout();
     void createPipeline();
     void createCommandBuffers();
-    void drawFrame();
+    void freeCommandBuffers();
+    void recreateSwapChain();
+    void recordCommandBuffer(int image_index);
 
     Device device;
-    SwapChain swap_chain{device, Display::getExtent()};
+    std::unique_ptr<SwapChain> swap_chain;
     std::unique_ptr<Pipeline> simple_pipeline;
     VkPipelineLayout pipeline_layout;
     std::vector<VkCommandBuffer> command_buffers;
+    std::unique_ptr<Model> model;
 };

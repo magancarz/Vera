@@ -5553,7 +5553,7 @@ GLFWAPI void glfwSwapBuffers(GLFWwindow* window);
  *  without a current context will cause a @ref GLFW_NO_CURRENT_CONTEXT error.
  *
  *  This function does not apply to Vulkan.  If you are rendering with Vulkan,
- *  see the present mode of your swapchain instead.
+ *  see the present mode of your swap_chain instead.
  *
  *  @param[in] interval The minimum number of screen updates to wait for
  *  until the buffers are swapped by @ref glfwSwapBuffers.

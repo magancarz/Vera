@@ -36,16 +36,21 @@ public:
     static bool closeNotRequested();
 
     static VkExtent2D getExtent() { return {static_cast<uint32_t>(WINDOW_WIDTH), static_cast<uint32_t>(WINDOW_HEIGHT)}; }
+    static float getAspect() { return static_cast<float>(WINDOW_WIDTH) / static_cast<float>(WINDOW_HEIGHT); }
+    static bool wasWindowResized() { return framebuffer_resized; }
+    static void resetWindowResizedFlag() { framebuffer_resized = false; }
 
-    inline static const int WINDOW_WIDTH = 1280;
-    inline static const int WINDOW_HEIGHT = 800;
-    inline static const float ASPECT = static_cast<float>(WINDOW_WIDTH) / WINDOW_HEIGHT;
+    inline static int WINDOW_WIDTH = 1280;
+    inline static int WINDOW_HEIGHT = 800;
 
     inline static const char* WINDOW_TITLE = "Vera";
 
 private:
+    static void framebufferResizeCallback(GLFWwindow* window, int width, int height);
+
     inline static bool is_close_requested = false;
     inline static bool is_input_enabled = true;
+    inline static bool framebuffer_resized = false;
     inline static GLFWwindow* window;
 
     inline static long last_frame_time;

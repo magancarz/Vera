@@ -111,7 +111,7 @@ glm::mat4 Camera::getCameraViewMatrix() const
 
 glm::mat4 Camera::getPerspectiveProjectionMatrix() const
 {
-    return glm::perspective(glm::radians(FOV), Display::ASPECT, NEAR_PLANE, FAR_PLANE);
+    return glm::perspective(glm::radians(FOV), Display::getAspect(), NEAR_PLANE, FAR_PLANE);
 }
 
 glm::vec3 Camera::getPosition() const
