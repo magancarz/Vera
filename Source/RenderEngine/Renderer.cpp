@@ -34,9 +34,9 @@ void Renderer::renderScene()
 
 void Renderer::loadModels()
 {
-    std::vector<Vertex> vertices = {{{0.0f, -0.5f}},
-                                    {{0.5f, 0.5f}},
-                                    {{-0.5f, 0.5f}}};
+    std::vector<Vertex> vertices = {{{0.0f, -0.5f}, {1.0f, 0.0f, 0.0f}},
+                                    {{0.5f, 0.5f}, {0.0f, 1.0f, 0.0f}},
+                                    {{-0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}}};
     model = std::make_unique<Model>(device, vertices);
 }
 
