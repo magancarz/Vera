@@ -55,12 +55,17 @@ void Renderer::loadModels()
 
 void Renderer::createPipelineLayout()
 {
+    VkPushConstantRange push_constant_range{};
+    push_constant_range.stageFlags = VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT;
+    push_constant_range.offset = 0;
+    push_constant_range.size = sizeof(SimplePushConstantData);
+
     VkPipelineLayoutCreateInfo pipeline_layout_info{};
     pipeline_layout_info.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
     pipeline_layout_info.setLayoutCount = 0;
     pipeline_layout_info.pSetLayouts = nullptr;
-    pipeline_layout_info.pushConstantRangeCount = 0;
-    pipeline_layout_info.pPushConstantRanges = nullptr;
+    pipeline_layout_info.pushConstantRangeCount = 1;
+    pipeline_layout_info.pPushConstantRanges = &push_constant_range;
 
     if (vkCreatePipelineLayout(device.getDevice(), &pipeline_layout_info, nullptr, &pipeline_layout) != VK_SUCCESS)
     {
@@ -180,7 +185,23 @@ void Renderer::recordCommandBuffer(int image_index)
 
     simple_pipeline->bind(command_buffers[image_index]);
     model->bind(command_buffers[image_index]);
-    model->draw(command_buffers[image_index]);
+
+    for (size_t i = 0; i < 4; ++i)
+    {
+        SimplePushConstantData push{};
+        push.offset = {0.0f, -0.4f + i * 0.25f};
+        push.color = {0.0f, 0.0f, 0.2f + 0.2f * i};
+
+        vkCmdPushConstants(
+                command_buffers[image_index],
+                pipeline_layout,
+                VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT,
+                0,
+                sizeof(SimplePushConstantData),
+                &push
+                );
+        model->draw(command_buffers[image_index]);
+    }
 
     vkCmdEndRenderPass(command_buffers[image_index]);
     if (vkEndCommandBuffer(command_buffers[image_index]) != VK_SUCCESS)

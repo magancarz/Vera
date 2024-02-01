@@ -6,6 +6,12 @@
 #include "RenderEngine/RenderingAPI/SwapChain.h"
 #include "RenderEngine/RenderingAPI/Model.h"
 
+struct SimplePushConstantData
+{
+    glm::vec2 offset;
+    alignas(16) glm::vec3 color;
+};
+
 class Renderer
 {
 public:
