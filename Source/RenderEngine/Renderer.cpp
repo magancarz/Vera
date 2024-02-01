@@ -5,7 +5,7 @@
 
 Renderer::Renderer()
 {
-    loadModels();
+    loadObjects();
     createPipelineLayout();
     recreateSwapChain();
     createCommandBuffers();
@@ -45,12 +45,19 @@ void Renderer::renderScene()
     }
 }
 
-void Renderer::loadModels()
+void Renderer::loadObjects()
 {
     std::vector<Vertex> vertices = {{{0.0f, -0.5f}, {1.0f, 0.0f, 0.0f}},
                                     {{0.5f, 0.5f}, {0.0f, 1.0f, 0.0f}},
                                     {{-0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}}};
-    model = std::make_unique<Model>(device, vertices);
+    auto model = std::make_shared<Model>(device, vertices);
+
+    auto triangle = Object::createObject();
+    triangle.model = model;
+    triangle.color = {0.1f, 0.8f, 0.1f};
+    triangle.transform_2d.translation.x = .2f;
+
+    objects.push_back(std::move(triangle));
 }
 
 void Renderer::createPipelineLayout()
@@ -183,29 +190,35 @@ void Renderer::recordCommandBuffer(int image_index)
     vkCmdSetViewport(command_buffers[image_index], 0, 1, &viewport);
     vkCmdSetScissor(command_buffers[image_index], 0, 1, &scissor);
 
-    simple_pipeline->bind(command_buffers[image_index]);
-    model->bind(command_buffers[image_index]);
-
-    for (size_t i = 0; i < 4; ++i)
-    {
-        SimplePushConstantData push{};
-        push.offset = {0.0f, -0.4f + i * 0.25f};
-        push.color = {0.0f, 0.0f, 0.2f + 0.2f * i};
-
-        vkCmdPushConstants(
-                command_buffers[image_index],
-                pipeline_layout,
-                VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT,
-                0,
-                sizeof(SimplePushConstantData),
-                &push
-                );
-        model->draw(command_buffers[image_index]);
-    }
+    renderObjects(command_buffers[image_index]);
 
     vkCmdEndRenderPass(command_buffers[image_index]);
     if (vkEndCommandBuffer(command_buffers[image_index]) != VK_SUCCESS)
     {
         throw std::runtime_error("Failed to record command buffer!");
+    }
+}
+
+void Renderer::renderObjects(VkCommandBuffer command_buffer)
+{
+    simple_pipeline->bind(command_buffer);
+
+    for (auto& obj : objects)
+    {
+        SimplePushConstantData push{};
+        push.offset = obj.transform_2d.translation;
+        push.color = obj.color;
+        push.transform = obj.transform_2d.mat2();
+
+        vkCmdPushConstants(
+                command_buffer,
+                pipeline_layout,
+                VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT,
+                0,
+                sizeof(SimplePushConstantData),
+                &push
+        );
+        obj.model->bind(command_buffer);
+        obj.model->draw(command_buffer);
     }
 }
