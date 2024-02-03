@@ -7,7 +7,7 @@ struct Transform2DComponent
     glm::vec2 translation{};
     glm::vec2 scale{1.f};
 
-    glm::mat2 mat2() { return glm::mat2{{scale.x, 0.f}, {scale.y, 0.f}}; }
+    glm::mat2 mat2() { return glm::mat2{{scale.x, 0.f}, {0.f, scale.y}}; }
 };
 
 class Object

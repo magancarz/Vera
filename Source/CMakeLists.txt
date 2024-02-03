@@ -3,7 +3,6 @@ target_sources(Vera-Lib PRIVATE
 
 target_include_directories(Vera-Lib PUBLIC Geometry)
 
-add_subdirectory(Editor)
 add_subdirectory(GUI)
 add_subdirectory(Input)
 add_subdirectory(Objects)
