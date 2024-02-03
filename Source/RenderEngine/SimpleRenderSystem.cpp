@@ -57,9 +57,11 @@ void SimpleRenderSystem::renderObjects(VkCommandBuffer command_buffer, std::vect
 
     for (auto& obj : objects)
     {
+        obj.transform_component.rotation.y = glm::mod(obj.transform_component.rotation.y + 0.01f, glm::two_pi<float>());
+        obj.transform_component.rotation.z = glm::mod(obj.transform_component.rotation.z + 0.01f, glm::two_pi<float>());
+
         SimplePushConstantData push{};
-        push.transform = obj.transform_2d.mat2();
-        push.offset = obj.transform_2d.translation;
+        push.transform = obj.transform_component.transform();
         push.color = obj.color;
 
         vkCmdPushConstants(

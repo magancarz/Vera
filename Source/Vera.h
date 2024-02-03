@@ -3,10 +3,10 @@
 #include "RenderEngine/Camera.h"
 #include "RenderEngine/RenderingAPI/Pipeline.h"
 #include "GUI/Display.h"
-#include "RenderEngine/RenderingAPI/Model.h"
 #include "Objects/Object.h"
 #include "RenderEngine/Renderer.h"
 #include "GUI/GUI.h"
+#include "RenderEngine/RenderingAPI/Model.h"
 #include "RenderEngine/SimpleRenderSystem.h"
 
 class Vera
@@ -23,6 +23,7 @@ public:
 
 private:
     void loadObjects();
+    std::unique_ptr<Model> createCubeModel(Device& device, glm::vec3 offset);
 
     GUI gui_display;
     std::shared_ptr<Camera> camera;
