@@ -23,7 +23,10 @@ public:
     SimpleRenderSystem(const SimpleRenderSystem&) = delete;
     SimpleRenderSystem& operator=(const SimpleRenderSystem&) = delete;
 
-    void renderObjects(VkCommandBuffer command_buffer, std::vector<Object>& objects);
+    void renderObjects(
+        VkCommandBuffer command_buffer,
+        std::vector<Object>& objects,
+        const Camera& camera);
 
 private:
     void createPipelineLayout();

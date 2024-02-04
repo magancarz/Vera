@@ -26,7 +26,7 @@ private:
     std::unique_ptr<Model> createCubeModel(Device& device, glm::vec3 offset);
 
     GUI gui_display;
-    std::shared_ptr<Camera> camera;
+    Camera camera{{0, 0, 5}};
 
     Device device;
     Renderer master_renderer{device};

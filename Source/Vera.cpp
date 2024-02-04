@@ -22,7 +22,7 @@ void Vera::run()
         if (auto command_buffer = master_renderer.beginFrame())
         {
             master_renderer.beginSwapChainRenderPass(command_buffer);
-            simple_render_system.renderObjects(command_buffer, objects);
+            simple_render_system.renderObjects(command_buffer, objects, camera);
             master_renderer.endSwapChainRenderPass(command_buffer);
             master_renderer.endFrame();
         }
@@ -44,7 +44,7 @@ void Vera::loadObjects()
     auto cube = Object::createObject();
     cube.model = std::move(model);
     cube.color = {0.1f, 0.8f, 0.1f};
-    cube.transform_component.translation = {.0f, .0f, .5f};
+    cube.transform_component.translation = {.0f, .0f, -2.5f};
     cube.transform_component.scale = {.5f, .5f, .5f};
 
     objects.push_back(std::move(cube));
