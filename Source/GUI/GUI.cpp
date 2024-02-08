@@ -1,7 +1,5 @@
 #include "GUI.h"
 
-#include "../editor/Editor.h"
-
 GUI::GUI()
 {
 }

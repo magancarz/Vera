@@ -311,6 +311,7 @@ void SwapChain::createFramebuffers()
 void SwapChain::createDepthResources()
 {
     VkFormat depth_format = findDepthFormat();
+    swap_chain_depth_format = depth_format;
     VkExtent2D swap_chain_extent = getSwapChainExtent();
 
     depth_images.resize(imageCount());

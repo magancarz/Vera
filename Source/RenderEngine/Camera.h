@@ -10,7 +10,8 @@ public:
     bool move();
 
     glm::mat4 getPerspectiveProjectionMatrix() const;
-    glm::mat4 getCameraViewMatrix() const;
+    void setViewDirection(const glm::vec3& position, const glm::vec3& direction, const glm::vec3& up = {0, -1, 0});
+    glm::mat4 getViewMatrix() const;
 
     glm::vec3 getPosition() const;
     glm::vec3 getCameraFrontVector() const { return position + front; }
@@ -31,7 +32,7 @@ private:
     glm::vec3 world_up{0, 1, 0};
     glm::vec3 front{0, 0, 1};
     glm::vec3 right{1, 0, 0};
-    glm::vec3 up{0, 1, 0};
+    glm::vec3 up{0, -1, 0};
 
     const float FOV{70.f};
     const float NEAR_PLANE{.1f};
@@ -44,4 +45,5 @@ private:
 
     glm::mat4 perspective_projection_matrix{};
     glm::mat4 orthographic_projection_matrix{};
+    glm::mat4 view_matrix{};
 };
