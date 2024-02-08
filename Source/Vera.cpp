@@ -1,7 +1,5 @@
 #include "Vera.h"
 
-#include "GUI/Display.h"
-
 int Vera::launch()
 {
     run();
@@ -14,10 +12,9 @@ void Vera::run()
 {
     loadObjects();
 
-    while (Display::closeNotRequested())
+    while (!window.shouldClose())
     {
         glfwPollEvents();
-        Display::resetInputValues();
 
         if (auto command_buffer = master_renderer.beginFrame())
         {
@@ -26,16 +23,12 @@ void Vera::run()
             master_renderer.endSwapChainRenderPass(command_buffer);
             master_renderer.endFrame();
         }
-
-        Display::updateDisplay();
-        Display::checkCloseRequests();
     }
 }
 
 void Vera::close()
 {
     vkDeviceWaitIdle(device.getDevice());
-    Display::closeDisplay();
 }
 
 void Vera::loadObjects()

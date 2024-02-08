@@ -1,5 +1,4 @@
 #include "Device.h"
-#include "GUI/Display.h"
 
 #include <cstring>
 #include <iostream>
@@ -50,7 +49,8 @@ void destroyDebugUtilsMessengerExt(
     }
 }
 
-Device::Device()
+Device::Device(Window& window)
+    : window{window}
 {
     createInstance();
     setupDebugMessenger();
@@ -215,7 +215,7 @@ void Device::createCommandPool()
 
 void Device::createSurface()
 {
-    Display::createWindowSurface(instance, &surface_khr);
+    window.createWindowSurface(instance, &surface_khr);
 }
 
 bool Device::isDeviceSuitable(VkPhysicalDevice device)

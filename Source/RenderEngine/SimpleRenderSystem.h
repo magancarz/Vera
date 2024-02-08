@@ -2,11 +2,9 @@
 
 #include "RenderEngine/Camera.h"
 #include "RenderEngine/RenderingAPI/Pipeline.h"
-#include "GUI/Display.h"
 #include "RenderEngine/RenderingAPI/Model.h"
 #include "Objects/Object.h"
 #include "RenderEngine/Renderer.h"
-#include "GUI/GUI.h"
 
 struct SimplePushConstantData
 {

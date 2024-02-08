@@ -2,13 +2,8 @@
 
 #include <iostream>
 
-#include "Input/Input.h"
-
 int main()
 {
-    Display::createDisplay();
-    Input::initializeInput();
-
     Vera app{};
 
     try
