@@ -28,6 +28,6 @@ private:
     Window window{1280, 800, "Vera"};
     Device device{window};
     Renderer master_renderer{device, window};
-    SimpleRenderSystem simple_render_system{device, master_renderer.getSwapChainRenderPass()};
+    SimpleRenderSystem simple_render_system{device, window, master_renderer.getSwapChainRenderPass()};
     std::vector<Object> objects;
 };

@@ -1,5 +1,9 @@
 #include "Vera.h"
 
+#include <chrono>
+
+#include "Input/KeyboardMovementController.h"
+
 int Vera::launch()
 {
     run();
@@ -12,9 +16,20 @@ void Vera::run()
 {
     loadObjects();
 
+    auto viewer_object = Object::createObject();
+    KeyboardMovementController movement_controller{};
+
+    auto current_time = std::chrono::high_resolution_clock::now();
     while (!window.shouldClose())
     {
         glfwPollEvents();
+
+        auto new_time = std::chrono::high_resolution_clock::now();
+        float frame_time = std::chrono::duration<float, std::chrono::seconds::period>(new_time - current_time).count();
+        current_time = new_time;
+
+        movement_controller.moveInPlaneXZ(window.getGFLWwindow(), frame_time, viewer_object);
+        camera.setViewYXZ(viewer_object.transform_component.translation, viewer_object.transform_component.rotation);
 
         if (auto command_buffer = master_renderer.beginFrame())
         {

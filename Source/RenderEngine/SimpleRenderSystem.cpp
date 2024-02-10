@@ -2,8 +2,8 @@
 
 #include "RenderEngine/RenderingAPI/VulkanDefines.h"
 
-SimpleRenderSystem::SimpleRenderSystem(Device& device, VkRenderPass render_pass)
-    : device{device}
+SimpleRenderSystem::SimpleRenderSystem(Device& device, Window& window, VkRenderPass render_pass)
+    : device{device}, window{window}
 {
     createPipelineLayout();
     createPipeline(render_pass);
@@ -60,11 +60,8 @@ void SimpleRenderSystem::renderObjects(
 
     for (auto& obj : objects)
     {
-        obj.transform_component.rotation.y = glm::mod(obj.transform_component.rotation.y + 0.01f, glm::two_pi<float>());
-        obj.transform_component.rotation.z = glm::mod(obj.transform_component.rotation.z + 0.01f, glm::two_pi<float>());
-
         SimplePushConstantData push{};
-        push.transform = camera.getPerspectiveProjectionMatrix() * camera.getViewMatrix() * obj.transform_component.transform();
+        push.transform = camera.getPerspectiveProjectionMatrix(window.getAspect()) * camera.getViewMatrix() * obj.transform_component.transform();
         push.color = obj.color;
 
         vkCmdPushConstants(

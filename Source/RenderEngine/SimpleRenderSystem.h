@@ -15,7 +15,7 @@ struct SimplePushConstantData
 class SimpleRenderSystem
 {
 public:
-    SimpleRenderSystem(Device& device, VkRenderPass render_pass);
+    SimpleRenderSystem(Device& device, Window& window, VkRenderPass render_pass);
     ~SimpleRenderSystem();
 
     SimpleRenderSystem(const SimpleRenderSystem&) = delete;
@@ -31,6 +31,7 @@ private:
     void createPipeline(VkRenderPass render_pass);
 
     Device& device;
+    Window& window;
 
     std::unique_ptr<Pipeline> simple_pipeline;
     VkPipelineLayout pipeline_layout;

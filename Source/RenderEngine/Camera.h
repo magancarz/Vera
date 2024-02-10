@@ -7,27 +7,14 @@ class Camera
 public:
     Camera(const glm::vec3& position);
 
-    bool move();
-
-    glm::mat4 getPerspectiveProjectionMatrix() const;
-    void setViewDirection(const glm::vec3& position, const glm::vec3& direction, const glm::vec3& up = {0, -1, 0});
     glm::mat4 getViewMatrix() const;
+    glm::mat4 getPerspectiveProjectionMatrix(float aspect) const;
 
-    glm::vec3 getPosition() const;
-    glm::vec3 getCameraFrontVector() const { return position + front; }
-    glm::vec3 getCameraUpVector() const { return up; }
-    float getFieldOfView() const { return FOV; }
+    void setViewDirection(const glm::vec3& position, const glm::vec3& direction, const glm::vec3& up = {0, -1, 0});
+    void setViewTarget(glm::vec3 position, glm::vec3 target, glm::vec3 up = glm::vec3{0.f, -1.f, 0.f});
+    void setViewYXZ(glm::vec3 position, glm::vec3 rotation);
 
 private:
-    void checkInputs();
-    void updateCameraDirectionVectors();
-
-    float forward_speed{0};
-    float upwards_speed{0};
-    float sideways_speed{0};
-    float pitch_change{0};
-    float yaw_change{0};
-
     glm::vec3 position{0, 0, 0};
     glm::vec3 world_up{0, 1, 0};
     glm::vec3 front{0, 0, 1};
@@ -37,11 +24,6 @@ private:
     const float FOV{70.f};
     const float NEAR_PLANE{.1f};
     const float FAR_PLANE{1000.f};
-
-    float movement_speed{10.f};
-    float mouse_sensitivity{.35f};
-    float pitch{0};
-    float yaw{0};
 
     glm::mat4 perspective_projection_matrix{};
     glm::mat4 orthographic_projection_matrix{};
