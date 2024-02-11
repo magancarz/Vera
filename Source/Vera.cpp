@@ -48,11 +48,12 @@ void Vera::close()
 
 void Vera::loadObjects()
 {
-    auto model = Model::createModelFromFile(device, "Resources/Models/teapot.obj");
+    auto model = Model::createModelFromFile(device, "Resources/Models/monkey.obj");
     auto cube = Object::createObject();
     cube.model = std::move(model);
     cube.color = {0.1f, 0.8f, 0.1f};
     cube.transform_component.translation = {.0f, .0f, -2.5f};
+    cube.transform_component.rotation = {.0f, .0f, glm::radians(180.0f)};
     cube.transform_component.scale = {.5f, .5f, .5f};
 
     objects.push_back(std::move(cube));

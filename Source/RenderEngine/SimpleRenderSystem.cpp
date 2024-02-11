@@ -1,6 +1,7 @@
 #include "SimpleRenderSystem.h"
 
 #include "RenderEngine/RenderingAPI/VulkanDefines.h"
+#include "Objects/Components/TransformComponent.h"
 
 SimpleRenderSystem::SimpleRenderSystem(Device& device, Window& window, VkRenderPass render_pass)
     : device{device}, window{window}
@@ -61,8 +62,9 @@ void SimpleRenderSystem::renderObjects(
     for (auto& obj : objects)
     {
         SimplePushConstantData push{};
-        push.transform = camera.getPerspectiveProjectionMatrix(window.getAspect()) * camera.getViewMatrix() * obj.transform_component.transform();
-        push.color = obj.color;
+        auto model_matrix = obj.transform_component.transform();
+        push.transform = camera.getPerspectiveProjectionMatrix(window.getAspect()) * camera.getViewMatrix() * model_matrix;
+        push.normal_matrix = obj.transform_component.normalMatrix();
 
         vkCmdPushConstants(
                 command_buffer,
