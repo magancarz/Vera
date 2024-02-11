@@ -10,8 +10,10 @@
 
 struct Vertex
 {
-    glm::vec3 position;
-    glm::vec3 color;
+    glm::vec3 position{};
+    glm::vec3 color{};
+    glm::vec3 normal{};
+    glm::vec2 uv{};
 
     static std::vector<VkVertexInputBindingDescription> getBindingDescriptions()
     {
@@ -32,5 +34,10 @@ struct Vertex
         attribute_description[1].offset = offsetof(Vertex, color);
 
         return attribute_description;
+    }
+
+    bool operator==(const Vertex& other) const
+    {
+        return position == other.position && color == other.color && normal == other.normal && uv == other.uv;
     }
 };
