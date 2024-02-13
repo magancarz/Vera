@@ -20,16 +20,19 @@ void Vera::run()
     auto viewer_object = Object::createObject();
     KeyboardMovementController movement_controller{};
 
-    Buffer global_ubo_buffer
+    std::vector<std::unique_ptr<Buffer>> ubo_buffers(SwapChain::MAX_FRAMES_IN_FLIGHT);
+    for (auto& buffer : ubo_buffers)
     {
-        device,
-        sizeof(GlobalUBO),
-        SwapChain::MAX_FRAMES_IN_FLIGHT,
-        VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
-        VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT,
-        device.properties.limits.minUniformBufferOffsetAlignment
-    };
-    global_ubo_buffer.map();
+        buffer = std::make_unique<Buffer>
+        (
+            device,
+            sizeof(GlobalUBO),
+            1,
+            VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
+            VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT
+        );
+        buffer->map();
+    }
 
     auto current_time = std::chrono::high_resolution_clock::now();
     while (!window.shouldClose())
@@ -48,10 +51,10 @@ void Vera::run()
             int frame_index = master_renderer.getFrameIndex();
             FrameInfo frame_info{frame_index, frame_time, command_buffer, camera};
 
-//            GlobalUBO ubo{};
-//            ubo.projection_view = camera.getPerspectiveProjectionMatrix(window.getAspect()) * camera.getViewMatrix();
-//            global_ubo_buffer.writeToIndex(&ubo, frame_index);
-//            global_ubo_buffer.flushIndex(frame_index);
+            GlobalUBO ubo{};
+            ubo.projection_view = camera.getPerspectiveProjectionMatrix(window.getAspect()) * camera.getViewMatrix();
+            ubo_buffers[frame_index]->writeToIndex(&ubo, frame_index);
+            ubo_buffers[frame_index]->flushIndex(frame_index);
 
             master_renderer.beginSwapChainRenderPass(command_buffer);
             simple_render_system.renderObjects(frame_info, objects);
