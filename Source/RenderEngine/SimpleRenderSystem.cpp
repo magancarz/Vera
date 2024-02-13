@@ -53,28 +53,26 @@ void SimpleRenderSystem::createPipeline(VkRenderPass render_pass)
 }
 
 void SimpleRenderSystem::renderObjects(
-        VkCommandBuffer command_buffer,
-        std::vector<Object>& objects,
-        const Camera& camera)
+        FrameInfo& frame_info,
+        std::vector<Object>& objects)
 {
-    simple_pipeline->bind(command_buffer);
+    simple_pipeline->bind(frame_info.command_buffer);
 
     for (auto& obj : objects)
     {
         SimplePushConstantData push{};
         auto model_matrix = obj.transform_component.transform();
-        push.transform = camera.getPerspectiveProjectionMatrix(window.getAspect()) * camera.getViewMatrix() * model_matrix;
+        push.transform = frame_info.camera.getPerspectiveProjectionMatrix(window.getAspect()) * frame_info.camera.getViewMatrix() * model_matrix;
         push.normal_matrix = obj.transform_component.normalMatrix();
 
         vkCmdPushConstants(
-                command_buffer,
-                pipeline_layout,
-                VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT,
-                0,
-                sizeof(SimplePushConstantData),
-                &push
-        );
-        obj.model->bind(command_buffer);
-        obj.model->draw(command_buffer);
+            frame_info.command_buffer,
+            pipeline_layout,
+            VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT,
+            0,
+            sizeof(SimplePushConstantData),
+            &push);
+        obj.model->bind(frame_info.command_buffer);
+        obj.model->draw(frame_info.command_buffer);
     }
 }

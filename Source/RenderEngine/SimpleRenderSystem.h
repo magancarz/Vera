@@ -5,6 +5,7 @@
 #include "RenderEngine/RenderingAPI/Model.h"
 #include "Objects/Object.h"
 #include "RenderEngine/Renderer.h"
+#include "RenderEngine/RenderingAPI/FrameInfo.h"
 
 struct SimplePushConstantData
 {
@@ -22,9 +23,8 @@ public:
     SimpleRenderSystem& operator=(const SimpleRenderSystem&) = delete;
 
     void renderObjects(
-        VkCommandBuffer command_buffer,
-        std::vector<Object>& objects,
-        const Camera& camera);
+        FrameInfo& frame_info,
+        std::vector<Object>& objects);
 
 private:
     void createPipelineLayout();

@@ -2,6 +2,7 @@
 
 #include "Device.h"
 #include "Vertex.h"
+#include "Buffer.h"
 
 class Model
 {
@@ -15,7 +16,7 @@ public:
     };
 
     Model(Device& device, const Model::Builder& builder);
-    ~Model();
+    ~Model() = default;
 
     Model(const Model&) = delete;
     Model& operator=(const Model&) = delete;
@@ -31,12 +32,10 @@ private:
 
     Device& device;
 
-    VkBuffer vertex_buffer;
-    VkDeviceMemory vertex_buffer_memory;
+    std::unique_ptr<Buffer> vertex_buffer;
     uint32_t vertex_count;
 
     bool has_index_buffer{false};
-    VkBuffer index_buffer;
-    VkDeviceMemory index_buffer_memory;
+    std::unique_ptr<Buffer> index_buffer;
     uint32_t index_count;
 };
