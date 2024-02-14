@@ -3,10 +3,10 @@
 #include "RenderEngine/RenderingAPI/VulkanDefines.h"
 #include "Objects/Components/TransformComponent.h"
 
-SimpleRenderSystem::SimpleRenderSystem(Device& device, Window& window, VkRenderPass render_pass)
+SimpleRenderSystem::SimpleRenderSystem(Device& device, Window& window, VkRenderPass render_pass, VkDescriptorSetLayout global_set_layout)
     : device{device}, window{window}
 {
-    createPipelineLayout();
+    createPipelineLayout(global_set_layout);
     createPipeline(render_pass);
 }
 
@@ -15,17 +15,19 @@ SimpleRenderSystem::~SimpleRenderSystem()
     vkDestroyPipelineLayout(device.getDevice(), pipeline_layout, VulkanDefines::NO_CALLBACK);
 }
 
-void SimpleRenderSystem::createPipelineLayout()
+void SimpleRenderSystem::createPipelineLayout(VkDescriptorSetLayout global_set_layout)
 {
     VkPushConstantRange push_constant_range{};
     push_constant_range.stageFlags = VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT;
     push_constant_range.offset = 0;
     push_constant_range.size = sizeof(SimplePushConstantData);
 
+    std::vector<VkDescriptorSetLayout> descriptor_set_layouts{global_set_layout};
+
     VkPipelineLayoutCreateInfo pipeline_layout_info{};
     pipeline_layout_info.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-    pipeline_layout_info.setLayoutCount = 0;
-    pipeline_layout_info.pSetLayouts = nullptr;
+    pipeline_layout_info.setLayoutCount = static_cast<uint32_t>(descriptor_set_layouts.size());
+    pipeline_layout_info.pSetLayouts = descriptor_set_layouts.data();
     pipeline_layout_info.pushConstantRangeCount = 1;
     pipeline_layout_info.pPushConstantRanges = &push_constant_range;
 
@@ -57,12 +59,21 @@ void SimpleRenderSystem::renderObjects(
         std::vector<Object>& objects)
 {
     simple_pipeline->bind(frame_info.command_buffer);
+    vkCmdBindDescriptorSets(
+            frame_info.command_buffer,
+            VK_PIPELINE_BIND_POINT_GRAPHICS,
+            pipeline_layout,
+            0,
+            1,
+            &frame_info.global_descriptor_set,
+            0,
+            nullptr);
 
     for (auto& obj : objects)
     {
         SimplePushConstantData push{};
         auto model_matrix = obj.transform_component.transform();
-        push.transform = frame_info.camera.getPerspectiveProjectionMatrix(window.getAspect()) * frame_info.camera.getViewMatrix() * model_matrix;
+        push.model = model_matrix;
         push.normal_matrix = obj.transform_component.normalMatrix();
 
         vkCmdPushConstants(

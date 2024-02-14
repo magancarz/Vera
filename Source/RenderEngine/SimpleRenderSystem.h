@@ -5,18 +5,19 @@
 #include "RenderEngine/RenderingAPI/Model.h"
 #include "Objects/Object.h"
 #include "RenderEngine/Renderer.h"
-#include "RenderEngine/RenderingAPI/FrameInfo.h"
+#include "FrameInfo.h"
 
 struct SimplePushConstantData
 {
-    glm::mat4 transform{1.f};
+    glm::mat4 model{1.f};
     glm::mat4 normal_matrix{1.f};
 };
 
 class SimpleRenderSystem
 {
 public:
-    SimpleRenderSystem(Device& device, Window& window, VkRenderPass render_pass);
+    SimpleRenderSystem(
+            Device& device, Window& window, VkRenderPass render_pass, VkDescriptorSetLayout global_set_layout);
     ~SimpleRenderSystem();
 
     SimpleRenderSystem(const SimpleRenderSystem&) = delete;
@@ -27,7 +28,7 @@ public:
         std::vector<Object>& objects);
 
 private:
-    void createPipelineLayout();
+    void createPipelineLayout(VkDescriptorSetLayout global_set_layout);
     void createPipeline(VkRenderPass render_pass);
 
     Device& device;

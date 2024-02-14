@@ -3,4 +3,5 @@ target_sources(Vera-Lib PRIVATE
         Pipeline.cpp
         SwapChain.cpp
         Model.cpp
-        Buffer.cpp)
+        Buffer.cpp
+        Descriptors.cpp)

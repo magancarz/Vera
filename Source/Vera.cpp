@@ -5,25 +5,28 @@
 #include "Input/KeyboardMovementController.h"
 #include "RenderEngine/GlobalUBO.h"
 
+Vera::Vera()
+{
+    global_pool = DescriptorPool::Builder(device)
+            .setMaxSets(SwapChain::MAX_FRAMES_IN_FLIGHT)
+            .addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, SwapChain::MAX_FRAMES_IN_FLIGHT)
+            .build();
+    loadObjects();
+}
+
 int Vera::launch()
 {
     run();
-    close();
 
     return 0;
 }
 
 void Vera::run()
 {
-    loadObjects();
-
-    auto viewer_object = Object::createObject();
-    KeyboardMovementController movement_controller{};
-
     std::vector<std::unique_ptr<Buffer>> ubo_buffers(SwapChain::MAX_FRAMES_IN_FLIGHT);
-    for (auto& buffer : ubo_buffers)
+    for (auto& ubo_buffer : ubo_buffers)
     {
-        buffer = std::make_unique<Buffer>
+        ubo_buffer = std::make_unique<Buffer>
         (
             device,
             sizeof(GlobalUBO),
@@ -31,8 +34,32 @@ void Vera::run()
             VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
             VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT
         );
-        buffer->map();
+        ubo_buffer->map();
     }
+
+    auto global_set_layout = DescriptorSetLayout::Builder(device)
+            .addBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT)
+            .build();
+
+    std::vector<VkDescriptorSet> global_descriptor_sets(SwapChain::MAX_FRAMES_IN_FLIGHT);
+    for (int i = 0; i < global_descriptor_sets.size(); ++i)
+    {
+        auto buffer_info = ubo_buffers[i]->descriptorInfo();
+        DescriptorWriter(*global_set_layout, *global_pool)
+                .writeBuffer(0, &buffer_info)
+                .build(global_descriptor_sets[i]);
+    }
+
+    SimpleRenderSystem simple_render_system
+    {
+        device,
+        window,
+        master_renderer.getSwapChainRenderPass(),
+        global_set_layout->getDescriptorSetLayout()
+    };
+
+    auto viewer_object = Object::createObject();
+    KeyboardMovementController movement_controller{};
 
     auto current_time = std::chrono::high_resolution_clock::now();
     while (!window.shouldClose())
@@ -49,12 +76,12 @@ void Vera::run()
         if (auto command_buffer = master_renderer.beginFrame())
         {
             int frame_index = master_renderer.getFrameIndex();
-            FrameInfo frame_info{frame_index, frame_time, command_buffer, camera};
+            FrameInfo frame_info{frame_index, frame_time, command_buffer, camera, global_descriptor_sets[frame_index]};
 
             GlobalUBO ubo{};
             ubo.projection_view = camera.getPerspectiveProjectionMatrix(window.getAspect()) * camera.getViewMatrix();
-            ubo_buffers[frame_index]->writeToIndex(&ubo, frame_index);
-            ubo_buffers[frame_index]->flushIndex(frame_index);
+            ubo_buffers[frame_index]->writeToBuffer(&ubo);
+            ubo_buffers[frame_index]->flush();
 
             master_renderer.beginSwapChainRenderPass(command_buffer);
             simple_render_system.renderObjects(frame_info, objects);
@@ -62,10 +89,7 @@ void Vera::run()
             master_renderer.endFrame();
         }
     }
-}
 
-void Vera::close()
-{
     vkDeviceWaitIdle(device.getDevice());
 }
 

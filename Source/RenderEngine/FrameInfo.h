@@ -10,4 +10,5 @@ struct FrameInfo
     float frame_time;
     VkCommandBuffer command_buffer;
     Camera& camera;
+    VkDescriptorSet global_descriptor_set;
 };
