@@ -55,8 +55,8 @@ void Pipeline::createGraphicsPipeline(const std::string& vertex_file_path, const
     shader_stage_create_infos[1].pNext = nullptr;
     shader_stage_create_infos[1].pSpecializationInfo = nullptr;
 
-    auto attribute_descriptions = Vertex::getAttributeDescriptions();
-    auto binding_descriptions = Vertex::getBindingDescriptions();
+    auto& attribute_descriptions = config_info.attribute_descriptions;
+    auto& binding_descriptions = config_info.binding_descriptions;
     VkPipelineVertexInputStateCreateInfo vertex_input_state_create_info{};
     vertex_input_state_create_info.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
     vertex_input_state_create_info.vertexAttributeDescriptionCount = static_cast<uint32_t>(attribute_descriptions.size());
@@ -189,4 +189,7 @@ void Pipeline::defaultPipelineConfigInfo(PipelineConfigInfo& config_info)
     config_info.dynamic_state_info.pDynamicStates = config_info.dynamic_state_enables.data();
     config_info.dynamic_state_info.dynamicStateCount = static_cast<uint32_t>(config_info.dynamic_state_enables.size());
     config_info.depth_stencil_info.flags = 0;
+
+    config_info.binding_descriptions = Vertex::getBindingDescriptions();
+    config_info.attribute_descriptions = Vertex::getAttributeDescriptions();
 }

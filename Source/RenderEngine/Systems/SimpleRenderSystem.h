@@ -5,7 +5,7 @@
 #include "RenderEngine/RenderingAPI/Model.h"
 #include "Objects/Object.h"
 #include "RenderEngine/Renderer.h"
-#include "FrameInfo.h"
+#include "RenderEngine/FrameInfo.h"
 
 struct SimplePushConstantData
 {
@@ -17,7 +17,7 @@ class SimpleRenderSystem
 {
 public:
     SimpleRenderSystem(
-            Device& device, Window& window, VkRenderPass render_pass, VkDescriptorSetLayout global_set_layout);
+            Device& device, VkRenderPass render_pass, VkDescriptorSetLayout global_set_layout);
     ~SimpleRenderSystem();
 
     SimpleRenderSystem(const SimpleRenderSystem&) = delete;
@@ -32,7 +32,6 @@ private:
     void createPipeline(VkRenderPass render_pass);
 
     Device& device;
-    Window& window;
 
     std::unique_ptr<Pipeline> simple_pipeline;
     VkPipelineLayout pipeline_layout;

@@ -4,6 +4,7 @@
 
 #include "Input/KeyboardMovementController.h"
 #include "RenderEngine/GlobalUBO.h"
+#include "RenderEngine/Systems/PointLightSystem.h"
 
 Vera::Vera()
 {
@@ -53,7 +54,13 @@ void Vera::run()
     SimpleRenderSystem simple_render_system
     {
         device,
-        window,
+        master_renderer.getSwapChainRenderPass(),
+        global_set_layout->getDescriptorSetLayout()
+    };
+
+    PointLightSystem point_light_system
+    {
+        device,
         master_renderer.getSwapChainRenderPass(),
         global_set_layout->getDescriptorSetLayout()
     };
@@ -83,12 +90,16 @@ void Vera::run()
             FrameInfo frame_info{frame_index, frame_time, command_buffer, camera, global_descriptor_sets[frame_index]};
 
             GlobalUBO ubo{};
-            ubo.projection_view = camera.getProjection() * camera.getView();
+            ubo.projection = camera.getProjection();
+            ubo.view = camera.getView();
             ubo_buffers[frame_index]->writeToBuffer(&ubo);
             ubo_buffers[frame_index]->flush();
 
             master_renderer.beginSwapChainRenderPass(command_buffer);
+
             simple_render_system.renderObjects(frame_info, objects);
+            point_light_system.render(frame_info);
+
             master_renderer.endSwapChainRenderPass(command_buffer);
             master_renderer.endFrame();
         }

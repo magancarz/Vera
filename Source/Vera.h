@@ -5,7 +5,7 @@
 #include "Objects/Object.h"
 #include "RenderEngine/Renderer.h"
 #include "RenderEngine/RenderingAPI/Model.h"
-#include "RenderEngine/SimpleRenderSystem.h"
+#include "RenderEngine/Systems/SimpleRenderSystem.h"
 #include "RenderEngine/RenderingAPI/Descriptors.h"
 
 class Vera

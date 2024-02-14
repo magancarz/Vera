@@ -3,8 +3,8 @@
 #include "RenderEngine/RenderingAPI/VulkanDefines.h"
 #include "Objects/Components/TransformComponent.h"
 
-SimpleRenderSystem::SimpleRenderSystem(Device& device, Window& window, VkRenderPass render_pass, VkDescriptorSetLayout global_set_layout)
-    : device{device}, window{window}
+SimpleRenderSystem::SimpleRenderSystem(Device& device, VkRenderPass render_pass, VkDescriptorSetLayout global_set_layout)
+    : device{device}
 {
     createPipelineLayout(global_set_layout);
     createPipeline(render_pass);

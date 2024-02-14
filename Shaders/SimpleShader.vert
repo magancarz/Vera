@@ -9,7 +9,8 @@ layout (location = 0) out vec4 fragment_position;
 layout (location = 1) out vec3 fragment_normal;
 
 layout(set = 0, binding = 0) uniform GlobalUbo {
-    mat4 projection_view_matrix;
+    mat4 projection_matrix;
+    mat4 view_matrix;
     vec4 ambient_light_color; // w is intensity
     vec3 light_position;
     vec4 light_color;
@@ -24,6 +25,6 @@ layout(push_constant) uniform Push
 void main()
 {
     fragment_position = push.model_matrix * vec4(position, 1.0);
-    gl_Position = ubo.projection_view_matrix * fragment_position;
+    gl_Position = ubo.projection_matrix * ubo.view_matrix * fragment_position;
     fragment_normal = normalize(mat3(push.normal_matrix) * normal);
 }
