@@ -59,7 +59,11 @@ void Vera::run()
     };
 
     auto viewer_object = Object::createObject();
+    viewer_object.transform_component.translation.z = 2.5f;
+    viewer_object.transform_component.rotation.y = glm::radians(180.f);
     KeyboardMovementController movement_controller{};
+
+    camera.setPerspectiveProjection(glm::radians(50.0f), window.getAspect(), 0.1f, 100.f);
 
     auto current_time = std::chrono::high_resolution_clock::now();
     while (!window.shouldClose())
@@ -79,7 +83,7 @@ void Vera::run()
             FrameInfo frame_info{frame_index, frame_time, command_buffer, camera, global_descriptor_sets[frame_index]};
 
             GlobalUBO ubo{};
-            ubo.projection_view = camera.getPerspectiveProjectionMatrix(window.getAspect()) * camera.getViewMatrix();
+            ubo.projection_view = camera.getProjection() * camera.getView();
             ubo_buffers[frame_index]->writeToBuffer(&ubo);
             ubo_buffers[frame_index]->flush();
 
@@ -95,13 +99,29 @@ void Vera::run()
 
 void Vera::loadObjects()
 {
-    auto model = Model::createModelFromFile(device, "Resources/Models/monkey.obj");
-    auto cube = Object::createObject();
-    cube.model = std::move(model);
-    cube.color = {0.1f, 0.8f, 0.1f};
-    cube.transform_component.translation = {.0f, .0f, -2.5f};
-    cube.transform_component.rotation = {.0f, .0f, glm::radians(180.0f)};
-    cube.transform_component.scale = {.5f, .5f, .5f};
+    std::shared_ptr<Model> monkey_model = Model::createModelFromFile(device, "Resources/Models/monkey.obj");
+    auto left_monkey = Object::createObject();
+    left_monkey.model = monkey_model;
+    left_monkey.color = {0.1f, 0.8f, 0.1f};
+    left_monkey.transform_component.translation = {-1.5f, .0f, -2.5f};
+    left_monkey.transform_component.rotation = {.0f, .0f, glm::radians(180.0f)};
+    left_monkey.transform_component.scale = {.5f, .5f, .5f};
+    objects.push_back(std::move(left_monkey));
 
-    objects.push_back(std::move(cube));
+    auto right_monkey = Object::createObject();
+    right_monkey.model = monkey_model;
+    right_monkey.color = {1.f, 1.f, 1.f};
+    right_monkey.transform_component.translation = {1.5f, .0f, -2.5f};
+    right_monkey.transform_component.rotation = {.0f, 0.f, glm::radians(180.0f)};
+    right_monkey.transform_component.scale = {.5f, .5f, .5f};
+    objects.push_back(std::move(right_monkey));
+
+    std::shared_ptr<Model> plane_model = Model::createModelFromFile(device, "Resources/Models/plane.obj");
+    auto plane = Object::createObject();
+    plane.model = plane_model;
+    plane.color = {0.1f, 0.8f, 0.1f};
+    plane.transform_component.translation = {0.f, 1.f, -2.5f};
+    plane.transform_component.rotation = {.0f, 0.f, glm::radians(180.0f)};
+    plane.transform_component.scale = {3.f, 3.f, 3.f};
+    objects.push_back(std::move(plane));
 }

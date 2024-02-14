@@ -23,7 +23,7 @@ private:
     void loadObjects();
     std::unique_ptr<Model> createCubeModel(Device& device, glm::vec3 offset);
 
-    Camera camera{{0, 0, 5}};
+    Camera camera;
 
     Window window{1280, 800, "Vera"};
     Device device{window};

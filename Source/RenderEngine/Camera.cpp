@@ -1,15 +1,32 @@
 #include "Camera.h"
 
-#include <glm/ext/matrix_transform.hpp>
 #include <glm/ext/matrix_clip_space.hpp>
 
-Camera::Camera(const glm::vec3& position)
-    : position(position)
+void Camera::setOrthographicProjection(
+        float left, float right, float top, float bottom, float near, float far)
 {
-    setViewDirection(position, {0, 0, 1});
+    projection_matrix = glm::mat4{1.0f};
+    projection_matrix[0][0] = 2.f / (right - left);
+    projection_matrix[1][1] = 2.f / (bottom - top);
+    projection_matrix[2][2] = 1.f / (far - near);
+    projection_matrix[3][0] = -(right + left) / (right - left);
+    projection_matrix[3][1] = -(bottom + top) / (bottom - top);
+    projection_matrix[3][2] = -near / (far - near);
 }
 
-void Camera::setViewDirection(const glm::vec3& position, const glm::vec3& direction, const glm::vec3& up)
+void Camera::setPerspectiveProjection(float fovy, float aspect, float near, float far)
+{
+    assert(glm::abs(aspect - std::numeric_limits<float>::epsilon()) > 0.0f);
+    const float tan_half_fov_y = tan(fovy / 2.f);
+    projection_matrix = glm::mat4{0.0f};
+    projection_matrix[0][0] = 1.f / (aspect * tan_half_fov_y);
+    projection_matrix[1][1] = 1.f / (tan_half_fov_y);
+    projection_matrix[2][2] = far / (far - near);
+    projection_matrix[2][3] = 1.f;
+    projection_matrix[3][2] = -(far * near) / (far - near);
+}
+
+void Camera::setViewDirection(glm::vec3 position, glm::vec3 direction, glm::vec3 up)
 {
     const glm::vec3 w{glm::normalize(direction)};
     const glm::vec3 u{glm::normalize(glm::cross(w, up))};
@@ -30,11 +47,13 @@ void Camera::setViewDirection(const glm::vec3& position, const glm::vec3& direct
     view_matrix[3][2] = -glm::dot(w, position);
 }
 
-void Camera::setViewTarget(glm::vec3 position, glm::vec3 target, glm::vec3 up) {
+void Camera::setViewTarget(glm::vec3 position, glm::vec3 target, glm::vec3 up)
+{
     setViewDirection(position, target - position, up);
 }
 
-void Camera::setViewYXZ(glm::vec3 position, glm::vec3 rotation) {
+void Camera::setViewYXZ(glm::vec3 position, glm::vec3 rotation)
+{
     const float c3 = glm::cos(rotation.z);
     const float s3 = glm::sin(rotation.z);
     const float c2 = glm::cos(rotation.x);
@@ -57,14 +76,4 @@ void Camera::setViewYXZ(glm::vec3 position, glm::vec3 rotation) {
     view_matrix[3][0] = -glm::dot(u, position);
     view_matrix[3][1] = -glm::dot(v, position);
     view_matrix[3][2] = -glm::dot(w, position);
-}
-
-glm::mat4 Camera::getViewMatrix() const
-{
-    return view_matrix;
-}
-
-glm::mat4 Camera::getPerspectiveProjectionMatrix(float aspect) const
-{
-    return glm::perspective(glm::radians(FOV), aspect, NEAR_PLANE, FAR_PLANE);
 }
