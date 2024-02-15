@@ -5,9 +5,17 @@
 #include "RenderEngine/FrameInfo.h"
 #include "Objects/Object.h"
 #include "RenderEngine/RenderingAPI/Pipeline.h"
+#include "RenderEngine/GlobalUBO.h"
 
 #include <memory>
 #include <vector>
+
+struct PointLightPushConstants
+{
+    glm::vec4 position{};
+    glm::vec4 color{};
+    float radius;
+};
 
 class PointLightSystem {
 public:
@@ -18,6 +26,7 @@ public:
     PointLightSystem(const PointLightSystem&) = delete;
     PointLightSystem& operator=(const PointLightSystem&) = delete;
 
+    void update(FrameInfo& frame_info, GlobalUBO& ubo);
     void render(FrameInfo& frame_info);
 
 private:

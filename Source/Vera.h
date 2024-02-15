@@ -29,5 +29,5 @@ private:
     Device device{window};
     Renderer master_renderer{device, window};
     std::unique_ptr<DescriptorPool> global_pool{};
-    std::vector<Object> objects;
+    std::map<int, Object> objects;
 };

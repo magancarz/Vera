@@ -54,9 +54,7 @@ void SimpleRenderSystem::createPipeline(VkRenderPass render_pass)
     );
 }
 
-void SimpleRenderSystem::renderObjects(
-        FrameInfo& frame_info,
-        std::vector<Object>& objects)
+void SimpleRenderSystem::renderObjects(FrameInfo& frame_info)
 {
     simple_pipeline->bind(frame_info.command_buffer);
     vkCmdBindDescriptorSets(
@@ -69,21 +67,24 @@ void SimpleRenderSystem::renderObjects(
             0,
             nullptr);
 
-    for (auto& obj : objects)
+    for (auto& [id, obj] : frame_info.objects)
     {
-        SimplePushConstantData push{};
-        auto model_matrix = obj.transform_component.transform();
-        push.model = model_matrix;
-        push.normal_matrix = obj.transform_component.normalMatrix();
+        if (obj.model)
+        {
+            SimplePushConstantData push{};
+            auto model_matrix = obj.transform_component.transform();
+            push.model = model_matrix;
+            push.normal_matrix = obj.transform_component.normalMatrix();
 
-        vkCmdPushConstants(
-            frame_info.command_buffer,
-            pipeline_layout,
-            VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT,
-            0,
-            sizeof(SimplePushConstantData),
-            &push);
-        obj.model->bind(frame_info.command_buffer);
-        obj.model->draw(frame_info.command_buffer);
+            vkCmdPushConstants(
+                    frame_info.command_buffer,
+                    pipeline_layout,
+                    VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT,
+                    0,
+                    sizeof(SimplePushConstantData),
+                    &push);
+            obj.model->bind(frame_info.command_buffer);
+            obj.model->draw(frame_info.command_buffer);
+        }
     }
 }

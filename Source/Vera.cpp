@@ -87,17 +87,18 @@ void Vera::run()
         if (auto command_buffer = master_renderer.beginFrame())
         {
             int frame_index = master_renderer.getFrameIndex();
-            FrameInfo frame_info{frame_index, frame_time, command_buffer, camera, global_descriptor_sets[frame_index]};
+            FrameInfo frame_info{frame_index, frame_time, command_buffer, camera, global_descriptor_sets[frame_index], objects};
 
             GlobalUBO ubo{};
             ubo.projection = camera.getProjection();
             ubo.view = camera.getView();
+            point_light_system.update(frame_info, ubo);
             ubo_buffers[frame_index]->writeToBuffer(&ubo);
             ubo_buffers[frame_index]->flush();
 
             master_renderer.beginSwapChainRenderPass(command_buffer);
 
-            simple_render_system.renderObjects(frame_info, objects);
+            simple_render_system.renderObjects(frame_info);
             point_light_system.render(frame_info);
 
             master_renderer.endSwapChainRenderPass(command_buffer);
@@ -117,7 +118,7 @@ void Vera::loadObjects()
     left_monkey.transform_component.translation = {-1.5f, .0f, -2.5f};
     left_monkey.transform_component.rotation = {.0f, .0f, glm::radians(180.0f)};
     left_monkey.transform_component.scale = {.5f, .5f, .5f};
-    objects.push_back(std::move(left_monkey));
+    objects.emplace(left_monkey.getID(), std::move(left_monkey));
 
     auto right_monkey = Object::createObject();
     right_monkey.model = monkey_model;
@@ -125,7 +126,7 @@ void Vera::loadObjects()
     right_monkey.transform_component.translation = {1.5f, .0f, -2.5f};
     right_monkey.transform_component.rotation = {.0f, 0.f, glm::radians(180.0f)};
     right_monkey.transform_component.scale = {.5f, .5f, .5f};
-    objects.push_back(std::move(right_monkey));
+    objects.emplace(right_monkey.getID(), std::move(right_monkey));
 
     std::shared_ptr<Model> plane_model = Model::createModelFromFile(device, "Resources/Models/plane.obj");
     auto plane = Object::createObject();
@@ -134,5 +135,26 @@ void Vera::loadObjects()
     plane.transform_component.translation = {0.f, 1.f, -2.5f};
     plane.transform_component.rotation = {.0f, 0.f, glm::radians(180.0f)};
     plane.transform_component.scale = {3.f, 3.f, 3.f};
-    objects.push_back(std::move(plane));
+    objects.emplace(plane.getID(), std::move(plane));
+
+    std::vector<glm::vec3> light_colors{
+            {1.f, .1f, .1f},
+            {.1f, .1f, 1.f},
+            {.1f, 1.f, .1f},
+            {1.f, 1.f, .1f},
+            {.1f, 1.f, 1.f},
+            {1.f, 1.f, 1.f}
+    };
+
+    for (int i = 0; i < light_colors.size(); ++i)
+    {
+        auto point_light = Object::createPointLight(0.2f);
+        point_light.color = light_colors[i];
+        auto rotate_light = glm::rotate(
+                glm::mat4(1.f),
+                (i * glm::two_pi<float>()) / light_colors.size(),
+                {0.f, -1.f, 0.f});
+        point_light.transform_component.translation = glm::vec3(rotate_light * glm::vec4(-1.f, -1.f, -1.f, 1.f));
+        objects.emplace(point_light.getID(), std::move(point_light));
+    }
 }

@@ -1,8 +1,10 @@
 #pragma once
 
 #include "RenderEngine/Camera.h"
+#include "Objects/Object.h"
 
 #include <vulkan/vulkan.hpp>
+#include <map>
 
 struct FrameInfo
 {
@@ -11,4 +13,5 @@ struct FrameInfo
     VkCommandBuffer command_buffer;
     Camera& camera;
     VkDescriptorSet global_descriptor_set;
+    std::map<int, Object>& objects;
 };

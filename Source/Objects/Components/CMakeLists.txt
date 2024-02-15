@@ -1,2 +1,3 @@
 target_sources(Vera-Lib PRIVATE
-        TransformComponent.cpp)
+        TransformComponent.cpp
+        PointLightComponent.cpp)
