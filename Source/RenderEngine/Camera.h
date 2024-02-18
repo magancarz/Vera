@@ -12,10 +12,12 @@ public:
     void setViewTarget(glm::vec3 position, glm::vec3 target, glm::vec3 up = glm::vec3{0.f, -1.f, 0.f});
     void setViewYXZ(glm::vec3 position, glm::vec3 rotation);
 
-    const glm::mat4& getProjection() const { return projection_matrix; }
-    const glm::mat4& getView() const { return view_matrix; }
+    const glm::mat4& getProjection() const { return projection; }
+    const glm::mat4& getView() const { return view; }
+    const glm::mat4& getInverseView() const { return inverse_view; }
 
 private:
-    glm::mat4 projection_matrix{1.f};
-    glm::mat4 view_matrix{1.f};
+    glm::mat4 projection{1.f};
+    glm::mat4 view{1.f};
+    glm::mat4 inverse_view{};
 };

@@ -92,6 +92,7 @@ void Vera::run()
             GlobalUBO ubo{};
             ubo.projection = camera.getProjection();
             ubo.view = camera.getView();
+            ubo.inverse_view = camera.getInverseView();
             point_light_system.update(frame_info, ubo);
             ubo_buffers[frame_index]->writeToBuffer(&ubo);
             ubo_buffers[frame_index]->flush();
@@ -115,7 +116,7 @@ void Vera::loadObjects()
     auto left_monkey = Object::createObject();
     left_monkey.model = monkey_model;
     left_monkey.color = {0.1f, 0.8f, 0.1f};
-    left_monkey.transform_component.translation = {-1.5f, .0f, -2.5f};
+    left_monkey.transform_component.translation = {-1.5f, .0f, 0};
     left_monkey.transform_component.rotation = {.0f, .0f, glm::radians(180.0f)};
     left_monkey.transform_component.scale = {.5f, .5f, .5f};
     objects.emplace(left_monkey.getID(), std::move(left_monkey));
@@ -123,7 +124,7 @@ void Vera::loadObjects()
     auto right_monkey = Object::createObject();
     right_monkey.model = monkey_model;
     right_monkey.color = {1.f, 1.f, 1.f};
-    right_monkey.transform_component.translation = {1.5f, .0f, -2.5f};
+    right_monkey.transform_component.translation = {1.5f, .0f, 0};
     right_monkey.transform_component.rotation = {.0f, 0.f, glm::radians(180.0f)};
     right_monkey.transform_component.scale = {.5f, .5f, .5f};
     objects.emplace(right_monkey.getID(), std::move(right_monkey));
@@ -132,7 +133,7 @@ void Vera::loadObjects()
     auto plane = Object::createObject();
     plane.model = plane_model;
     plane.color = {0.1f, 0.8f, 0.1f};
-    plane.transform_component.translation = {0.f, 1.f, -2.5f};
+    plane.transform_component.translation = {0.f, 1.f, 0};
     plane.transform_component.rotation = {.0f, 0.f, glm::radians(180.0f)};
     plane.transform_component.scale = {3.f, 3.f, 3.f};
     objects.emplace(plane.getID(), std::move(plane));
