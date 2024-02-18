@@ -5,45 +5,19 @@
 class Camera
 {
 public:
-    Camera(const glm::vec3& position);
+    void setOrthographicProjection(float left, float right, float top, float bottom, float near, float far);
+    void setPerspectiveProjection(float fovy, float aspect, float near, float far);
 
-    bool move();
+    void setViewDirection(glm::vec3 position, glm::vec3 direction, glm::vec3 up = glm::vec3{0.f, -1.f, 0.f});
+    void setViewTarget(glm::vec3 position, glm::vec3 target, glm::vec3 up = glm::vec3{0.f, -1.f, 0.f});
+    void setViewYXZ(glm::vec3 position, glm::vec3 rotation);
 
-    glm::mat4 getPerspectiveProjectionMatrix() const;
-    void setViewDirection(const glm::vec3& position, const glm::vec3& direction, const glm::vec3& up = {0, -1, 0});
-    glm::mat4 getViewMatrix() const;
-
-    glm::vec3 getPosition() const;
-    glm::vec3 getCameraFrontVector() const { return position + front; }
-    glm::vec3 getCameraUpVector() const { return up; }
-    float getFieldOfView() const { return FOV; }
+    const glm::mat4& getProjection() const { return projection; }
+    const glm::mat4& getView() const { return view; }
+    const glm::mat4& getInverseView() const { return inverse_view; }
 
 private:
-    void checkInputs();
-    void updateCameraDirectionVectors();
-
-    float forward_speed{0};
-    float upwards_speed{0};
-    float sideways_speed{0};
-    float pitch_change{0};
-    float yaw_change{0};
-
-    glm::vec3 position{0, 0, 0};
-    glm::vec3 world_up{0, 1, 0};
-    glm::vec3 front{0, 0, 1};
-    glm::vec3 right{1, 0, 0};
-    glm::vec3 up{0, -1, 0};
-
-    const float FOV{70.f};
-    const float NEAR_PLANE{.1f};
-    const float FAR_PLANE{1000.f};
-
-    float movement_speed{10.f};
-    float mouse_sensitivity{.35f};
-    float pitch{0};
-    float yaw{0};
-
-    glm::mat4 perspective_projection_matrix{};
-    glm::mat4 orthographic_projection_matrix{};
-    glm::mat4 view_matrix{};
+    glm::mat4 projection{1.f};
+    glm::mat4 view{1.f};
+    glm::mat4 inverse_view{};
 };

@@ -1,10 +1,7 @@
 #include "Renderer.h"
 
-#include "GUI/Display.h"
-#include "RenderEngine/RenderingAPI/VulkanDefines.h"
-
-Renderer::Renderer(Device& device)
-    : device{device}
+Renderer::Renderer(Device& device, Window& window)
+    : device{device}, window{window}
 {
     recreateSwapChain();
     createCommandBuffers();
@@ -12,10 +9,10 @@ Renderer::Renderer(Device& device)
 
 void Renderer::recreateSwapChain()
 {
-    auto extent = Display::getExtent();
+    auto extent = window.getExtent();
     while (extent.width == 0 || extent.height == 0)
     {
-        extent = Display::getExtent();
+        extent = window.getExtent();
         glfwWaitEvents();
     }
     vkDeviceWaitIdle(device.getDevice());
@@ -107,9 +104,9 @@ void Renderer::endFrame()
     }
 
     auto result = swap_chain->submitCommandBuffers(&command_buffer, &current_image_index);
-    if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || Display::wasWindowResized())
+    if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || window.wasWindowResized())
     {
-        Display::resetWindowResizedFlag();
+        window.resetWindowResizedFlag();
         recreateSwapChain();
     }
     else if (result != VK_SUCCESS)

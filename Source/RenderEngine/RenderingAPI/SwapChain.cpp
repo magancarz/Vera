@@ -2,7 +2,6 @@
 
 #include <array>
 #include <iostream>
-#include <limits>
 #include <stdexcept>
 
 SwapChain::SwapChain(Device& device_ref, VkExtent2D window_extent)
@@ -72,12 +71,12 @@ VkResult SwapChain::acquireNextImage(uint32_t* image_index)
             1,
             &in_flight_fences[current_frame],
             VK_TRUE,
-            std::numeric_limits<uint64_t>::max());
+            UINT_MAX);
 
     VkResult result = vkAcquireNextImageKHR(
             device.getDevice(),
             swap_chain,
-            std::numeric_limits<uint64_t>::max(),
+            UINT_MAX,
             image_available_semaphores[current_frame],
             VK_NULL_HANDLE,
             image_index);
@@ -423,7 +422,7 @@ VkPresentModeKHR SwapChain::chooseSwapPresentMode(const std::vector<VkPresentMod
 
 VkExtent2D SwapChain::chooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities)
 {
-    if (capabilities.currentExtent.width != std::numeric_limits<uint32_t>::max())
+    if (capabilities.currentExtent.width != UINT32_MAX)
     {
         return capabilities.currentExtent;
     }

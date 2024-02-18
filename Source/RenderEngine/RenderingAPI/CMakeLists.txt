@@ -2,4 +2,6 @@ target_sources(Vera-Lib PRIVATE
         Device.cpp
         Pipeline.cpp
         SwapChain.cpp
-        Model.cpp)
+        Model.cpp
+        Buffer.cpp
+        Descriptors.cpp)

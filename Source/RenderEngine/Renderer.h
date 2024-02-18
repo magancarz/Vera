@@ -3,12 +3,11 @@
 #include "Camera.h"
 #include "RenderEngine/RenderingAPI/SwapChain.h"
 #include "RenderEngine/RenderingAPI/Model.h"
-#include "GUI/Display.h"
 
 class Renderer
 {
 public:
-    Renderer(Device& device);
+    Renderer(Device& device, Window& window);
     ~Renderer();
 
     Renderer(const Renderer&) = delete;
@@ -40,6 +39,7 @@ private:
     void recreateSwapChain();
 
     Device& device;
+    Window& window;
     std::unique_ptr<SwapChain> swap_chain;
     std::vector<VkCommandBuffer> command_buffers;
 

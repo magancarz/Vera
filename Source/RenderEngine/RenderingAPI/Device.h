@@ -4,6 +4,7 @@
 
 #include <string>
 #include <vector>
+#include "RenderEngine/Window.h"
 
 struct SwapChainSupportDetails
 {
@@ -34,7 +35,7 @@ public:
     const bool enable_validation_layers = true;
 #endif
 
-    Device();
+    Device(Window& window);
     ~Device();
     Device(const Device&) = delete;
     Device& operator=(const Device&) = delete;
@@ -88,6 +89,8 @@ private:
     void createCommandPool();
     QueueFamilyIndices findQueueFamilies(VkPhysicalDevice device);
     SwapChainSupportDetails querySwapChainSupport(VkPhysicalDevice device);
+
+    Window& window;
 
     VkInstance instance;
     VkDebugUtilsMessengerEXT debug_messenger;
