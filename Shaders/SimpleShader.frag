@@ -2,6 +2,7 @@
 
 layout (location = 0) in vec4 fragment_position;
 layout (location = 1) in vec3 fragment_normal;
+layout (location = 2) in vec2 fragment_uv;
 
 layout (location = 0) out vec4 out_color;
 
@@ -20,6 +21,8 @@ layout(set = 0, binding = 0) uniform GlobalUbo
     PointLight point_lights[10];
     int number_of_lights;
 } ubo;
+
+layout(set = 0, binding = 1) uniform sampler2D image;
 
 layout(push_constant) uniform Push
 {
@@ -57,5 +60,5 @@ void main()
         specular_light += intensity * blinn_term;
     }
 
-    out_color = vec4(diffuse_light + specular_light, 1.0);
+    out_color = vec4((diffuse_light + specular_light) * texture(image, fragment_uv).rgb, 1.0);
 }

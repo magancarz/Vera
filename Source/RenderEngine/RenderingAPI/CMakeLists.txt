@@ -5,3 +5,5 @@ target_sources(Vera-Lib PRIVATE
         Model.cpp
         Buffer.cpp
         Descriptors.cpp)
+
+add_subdirectory(Textures)

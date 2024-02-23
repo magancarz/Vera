@@ -11,6 +11,7 @@ Vera::Vera()
     global_pool = DescriptorPool::Builder(device)
             .setMaxSets(SwapChain::MAX_FRAMES_IN_FLIGHT)
             .addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, SwapChain::MAX_FRAMES_IN_FLIGHT)
+            .addPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, SwapChain::MAX_FRAMES_IN_FLIGHT)
             .build();
     loadObjects();
 }
@@ -38,8 +39,16 @@ void Vera::run()
         ubo_buffer->map();
     }
 
+    texture = std::make_unique<Texture>(device, "Resources/Textures/brickwall.png");
+
+    VkDescriptorImageInfo image_info{};
+    image_info.sampler = texture->getSampler();
+    image_info.imageView = texture->getImageView();
+    image_info.imageLayout = texture->getImageLayout();
+
     auto global_set_layout = DescriptorSetLayout::Builder(device)
             .addBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT)
+            .addBinding(1, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT)
             .build();
 
     std::vector<VkDescriptorSet> global_descriptor_sets(SwapChain::MAX_FRAMES_IN_FLIGHT);
@@ -48,6 +57,7 @@ void Vera::run()
         auto buffer_info = ubo_buffers[i]->descriptorInfo();
         DescriptorWriter(*global_set_layout, *global_pool)
                 .writeBuffer(0, &buffer_info)
+                .writeImage(1, &image_info)
                 .build(global_descriptor_sets[i]);
     }
 

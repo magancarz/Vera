@@ -7,6 +7,7 @@
 #include "RenderEngine/RenderingAPI/Model.h"
 #include "RenderEngine/Systems/SimpleRenderSystem.h"
 #include "RenderEngine/RenderingAPI/Descriptors.h"
+#include "RenderEngine/RenderingAPI/Textures/Texture.h"
 
 class Vera
 {
@@ -21,7 +22,6 @@ public:
 
 private:
     void loadObjects();
-    std::unique_ptr<Model> createCubeModel(Device& device, glm::vec3 offset);
 
     Camera camera;
 
@@ -30,4 +30,6 @@ private:
     Renderer master_renderer{device, window};
     std::unique_ptr<DescriptorPool> global_pool{};
     std::map<int, Object> objects;
+
+    std::unique_ptr<Texture> texture;
 };

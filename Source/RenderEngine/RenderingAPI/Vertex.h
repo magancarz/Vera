@@ -11,7 +11,6 @@
 struct Vertex
 {
     glm::vec3 position{};
-    glm::vec3 color{};
     glm::vec3 normal{};
     glm::vec2 uv{};
 
@@ -24,15 +23,14 @@ struct Vertex
     {
         std::vector<VkVertexInputAttributeDescription> attribute_description{};
         attribute_description.push_back({.location = 0, .binding = 0, .format = VK_FORMAT_R32G32B32_SFLOAT, .offset = static_cast<uint32_t>(offsetof(Vertex, position))});
-        attribute_description.push_back({.location = 1, .binding = 0, .format = VK_FORMAT_R32G32B32_SFLOAT, .offset = static_cast<uint32_t>(offsetof(Vertex, color))});
-        attribute_description.push_back({.location = 2, .binding = 0, .format = VK_FORMAT_R32G32B32_SFLOAT, .offset = static_cast<uint32_t>(offsetof(Vertex, normal))});
-        attribute_description.push_back({.location = 3, .binding = 0, .format = VK_FORMAT_R32G32_SFLOAT, .offset = static_cast<uint32_t>(offsetof(Vertex, uv))});
+        attribute_description.push_back({.location = 1, .binding = 0, .format = VK_FORMAT_R32G32B32_SFLOAT, .offset = static_cast<uint32_t>(offsetof(Vertex, normal))});
+        attribute_description.push_back({.location = 2, .binding = 0, .format = VK_FORMAT_R32G32_SFLOAT, .offset = static_cast<uint32_t>(offsetof(Vertex, uv))});
 
         return attribute_description;
     }
 
     bool operator==(const Vertex& other) const
     {
-        return position == other.position && color == other.color && normal == other.normal && uv == other.uv;
+        return position == other.position && normal == other.normal && uv == other.uv;
     }
 };
