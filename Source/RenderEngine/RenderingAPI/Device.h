@@ -37,6 +37,7 @@ public:
 
     Device(Window& window);
     ~Device();
+
     Device(const Device&) = delete;
     Device& operator=(const Device&) = delete;
     Device(Device&&) = delete;
@@ -44,6 +45,7 @@ public:
 
     VkCommandPool getCommandPool() { return command_pool; }
     VkDevice getDevice() { return device; }
+    VkPhysicalDevice getPhysicalDevice() { return physical_device; }
     VkSurfaceKHR surface() { return surface_khr; }
     VkQueue graphicsQueue() { return graphics_queue; }
     VkQueue presentQueue() { return present_queue; }

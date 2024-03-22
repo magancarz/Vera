@@ -115,7 +115,7 @@ namespace std
         size_t operator()(Vertex const &vertex) const
         {
             size_t seed = 0;
-            Algorithms::hashCombine(seed, vertex.position, vertex.color, vertex.normal, vertex.uv);
+            Algorithms::hashCombine(seed, vertex.position, vertex.normal, vertex.uv);
             return seed;
         }
     };
@@ -158,21 +158,6 @@ void Model::Builder::loadModel(const std::string& filepath)
                     attrib.vertices[3 * index.vertex_index + 1],
                     attrib.vertices[3 * index.vertex_index + 2],
                 };
-
-                auto color_index = 3 * index.vertex_index + 2;
-                if (color_index < attrib.colors.size())
-                {
-                    vertex.color =
-                    {
-                        attrib.colors[color_index - 2],
-                        attrib.colors[color_index - 1],
-                        attrib.colors[color_index - 0],
-                    };
-                }
-                else
-                {
-                    vertex.color = {1.f, 1.f, 1.f};
-                }
             }
 
             if (index.normal_index >= 0)

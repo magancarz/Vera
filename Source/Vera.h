@@ -7,21 +7,20 @@
 #include "RenderEngine/RenderingAPI/Model.h"
 #include "RenderEngine/Systems/SimpleRenderSystem.h"
 #include "RenderEngine/RenderingAPI/Descriptors.h"
+#include "RenderEngine/RenderingAPI/Textures/Texture.h"
 
 class Vera
 {
 public:
     Vera();
 
-    int launch();
     void run();
 
     Vera(const Vera&) = delete;
     Vera& operator=(const Vera&) = delete;
 
 private:
-    void loadObjects();
-    std::unique_ptr<Model> createCubeModel(Device& device, glm::vec3 offset);
+    void loadObjects(const std::vector<std::shared_ptr<Material>>& available_materials);
 
     Camera camera;
 

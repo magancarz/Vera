@@ -8,7 +8,7 @@ int main()
 
     try
     {
-        app.launch();
+        app.run();
     }
     catch (const std::exception& e)
     {
