@@ -3,10 +3,14 @@
 #include "RenderEngine/RenderingAPI/VulkanDefines.h"
 #include "Objects/Components/TransformComponent.h"
 
-SimpleRenderSystem::SimpleRenderSystem(Device& device, VkRenderPass render_pass, VkDescriptorSetLayout global_set_layout)
+SimpleRenderSystem::SimpleRenderSystem(
+        Device& device,
+        VkRenderPass render_pass,
+        VkDescriptorSetLayout global_uniform_buffer_set_layout,
+        VkDescriptorSetLayout global_texture_set_layout)
     : device{device}
 {
-    createPipelineLayout(global_set_layout);
+    createPipelineLayout(global_uniform_buffer_set_layout, global_texture_set_layout);
     createPipeline(render_pass);
 }
 
@@ -15,14 +19,14 @@ SimpleRenderSystem::~SimpleRenderSystem()
     vkDestroyPipelineLayout(device.getDevice(), pipeline_layout, VulkanDefines::NO_CALLBACK);
 }
 
-void SimpleRenderSystem::createPipelineLayout(VkDescriptorSetLayout global_set_layout)
+void SimpleRenderSystem::createPipelineLayout(VkDescriptorSetLayout global_set_layout, VkDescriptorSetLayout global_texture_set_layout)
 {
     VkPushConstantRange push_constant_range{};
     push_constant_range.stageFlags = VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT;
     push_constant_range.offset = 0;
     push_constant_range.size = sizeof(SimplePushConstantData);
 
-    std::vector<VkDescriptorSetLayout> descriptor_set_layouts{global_set_layout};
+    std::vector<VkDescriptorSetLayout> descriptor_set_layouts{global_set_layout, global_texture_set_layout};
 
     VkPipelineLayoutCreateInfo pipeline_layout_info{};
     pipeline_layout_info.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
@@ -62,8 +66,8 @@ void SimpleRenderSystem::renderObjects(FrameInfo& frame_info)
             VK_PIPELINE_BIND_POINT_GRAPHICS,
             pipeline_layout,
             0,
-            1,
-            &frame_info.global_descriptor_set,
+            static_cast<uint32_t>(frame_info.global_descriptor_sets.size()),
+            frame_info.global_descriptor_sets.data(),
             0,
             nullptr);
 

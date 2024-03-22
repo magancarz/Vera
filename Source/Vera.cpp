@@ -9,18 +9,11 @@
 Vera::Vera()
 {
     global_pool = DescriptorPool::Builder(device)
-            .setMaxSets(SwapChain::MAX_FRAMES_IN_FLIGHT)
+            .setMaxSets(SwapChain::MAX_FRAMES_IN_FLIGHT * 2)
             .addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, SwapChain::MAX_FRAMES_IN_FLIGHT)
             .addPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, SwapChain::MAX_FRAMES_IN_FLIGHT)
             .build();
     loadObjects();
-}
-
-int Vera::launch()
-{
-    run();
-
-    return 0;
 }
 
 void Vera::run()
@@ -40,39 +33,49 @@ void Vera::run()
     }
 
     texture = std::make_unique<Texture>(device, "Resources/Textures/brickwall.png");
-
     VkDescriptorImageInfo image_info{};
     image_info.sampler = texture->getSampler();
     image_info.imageView = texture->getImageView();
     image_info.imageLayout = texture->getImageLayout();
 
-    auto global_set_layout = DescriptorSetLayout::Builder(device)
+    auto global_uniform_buffer_set_layout = DescriptorSetLayout::Builder(device)
             .addBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT)
-            .addBinding(1, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT)
             .build();
 
-    std::vector<VkDescriptorSet> global_descriptor_sets(SwapChain::MAX_FRAMES_IN_FLIGHT);
-    for (int i = 0; i < global_descriptor_sets.size(); ++i)
+    auto global_texture_set_layout = DescriptorSetLayout::Builder(device)
+            .addBinding(0, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT)
+            .build();
+
+    std::vector<VkDescriptorSet> global_uniform_buffer_descriptor_sets(SwapChain::MAX_FRAMES_IN_FLIGHT);
+    for (int i = 0; i < global_uniform_buffer_descriptor_sets.size(); ++i)
     {
         auto buffer_info = ubo_buffers[i]->descriptorInfo();
-        DescriptorWriter(*global_set_layout, *global_pool)
+        DescriptorWriter(*global_uniform_buffer_set_layout, *global_pool)
                 .writeBuffer(0, &buffer_info)
-                .writeImage(1, &image_info)
-                .build(global_descriptor_sets[i]);
+                .build(global_uniform_buffer_descriptor_sets[i]);
+    }
+
+    std::vector<VkDescriptorSet> global_texture_descriptor_sets(SwapChain::MAX_FRAMES_IN_FLIGHT);
+    for (auto& global_texture_descriptor_set : global_texture_descriptor_sets)
+    {
+        DescriptorWriter(*global_texture_set_layout, *global_pool)
+                .writeImage(0, &image_info)
+                .build(global_texture_descriptor_set);
     }
 
     SimpleRenderSystem simple_render_system
     {
-        device,
-        master_renderer.getSwapChainRenderPass(),
-        global_set_layout->getDescriptorSetLayout()
+            device,
+            master_renderer.getSwapChainRenderPass(),
+            global_uniform_buffer_set_layout->getDescriptorSetLayout(),
+            global_texture_set_layout->getDescriptorSetLayout()
     };
 
     PointLightSystem point_light_system
     {
-        device,
-        master_renderer.getSwapChainRenderPass(),
-        global_set_layout->getDescriptorSetLayout()
+            device,
+            master_renderer.getSwapChainRenderPass(),
+            global_uniform_buffer_set_layout->getDescriptorSetLayout()
     };
 
     auto viewer_object = Object::createObject();
@@ -97,7 +100,8 @@ void Vera::run()
         if (auto command_buffer = master_renderer.beginFrame())
         {
             int frame_index = master_renderer.getFrameIndex();
-            FrameInfo frame_info{frame_index, frame_time, command_buffer, camera, global_descriptor_sets[frame_index], objects};
+            std::vector<VkDescriptorSet> descriptor_sets = {global_uniform_buffer_descriptor_sets[frame_index], global_texture_descriptor_sets[frame_index]};
+            FrameInfo frame_info{frame_index, frame_time, command_buffer, camera, descriptor_sets, objects};
 
             GlobalUBO ubo{};
             ubo.projection = camera.getProjection();

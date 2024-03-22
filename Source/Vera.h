@@ -14,7 +14,6 @@ class Vera
 public:
     Vera();
 
-    int launch();
     void run();
 
     Vera(const Vera&) = delete;

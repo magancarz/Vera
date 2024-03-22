@@ -64,7 +64,8 @@ void PointLightSystem::update(FrameInfo& frame_info, GlobalUBO& ubo)
 {
     auto rotate_light = glm::rotate(glm::mat4{1.f}, 0.5f * frame_info.frame_time, {0.f, -1.f, 0.f});
     int light_index = 0;
-    for (auto& [id, object] : frame_info.objects) {
+    for (auto& [id, object] : frame_info.objects)
+    {
         if (object.point_light)
         {
             assert(light_index < RendererDefines::MAX_NUMBER_OF_LIGHTS && "Point lights exceed maximum specified");
@@ -89,7 +90,7 @@ void PointLightSystem::render(FrameInfo& frame_info)
             pipeline_layout,
             0,
             1,
-            &frame_info.global_descriptor_set,
+            &frame_info.global_descriptor_sets[0],
             0,
             nullptr);
 

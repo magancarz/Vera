@@ -17,7 +17,10 @@ class SimpleRenderSystem
 {
 public:
     SimpleRenderSystem(
-            Device& device, VkRenderPass render_pass, VkDescriptorSetLayout global_set_layout);
+            Device& device,
+            VkRenderPass render_pass,
+            VkDescriptorSetLayout global_uniform_buffer_set_layout,
+            VkDescriptorSetLayout global_texture_set_layout);
     ~SimpleRenderSystem();
 
     SimpleRenderSystem(const SimpleRenderSystem&) = delete;
@@ -26,7 +29,7 @@ public:
     void renderObjects(FrameInfo& frame_info);
 
 private:
-    void createPipelineLayout(VkDescriptorSetLayout global_set_layout);
+    void createPipelineLayout(VkDescriptorSetLayout global_set_layout, VkDescriptorSetLayout global_texture_set_layout);
     void createPipeline(VkRenderPass render_pass);
 
     Device& device;

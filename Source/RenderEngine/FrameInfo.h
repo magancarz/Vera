@@ -12,6 +12,6 @@ struct FrameInfo
     float frame_time;
     VkCommandBuffer command_buffer;
     Camera& camera;
-    VkDescriptorSet global_descriptor_set;
+    std::vector<VkDescriptorSet> global_descriptor_sets;
     std::map<int, Object>& objects;
 };
