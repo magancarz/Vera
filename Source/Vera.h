@@ -20,7 +20,7 @@ public:
     Vera& operator=(const Vera&) = delete;
 
 private:
-    void loadObjects();
+    void loadObjects(const std::vector<std::shared_ptr<Material>>& available_materials);
 
     Camera camera;
 
@@ -29,6 +29,4 @@ private:
     Renderer master_renderer{device, window};
     std::unique_ptr<DescriptorPool> global_pool{};
     std::map<int, Object> objects;
-
-    std::unique_ptr<Texture> texture;
 };

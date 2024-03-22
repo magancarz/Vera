@@ -5,15 +5,15 @@
 #include "Input/KeyboardMovementController.h"
 #include "RenderEngine/GlobalUBO.h"
 #include "RenderEngine/Systems/PointLightSystem.h"
+#include "RenderEngine/Materials/Material.h"
 
 Vera::Vera()
 {
     global_pool = DescriptorPool::Builder(device)
-            .setMaxSets(SwapChain::MAX_FRAMES_IN_FLIGHT * 2)
+            .setMaxSets(SwapChain::MAX_FRAMES_IN_FLIGHT * 3)
             .addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, SwapChain::MAX_FRAMES_IN_FLIGHT)
-            .addPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, SwapChain::MAX_FRAMES_IN_FLIGHT)
+            .addPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, SwapChain::MAX_FRAMES_IN_FLIGHT * 2)
             .build();
-    loadObjects();
 }
 
 void Vera::run()
@@ -32,12 +32,6 @@ void Vera::run()
         ubo_buffer->map();
     }
 
-    texture = std::make_unique<Texture>(device, "Resources/Textures/brickwall.png");
-    VkDescriptorImageInfo image_info{};
-    image_info.sampler = texture->getSampler();
-    image_info.imageView = texture->getImageView();
-    image_info.imageLayout = texture->getImageLayout();
-
     auto global_uniform_buffer_set_layout = DescriptorSetLayout::Builder(device)
             .addBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT)
             .build();
@@ -55,13 +49,13 @@ void Vera::run()
                 .build(global_uniform_buffer_descriptor_sets[i]);
     }
 
-    std::vector<VkDescriptorSet> global_texture_descriptor_sets(SwapChain::MAX_FRAMES_IN_FLIGHT);
-    for (auto& global_texture_descriptor_set : global_texture_descriptor_sets)
-    {
-        DescriptorWriter(*global_texture_set_layout, *global_pool)
-                .writeImage(0, &image_info)
-                .build(global_texture_descriptor_set);
-    }
+    auto first_texture = std::make_shared<Texture>(device, "Resources/Textures/brickwall.png");
+    std::vector<std::shared_ptr<Texture>> first_textures = {first_texture};
+    auto first_material = std::make_shared<Material>(global_texture_set_layout, global_pool, first_textures);
+
+    auto second_texture = std::make_shared<Texture>(device, "Resources/Textures/mud.png");
+    std::vector<std::shared_ptr<Texture>> second_textures = {second_texture};
+    auto second_material = std::make_shared<Material>(global_texture_set_layout, global_pool, second_textures);
 
     SimpleRenderSystem simple_render_system
     {
@@ -85,6 +79,9 @@ void Vera::run()
 
     camera.setPerspectiveProjection(glm::radians(50.0f), window.getAspect(), 0.1f, 100.f);
 
+    std::vector<std::shared_ptr<Material>> available_materials{first_material, second_material};
+    loadObjects(available_materials);
+
     auto current_time = std::chrono::high_resolution_clock::now();
     while (!window.shouldClose())
     {
@@ -100,8 +97,7 @@ void Vera::run()
         if (auto command_buffer = master_renderer.beginFrame())
         {
             int frame_index = master_renderer.getFrameIndex();
-            std::vector<VkDescriptorSet> descriptor_sets = {global_uniform_buffer_descriptor_sets[frame_index], global_texture_descriptor_sets[frame_index]};
-            FrameInfo frame_info{frame_index, frame_time, command_buffer, camera, descriptor_sets, objects};
+            FrameInfo frame_info{frame_index, frame_time, command_buffer, camera, global_uniform_buffer_descriptor_sets[frame_index], objects};
 
             GlobalUBO ubo{};
             ubo.projection = camera.getProjection();
@@ -124,7 +120,7 @@ void Vera::run()
     vkDeviceWaitIdle(device.getDevice());
 }
 
-void Vera::loadObjects()
+void Vera::loadObjects(const std::vector<std::shared_ptr<Material>>& available_materials)
 {
     std::shared_ptr<Model> monkey_model = Model::createModelFromFile(device, "Resources/Models/monkey.obj");
     auto left_monkey = Object::createObject();
@@ -133,6 +129,7 @@ void Vera::loadObjects()
     left_monkey.transform_component.translation = {-1.5f, .0f, 0};
     left_monkey.transform_component.rotation = {.0f, .0f, glm::radians(180.0f)};
     left_monkey.transform_component.scale = {.5f, .5f, .5f};
+    left_monkey.material = available_materials[0];
     objects.emplace(left_monkey.getID(), std::move(left_monkey));
 
     auto right_monkey = Object::createObject();
@@ -141,6 +138,7 @@ void Vera::loadObjects()
     right_monkey.transform_component.translation = {1.5f, .0f, 0};
     right_monkey.transform_component.rotation = {.0f, 0.f, glm::radians(180.0f)};
     right_monkey.transform_component.scale = {.5f, .5f, .5f};
+    right_monkey.material = available_materials[1];
     objects.emplace(right_monkey.getID(), std::move(right_monkey));
 
     std::shared_ptr<Model> plane_model = Model::createModelFromFile(device, "Resources/Models/plane.obj");
@@ -150,6 +148,7 @@ void Vera::loadObjects()
     plane.transform_component.translation = {0.f, 1.f, 0};
     plane.transform_component.rotation = {.0f, 0.f, glm::radians(180.0f)};
     plane.transform_component.scale = {3.f, 3.f, 3.f};
+    plane.material = available_materials[0];
     objects.emplace(plane.getID(), std::move(plane));
 
     std::vector<glm::vec3> light_colors{

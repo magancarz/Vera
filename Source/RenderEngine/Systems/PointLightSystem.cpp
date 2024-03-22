@@ -90,7 +90,7 @@ void PointLightSystem::render(FrameInfo& frame_info)
             pipeline_layout,
             0,
             1,
-            &frame_info.global_descriptor_sets[0],
+            &frame_info.global_uniform_buffer_descriptor_set,
             0,
             nullptr);
 

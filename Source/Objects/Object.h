@@ -4,6 +4,7 @@
 #include "RenderEngine/RenderingAPI/Model.h"
 #include "Components/TransformComponent.h"
 #include "Objects/Components/PointLightComponent.h"
+#include "RenderEngine/Materials/Material.h"
 
 struct PointLight
 {
@@ -29,8 +30,8 @@ public:
     glm::vec3 color{};
     TransformComponent transform_component;
 
-
     std::shared_ptr<Model> model;
+    std::shared_ptr<Material> material;
     std::unique_ptr<PointLightComponent> point_light;
 
 private:

@@ -66,8 +66,8 @@ void SimpleRenderSystem::renderObjects(FrameInfo& frame_info)
             VK_PIPELINE_BIND_POINT_GRAPHICS,
             pipeline_layout,
             0,
-            static_cast<uint32_t>(frame_info.global_descriptor_sets.size()),
-            frame_info.global_descriptor_sets.data(),
+            1,
+            &frame_info.global_uniform_buffer_descriptor_set,
             0,
             nullptr);
 
@@ -80,6 +80,16 @@ void SimpleRenderSystem::renderObjects(FrameInfo& frame_info)
             push.model = model_matrix;
             push.normal_matrix = obj.transform_component.normalMatrix();
 
+            vkCmdBindDescriptorSets(
+                    frame_info.command_buffer,
+                    VK_PIPELINE_BIND_POINT_GRAPHICS,
+                    pipeline_layout,
+                    1,
+                    1,
+                    &obj.material->getDescriptorSet(frame_info.frame_index),
+                    0,
+                    nullptr);
+
             vkCmdPushConstants(
                     frame_info.command_buffer,
                     pipeline_layout,
@@ -87,6 +97,7 @@ void SimpleRenderSystem::renderObjects(FrameInfo& frame_info)
                     0,
                     sizeof(SimplePushConstantData),
                     &push);
+
             obj.model->bind(frame_info.command_buffer);
             obj.model->draw(frame_info.command_buffer);
         }
