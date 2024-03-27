@@ -8,25 +8,19 @@
 #include "RenderEngine/Systems/SimpleRenderSystem.h"
 #include "RenderEngine/RenderingAPI/Descriptors.h"
 #include "RenderEngine/RenderingAPI/Textures/Texture.h"
+#include "World/World.h"
 
 class Vera
 {
 public:
-    Vera();
-
     void run();
 
     Vera(const Vera&) = delete;
     Vera& operator=(const Vera&) = delete;
 
 private:
-    void loadObjects(const std::vector<std::shared_ptr<Material>>& available_materials);
-
-    Camera camera;
-
     Window window{1280, 800, "Vera"};
-    Device device{window};
-    Renderer master_renderer{device, window};
-    std::unique_ptr<DescriptorPool> global_pool{};
-    std::map<int, Object> objects;
+
+    World world{window};
+    Renderer renderer{window};
 };
