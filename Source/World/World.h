@@ -22,5 +22,5 @@ private:
     KeyboardMovementController movement_controller{};
     std::unique_ptr<Object> viewer_object;
 
-    std::map<int, Object> objects;
+    std::map<int, std::shared_ptr<Object>> objects;
 };

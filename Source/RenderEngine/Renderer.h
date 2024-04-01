@@ -10,13 +10,15 @@
 class Renderer
 {
 public:
-    Renderer(Window& window);
+    Renderer(Window& window, Device& device);
     ~Renderer();
 
     Renderer(const Renderer&) = delete;
     Renderer& operator=(const Renderer&) = delete;
 
-    void render(Camera& camera, FrameInfo& frame_info);
+    void render(FrameInfo& frame_info);
+
+    std::vector<std::shared_ptr<Material>> getAvailableMaterials() { return materials; }
 
 private:
     VkRenderPass getSwapChainRenderPass() const { return swap_chain->getRenderPass(); }
@@ -46,7 +48,7 @@ private:
     void createDescriptorPool();
 
     Window& window;
-    Device device{window};
+    Device& device;
     std::unique_ptr<SwapChain> swap_chain;
     std::vector<VkCommandBuffer> command_buffers;
     std::unique_ptr<DescriptorPool> global_pool{};

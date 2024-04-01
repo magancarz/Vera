@@ -4,7 +4,6 @@
 #include "RenderEngine/RenderingAPI/Pipeline.h"
 #include "RenderEngine/RenderingAPI/Model.h"
 #include "Objects/Object.h"
-#include "RenderEngine/Renderer.h"
 #include "RenderEngine/FrameInfo.h"
 
 struct SimplePushConstantData

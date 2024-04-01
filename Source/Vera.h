@@ -13,6 +13,8 @@
 class Vera
 {
 public:
+    Vera() = default;
+
     void run();
 
     Vera(const Vera&) = delete;
@@ -20,7 +22,8 @@ public:
 
 private:
     Window window{1280, 800, "Vera"};
+    Device device{window};
 
     World world{window};
-    Renderer renderer{window};
+    Renderer renderer{window, device};
 };

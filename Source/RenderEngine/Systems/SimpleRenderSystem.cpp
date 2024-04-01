@@ -73,12 +73,12 @@ void SimpleRenderSystem::renderObjects(FrameInfo& frame_info)
 
     for (auto& [id, obj] : frame_info.objects)
     {
-        if (obj.model)
+        if (obj->model)
         {
             SimplePushConstantData push{};
-            auto model_matrix = obj.transform_component.transform();
+            auto model_matrix = obj->transform_component.transform();
             push.model = model_matrix;
-            push.normal_matrix = obj.transform_component.normalMatrix();
+            push.normal_matrix = obj->transform_component.normalMatrix();
 
             vkCmdBindDescriptorSets(
                     frame_info.command_buffer,
@@ -86,7 +86,7 @@ void SimpleRenderSystem::renderObjects(FrameInfo& frame_info)
                     pipeline_layout,
                     1,
                     1,
-                    &obj.material->getDescriptorSet(frame_info.frame_index),
+                    &obj->material->getDescriptorSet(frame_info.frame_index),
                     0,
                     nullptr);
 
@@ -98,8 +98,8 @@ void SimpleRenderSystem::renderObjects(FrameInfo& frame_info)
                     sizeof(SimplePushConstantData),
                     &push);
 
-            obj.model->bind(frame_info.command_buffer);
-            obj.model->draw(frame_info.command_buffer);
+            obj->model->bind(frame_info.command_buffer);
+            obj->model->draw(frame_info.command_buffer);
         }
     }
 }

@@ -3,8 +3,8 @@
 #include "RenderEngine/Systems/PointLightSystem.h"
 #include "RenderEngine/Systems/SimpleRenderSystem.h"
 
-Renderer::Renderer(Window& window)
-    : window{window}
+Renderer::Renderer(Window& window, Device& device)
+    : window{window}, device{device}
 {
     recreateSwapChain();
     createCommandBuffers();
@@ -133,7 +133,7 @@ void Renderer::freeCommandBuffers()
     command_buffers.clear();
 }
 
-void Renderer::render(Camera& camera, FrameInfo& frame_info)
+void Renderer::render(FrameInfo& frame_info)
 {
     if (auto command_buffer = beginFrame())
     {
@@ -142,9 +142,9 @@ void Renderer::render(Camera& camera, FrameInfo& frame_info)
         frame_info.global_uniform_buffer_descriptor_set = global_uniform_buffer_descriptor_sets[frame_info.frame_index];
 
         GlobalUBO ubo{};
-        ubo.projection = camera.getProjection();
-        ubo.view = camera.getView();
-        ubo.inverse_view = camera.getInverseView();
+        ubo.projection = frame_info.camera->getProjection();
+        ubo.view = frame_info.camera->getView();
+        ubo.inverse_view = frame_info.camera->getInverseView();
         point_light_render_system->update(frame_info, ubo);
         ubo_buffers[frame_info.frame_index]->writeToBuffer(&ubo);
         ubo_buffers[frame_info.frame_index]->flush();

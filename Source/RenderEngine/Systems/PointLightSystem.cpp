@@ -66,14 +66,14 @@ void PointLightSystem::update(FrameInfo& frame_info, GlobalUBO& ubo)
     int light_index = 0;
     for (auto& [id, object] : frame_info.objects)
     {
-        if (object.point_light)
+        if (object->point_light)
         {
             assert(light_index < RendererDefines::MAX_NUMBER_OF_LIGHTS && "Point lights exceed maximum specified");
 
-            object.transform_component.translation = glm::vec3(rotate_light * glm::vec4(object.transform_component.translation, 1.f));
+            object->transform_component.translation = glm::vec3(rotate_light * glm::vec4(object->transform_component.translation, 1.f));
 
-            ubo.point_lights[light_index].position = glm::vec4(object.transform_component.translation, 1.f);
-            ubo.point_lights[light_index].color = glm::vec4(object.color, object.point_light->light_intensity);
+            ubo.point_lights[light_index].position = glm::vec4(object->transform_component.translation, 1.f);
+            ubo.point_lights[light_index].color = glm::vec4(object->color, object->point_light->light_intensity);
             ++light_index;
         }
     }
@@ -96,12 +96,12 @@ void PointLightSystem::render(FrameInfo& frame_info)
 
     for (auto& [id, object] : frame_info.objects)
     {
-        if (object.point_light)
+        if (object->point_light)
         {
             PointLightPushConstants push{};
-            push.position = glm::vec4{object.transform_component.translation, 1.f};
-            push.color = glm::vec4{object.color, object.point_light->light_intensity};
-            push.radius = object.transform_component.scale.x;
+            push.position = glm::vec4{object->transform_component.translation, 1.f};
+            push.color = glm::vec4{object->color, object->point_light->light_intensity};
+            push.radius = object->transform_component.scale.x;
 
             vkCmdPushConstants(
                     frame_info.command_buffer,
