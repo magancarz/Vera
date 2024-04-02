@@ -45,14 +45,14 @@ public:
 
     VkCommandPool getCommandPool() { return command_pool; }
     VkDevice getDevice() { return device; }
-    VkPhysicalDevice getPhysicalDevice() { return physical_device; }
+    VkPhysicalDevice getPhysicalDevice() { return used_physical_device; }
     VkSurfaceKHR surface() { return surface_khr; }
     VkQueue graphicsQueue() { return graphics_queue; }
     VkQueue presentQueue() { return present_queue; }
-    SwapChainSupportDetails getSwapChainSupport() { return querySwapChainSupport(physical_device); }
+    SwapChainSupportDetails getSwapChainSupport() { return querySwapChainSupport(used_physical_device); }
 
     uint32_t findMemoryType(uint32_t type_filter, VkMemoryPropertyFlags properties);
-    QueueFamilyIndices findPhysicalQueueFamilies() { return findQueueFamilies(physical_device); }
+    QueueFamilyIndices findPhysicalQueueFamilies() { return findQueueFamilies(used_physical_device); }
     VkFormat findSupportedFormat(const std::vector<VkFormat>& candidates, VkImageTiling tiling, VkFormatFeatureFlags features);
 
     void createBuffer(
@@ -85,7 +85,7 @@ private:
     void pickPhysicalDevice();
     bool isDeviceSuitable(VkPhysicalDevice device);
     std::vector<const char*> getRequiredExtensions();
-    void hasGLFWRequiredInstanceExtensions();
+    void checkIfInstanceHasGlfwRequiredInstanceExtensions();
     bool checkDeviceExtensionSupport(VkPhysicalDevice device);
     void createLogicalDevice();
     void createCommandPool();
@@ -96,7 +96,7 @@ private:
 
     VkInstance instance;
     VkDebugUtilsMessengerEXT debug_messenger;
-    VkPhysicalDevice physical_device = VK_NULL_HANDLE;
+    VkPhysicalDevice used_physical_device = VK_NULL_HANDLE;
     VkCommandPool command_pool;
 
     VkDevice device;
@@ -105,5 +105,16 @@ private:
     VkQueue present_queue;
 
     const std::vector<const char*> validation_layers = {"VK_LAYER_KHRONOS_validation"};
-    const std::vector<const char*> device_extensions = {VK_KHR_SWAPCHAIN_EXTENSION_NAME};
+    const std::vector<const char*> device_extensions =
+    {
+        VK_KHR_SWAPCHAIN_EXTENSION_NAME,
+        VK_KHR_ACCELERATION_STRUCTURE_EXTENSION_NAME,
+        VK_KHR_RAY_TRACING_PIPELINE_EXTENSION_NAME,
+        VK_KHR_DEFERRED_HOST_OPERATIONS_EXTENSION_NAME,
+        VK_EXT_DESCRIPTOR_INDEXING_EXTENSION_NAME,
+        VK_KHR_BIND_MEMORY_2_EXTENSION_NAME,
+        VK_KHR_SPIRV_1_4_EXTENSION_NAME,
+        VK_KHR_BUFFER_DEVICE_ADDRESS_EXTENSION_NAME,
+        VK_KHR_SHADER_FLOAT_CONTROLS_EXTENSION_NAME
+    };
 };
