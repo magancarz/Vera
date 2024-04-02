@@ -10,7 +10,7 @@ World::World(Window& window)
     camera.setPerspectiveProjection(glm::radians(50.0f), window.getAspect(), 0.1f, 100.f);
 }
 
-void World::loadObjects(Device& device, const std::vector<std::shared_ptr<Material>>& available_materials)
+void World::loadObjects(Device& device/*, const std::vector<std::shared_ptr<Material>>& available_materials*/)
 {
     std::shared_ptr<Model> monkey_model = Model::createModelFromFile(device, "Resources/Models/monkey.obj");
     auto left_monkey = std::make_shared<Object>(Object::createObject());
@@ -19,7 +19,7 @@ void World::loadObjects(Device& device, const std::vector<std::shared_ptr<Materi
     left_monkey->transform_component.translation = {-1.5f, .0f, 0};
     left_monkey->transform_component.rotation = {.0f, .0f, glm::radians(180.0f)};
     left_monkey->transform_component.scale = {.5f, .5f, .5f};
-    left_monkey->material = available_materials[0];
+//    left_monkey->material = available_materials[0];
     objects.emplace(left_monkey->getID(), std::move(left_monkey));
 
     auto right_monkey = std::make_shared<Object>(Object::createObject());
@@ -28,7 +28,7 @@ void World::loadObjects(Device& device, const std::vector<std::shared_ptr<Materi
     right_monkey->transform_component.translation = {1.5f, .0f, 0};
     right_monkey->transform_component.rotation = {.0f, 0.f, glm::radians(180.0f)};
     right_monkey->transform_component.scale = {.5f, .5f, .5f};
-    right_monkey->material = available_materials[1];
+//    right_monkey->material = available_materials[1];
     objects.emplace(right_monkey->getID(), std::move(right_monkey));
 
     std::shared_ptr<Model> plane_model = Model::createModelFromFile(device, "Resources/Models/plane.obj");
@@ -38,7 +38,7 @@ void World::loadObjects(Device& device, const std::vector<std::shared_ptr<Materi
     plane->transform_component.translation = {0.f, 1.f, 0};
     plane->transform_component.rotation = {.0f, 0.f, glm::radians(180.0f)};
     plane->transform_component.scale = {3.f, 3.f, 3.f};
-    plane->material = available_materials[0];
+//    plane->material = available_materials[0];
     objects.emplace(plane->getID(), std::move(plane));
 
     std::vector<glm::vec3> light_colors

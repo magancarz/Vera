@@ -5,4 +5,4 @@ target_sources(Vera-Lib PRIVATE
 
 add_subdirectory(Materials)
 add_subdirectory(RenderingAPI)
-add_subdirectory(Systems)
+add_subdirectory(SceneRenderers)

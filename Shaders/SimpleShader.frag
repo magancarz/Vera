@@ -60,5 +60,7 @@ void main()
         specular_light += intensity * blinn_term;
     }
 
-    out_color = vec4((diffuse_light + specular_light) * texture(image, fragment_uv).rgb, 1.0);
+//    vec3 texture_color = texture(image, fragment_uv).rgb;
+    vec3 texture_color = vec3(1.0);
+    out_color = vec4((diffuse_light + specular_light) * texture_color, 1.0);
 }

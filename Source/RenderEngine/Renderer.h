@@ -4,8 +4,7 @@
 #include "RenderEngine/RenderingAPI/SwapChain.h"
 #include "RenderEngine/RenderingAPI/Model.h"
 #include "RenderEngine/RenderingAPI/Descriptors.h"
-#include "RenderEngine/Systems/SimpleRenderSystem.h"
-#include "RenderEngine/Systems/PointLightSystem.h"
+#include "RenderEngine/SceneRenderers/SceneRenderer.h"
 
 class Renderer
 {
@@ -18,11 +17,9 @@ public:
 
     void render(FrameInfo& frame_info);
 
-    std::vector<std::shared_ptr<Material>> getAvailableMaterials() { return materials; }
-
 private:
-    VkRenderPass getSwapChainRenderPass() const { return swap_chain->getRenderPass(); }
-    bool isFrameInProgress() const { return is_frame_started; }
+    Window& window;
+    Device& device;
 
     VkCommandBuffer getCurrentCommandBuffer() const
     {
@@ -36,32 +33,24 @@ private:
         return current_frame_index;
     }
 
+    void recreateSwapChain();
+    void createCommandBuffers();
+
+    void createSceneRenderer();
+
+    std::unique_ptr<SceneRenderer> scene_renderer;
+
     VkCommandBuffer beginFrame();
     void endFrame();
     void beginSwapChainRenderPass(VkCommandBuffer command_buffer);
     void endSwapChainRenderPass(VkCommandBuffer command_buffer);
 
-    void createCommandBuffers();
     void freeCommandBuffers();
-    void recreateSwapChain();
 
-    void createDescriptorPool();
-
-    Window& window;
-    Device& device;
     std::unique_ptr<SwapChain> swap_chain;
     std::vector<VkCommandBuffer> command_buffers;
-    std::unique_ptr<DescriptorPool> global_pool{};
 
     uint32_t current_image_index{0};
     bool is_frame_started{false};
     int current_frame_index{0};
-
-    std::vector<std::unique_ptr<Buffer>> ubo_buffers;
-    std::vector<VkDescriptorSet> global_uniform_buffer_descriptor_sets;
-
-    std::unique_ptr<SimpleRenderSystem> simple_render_system;
-    std::unique_ptr<PointLightSystem> point_light_render_system;
-
-    std::vector<std::shared_ptr<Material>> materials;
 };

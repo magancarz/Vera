@@ -4,12 +4,12 @@
 
 #include "Input/KeyboardMovementController.h"
 #include "RenderEngine/GlobalUBO.h"
-#include "RenderEngine/Systems/PointLightSystem.h"
 #include "RenderEngine/Materials/Material.h"
 
 void Vera::run()
 {
-    world.loadObjects(device, renderer.getAvailableMaterials());
+    //TODO: bring back materials
+    world.loadObjects(device/*, renderer.getAvailableMaterials()*/);
 
     auto current_time = std::chrono::high_resolution_clock::now();
     while (!window.shouldClose())

@@ -11,7 +11,7 @@ class World
 public:
     World(Window& window);
 
-    void loadObjects(Device& device, const std::vector<std::shared_ptr<Material>>& available_materials);
+    void loadObjects(Device& device/*, const std::vector<std::shared_ptr<Material>>& available_materials*/);
 
     void update(FrameInfo& frame_info);
 

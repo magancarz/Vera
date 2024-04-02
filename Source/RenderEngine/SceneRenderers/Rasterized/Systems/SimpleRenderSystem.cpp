@@ -80,15 +80,15 @@ void SimpleRenderSystem::renderObjects(FrameInfo& frame_info)
             push.model = model_matrix;
             push.normal_matrix = obj->transform_component.normalMatrix();
 
-            vkCmdBindDescriptorSets(
-                    frame_info.command_buffer,
-                    VK_PIPELINE_BIND_POINT_GRAPHICS,
-                    pipeline_layout,
-                    1,
-                    1,
-                    &obj->material->getDescriptorSet(frame_info.frame_index),
-                    0,
-                    nullptr);
+//            vkCmdBindDescriptorSets(
+//                    frame_info.command_buffer,
+//                    VK_PIPELINE_BIND_POINT_GRAPHICS,
+//                    pipeline_layout,
+//                    1,
+//                    1,
+//                    &obj->material->getDescriptorSet(frame_info.frame_index),
+//                    0,
+//                    nullptr);
 
             vkCmdPushConstants(
                     frame_info.command_buffer,
