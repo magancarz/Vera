@@ -204,3 +204,15 @@ VkResult Buffer::invalidateIndex(int index)
 {
     return invalidate(alignment_size, index * alignment_size);
 }
+
+VkDeviceAddress Buffer::getBufferDeviceAddress(VkDevice device, VkBuffer buffer)
+{
+    if(buffer == VK_NULL_HANDLE)
+    {
+        return 0ULL;
+    }
+
+    VkBufferDeviceAddressInfo info = {VK_STRUCTURE_TYPE_BUFFER_DEVICE_ADDRESS_INFO};
+    info.buffer = buffer;
+    return vkGetBufferDeviceAddress(device, &info);
+}

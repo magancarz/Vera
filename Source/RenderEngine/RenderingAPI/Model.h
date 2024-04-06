@@ -3,6 +3,7 @@
 #include "Device.h"
 #include "Vertex.h"
 #include "Buffer.h"
+#include "RenderEngine/Models/RayTracingBuilder.h"
 
 class Model
 {
@@ -26,9 +27,13 @@ public:
     void bind(VkCommandBuffer command_buffer);
     void draw(VkCommandBuffer command_buffer);
 
+    RayTracingBuilder::BlasInput getBlasInput() { return blas_input; }
+
 private:
     void createVertexBuffers(const std::vector<Vertex>& vertices);
     void createIndexBuffers(const std::vector<uint32_t>& indices);
+
+    void convertModelToRayTracedGeometry();
 
     Device& device;
 
@@ -38,4 +43,6 @@ private:
     bool has_index_buffer{false};
     std::unique_ptr<Buffer> index_buffer;
     uint32_t index_count;
+
+    RayTracingBuilder::BlasInput blas_input{};
 };

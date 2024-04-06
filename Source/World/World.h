@@ -15,12 +15,12 @@ public:
 
     void update(FrameInfo& frame_info);
 
+    std::map<int, std::shared_ptr<Object>> objects;
+
 private:
     Window& window;
 
     Camera camera;
     KeyboardMovementController movement_controller{};
     std::unique_ptr<Object> viewer_object;
-
-    std::map<int, std::shared_ptr<Object>> objects;
 };

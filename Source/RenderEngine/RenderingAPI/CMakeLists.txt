@@ -4,6 +4,7 @@ target_sources(Vera-Lib PRIVATE
         SwapChain.cpp
         Model.cpp
         Buffer.cpp
-        Descriptors.cpp)
+        Descriptors.cpp
+        VulkanHelper.cpp)
 
 add_subdirectory(Textures)

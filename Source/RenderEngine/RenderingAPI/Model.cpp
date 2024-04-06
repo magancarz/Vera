@@ -16,6 +16,7 @@ Model::Model(Device& device, const Model::Builder& builder)
 {
     createVertexBuffers(builder.vertices);
     createIndexBuffers(builder.indices);
+    convertModelToRayTracedGeometry();
 }
 
 void Model::createVertexBuffers(const std::vector<Vertex>& vertices)
@@ -82,6 +83,41 @@ void Model::createIndexBuffers(const std::vector<uint32_t>& indices)
         VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT
     );
     device.copyBuffer(staging_buffer.getBuffer(), index_buffer->getBuffer(), buffer_size);
+}
+
+void Model::convertModelToRayTracedGeometry()
+{
+    VkDeviceAddress vertex_address = Buffer::getBufferDeviceAddress(device.getDevice(), vertex_buffer->getBuffer());
+    VkDeviceAddress index_address = Buffer::getBufferDeviceAddress(device.getDevice(), index_buffer->getBuffer());
+
+    uint32_t max_primitive_count = index_count / 3;
+
+    VkAccelerationStructureGeometryTrianglesDataKHR triangles{VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_GEOMETRY_TRIANGLES_DATA_KHR};
+    triangles.vertexFormat = VK_FORMAT_R32G32B32_SFLOAT;
+    triangles.vertexData.deviceAddress = vertex_address;
+    triangles.vertexStride = sizeof(Vertex);
+
+    triangles.indexType = VK_INDEX_TYPE_UINT32;
+    triangles.indexData.deviceAddress = index_address;
+
+    triangles.maxVertex = vertex_count - 1;
+
+    VkAccelerationStructureGeometryKHR acceleration_structure_geometry{VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_GEOMETRY_KHR};
+    acceleration_structure_geometry.geometryType = VK_GEOMETRY_TYPE_TRIANGLES_KHR;
+    acceleration_structure_geometry.flags = VK_GEOMETRY_OPAQUE_BIT_KHR;
+    acceleration_structure_geometry.geometry.triangles = triangles;
+
+    VkAccelerationStructureBuildRangeInfoKHR offset{};
+    offset.firstVertex = 0;
+    offset.primitiveCount = max_primitive_count;
+    offset.primitiveOffset = 0;
+    offset.transformOffset = 0;
+
+//    blas_input.acceleration_structure_geometry.emplace_back(acceleration_structure_geometry);
+//    blas_input.acceleration_structure_build_offset_info.emplace_back(offset);
+
+    blas_input.acceleration_structure_geometry = acceleration_structure_geometry;
+    blas_input.acceleration_structure_build_offset_info = offset;
 }
 
 void Model::bind(VkCommandBuffer command_buffer)

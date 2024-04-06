@@ -4,5 +4,6 @@ target_sources(Vera-Lib PRIVATE
         Window.cpp)
 
 add_subdirectory(Materials)
+add_subdirectory(Models)
 add_subdirectory(RenderingAPI)
 add_subdirectory(SceneRenderers)
