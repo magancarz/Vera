@@ -26,5 +26,6 @@ void RayTracedRenderer::createBottomLevelAccelerationStructure()
         all_blas_inputs.emplace_back(blas_input);
     }
 
-    ray_tracing_builder.buildBlas(device, all_blas_inputs[0], VK_BUILD_ACCELERATION_STRUCTURE_PREFER_FAST_TRACE_BIT_KHR);
+    ray_tracing_builder.buildBlas(device, all_blas_inputs[0]);
+    ray_tracing_builder.buildTlas(device);
 }

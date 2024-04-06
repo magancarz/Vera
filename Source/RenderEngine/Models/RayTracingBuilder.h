@@ -21,10 +21,13 @@ public:
 
     void buildBlas(
         Device& device,
-        const BlasInput& input,
-        VkBuildAccelerationStructureFlagsKHR flags = VK_BUILD_ACCELERATION_STRUCTURE_PREFER_FAST_TRACE_BIT_KHR);
+        const BlasInput& input);
+
+    void buildTlas(Device& device);
 
 private:
     uint32_t queue_index{0};
     VkPhysicalDeviceRayTracingPipelinePropertiesKHR ray_tracing_properties;
+
+    VkDeviceAddress bottomLevelAccelerationStructureDeviceAddress;
 };
