@@ -29,7 +29,10 @@ set(SHADER_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/Shaders)
 set(SHADER_BINARY_DIR ${CMAKE_CURRENT_SOURCE_DIR}/Shaders)
 file(GLOB SHADERS
         ${SHADER_SOURCE_DIR}/*.vert
-        ${SHADER_SOURCE_DIR}/*.frag)
+        ${SHADER_SOURCE_DIR}/*.frag
+        ${SHADER_SOURCE_DIR}/*.rchit
+        ${SHADER_SOURCE_DIR}/*.rgen
+        ${SHADER_SOURCE_DIR}/*.rmiss)
 
 add_custom_command(
         COMMAND ${CMAKE_COMMAND} -E make_directory ${SHADER_BINARY_DIR}
@@ -40,7 +43,7 @@ add_custom_command(
 foreach (source IN LISTS SHADERS)
     get_filename_component(FILENAME ${source} NAME)
     add_custom_command(
-            COMMAND ${glslc_executable} -o ${SHADER_BINARY_DIR}/${FILENAME}.spv ${source}
+            COMMAND ${glslc_executable} -o ${SHADER_BINARY_DIR}/${FILENAME}.spv ${source} --target-env=vulkan1.2
             OUTPUT ${SHADER_BINARY_DIR}/${FILENAME}.spv
             DEPENDS ${source} ${SHADER_BINARY_DIR}
             COMMENT "Compiling ${FILENAME}"

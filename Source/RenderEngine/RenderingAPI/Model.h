@@ -29,6 +29,9 @@ public:
 
     RayTracingBuilder::BlasInput getBlasInput() { return blas_input; }
 
+    std::unique_ptr<Buffer> vertex_buffer;
+    std::unique_ptr<Buffer> index_buffer;
+
 private:
     void createVertexBuffers(const std::vector<Vertex>& vertices);
     void createIndexBuffers(const std::vector<uint32_t>& indices);
@@ -37,11 +40,9 @@ private:
 
     Device& device;
 
-    std::unique_ptr<Buffer> vertex_buffer;
     uint32_t vertex_count;
 
     bool has_index_buffer{false};
-    std::unique_ptr<Buffer> index_buffer;
     uint32_t index_count;
 
     RayTracingBuilder::BlasInput blas_input{};

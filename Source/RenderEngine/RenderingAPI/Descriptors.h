@@ -92,6 +92,7 @@ public:
 
     DescriptorWriter& writeBuffer(uint32_t binding, VkDescriptorBufferInfo* buffer_info);
     DescriptorWriter& writeImage(uint32_t binding, VkDescriptorImageInfo* image_info);
+    DescriptorWriter& writeAccelerationStructure(uint32_t binding, VkWriteDescriptorSetAccelerationStructureKHR* structure_info);
 
     bool build(VkDescriptorSet& set);
     void overwrite(VkDescriptorSet& set);

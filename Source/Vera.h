@@ -24,5 +24,5 @@ private:
     Device device{window};
 
     World world{window};
-    Renderer renderer{window, device};
+    std::unique_ptr<Renderer> renderer;
 };

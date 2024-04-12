@@ -87,7 +87,7 @@ void Device::createInstance()
     app_info.applicationVersion = VK_MAKE_VERSION(1, 0, 0);
     app_info.pEngineName = "No Engine";
     app_info.engineVersion = VK_MAKE_VERSION(1, 0, 0);
-    app_info.apiVersion = VK_API_VERSION_1_0;
+    app_info.apiVersion = VK_API_VERSION_1_2;
 
     VkInstanceCreateInfo create_info{};
     create_info.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
@@ -253,6 +253,37 @@ void Device::createLogicalDevice()
         queue_create_infos.push_back(queue_create_info);
     }
 
+    VkPhysicalDeviceBufferDeviceAddressFeatures
+            physicalDeviceBufferDeviceAddressFeatures = {
+            .sType =
+            VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_BUFFER_DEVICE_ADDRESS_FEATURES,
+            .pNext = NULL,
+            .bufferDeviceAddress = VK_TRUE,
+            .bufferDeviceAddressCaptureReplay = VK_FALSE,
+            .bufferDeviceAddressMultiDevice = VK_FALSE};
+
+    VkPhysicalDeviceAccelerationStructureFeaturesKHR
+            physicalDeviceAccelerationStructureFeatures = {
+            .sType =
+            VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ACCELERATION_STRUCTURE_FEATURES_KHR,
+            .pNext = &physicalDeviceBufferDeviceAddressFeatures,
+            .accelerationStructure = VK_TRUE,
+            .accelerationStructureCaptureReplay = VK_FALSE,
+            .accelerationStructureIndirectBuild = VK_FALSE,
+            .accelerationStructureHostCommands = VK_FALSE,
+            .descriptorBindingAccelerationStructureUpdateAfterBind = VK_FALSE};
+
+    VkPhysicalDeviceRayTracingPipelineFeaturesKHR
+            physicalDeviceRayTracingPipelineFeatures = {
+            .sType =
+            VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAY_TRACING_PIPELINE_FEATURES_KHR,
+            .pNext = &physicalDeviceAccelerationStructureFeatures,
+            .rayTracingPipeline = VK_TRUE,
+            .rayTracingPipelineShaderGroupHandleCaptureReplay = VK_FALSE,
+            .rayTracingPipelineShaderGroupHandleCaptureReplayMixed = VK_FALSE,
+            .rayTracingPipelineTraceRaysIndirect = VK_FALSE,
+            .rayTraversalPrimitiveCulling = VK_FALSE};
+
     VkPhysicalDeviceFeatures device_features{};
     device_features.samplerAnisotropy = VK_TRUE;
 
@@ -265,6 +296,8 @@ void Device::createLogicalDevice()
     create_info.pEnabledFeatures = &device_features;
     create_info.enabledExtensionCount = static_cast<uint32_t>(device_extensions.size());
     create_info.ppEnabledExtensionNames = device_extensions.data();
+
+    create_info.pNext = &physicalDeviceRayTracingPipelineFeatures;
 
     if (enable_validation_layers)
     {
@@ -474,20 +507,27 @@ void Device::createBuffer(
 
     if (vkCreateBuffer(device, &buffer_info, nullptr, &buffer) != VK_SUCCESS)
     {
-        throw std::runtime_error("failed to create vertex buffer!");
+        throw std::runtime_error("failed to create buffer!");
     }
 
     VkMemoryRequirements memory_requirements;
     vkGetBufferMemoryRequirements(device, buffer, &memory_requirements);
 
+    VkMemoryAllocateFlagsInfo memory_allocate_flags_info{};
+    memory_allocate_flags_info.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_FLAGS_INFO;
+    memory_allocate_flags_info.pNext = nullptr;
+    memory_allocate_flags_info.flags = VK_MEMORY_ALLOCATE_DEVICE_ADDRESS_BIT;
+    memory_allocate_flags_info.deviceMask = 0;
+
     VkMemoryAllocateInfo allocate_info{};
     allocate_info.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
+    allocate_info.pNext = &memory_allocate_flags_info;
     allocate_info.allocationSize = memory_requirements.size;
     allocate_info.memoryTypeIndex = findMemoryType(memory_requirements.memoryTypeBits, properties);
 
     if (vkAllocateMemory(device, &allocate_info, nullptr, &buffer_memory) != VK_SUCCESS)
     {
-        throw std::runtime_error("failed to allocate vertex buffer memory!");
+        throw std::runtime_error("failed to allocate buffer memory!");
     }
 
     vkBindBufferMemory(device, buffer, buffer_memory, 0);

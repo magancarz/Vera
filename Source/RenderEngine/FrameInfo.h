@@ -14,4 +14,5 @@ struct FrameInfo
     VkDescriptorSet global_uniform_buffer_descriptor_set;
     Camera* camera;
     std::map<int, std::shared_ptr<Object>> objects;
+    VkImage swap_chain_image;
 };

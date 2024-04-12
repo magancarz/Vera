@@ -100,8 +100,7 @@ DescriptorPool::~DescriptorPool()
     vkDestroyDescriptorPool(device.getDevice(), descriptor_pool, nullptr);
 }
 
-bool DescriptorPool::allocateDescriptor(
-        const VkDescriptorSetLayout descriptor_set_layout, VkDescriptorSet& descriptor) const
+bool DescriptorPool::allocateDescriptor(const VkDescriptorSetLayout descriptor_set_layout, VkDescriptorSet& descriptor) const
 {
     VkDescriptorSetAllocateInfo alloc_info{};
     alloc_info.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
@@ -170,6 +169,22 @@ DescriptorWriter& DescriptorWriter::writeImage(
     write.dstBinding = binding;
     write.pImageInfo = image_info;
     write.descriptorCount = 1;
+
+    writes.push_back(write);
+    return *this;
+}
+
+DescriptorWriter& DescriptorWriter::writeAccelerationStructure(
+        uint32_t binding, VkWriteDescriptorSetAccelerationStructureKHR* structure_info)
+{
+    auto& binding_description = set_layout.bindings[binding];
+
+    VkWriteDescriptorSet write{};
+    write.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+    write.pNext = structure_info;
+    write.dstBinding = binding;
+    write.descriptorCount = 1;
+    write.descriptorType = binding_description.descriptorType;
 
     writes.push_back(write);
     return *this;

@@ -3,6 +3,8 @@
 #include <cassert>
 #include <cstring>
 
+#include <vulkan/vulkan_core.h>
+
 /**
  * Returns the minimum instance size required to be compatible with devices minOffsetAlignment
  *
@@ -32,7 +34,8 @@ Buffer::Buffer(
           instance_size{instance_size},
           instance_count{instance_count},
           usage_flags{usage_flags},
-          memory_property_flags{memory_property_flags} {
+          memory_property_flags{memory_property_flags}
+{
     alignment_size = getAlignment(instance_size, min_offset_alignment);
     buffer_size = alignment_size * instance_count;
     device.createBuffer(buffer_size, usage_flags, memory_property_flags, buffer, memory);
@@ -205,14 +208,16 @@ VkResult Buffer::invalidateIndex(int index)
     return invalidate(alignment_size, index * alignment_size);
 }
 
-VkDeviceAddress Buffer::getBufferDeviceAddress(VkDevice device, VkBuffer buffer)
+VkDeviceAddress Buffer::getDeviceAddress()
 {
     if(buffer == VK_NULL_HANDLE)
     {
         return 0ULL;
     }
 
-    VkBufferDeviceAddressInfo info = {VK_STRUCTURE_TYPE_BUFFER_DEVICE_ADDRESS_INFO};
-    info.buffer = buffer;
-    return vkGetBufferDeviceAddress(device, &info);
+    VkBufferDeviceAddressInfo info = {
+            .sType = VK_STRUCTURE_TYPE_BUFFER_DEVICE_ADDRESS_INFO,
+            .buffer = buffer};
+
+    return vkGetBufferDeviceAddress(device.getDevice(), &info);
 }

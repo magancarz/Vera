@@ -1,6 +1,7 @@
 #include "RayTracingBuilder.h"
 
 #include "RenderEngine/RenderingAPI/VulkanDefines.h"
+#include "RenderEngine/RenderingAPI/VulkanHelper.h"
 
 void throwExceptionVulkanAPI(VkResult result, const std::string &functionName) {
     std::string message = "Vulkan API exception: return code " +
@@ -47,7 +48,7 @@ void RayTracingBuilder::buildBlas(
 
     std::vector<uint32_t> bottomLevelMaxPrimitiveCountList = {input.acceleration_structure_build_offset_info.primitiveCount};
 
-    vkGetAccelerationStructureBuildSizesKHR(
+    pvkGetAccelerationStructureBuildSizesKHR(
             device.getDevice(), VK_ACCELERATION_STRUCTURE_BUILD_TYPE_DEVICE_KHR,
             &bottomLevelAccelerationStructureBuildGeometryInfo,
             bottomLevelMaxPrimitiveCountList.data(),
@@ -131,7 +132,7 @@ void RayTracingBuilder::buildBlas(
     VkAccelerationStructureKHR bottomLevelAccelerationStructureHandle =
             VK_NULL_HANDLE;
 
-    result = vkCreateAccelerationStructureKHR(
+    result = pvkCreateAccelerationStructureKHR(
             device.getDevice(), &bottomLevelAccelerationStructureCreateInfo, NULL,
             &bottomLevelAccelerationStructureHandle);
 
@@ -150,7 +151,7 @@ void RayTracingBuilder::buildBlas(
             .accelerationStructure = bottomLevelAccelerationStructureHandle};
 
     bottomLevelAccelerationStructureDeviceAddress =
-            vkGetAccelerationStructureDeviceAddressKHR(
+            pvkGetAccelerationStructureDeviceAddressKHR(
                     device.getDevice(), &bottomLevelAccelerationStructureDeviceAddressInfo);
 
     VkBufferCreateInfo bottomLevelAccelerationStructureScratchBufferCreateInfo = {
@@ -179,21 +180,8 @@ void RayTracingBuilder::buildBlas(
             device.getDevice(), bottomLevelAccelerationStructureScratchBufferHandle,
             &bottomLevelAccelerationStructureScratchMemoryRequirements);
 
-    uint32_t bottomLevelAccelerationStructureScratchMemoryTypeIndex = device.findMemoryType(bottomLevelAccelerationStructureScratchMemoryRequirements.memoryTypeBits, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
-//    for (uint32_t x = 0; x < physicalDeviceMemoryProperties.memoryTypeCount;
-//         x++) {
-//
-//        if ((bottomLevelAccelerationStructureScratchMemoryRequirements
-//                     .memoryTypeBits &
-//             (1 << x)) &&
-//            (physicalDeviceMemoryProperties.memoryTypes[x].propertyFlags &
-//             VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT) ==
-//            VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT) {
-//
-//            bottomLevelAccelerationStructureScratchMemoryTypeIndex = x;
-//            break;
-//        }
-//    }
+    uint32_t bottomLevelAccelerationStructureScratchMemoryTypeIndex = device.findMemoryType(
+            bottomLevelAccelerationStructureScratchMemoryRequirements.memoryTypeBits, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
 
     VkMemoryAllocateFlagsInfo memoryAllocateFlagsInfo = {
             .sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_FLAGS_INFO,
@@ -236,7 +224,7 @@ void RayTracingBuilder::buildBlas(
             .buffer = bottomLevelAccelerationStructureScratchBufferHandle};
 
     VkDeviceAddress bottomLevelAccelerationStructureScratchBufferDeviceAddress =
-            vkGetBufferDeviceAddressKHR(
+            vkGetBufferDeviceAddress(
                     device.getDevice(),
                     &bottomLevelAccelerationStructureScratchBufferDeviceAddressInfo);
 
@@ -258,58 +246,14 @@ void RayTracingBuilder::buildBlas(
             *bottomLevelAccelerationStructureBuildRangeInfos =
             &bottomLevelAccelerationStructureBuildRangeInfo;
 
-//    VkCommandBufferBeginInfo bottomLevelCommandBufferBeginInfo = {
-//            .sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO,
-//            .pNext = NULL,
-//            .flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT,
-//            .pInheritanceInfo = NULL};
-
     VkCommandBuffer command_buffer = device.beginSingleTimeCommands();
-    vkCmdBuildAccelerationStructuresKHR(
+
+    pvkCmdBuildAccelerationStructuresKHR(
             command_buffer, 1,
             &bottomLevelAccelerationStructureBuildGeometryInfo,
             &bottomLevelAccelerationStructureBuildRangeInfos);
 
     device.endSingleTimeCommands(command_buffer);
-
-    VkSubmitInfo bottomLevelAccelerationStructureBuildSubmitInfo = {
-            .sType = VK_STRUCTURE_TYPE_SUBMIT_INFO,
-            .pNext = NULL,
-            .waitSemaphoreCount = 0,
-            .pWaitSemaphores = NULL,
-            .pWaitDstStageMask = NULL,
-            .commandBufferCount = 1,
-            .pCommandBuffers = &command_buffer,
-            .signalSemaphoreCount = 0,
-            .pSignalSemaphores = NULL};
-
-    VkFenceCreateInfo bottomLevelAccelerationStructureBuildFenceCreateInfo = {
-            .sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO, .pNext = NULL, .flags = 0};
-
-    VkFence bottomLevelAccelerationStructureBuildFenceHandle = VK_NULL_HANDLE;
-    result = vkCreateFence(
-            device.getDevice(), &bottomLevelAccelerationStructureBuildFenceCreateInfo, NULL,
-            &bottomLevelAccelerationStructureBuildFenceHandle);
-
-    if (result != VK_SUCCESS) {
-        throwExceptionVulkanAPI(result, "vkCreateFence");
-    }
-
-    result = vkQueueSubmit(device.graphicsQueue(), 1,
-                           &bottomLevelAccelerationStructureBuildSubmitInfo,
-                           bottomLevelAccelerationStructureBuildFenceHandle);
-
-    if (result != VK_SUCCESS) {
-        throwExceptionVulkanAPI(result, "vkQueueSubmit");
-    }
-
-    result = vkWaitForFences(device.getDevice(), 1,
-                             &bottomLevelAccelerationStructureBuildFenceHandle,
-                             true, UINT32_MAX);
-
-    if (result != VK_SUCCESS && result != VK_TIMEOUT) {
-        throwExceptionVulkanAPI(result, "vkWaitForFences");
-    }
 }
 
 void RayTracingBuilder::buildTlas(Device& device)
@@ -340,8 +284,7 @@ void RayTracingBuilder::buildTlas(Device& device)
             .pQueueFamilyIndices = &queue_index};
 
     VkBuffer bottomLevelGeometryInstanceBufferHandle = VK_NULL_HANDLE;
-    result =
-            vkCreateBuffer(device.getDevice(), &bottomLevelGeometryInstanceBufferCreateInfo,
+    result = vkCreateBuffer(device.getDevice(), &bottomLevelGeometryInstanceBufferCreateInfo,
                            NULL, &bottomLevelGeometryInstanceBufferHandle);
 
     if (result != VK_SUCCESS) {
@@ -407,7 +350,7 @@ void RayTracingBuilder::buildTlas(Device& device)
             .buffer = bottomLevelGeometryInstanceBufferHandle};
 
     VkDeviceAddress bottomLevelGeometryInstanceDeviceAddress =
-            vkGetBufferDeviceAddressKHR(
+            vkGetBufferDeviceAddress(
                     device.getDevice(), &bottomLevelGeometryInstanceDeviceAddressInfo);
 
     VkAccelerationStructureGeometryDataKHR topLevelAccelerationStructureGeometryData =
@@ -452,7 +395,7 @@ void RayTracingBuilder::buildTlas(Device& device)
 
     std::vector<uint32_t> topLevelMaxPrimitiveCountList = {1};
 
-    vkGetAccelerationStructureBuildSizesKHR(
+    pvkGetAccelerationStructureBuildSizesKHR(
             device.getDevice(), VK_ACCELERATION_STRUCTURE_BUILD_TYPE_DEVICE_KHR,
             &topLevelAccelerationStructureBuildGeometryInfo,
             topLevelMaxPrimitiveCountList.data(),
@@ -521,10 +464,7 @@ void RayTracingBuilder::buildTlas(Device& device)
                     .type = VK_ACCELERATION_STRUCTURE_TYPE_TOP_LEVEL_KHR,
                     .deviceAddress = 0};
 
-    VkAccelerationStructureKHR topLevelAccelerationStructureHandle =
-            VK_NULL_HANDLE;
-
-    result = vkCreateAccelerationStructureKHR(
+    result = pvkCreateAccelerationStructureKHR(
             device.getDevice(), &topLevelAccelerationStructureCreateInfo, NULL,
             &topLevelAccelerationStructureHandle);
 
@@ -543,7 +483,7 @@ void RayTracingBuilder::buildTlas(Device& device)
             .accelerationStructure = topLevelAccelerationStructureHandle};
 
     VkDeviceAddress topLevelAccelerationStructureDeviceAddress =
-            vkGetAccelerationStructureDeviceAddressKHR(
+            pvkGetAccelerationStructureDeviceAddressKHR(
                     device.getDevice(), &topLevelAccelerationStructureDeviceAddressInfo);
 
     VkBufferCreateInfo topLevelAccelerationStructureScratchBufferCreateInfo = {
@@ -606,7 +546,7 @@ void RayTracingBuilder::buildTlas(Device& device)
             .buffer = topLevelAccelerationStructureScratchBufferHandle};
 
     VkDeviceAddress topLevelAccelerationStructureScratchBufferDeviceAddress =
-            vkGetBufferDeviceAddressKHR(
+            vkGetBufferDeviceAddress(
                     device.getDevice(),
                     &topLevelAccelerationStructureScratchBufferDeviceAddressInfo);
 
@@ -626,57 +566,12 @@ void RayTracingBuilder::buildTlas(Device& device)
             *topLevelAccelerationStructureBuildRangeInfos =
             &topLevelAccelerationStructureBuildRangeInfo;
 
-    VkCommandBufferBeginInfo topLevelCommandBufferBeginInfo = {
-            .sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO,
-            .pNext = NULL,
-            .flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT,
-            .pInheritanceInfo = NULL};
-
     VkCommandBuffer command_buffer = device.beginSingleTimeCommands();
 
-    vkCmdBuildAccelerationStructuresKHR(
+    pvkCmdBuildAccelerationStructuresKHR(
             command_buffer, 1,
             &topLevelAccelerationStructureBuildGeometryInfo,
             &topLevelAccelerationStructureBuildRangeInfos);
 
     device.endSingleTimeCommands(command_buffer);
-
-    VkSubmitInfo topLevelAccelerationStructureBuildSubmitInfo = {
-            .sType = VK_STRUCTURE_TYPE_SUBMIT_INFO,
-            .pNext = NULL,
-            .waitSemaphoreCount = 0,
-            .pWaitSemaphores = NULL,
-            .pWaitDstStageMask = NULL,
-            .commandBufferCount = 1,
-            .pCommandBuffers = &command_buffer,
-            .signalSemaphoreCount = 0,
-            .pSignalSemaphores = NULL};
-
-    VkFenceCreateInfo topLevelAccelerationStructureBuildFenceCreateInfo = {
-            .sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO, .pNext = NULL, .flags = 0};
-
-    VkFence topLevelAccelerationStructureBuildFenceHandle = VK_NULL_HANDLE;
-    result = vkCreateFence(device.getDevice(),
-                           &topLevelAccelerationStructureBuildFenceCreateInfo,
-                           NULL, &topLevelAccelerationStructureBuildFenceHandle);
-
-    if (result != VK_SUCCESS) {
-        throwExceptionVulkanAPI(result, "vkCreateFence");
-    }
-
-    result = vkQueueSubmit(device.graphicsQueue(), 1,
-                           &topLevelAccelerationStructureBuildSubmitInfo,
-                           topLevelAccelerationStructureBuildFenceHandle);
-
-    if (result != VK_SUCCESS) {
-        throwExceptionVulkanAPI(result, "vkQueueSubmit");
-    }
-
-    result = vkWaitForFences(device.getDevice(), 1,
-                             &topLevelAccelerationStructureBuildFenceHandle, true,
-                             UINT32_MAX);
-
-    if (result != VK_SUCCESS && result != VK_TIMEOUT) {
-        throwExceptionVulkanAPI(result, "vkWaitForFences");
-    }
 }

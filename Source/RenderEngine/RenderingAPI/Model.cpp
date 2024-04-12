@@ -43,8 +43,8 @@ void Model::createVertexBuffers(const std::vector<Vertex>& vertices)
         device,
         vertex_size,
         vertex_count,
-        VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT,
-        VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT
+        VK_BUFFER_USAGE_STORAGE_BUFFER_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT | VK_BUFFER_USAGE_ACCELERATION_STRUCTURE_BUILD_INPUT_READ_ONLY_BIT_KHR,
+        VK_MEMORY_ALLOCATE_DEVICE_ADDRESS_BIT
     );
     device.copyBuffer(staging_buffer.getBuffer(), vertex_buffer->getBuffer(), buffer_size);
 }
@@ -79,16 +79,16 @@ void Model::createIndexBuffers(const std::vector<uint32_t>& indices)
         device,
         index_size,
         index_count,
-        VK_BUFFER_USAGE_INDEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT,
-        VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT
+        VK_BUFFER_USAGE_STORAGE_BUFFER_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT | VK_BUFFER_USAGE_ACCELERATION_STRUCTURE_BUILD_INPUT_READ_ONLY_BIT_KHR,
+        VK_MEMORY_ALLOCATE_DEVICE_ADDRESS_BIT
     );
     device.copyBuffer(staging_buffer.getBuffer(), index_buffer->getBuffer(), buffer_size);
 }
 
 void Model::convertModelToRayTracedGeometry()
 {
-    VkDeviceAddress vertex_address = Buffer::getBufferDeviceAddress(device.getDevice(), vertex_buffer->getBuffer());
-    VkDeviceAddress index_address = Buffer::getBufferDeviceAddress(device.getDevice(), index_buffer->getBuffer());
+    VkDeviceAddress vertex_address = vertex_buffer->getDeviceAddress();
+    VkDeviceAddress index_address = index_buffer->getDeviceAddress();
 
     uint32_t max_primitive_count = index_count / 3;
 

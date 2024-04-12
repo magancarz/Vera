@@ -3,10 +3,23 @@
 #include <cstdint>
 #include <vulkan/vulkan.hpp>
 
+inline PFN_vkCreateRayTracingPipelinesKHR pvkCreateRayTracingPipelinesKHR;
+inline PFN_vkGetAccelerationStructureBuildSizesKHR
+        pvkGetAccelerationStructureBuildSizesKHR;
+inline PFN_vkCreateAccelerationStructureKHR pvkCreateAccelerationStructureKHR;
+inline PFN_vkDestroyAccelerationStructureKHR pvkDestroyAccelerationStructureKHR;
+inline PFN_vkGetAccelerationStructureDeviceAddressKHR
+        pvkGetAccelerationStructureDeviceAddressKHR;
+inline PFN_vkCmdBuildAccelerationStructuresKHR pvkCmdBuildAccelerationStructuresKHR;
+inline PFN_vkGetRayTracingShaderGroupHandlesKHR
+        pvkGetRayTracingShaderGroupHandlesKHR;
+inline PFN_vkCmdTraceRaysKHR pvkCmdTraceRaysKHR;
+
 class VulkanHelper
 {
 public:
     static bool checkResult(VkResult result, const char* message = nullptr);
     static bool checkResult(VkResult result, const char* file, int32_t line);
     static const char* getResultString(VkResult result);
+    static void loadExtensionsFunctions(VkDevice device);
 };

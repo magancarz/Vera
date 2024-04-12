@@ -89,3 +89,36 @@ bool VulkanHelper::checkResult(VkResult result, const char* message)
 
     return false;
 }
+
+void VulkanHelper::loadExtensionsFunctions(VkDevice device)
+{
+    pvkCreateRayTracingPipelinesKHR =
+            (PFN_vkCreateRayTracingPipelinesKHR)vkGetDeviceProcAddr(
+                    device, "vkCreateRayTracingPipelinesKHR");
+
+    pvkGetAccelerationStructureBuildSizesKHR =
+            (PFN_vkGetAccelerationStructureBuildSizesKHR)vkGetDeviceProcAddr(
+                    device, "vkGetAccelerationStructureBuildSizesKHR");
+
+    pvkCreateAccelerationStructureKHR =
+            (PFN_vkCreateAccelerationStructureKHR)vkGetDeviceProcAddr(
+                    device, "vkCreateAccelerationStructureKHR");
+
+    pvkDestroyAccelerationStructureKHR =
+            (PFN_vkDestroyAccelerationStructureKHR)vkGetDeviceProcAddr(
+                    device, "vkDestroyAccelerationStructureKHR");
+
+    pvkGetAccelerationStructureDeviceAddressKHR =
+            (PFN_vkGetAccelerationStructureDeviceAddressKHR)vkGetDeviceProcAddr(
+                    device, "vkGetAccelerationStructureDeviceAddressKHR");
+
+    pvkCmdBuildAccelerationStructuresKHR =
+            (PFN_vkCmdBuildAccelerationStructuresKHR)vkGetDeviceProcAddr(
+                    device, "vkCmdBuildAccelerationStructuresKHR");
+
+    pvkGetRayTracingShaderGroupHandlesKHR =
+            (PFN_vkGetRayTracingShaderGroupHandlesKHR)vkGetDeviceProcAddr(
+                    device, "vkGetRayTracingShaderGroupHandlesKHR");
+
+    pvkCmdTraceRaysKHR = (PFN_vkCmdTraceRaysKHR)vkGetDeviceProcAddr(device, "vkCmdTraceRaysKHR");
+}

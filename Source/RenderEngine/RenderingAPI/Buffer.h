@@ -16,8 +16,6 @@ public:
     Buffer(const Buffer&) = delete;
     Buffer& operator=(const Buffer&) = delete;
 
-    static VkDeviceAddress getBufferDeviceAddress(VkDevice device, VkBuffer buffer);
-
     VkResult map(VkDeviceSize size = VK_WHOLE_SIZE, VkDeviceSize offset = 0);
     void unmap();
 
@@ -39,6 +37,7 @@ public:
     VkBufferUsageFlags getUsageFlags() const { return usage_flags; }
     VkMemoryPropertyFlags getMemoryPropertyFlags() const { return memory_property_flags; }
     VkDeviceSize getBufferSize() const { return buffer_size; }
+    VkDeviceAddress getDeviceAddress();
 
 private:
     static VkDeviceSize getAlignment(VkDeviceSize instance_size, VkDeviceSize min_offset_alignment);

@@ -5,11 +5,17 @@
 #include "Input/KeyboardMovementController.h"
 #include "RenderEngine/GlobalUBO.h"
 #include "RenderEngine/Materials/Material.h"
+#include "RenderEngine/SceneRenderers/RayTraced/RayTracedRenderer.h"
+#include "RenderEngine/RenderingAPI/VulkanHelper.h"
 
 void Vera::run()
 {
     //TODO: bring back materials
     world.loadObjects(device/*, renderer.getAvailableMaterials()*/);
+
+    VulkanHelper::loadExtensionsFunctions(device.getDevice());
+
+    renderer = std::make_unique<Renderer>(window, device, world);
 
     auto current_time = std::chrono::high_resolution_clock::now();
     while (!window.shouldClose())
@@ -23,7 +29,7 @@ void Vera::run()
         FrameInfo frame_info{};
         frame_info.frame_time = frame_time;
         world.update(frame_info);
-        renderer.render(frame_info);
+        renderer->render(frame_info);
     }
 
     vkDeviceWaitIdle(device.getDevice());

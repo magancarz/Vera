@@ -1,10 +1,14 @@
 #include "Renderer.h"
 
+#include <thread>
+#include <iostream>
+
 #include "GlobalUBO.h"
 #include "RenderEngine/SceneRenderers/Rasterized/RasterizedRenderer.h"
+#include "RenderEngine/SceneRenderers/RayTraced/RayTracedRenderer.h"
 
-Renderer::Renderer(Window& window, Device& device)
-    : window{window}, device{device}
+Renderer::Renderer(Window& window, Device& device, World& world)
+    : window{window}, device{device}, world{world}
 {
     createCommandBuffers();
     recreateSwapChain();
@@ -55,7 +59,8 @@ void Renderer::recreateSwapChain()
 
 void Renderer::createSceneRenderer()
 {
-    scene_renderer = std::make_unique<RasterizedRenderer>(device, swap_chain->getRenderPass());
+    scene_renderer = std::make_unique<RayTracedRenderer>(device, &world);
+//    scene_renderer = std::make_unique<RasterizedRenderer>(device, swap_chain->getRenderPass());
 }
 
 Renderer::~Renderer()
@@ -79,12 +84,10 @@ void Renderer::render(FrameInfo& frame_info)
     {
         frame_info.frame_index = getFrameIndex();
         frame_info.command_buffer = command_buffer;
-
-        beginSwapChainRenderPass(command_buffer);
+        frame_info.swap_chain_image = swap_chain->getImage(getFrameIndex());
 
         scene_renderer->renderScene(frame_info);
 
-        endSwapChainRenderPass(command_buffer);
         endFrame();
     }
 }

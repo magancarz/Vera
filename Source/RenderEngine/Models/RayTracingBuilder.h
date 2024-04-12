@@ -25,9 +25,12 @@ public:
 
     void buildTlas(Device& device);
 
+    VkAccelerationStructureKHR topLevelAccelerationStructureHandle{VK_NULL_HANDLE};
+
 private:
     uint32_t queue_index{0};
     VkPhysicalDeviceRayTracingPipelinePropertiesKHR ray_tracing_properties;
 
     VkDeviceAddress bottomLevelAccelerationStructureDeviceAddress;
+
 };

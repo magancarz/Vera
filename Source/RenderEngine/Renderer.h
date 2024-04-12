@@ -5,11 +5,12 @@
 #include "RenderEngine/RenderingAPI/Model.h"
 #include "RenderEngine/RenderingAPI/Descriptors.h"
 #include "RenderEngine/SceneRenderers/SceneRenderer.h"
+#include "World/World.h"
 
 class Renderer
 {
 public:
-    Renderer(Window& window, Device& device);
+    Renderer(Window& window, Device& device, World& world);
     ~Renderer();
 
     Renderer(const Renderer&) = delete;
@@ -20,6 +21,7 @@ public:
 private:
     Window& window;
     Device& device;
+    World& world;
 
     VkCommandBuffer getCurrentCommandBuffer() const
     {
