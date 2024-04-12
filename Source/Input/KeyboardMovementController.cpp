@@ -5,8 +5,8 @@ void KeyboardMovementController::moveInPlaneXZ(GLFWwindow* window, float delta_t
     glm::vec3 rotate{0.f};
     if (glfwGetKey(window, keys.look_right) == GLFW_PRESS) rotate.y += 1.f;
     if (glfwGetKey(window, keys.look_left) == GLFW_PRESS) rotate.y -= 1.f;
-    if (glfwGetKey(window, keys.look_up) == GLFW_PRESS) rotate.x += 1.f;
-    if (glfwGetKey(window, keys.look_down) == GLFW_PRESS) rotate.x -= 1.f;
+    if (glfwGetKey(window, keys.look_up) == GLFW_PRESS) rotate.x -= 1.f;
+    if (glfwGetKey(window, keys.look_down) == GLFW_PRESS) rotate.x += 1.f;
 
     if (glm::dot(rotate, rotate) > std::numeric_limits<float>::epsilon())
     {

@@ -44,8 +44,6 @@ private:
 
     VkCommandBuffer beginFrame();
     void endFrame();
-    void beginSwapChainRenderPass(VkCommandBuffer command_buffer);
-    void endSwapChainRenderPass(VkCommandBuffer command_buffer);
 
     void freeCommandBuffers();
 

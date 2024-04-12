@@ -20,7 +20,7 @@ void Camera::setPerspectiveProjection(float fovy, float aspect, float near, floa
     const float tan_half_fov_y = tan(fovy / 2.f);
     projection = glm::mat4{0.0f};
     projection[0][0] = 1.f / (aspect * tan_half_fov_y);
-    projection[1][1] = 1.f / (tan_half_fov_y);
+    projection[1][1] = -1.f / (tan_half_fov_y);
     projection[2][2] = far / (far - near);
     projection[2][3] = 1.f;
     projection[3][2] = -(far * near) / (far - near);

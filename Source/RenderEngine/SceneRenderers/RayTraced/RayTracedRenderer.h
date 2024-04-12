@@ -6,12 +6,10 @@
 
 struct CameraUBO
 {
-    float cameraPosition[4] = {0, 0, 0, 1};
-    float cameraRight[4] = {1, 0, 0, 1};
-    float cameraUp[4] = {0, 1, 0, 1};
-    float cameraForward[4] = {0, 0, 1, 1};
+    glm::mat4 camera_view{};
+    glm::mat4 camera_proj{};
 
-    unsigned int frameCount = 0;
+    unsigned int frame_count = 0;
 };
 
 class RayTracedRenderer : public SceneRenderer

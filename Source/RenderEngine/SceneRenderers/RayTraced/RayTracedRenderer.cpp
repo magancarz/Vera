@@ -202,10 +202,9 @@ void RayTracedRenderer::createDescriptors()
     descriptor_set_layout = DescriptorSetLayout::Builder(device)
             .addBinding(0, VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_KHR, VK_SHADER_STAGE_RAYGEN_BIT_KHR | VK_SHADER_STAGE_CLOSEST_HIT_BIT_KHR)
             .addBinding(1, VK_DESCRIPTOR_TYPE_STORAGE_IMAGE, VK_SHADER_STAGE_RAYGEN_BIT_KHR)
-//            .addBinding(1, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_RAYGEN_BIT_KHR | VK_SHADER_STAGE_CLOSEST_HIT_BIT_KHR)
-//            .addBinding(2, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, VK_SHADER_STAGE_CLOSEST_HIT_BIT_KHR)
+            .addBinding(2, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_RAYGEN_BIT_KHR | VK_SHADER_STAGE_CLOSEST_HIT_BIT_KHR)
 //            .addBinding(3, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, VK_SHADER_STAGE_CLOSEST_HIT_BIT_KHR)
-//            .addBinding(4, VK_DESCRIPTOR_TYPE_STORAGE_IMAGE, VK_SHADER_STAGE_RAYGEN_BIT_KHR)
+//            .addBinding(4, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, VK_SHADER_STAGE_CLOSEST_HIT_BIT_KHR)
             .build();
 
     material_descriptor_set_layout = DescriptorSetLayout::Builder(device)
@@ -233,10 +232,9 @@ void RayTracedRenderer::createDescriptors()
     DescriptorWriter(*descriptor_set_layout, *descriptor_pool)
             .writeAccelerationStructure(0, &accelerationStructureDescriptorInfo)
             .writeImage(1, &rayTraceImageDescriptorInfo)
-//            .writeBuffer(1, &camera_buffer_descriptor_info)
-//            .writeBuffer(2, &index_buffer_descriptor_info)
-//            .writeBuffer(3, &vertex_buffer_descriptor_info)
-//            .writeImage(4, &rayTraceImageDescriptorInfo)
+            .writeBuffer(2, &camera_buffer_descriptor_info)
+//            .writeBuffer(3, &index_buffer_descriptor_info)
+//            .writeBuffer(4, &vertex_buffer_descriptor_info)
             .build(descriptor_set_handle);
 }
 
@@ -247,6 +245,12 @@ void RayTracedRenderer::createRayTracingPipeline()
 
 void RayTracedRenderer::renderScene(FrameInfo& frame_info)
 {
+    CameraUBO camera_ubo{};
+    camera_ubo.camera_view = frame_info.camera->getView();
+    camera_ubo.camera_proj = frame_info.camera->getProjection();
+    camera_uniform_buffer->writeToBuffer(&camera_ubo);
+    camera_uniform_buffer->flush();
+
     ray_tracing_pipeline->bind(frame_info.command_buffer);
     ray_tracing_pipeline->bindDescriptorSets(frame_info.command_buffer, {descriptor_set_handle});
 
