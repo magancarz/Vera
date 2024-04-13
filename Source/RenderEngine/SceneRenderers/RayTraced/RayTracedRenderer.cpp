@@ -203,8 +203,8 @@ void RayTracedRenderer::createDescriptors()
             .addBinding(0, VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_KHR, VK_SHADER_STAGE_RAYGEN_BIT_KHR | VK_SHADER_STAGE_CLOSEST_HIT_BIT_KHR)
             .addBinding(1, VK_DESCRIPTOR_TYPE_STORAGE_IMAGE, VK_SHADER_STAGE_RAYGEN_BIT_KHR)
             .addBinding(2, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_RAYGEN_BIT_KHR | VK_SHADER_STAGE_CLOSEST_HIT_BIT_KHR)
-//            .addBinding(3, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, VK_SHADER_STAGE_CLOSEST_HIT_BIT_KHR)
-//            .addBinding(4, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, VK_SHADER_STAGE_CLOSEST_HIT_BIT_KHR)
+            .addBinding(3, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, VK_SHADER_STAGE_CLOSEST_HIT_BIT_KHR)
+            .addBinding(4, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, VK_SHADER_STAGE_CLOSEST_HIT_BIT_KHR)
             .build();
 
     material_descriptor_set_layout = DescriptorSetLayout::Builder(device)
@@ -233,8 +233,8 @@ void RayTracedRenderer::createDescriptors()
             .writeAccelerationStructure(0, &accelerationStructureDescriptorInfo)
             .writeImage(1, &rayTraceImageDescriptorInfo)
             .writeBuffer(2, &camera_buffer_descriptor_info)
-//            .writeBuffer(3, &index_buffer_descriptor_info)
-//            .writeBuffer(4, &vertex_buffer_descriptor_info)
+            .writeBuffer(3, &vertex_buffer_descriptor_info)
+            .writeBuffer(4, &index_buffer_descriptor_info)
             .build(descriptor_set_handle);
 }
 
