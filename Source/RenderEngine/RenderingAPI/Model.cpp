@@ -225,6 +225,7 @@ void Model::Builder::loadModel(const std::string& filepath)
 
             if (unique_vertices.count(vertex) == 0)
             {
+                vertex.material_index = 1;
                 unique_vertices[vertex] = static_cast<uint32_t>(vertices.size());
                 vertices.push_back(vertex);
             }

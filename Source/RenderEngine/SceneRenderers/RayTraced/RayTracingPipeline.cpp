@@ -13,7 +13,7 @@ RayTracingPipeline::RayTracingPipeline(Device& device, VkDescriptorSetLayout des
 
 void RayTracingPipeline::createPipeline()
 {
-    std::vector<VkDescriptorSetLayout> descriptorSetLayoutHandleList = {descriptor_set_layout/*, material_descriptor_set_layout*/};
+    std::vector<VkDescriptorSetLayout> descriptorSetLayoutHandleList = {descriptor_set_layout, material_descriptor_set_layout};
 
     VkResult result;
     VkPipelineLayoutCreateInfo pipelineLayoutCreateInfo = {

@@ -4,7 +4,6 @@
 #include <iostream>
 
 #include "GlobalUBO.h"
-#include "RenderEngine/SceneRenderers/Rasterized/RasterizedRenderer.h"
 #include "RenderEngine/SceneRenderers/RayTraced/RayTracedRenderer.h"
 
 Renderer::Renderer(Window& window, Device& device, World& world)

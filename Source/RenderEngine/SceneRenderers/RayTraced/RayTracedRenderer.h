@@ -3,6 +3,7 @@
 #include "RenderEngine/SceneRenderers/SceneRenderer.h"
 #include "World/World.h"
 #include "RayTracingPipeline.h"
+#include "RenderEngine/RenderingAPI/Descriptors.h"
 
 struct CameraUBO
 {
@@ -39,6 +40,12 @@ private:
     void createCameraUniformBuffer();
 
     std::unique_ptr<Buffer> camera_uniform_buffer;
+
+    //TODO: move to asset manager
+    void createMaterialsBuffer();
+
+    std::unique_ptr<Buffer> material_uniform_buffer;
+    std::vector<Material> materials;
 
     void createDescriptors();
 

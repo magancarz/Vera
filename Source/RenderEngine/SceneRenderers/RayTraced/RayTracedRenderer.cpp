@@ -1,5 +1,6 @@
 #include "RayTracedRenderer.h"
 #include "RenderEngine/RenderingAPI/VulkanHelper.h"
+#include "RenderEngine/GlobalUBO.h"
 
 RayTracedRenderer::RayTracedRenderer(Device& device, World* world)
     : device{device}, world{world}
@@ -8,6 +9,7 @@ RayTracedRenderer::RayTracedRenderer(Device& device, World* world)
     createAccelerationStructure();
     createRayTracedImage();
     createCameraUniformBuffer();
+    createMaterialsBuffer();
     createDescriptors();
     createRayTracingPipeline();
 }
@@ -189,6 +191,35 @@ void RayTracedRenderer::createCameraUniformBuffer()
     camera_uniform_buffer->map();
 }
 
+void RayTracedRenderer::createMaterialsBuffer()
+{
+    materials.push_back(Material{.color = glm::vec3{0.8, 0.7, 0.0}});
+    materials.push_back(Material{.color = glm::vec3{0.0, 0.7, 0.0}});
+
+    Buffer staging_buffer
+    {
+            device,
+            sizeof(Material),
+            static_cast<uint32_t>(materials.size()),
+            VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
+            VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT
+    };
+
+    staging_buffer.map();
+    staging_buffer.writeToBuffer((void*)materials.data());
+
+    material_uniform_buffer = std::make_unique<Buffer>
+    (
+            device,
+            sizeof(Material),
+            static_cast<uint32_t>(materials.size()),
+            VK_BUFFER_USAGE_STORAGE_BUFFER_BIT |
+            VK_BUFFER_USAGE_TRANSFER_DST_BIT,
+            VK_MEMORY_ALLOCATE_DEVICE_ADDRESS_BIT
+    );
+    device.copyBuffer(staging_buffer.getBuffer(), material_uniform_buffer->getBuffer(), static_cast<uint32_t>(materials.size() * sizeof(Material)));
+}
+
 void RayTracedRenderer::createDescriptors()
 {
     descriptor_pool = DescriptorPool::Builder(device)
@@ -209,7 +240,6 @@ void RayTracedRenderer::createDescriptors()
 
     material_descriptor_set_layout = DescriptorSetLayout::Builder(device)
             .addBinding(0, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, VK_SHADER_STAGE_CLOSEST_HIT_BIT_KHR)
-            .addBinding(1, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, VK_SHADER_STAGE_CLOSEST_HIT_BIT_KHR)
             .build();
 
     VkWriteDescriptorSetAccelerationStructureKHR
@@ -236,6 +266,12 @@ void RayTracedRenderer::createDescriptors()
             .writeBuffer(3, &vertex_buffer_descriptor_info)
             .writeBuffer(4, &index_buffer_descriptor_info)
             .build(descriptor_set_handle);
+
+    auto material_uniform_buffer_descriptor_info = material_uniform_buffer->descriptorInfo();
+
+    DescriptorWriter(*material_descriptor_set_layout, *descriptor_pool)
+            .writeBuffer(0, &material_uniform_buffer_descriptor_info)
+            .build(material_descriptor_set_handle);
 }
 
 void RayTracedRenderer::createRayTracingPipeline()
@@ -252,7 +288,7 @@ void RayTracedRenderer::renderScene(FrameInfo& frame_info)
     camera_uniform_buffer->flush();
 
     ray_tracing_pipeline->bind(frame_info.command_buffer);
-    ray_tracing_pipeline->bindDescriptorSets(frame_info.command_buffer, {descriptor_set_handle});
+    ray_tracing_pipeline->bindDescriptorSets(frame_info.command_buffer, {descriptor_set_handle, material_descriptor_set_handle});
 
     pvkCmdTraceRaysKHR(frame_info.command_buffer,
             &ray_tracing_pipeline->rgenShaderBindingTable,
