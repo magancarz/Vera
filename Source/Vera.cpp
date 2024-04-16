@@ -10,10 +10,11 @@
 
 void Vera::run()
 {
-    //TODO: bring back materials
-    world.loadObjects(device/*, renderer.getAvailableMaterials()*/);
-
     VulkanHelper::loadExtensionsFunctions(device.getDevice());
+
+    std::vector<std::shared_ptr<Material>> materials = {std::make_shared<Material>(glm::vec3{0.7f, 0.7f, 0.0f})};
+    world.loadObjects(device, materials);
+
 
     renderer = std::make_unique<Renderer>(window, device, world);
 

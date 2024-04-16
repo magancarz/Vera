@@ -3,7 +3,8 @@
 #include "Device.h"
 #include "Vertex.h"
 #include "Buffer.h"
-#include "RenderEngine/Models/RayTracingBuilder.h"
+#include "RenderEngine/Materials/Material.h"
+#include "RenderEngine/Models/AccelerationStructure.h"
 
 class Model
 {
@@ -27,23 +28,22 @@ public:
     void bind(VkCommandBuffer command_buffer);
     void draw(VkCommandBuffer command_buffer);
 
-    RayTracingBuilder::BlasInput getBlasInput() { return blas_input; }
-
     std::unique_ptr<Buffer> vertex_buffer;
     std::unique_ptr<Buffer> index_buffer;
 
+    AccelerationStructure blas{};
+
 private:
-    void createVertexBuffers(const std::vector<Vertex>& vertices);
-    void createIndexBuffers(const std::vector<uint32_t>& indices);
-
-    void convertModelToRayTracedGeometry();
-
     Device& device;
 
+    void createVertexBuffers(const std::vector<Vertex>& vertices);
+
     uint32_t vertex_count;
+
+    void createIndexBuffers(const std::vector<uint32_t>& indices);
 
     bool has_index_buffer{false};
     uint32_t index_count;
 
-    RayTracingBuilder::BlasInput blas_input{};
+    void createBlas();
 };

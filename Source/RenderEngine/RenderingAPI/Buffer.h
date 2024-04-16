@@ -20,6 +20,7 @@ public:
     void unmap();
 
     void writeToBuffer(void* data, VkDeviceSize size = VK_WHOLE_SIZE, VkDeviceSize offset = 0);
+    void writeWithStagingBuffer(void* data);
     VkResult flush(VkDeviceSize size = VK_WHOLE_SIZE, VkDeviceSize offset = 0);
     VkDescriptorBufferInfo descriptorInfo(VkDeviceSize size = VK_WHOLE_SIZE, VkDeviceSize offset = 0);
     VkResult invalidate(VkDeviceSize size = VK_WHOLE_SIZE, VkDeviceSize offset = 0);
@@ -37,7 +38,8 @@ public:
     VkBufferUsageFlags getUsageFlags() const { return usage_flags; }
     VkMemoryPropertyFlags getMemoryPropertyFlags() const { return memory_property_flags; }
     VkDeviceSize getBufferSize() const { return buffer_size; }
-    VkDeviceAddress getDeviceAddress();
+    VkDeviceAddress getBufferDeviceAddress();
+
 
 private:
     static VkDeviceSize getAlignment(VkDeviceSize instance_size, VkDeviceSize min_offset_alignment);

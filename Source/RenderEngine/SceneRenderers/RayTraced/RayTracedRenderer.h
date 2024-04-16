@@ -4,6 +4,7 @@
 #include "World/World.h"
 #include "RayTracingPipeline.h"
 #include "RenderEngine/RenderingAPI/Descriptors.h"
+#include "RenderEngine/Models/RayTracingAccelerationStructureBuilder.h"
 
 struct CameraUBO
 {
@@ -24,13 +25,15 @@ private:
     Device& device;
     World* world;
 
-    RayTracingBuilder ray_tracing_builder;
+    RayTracingAccelerationStructureBuilder ray_tracing_builder{device};
 
     void queryRayTracingPipelineProperties();
 
     VkPhysicalDeviceRayTracingPipelinePropertiesKHR ray_tracing_properties;
 
     void createAccelerationStructure();
+
+    AccelerationStructure tlas{};
 
     void createRayTracedImage();
 

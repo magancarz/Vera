@@ -38,21 +38,8 @@ void RayTracedRenderer::queryRayTracingPipelineProperties()
 
 void RayTracedRenderer::createAccelerationStructure()
 {
-    ray_tracing_builder.setup(device.findPhysicalQueueFamilies().graphicsFamily, ray_tracing_properties);
-
-    std::vector<RayTracingBuilder::BlasInput> all_blas_inputs;
-    all_blas_inputs.reserve(world->objects.size());
-    for (auto& [id, object] : world->objects)
-    {
-        if (object->model)
-        {
-            RayTracingBuilder::BlasInput blas_input = object->model->getBlasInput();
-            all_blas_inputs.emplace_back(blas_input);
-        }
-    }
-
-    ray_tracing_builder.buildBlas(device, all_blas_inputs[0]);
-    ray_tracing_builder.buildTlas(device);
+    RayTracingAccelerationStructureBuilder builder{device};
+    tlas = builder.buildTopLevelAccelerationStructure(world->objects[1]->model->blas);
 }
 
 void RayTracedRenderer::createRayTracedImage()
@@ -193,8 +180,14 @@ void RayTracedRenderer::createCameraUniformBuffer()
 
 void RayTracedRenderer::createMaterialsBuffer()
 {
-    materials.push_back(Material{.color = glm::vec3{0.8, 0.7, 0.0}});
-    materials.push_back(Material{.color = glm::vec3{0.0, 0.7, 0.0}});
+    materials.push_back(Material{.color = glm::vec3{0.8, 0.8, 0.8}});
+    materials.push_back(Material{.color = glm::vec3{0.8, 0.8, 0.8}});
+    materials.push_back(Material{.color = glm::vec3{0.8, 0.8, 0.8}});
+    materials.push_back(Material{.color = glm::vec3{0.8, 0.8, 0.8}});
+    materials.push_back(Material{.color = glm::vec3{0.8, 0.8, 0.8}});
+    materials.push_back(Material{.color = glm::vec3{0.0, 1.0, 0.0}});
+    materials.push_back(Material{.color = glm::vec3{1.0, 1.0, 1.0}, .brightness = 1});
+    materials.push_back(Material{.color = glm::vec3{1.0, 0.0, 0.0}});
 
     Buffer staging_buffer
     {
@@ -248,7 +241,7 @@ void RayTracedRenderer::createDescriptors()
             VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET_ACCELERATION_STRUCTURE_KHR,
             .pNext = NULL,
             .accelerationStructureCount = 1,
-            .pAccelerationStructures = &ray_tracing_builder.topLevelAccelerationStructureHandle};
+            .pAccelerationStructures = &tlas.acceleration_structure};
 
     auto camera_buffer_descriptor_info = camera_uniform_buffer->descriptorInfo();
     auto vertex_buffer_descriptor_info = world->objects[1]->model->vertex_buffer->descriptorInfo();

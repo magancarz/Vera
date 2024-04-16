@@ -102,6 +102,23 @@ void Buffer::writeToBuffer(void* data, VkDeviceSize size, VkDeviceSize offset)
     }
 }
 
+//TODO: do with size and offset and other checks
+void Buffer::writeWithStagingBuffer(void* data/*, VkDeviceSize size, VkDeviceSize offset*/)
+{
+    Buffer staging_buffer
+    {
+            device,
+            instance_size,
+            instance_count,
+            VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
+            VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT
+    };
+
+    staging_buffer.map();
+    staging_buffer.writeToBuffer(data);
+    device.copyBuffer(staging_buffer.getBuffer(), getBuffer(), buffer_size);
+}
+
 /**
 * Flush a memory range of the buffer to make it visible to the device
 *
@@ -208,7 +225,7 @@ VkResult Buffer::invalidateIndex(int index)
     return invalidate(alignment_size, index * alignment_size);
 }
 
-VkDeviceAddress Buffer::getDeviceAddress()
+VkDeviceAddress Buffer::getBufferDeviceAddress()
 {
     if(buffer == VK_NULL_HANDLE)
     {
