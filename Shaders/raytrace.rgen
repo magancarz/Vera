@@ -1,5 +1,10 @@
 #version 460
+
 #extension GL_EXT_ray_tracing : require
+#extension GL_GOOGLE_include_directive : enable
+
+#include "ray.glsl"
+#include "random.glsl"
 
 layout(binding = 0, set = 0) uniform accelerationStructureEXT topLevelAS;
 layout(binding = 1, set = 0, rgba32f) uniform image2D image;
@@ -17,31 +22,7 @@ layout(push_constant) uniform PushConstantRay
     uint frames;
 } push_constant;
 
-layout(location = 0) rayPayloadEXT Payload
-{
-    vec4 origin;
-    vec4 direction;
-    vec3 color;
-    int is_active;
-    uint seed;
-    uint depth;
-} payload;
-
-uint tea(uint val0, uint val1)
-{
-    uint v0 = val0;
-    uint v1 = val1;
-    uint s0 = 0;
-
-    for(uint n = 0; n < 16; n++)
-    {
-        s0 += 0x9e3779b9;
-        v0 += ((v1 << 4) + 0xa341316c) ^ (v1 + s0) ^ ((v1 >> 5) + 0xc8013ea4);
-        v1 += ((v0 << 4) + 0xad90777d) ^ (v0 + s0) ^ ((v0 >> 5) + 0x7e95761e);
-    }
-
-    return v0;
-}
+layout(location = 0) rayPayloadEXT Ray payload;
 
 void main() 
 {

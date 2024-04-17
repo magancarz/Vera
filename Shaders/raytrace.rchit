@@ -2,16 +2,14 @@
 
 #extension GL_EXT_ray_tracing : require
 #extension GL_EXT_nonuniform_qualifier : enable
+#extension GL_GOOGLE_include_directive : enable
 
-layout(location = 0) rayPayloadInEXT Payload
-{
-    vec4 origin;
-    vec4 direction;
-    vec3 color;
-    int is_active;
-    uint seed;
-    uint depth;
-} payload;
+#include "ray.glsl"
+#include "random.glsl"
+#include "cosine_pdf.glsl"
+#include "lambertian.glsl"
+
+layout(location = 0) rayPayloadInEXT Ray payload;
 
 struct Vertex
 {
@@ -33,19 +31,6 @@ layout(binding = 4, set = 0) buffer IndexBuffer { uint data[]; } index_buffer;
 layout(binding = 0, set = 1) buffer MaterialsBuffer { Material data[]; } materials;
 
 hitAttributeEXT vec3 attribs;
-
-uint lcg(inout uint prev)
-{
-    uint LCG_A = 1664525u;
-    uint LCG_C = 1013904223u;
-    prev       = (LCG_A * prev + LCG_C);
-    return prev & 0x00FFFFFF;
-}
-
-float rnd(inout uint prev)
-{
-    return (float(lcg(prev)) / float(0x01000000));
-}
 
 vec3 randomInHemisphere(uint seed, vec3 normal)
 {
@@ -83,12 +68,19 @@ void main()
     Material material = materials.data[first_vertex.material_index];
     vec3 material_color = material.color;
 
-    payload.color *= material_color;
     payload.is_active = material.brightness == 1 ? 0 : 1;
     payload.depth = material.brightness == 1 ? 0 : payload.depth;
 
     payload.origin = vec4(position, 1.0);
-    payload.direction = vec4(randomInHemisphere(payload.seed, geometric_normal), 0.0);
+
+    vec3 u, v, w;
+    w = geometric_normal;
+    generateOrthonormalBasis(u, v, w);
+    payload.direction = vec4(generateRandomDirectionWithCosinePDF(payload.seed, u, v, w), 0.0);
+
+    float cosine_pdf_value = valueFromCosinePDF(payload.direction.xyz, w);
+    float scattering_pdf = scatteringPDFFromLambertian(geometric_normal, payload.direction.xyz);
+    payload.color *= material_color * scattering_pdf / cosine_pdf_value;
 
     payload.depth += 1;
 }

@@ -1,15 +1,11 @@
 #version 460
-#extension GL_EXT_ray_tracing : require
 
-layout(location = 0) rayPayloadInEXT Payload
-{
-    vec4 origin;
-    vec4 direction;
-    vec3 color;
-    int is_active;
-    uint seed;
-    uint depth;
-} payload;
+#extension GL_EXT_ray_tracing : require
+#extension GL_GOOGLE_include_directive : enable
+
+#include "ray.glsl"
+
+layout(location = 0) rayPayloadInEXT Ray payload;
 
 void main()
 {
