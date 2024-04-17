@@ -1,4 +1,8 @@
 #include "RayTracedRenderer.h"
+
+#include <chrono>
+#include <iostream>
+
 #include "RenderEngine/RenderingAPI/VulkanHelper.h"
 #include "RenderEngine/GlobalUBO.h"
 
@@ -283,6 +287,12 @@ void RayTracedRenderer::renderScene(FrameInfo& frame_info)
     ray_tracing_pipeline->bind(frame_info.command_buffer);
     ray_tracing_pipeline->bindDescriptorSets(frame_info.command_buffer, {descriptor_set_handle, material_descriptor_set_handle});
 
+    PushConstantRay push_constant_ray{};
+    push_constant_ray.time = std::chrono::system_clock::now().time_since_epoch().count();
+    current_number_of_frames = frame_info.player_moved ? 0 : current_number_of_frames;
+    push_constant_ray.frames = current_number_of_frames;
+    ray_tracing_pipeline->pushConstants(frame_info.command_buffer, push_constant_ray);
+
     pvkCmdTraceRaysKHR(frame_info.command_buffer,
             &ray_tracing_pipeline->rgenShaderBindingTable,
             &ray_tracing_pipeline->rmissShaderBindingTable,
@@ -397,4 +407,6 @@ void RayTracedRenderer::renderScene(FrameInfo& frame_info)
                          VK_PIPELINE_STAGE_ALL_COMMANDS_BIT,
                          VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, 0, 0, NULL, 0,
                          NULL, 1, &rayTraceWriteMemoryBarrier);
+
+    ++current_number_of_frames;
 }

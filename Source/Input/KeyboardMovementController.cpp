@@ -13,6 +13,8 @@ void KeyboardMovementController::moveInPlaneXZ(GLFWwindow* window, float delta_t
         object.transform_component.rotation += look_speed * delta_time * glm::normalize(rotate);
     }
 
+    player_moved = rotate != glm::vec3{0};
+
     object.transform_component.rotation.x = glm::clamp(object.transform_component.rotation.x, -1.5f, 1.5f);
     object.transform_component.rotation.y = glm::mod(object.transform_component.rotation.y, glm::two_pi<float>());
 
@@ -29,8 +31,15 @@ void KeyboardMovementController::moveInPlaneXZ(GLFWwindow* window, float delta_t
     if (glfwGetKey(window, keys.move_up) == GLFW_PRESS) move_dir += up_dir;
     if (glfwGetKey(window, keys.move_down) == GLFW_PRESS) move_dir -= up_dir;
 
+    player_moved |= move_dir != glm::vec3{0};
+
     if (glm::dot(move_dir, move_dir) > std::numeric_limits<float>::epsilon())
     {
         object.transform_component.translation += move_speed * delta_time * glm::normalize(move_dir);
     }
+}
+
+bool KeyboardMovementController::playerMoved() const
+{
+    return player_moved;
 }

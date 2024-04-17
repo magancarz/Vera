@@ -1,6 +1,7 @@
 #pragma once
 
 #include "RenderEngine/RenderingAPI/Device.h"
+#include "PushConstantRay.h"
 
 class RayTracingPipeline
 {
@@ -12,6 +13,7 @@ public:
 
     void bind(VkCommandBuffer command_buffer);
     void bindDescriptorSets(VkCommandBuffer command_buffer, const std::vector<VkDescriptorSet>& descriptor_sets);
+    void pushConstants(VkCommandBuffer command_buffer, const PushConstantRay& push_constant_ray);
 
     VkStridedDeviceAddressRegionKHR rchitShaderBindingTable{};
     VkStridedDeviceAddressRegionKHR rgenShaderBindingTable{};

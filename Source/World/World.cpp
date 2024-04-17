@@ -4,7 +4,8 @@ World::World(Window& window)
     : window{window}
 {
     viewer_object = std::make_unique<Object>(Object::createObject());
-    viewer_object->transform_component.translation.z = 2.5f;
+    viewer_object->transform_component.translation.y = 5.f;
+    viewer_object->transform_component.translation.z = 10.f;
     viewer_object->transform_component.rotation.y = glm::radians(180.f);
 
     camera.setPerspectiveProjection(glm::radians(50.0f), window.getAspect(), 0.1f, 100.f);
@@ -68,6 +69,7 @@ void World::update(FrameInfo& frame_info)
 {
     movement_controller.moveInPlaneXZ(window.getGFLWwindow(), frame_info.frame_time, *viewer_object);
     camera.setViewYXZ(viewer_object->transform_component.translation, viewer_object->transform_component.rotation);
+    frame_info.player_moved = movement_controller.playerMoved();
     frame_info.camera = &camera;
     frame_info.objects = objects;
 }

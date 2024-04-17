@@ -11,6 +11,12 @@ layout(binding = 2, set = 0) uniform Camera
     uint frameCount;
 } camera;
 
+layout(push_constant) uniform PushConstantRay
+{
+    uint time;
+    uint frames;
+} push_constant;
+
 layout(location = 0) rayPayloadEXT Payload
 {
     vec4 origin;
@@ -55,7 +61,7 @@ void main()
     payload.direction = direction;
     payload.color = vec3(1.0, 1.0, 1.0);
     payload.is_active = 1;
-    payload.seed = tea(gl_LaunchIDEXT.y * gl_LaunchSizeEXT.x + gl_LaunchIDEXT.x, 2137);
+    payload.seed = tea(gl_LaunchIDEXT.y * gl_LaunchSizeEXT.x + gl_LaunchIDEXT.x, push_constant.time);
     payload.depth = 0;
 
     uint max_depth = 2;
@@ -78,6 +84,12 @@ void main()
 
     uint boolean = max_depth == payload.depth ? 1 : 0;
     payload.color = payload.color * (1 - boolean);
+
+    vec3 previous_color = imageLoad(image, ivec2(gl_LaunchIDEXT.xy)).xyz;
+    previous_color *= push_constant.frames;
+
+    payload.color += previous_color;
+    payload.color /= (push_constant.frames + 1);
 
     imageStore(image, ivec2(gl_LaunchIDEXT.xy), vec4(payload.color, 1.0));
 }

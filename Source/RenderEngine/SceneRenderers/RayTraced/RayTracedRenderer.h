@@ -25,8 +25,6 @@ private:
     Device& device;
     World* world;
 
-    RayTracingAccelerationStructureBuilder ray_tracing_builder{device};
-
     void queryRayTracingPipelineProperties();
 
     VkPhysicalDeviceRayTracingPipelinePropertiesKHR ray_tracing_properties;
@@ -62,4 +60,6 @@ private:
     void createRayTracingPipeline();
 
     std::unique_ptr<RayTracingPipeline> ray_tracing_pipeline;
+
+    uint32_t current_number_of_frames{0};
 };

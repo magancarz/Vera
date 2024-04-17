@@ -1,5 +1,6 @@
 #include "RayTracingPipeline.h"
 #include "RenderEngine/RenderingAPI/VulkanHelper.h"
+#include "PushConstantRay.h"
 
 #include <fstream>
 
@@ -15,6 +16,11 @@ void RayTracingPipeline::createPipeline()
 {
     std::vector<VkDescriptorSetLayout> descriptorSetLayoutHandleList = {descriptor_set_layout, material_descriptor_set_layout};
 
+    VkPushConstantRange push_constant_range{};
+    push_constant_range.stageFlags = VK_SHADER_STAGE_RAYGEN_BIT_KHR;
+    push_constant_range.offset = 0;
+    push_constant_range.size = sizeof(PushConstantRay);
+
     VkResult result;
     VkPipelineLayoutCreateInfo pipelineLayoutCreateInfo = {
             .sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO,
@@ -22,8 +28,8 @@ void RayTracingPipeline::createPipeline()
             .flags = 0,
             .setLayoutCount = (uint32_t)descriptorSetLayoutHandleList.size(),
             .pSetLayouts = descriptorSetLayoutHandleList.data(),
-            .pushConstantRangeCount = 0,
-            .pPushConstantRanges = NULL};
+            .pushConstantRangeCount = 1,
+            .pPushConstantRanges = &push_constant_range};
 
     if (vkCreatePipelineLayout(device.getDevice(), &pipelineLayoutCreateInfo, NULL, &pipelineLayoutHandle) != VK_SUCCESS)
     {
@@ -357,7 +363,23 @@ void RayTracingPipeline::bind(VkCommandBuffer command_buffer)
 void RayTracingPipeline::bindDescriptorSets(VkCommandBuffer command_buffer, const std::vector<VkDescriptorSet>& descriptor_sets)
 {
     vkCmdBindDescriptorSets(
-            command_buffer, VK_PIPELINE_BIND_POINT_RAY_TRACING_KHR,
-            pipelineLayoutHandle, 0, (uint32_t)descriptor_sets.size(),
-            descriptor_sets.data(), 0, nullptr);
+            command_buffer,
+            VK_PIPELINE_BIND_POINT_RAY_TRACING_KHR,
+            pipelineLayoutHandle,
+            0,
+            (uint32_t)descriptor_sets.size(),
+            descriptor_sets.data(),
+            0,
+            nullptr);
+}
+
+void RayTracingPipeline::pushConstants(VkCommandBuffer command_buffer, const PushConstantRay& push_constant_ray)
+{
+    vkCmdPushConstants(
+            command_buffer,
+            pipelineLayoutHandle,
+            VK_SHADER_STAGE_RAYGEN_BIT_KHR,
+            0,
+            sizeof(PushConstantRay),
+            &push_constant_ray);
 }
