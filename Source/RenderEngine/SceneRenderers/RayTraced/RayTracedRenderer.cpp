@@ -13,7 +13,6 @@ RayTracedRenderer::RayTracedRenderer(Device& device, World* world)
     createAccelerationStructure();
     createRayTracedImage();
     createCameraUniformBuffer();
-    createMaterialsBuffer();
     createObjectDescriptionsBuffer();
     createDescriptors();
     createRayTracingPipeline();
@@ -188,30 +187,6 @@ void RayTracedRenderer::createCameraUniformBuffer()
     camera_uniform_buffer->map();
 }
 
-void RayTracedRenderer::createMaterialsBuffer()
-{
-    materials.push_back(Material{.color = glm::vec3{0.8, 0.8, 0.8}});
-    materials.push_back(Material{.color = glm::vec3{0.8, 0.8, 0.8}});
-    materials.push_back(Material{.color = glm::vec3{0.8, 0.8, 0.8}});
-    materials.push_back(Material{.color = glm::vec3{0.8, 0.8, 0.8}});
-    materials.push_back(Material{.color = glm::vec3{0.8, 0.8, 0.8}});
-    materials.push_back(Material{.color = glm::vec3{0.0, 1.0, 0.0}});
-    materials.push_back(Material{.color = glm::vec3{1.0, 1.0, 1.0}, .brightness = 1});
-    materials.push_back(Material{.color = glm::vec3{1.0, 0.0, 0.0}});
-
-    material_uniform_buffer = std::make_unique<Buffer>
-    (
-            device,
-            sizeof(Material),
-            static_cast<uint32_t>(materials.size()),
-            VK_BUFFER_USAGE_STORAGE_BUFFER_BIT |
-            VK_BUFFER_USAGE_TRANSFER_DST_BIT,
-            VK_MEMORY_ALLOCATE_DEVICE_ADDRESS_BIT
-    );
-
-    material_uniform_buffer->writeWithStagingBuffer(materials.data());
-}
-
 void RayTracedRenderer::createObjectDescriptionsBuffer()
 {
     object_descriptions_buffer = std::make_unique<Buffer>
@@ -248,10 +223,6 @@ void RayTracedRenderer::createDescriptors()
             .addBinding(3, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, VK_SHADER_STAGE_CLOSEST_HIT_BIT_KHR)
             .build();
 
-    material_descriptor_set_layout = DescriptorSetLayout::Builder(device)
-            .addBinding(0, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, VK_SHADER_STAGE_CLOSEST_HIT_BIT_KHR)
-            .build();
-
     VkWriteDescriptorSetAccelerationStructureKHR
             accelerationStructureDescriptorInfo = {
             .sType =
@@ -274,17 +245,11 @@ void RayTracedRenderer::createDescriptors()
             .writeBuffer(2, &camera_buffer_descriptor_info)
             .writeBuffer(3, &object_descriptions_buffer_descriptor_info)
             .build(descriptor_set_handle);
-
-    auto material_uniform_buffer_descriptor_info = material_uniform_buffer->descriptorInfo();
-
-    DescriptorWriter(*material_descriptor_set_layout, *descriptor_pool)
-            .writeBuffer(0, &material_uniform_buffer_descriptor_info)
-            .build(material_descriptor_set_handle);
 }
 
 void RayTracedRenderer::createRayTracingPipeline()
 {
-    ray_tracing_pipeline = std::make_unique<RayTracingPipeline>(device, descriptor_set_layout->getDescriptorSetLayout(), material_descriptor_set_layout->getDescriptorSetLayout(), ray_tracing_properties);
+    ray_tracing_pipeline = std::make_unique<RayTracingPipeline>(device, descriptor_set_layout->getDescriptorSetLayout(), ray_tracing_properties);
 }
 
 void RayTracedRenderer::renderScene(FrameInfo& frame_info)
@@ -296,7 +261,7 @@ void RayTracedRenderer::renderScene(FrameInfo& frame_info)
     camera_uniform_buffer->flush();
 
     ray_tracing_pipeline->bind(frame_info.command_buffer);
-    ray_tracing_pipeline->bindDescriptorSets(frame_info.command_buffer, {descriptor_set_handle, material_descriptor_set_handle});
+    ray_tracing_pipeline->bindDescriptorSets(frame_info.command_buffer, {descriptor_set_handle});
 
     PushConstantRay push_constant_ray{};
     push_constant_ray.time = std::chrono::system_clock::now().time_since_epoch().count();

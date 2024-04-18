@@ -16,12 +16,14 @@ void World::loadObjects(Device& device, const std::vector<std::shared_ptr<Materi
     std::shared_ptr<Model> cube_scene_model = Model::createModelFromFile(device, "Resources/Models/cube_scene.obj");
     auto cube_scene = std::make_shared<Object>(Object::createObject());
     cube_scene->setModel(cube_scene_model);
+    cube_scene->setMaterial(std::make_shared<Material>(device, MaterialInfo{.color = glm::vec3{0.8f, 0.8f, 0.8f}}));
 //    left_monkey->material = available_materials[0];
     objects.emplace(cube_scene->getID(), std::move(cube_scene));
 
     auto second_cube_scene = std::make_shared<Object>(Object::createObject());
     second_cube_scene->transform_component.translation.x = 10.f;
     second_cube_scene->setModel(cube_scene_model);
+    second_cube_scene->setMaterial(std::make_shared<Material>(device, MaterialInfo{.color = glm::vec3{0.8f, 0.8f, 0.f}}));
 //    left_monkey->material = available_materials[0];
     objects.emplace(second_cube_scene->getID(), std::move(second_cube_scene));
 }

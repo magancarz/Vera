@@ -25,7 +25,6 @@ struct ObjectDescription
     uint64_t vertex_address;
     uint64_t index_address;
     uint64_t material_address;
-    uint64_t alignment;
 };
 layout(binding = 3, set = 0) buffer ObjectDescriptions { ObjectDescription data[]; } object_descriptions;
 
@@ -34,15 +33,13 @@ layout(binding = 0, set = 1) buffer MaterialsBuffer { Material data[]; } materia
 struct Vertex
 {
     vec3 position;
-    uint material_index;
     vec3 normal;
-    uint alignment1;
     vec2 uv;
-    uvec2 alignment2;
 };
 
-layout(buffer_reference, scalar, buffer_reference_align = 64) readonly buffer Vertices {Vertex v[]; };
-layout(buffer_reference, scalar, buffer_reference_align = 4) readonly buffer Indices {uint i[]; };
+layout(buffer_reference, scalar) readonly buffer Vertices { Vertex v[]; };
+layout(buffer_reference, scalar) readonly buffer Indices { uint i[]; };
+layout(buffer_reference, scalar) readonly buffer MaterialBuffer { Material m; };
 
 hitAttributeEXT vec3 attribs;
 
@@ -82,7 +79,8 @@ void main()
     vec3 position = first_vertex.position * barycentric.x + second_vertex.position * barycentric.y + third_vertex.position * barycentric.z;
     vec3 geometric_normal = normalize(cross(second_vertex.position - first_vertex.position, third_vertex.position - first_vertex.position));
 
-    Material material = materials.data[0];//object_description.material_address];
+    MaterialBuffer material_buffer = MaterialBuffer(object_description.material_address);
+    Material material = material_buffer.m;
     vec3 material_color = material.color;
 
     payload.is_active = material.brightness == 1 ? 0 : 1;

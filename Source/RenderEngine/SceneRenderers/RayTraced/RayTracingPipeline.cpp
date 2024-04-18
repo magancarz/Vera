@@ -4,9 +4,9 @@
 
 #include <fstream>
 
-RayTracingPipeline::RayTracingPipeline(Device& device, VkDescriptorSetLayout descriptor_set_layout, VkDescriptorSetLayout material_descriptor_set_layout,
+RayTracingPipeline::RayTracingPipeline(Device& device, VkDescriptorSetLayout descriptor_set_layout,
        const VkPhysicalDeviceRayTracingPipelinePropertiesKHR& ray_tracing_properties)
-    : device{device}, descriptor_set_layout{descriptor_set_layout}, material_descriptor_set_layout{material_descriptor_set_layout},
+    : device{device}, descriptor_set_layout{descriptor_set_layout},
       ray_tracing_properties{ray_tracing_properties}
 {
     createPipeline();
@@ -14,7 +14,7 @@ RayTracingPipeline::RayTracingPipeline(Device& device, VkDescriptorSetLayout des
 
 void RayTracingPipeline::createPipeline()
 {
-    std::vector<VkDescriptorSetLayout> descriptorSetLayoutHandleList = {descriptor_set_layout, material_descriptor_set_layout};
+    std::vector<VkDescriptorSetLayout> descriptorSetLayoutHandleList = {descriptor_set_layout};
 
     VkPushConstantRange push_constant_range{};
     push_constant_range.stageFlags = VK_SHADER_STAGE_RAYGEN_BIT_KHR;

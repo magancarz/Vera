@@ -42,12 +42,6 @@ private:
 
     std::unique_ptr<Buffer> camera_uniform_buffer;
 
-    //TODO: move to asset manager
-    void createMaterialsBuffer();
-
-    std::unique_ptr<Buffer> material_uniform_buffer;
-    std::vector<Material> materials;
-
     void createObjectDescriptionsBuffer();
 
     std::unique_ptr<Buffer> object_descriptions_buffer;
@@ -57,9 +51,6 @@ private:
     std::unique_ptr<DescriptorPool> descriptor_pool;
     std::unique_ptr<DescriptorSetLayout> descriptor_set_layout;
     VkDescriptorSet descriptor_set_handle;
-
-    std::unique_ptr<DescriptorSetLayout> material_descriptor_set_layout;
-    VkDescriptorSet material_descriptor_set_handle;
 
     void createRayTracingPipeline();
 

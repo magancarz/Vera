@@ -6,7 +6,7 @@
 class RayTracingPipeline
 {
 public:
-    RayTracingPipeline(Device& device, VkDescriptorSetLayout descriptor_set_layout, VkDescriptorSetLayout material_descriptor_set_layout, const VkPhysicalDeviceRayTracingPipelinePropertiesKHR& ray_tracing_properties);
+    RayTracingPipeline(Device& device, VkDescriptorSetLayout descriptor_set_layout, const VkPhysicalDeviceRayTracingPipelinePropertiesKHR& ray_tracing_properties);
 
     RayTracingPipeline(const RayTracingPipeline&) = delete;
     RayTracingPipeline& operator=(const RayTracingPipeline&) = delete;
@@ -25,7 +25,6 @@ private:
 
     Device& device;
     VkDescriptorSetLayout descriptor_set_layout;
-    VkDescriptorSetLayout material_descriptor_set_layout;
     VkPhysicalDeviceRayTracingPipelinePropertiesKHR ray_tracing_properties;
 
     VkPipelineLayout pipelineLayoutHandle{VK_NULL_HANDLE};

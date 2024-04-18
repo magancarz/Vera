@@ -2,11 +2,27 @@
 
 #include <glm/glm.hpp>
 
-struct Material
-{
-    alignas(16) glm::vec3 color{};
-    int brightness{0};
+#include "RenderEngine/RenderingAPI/Buffer.h"
+#include "RenderEngine/Models/ObjectDescription.h"
 
-    //TODO: remember to change this
-//    uint32_t material_index{0};
+struct MaterialInfo
+{
+    glm::vec3 color{};
+    unsigned int brightness{0};
+};
+
+class Material
+{
+public:
+    Material(Device& device, MaterialInfo in_material_info);
+
+    void getMaterialDescription(ObjectDescription& object_description);
+
+private:
+    Device& device;
+    MaterialInfo material_info;
+
+    void createMaterialBuffer();
+
+    std::unique_ptr<Buffer> material_info_buffer;
 };

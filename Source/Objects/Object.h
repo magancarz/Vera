@@ -30,6 +30,9 @@ public:
     void setModel(std::shared_ptr<Model> in_model);
     std::shared_ptr<Model> getModel() { return model; }
 
+    void setMaterial(std::shared_ptr<Material> in_material);
+    std::shared_ptr<Material> getMaterial() { return material; }
+
     BlasInstance* getBlasInstance() { return &blas_instance; }
     ObjectDescription getObjectDescription() const;
 
