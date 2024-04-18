@@ -26,7 +26,12 @@ layout(location = 0) rayPayloadEXT Ray payload;
 
 void main() 
 {
-    const vec2 pixel_center = vec2(gl_LaunchIDEXT.xy) + vec2(0.5);
+    uint seed = tea(gl_LaunchIDEXT.y * gl_LaunchSizeEXT.x + gl_LaunchIDEXT.x, push_constant.time);
+    float r1 = rnd(seed);
+    float r2 = rnd(seed);
+    vec2 subpixel_jitter = push_constant.frames == 0 ? vec2(0.5f, 0.5f) : vec2(r1, r2);
+
+    const vec2 pixel_center = vec2(gl_LaunchIDEXT.xy) + subpixel_jitter;
     const vec2 in_uv = pixel_center / vec2(gl_LaunchSizeEXT.xy);
     vec2 d = in_uv * 2.0 - 1.0;
 
@@ -42,7 +47,7 @@ void main()
     payload.direction = direction;
     payload.color = vec3(1.0, 1.0, 1.0);
     payload.is_active = 1;
-    payload.seed = tea(gl_LaunchIDEXT.y * gl_LaunchSizeEXT.x + gl_LaunchIDEXT.x, push_constant.time);
+    payload.seed = seed;
     payload.depth = 0;
 
     uint max_depth = 2;
