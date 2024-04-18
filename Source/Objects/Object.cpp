@@ -1,4 +1,5 @@
 #include "Object.h"
+#include "RenderEngine/RenderingAPI/VulkanHelper.h"
 
 Object Object::createObject()
 {
@@ -6,12 +7,15 @@ Object Object::createObject()
     return Object{available_id++};
 }
 
-Object Object::createPointLight(float intensity, float radius, const glm::vec3& color)
+void Object::setModel(std::shared_ptr<Model> in_model)
 {
-    Object object = Object::createObject();
-    object.color = color;
-    object.transform_component.scale.x = radius;
-    object.point_light = std::make_unique<PointLightComponent>();
-    object.point_light->light_intensity = intensity;
-    return object;
+    model = std::move(in_model);
+    createBlasInstance();
+}
+
+void Object::createBlasInstance()
+{
+    assert(model != nullptr);
+
+    blas_instance = model->createBlasInstance(transform_component.transform(), id);
 }

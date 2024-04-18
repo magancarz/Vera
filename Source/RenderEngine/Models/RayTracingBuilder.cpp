@@ -100,38 +100,30 @@ AccelerationStructure RayTracingAccelerationStructureBuilder::buildBottomLevelAc
     return acceleration_structure;
 }
 
-AccelerationStructure RayTracingAccelerationStructureBuilder::buildTopLevelAccelerationStructure(const AccelerationStructure& blas_structure)
+AccelerationStructure RayTracingAccelerationStructureBuilder::buildTopLevelAccelerationStructure(const std::vector<BlasInstance*>& blas_instances)
 {
     AccelerationStructure tlas{};
 
-    VkTransformMatrixKHR transform = VulkanHelper::mat4ToVkTransformMatrixKHR(glm::mat4{1.f});
+    std::vector<VkAccelerationStructureInstanceKHR> instances_temp{};
+    instances_temp.reserve(blas_instances.size());
+    std::transform(blas_instances.begin(), blas_instances.end(), std::back_inserter(instances_temp),
+                   [](const BlasInstance* blas_instance) { return blas_instance->bottomLevelAccelerationStructureInstance; });
 
-    VkAccelerationStructureInstanceKHR bottomLevelAccelerationStructureInstance{};
-    bottomLevelAccelerationStructureInstance.transform = transform;
-    bottomLevelAccelerationStructureInstance.instanceCustomIndex = 0;
-    bottomLevelAccelerationStructureInstance.mask = 0xFF;
-    bottomLevelAccelerationStructureInstance.instanceShaderBindingTableRecordOffset = 0;
-    bottomLevelAccelerationStructureInstance.flags = VK_GEOMETRY_INSTANCE_TRIANGLE_FACING_CULL_DISABLE_BIT_KHR;
-    bottomLevelAccelerationStructureInstance.accelerationStructureReference = blas_structure.bottom_level_acceleration_structure_device_address;
-
-    auto bottom_level_geometry_instance_buffer = std::make_unique<Buffer>
+    auto instances_buffer = std::make_unique<Buffer>
     (
-            device,
-            sizeof(VkAccelerationStructureInstanceKHR),
-            1,
-            VK_BUFFER_USAGE_ACCELERATION_STRUCTURE_BUILD_INPUT_READ_ONLY_BIT_KHR | VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT,
-            VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT
+        device,
+        sizeof(VkAccelerationStructureInstanceKHR),
+        static_cast<uint32_t>(blas_instances.size()),
+        VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT | VK_BUFFER_USAGE_ACCELERATION_STRUCTURE_BUILD_INPUT_READ_ONLY_BIT_KHR | VK_BUFFER_USAGE_TRANSFER_DST_BIT,
+        VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT
     );
-    bottom_level_geometry_instance_buffer->map();
-    bottom_level_geometry_instance_buffer->writeToBuffer(&bottomLevelAccelerationStructureInstance);
-    bottom_level_geometry_instance_buffer->unmap();
 
-    VkDeviceAddress bottomLevelGeometryInstanceDeviceAddress = bottom_level_geometry_instance_buffer->getBufferDeviceAddress();
+    instances_buffer->writeWithStagingBuffer(instances_temp.data());
 
     VkAccelerationStructureGeometryInstancesDataKHR instances{};
     instances.sType = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_GEOMETRY_INSTANCES_DATA_KHR;
     instances.arrayOfPointers = VK_FALSE;
-    instances.data.deviceAddress = bottomLevelGeometryInstanceDeviceAddress;
+    instances.data.deviceAddress = instances_buffer->getBufferDeviceAddress();
 
     VkAccelerationStructureGeometryDataKHR topLevelAccelerationStructureGeometryData{};
     topLevelAccelerationStructureGeometryData.instances = instances;
@@ -142,8 +134,6 @@ AccelerationStructure RayTracingAccelerationStructureBuilder::buildTopLevelAccel
     topLevelAccelerationStructureGeometry.geometry = topLevelAccelerationStructureGeometryData;
     topLevelAccelerationStructureGeometry.flags = VK_GEOMETRY_OPAQUE_BIT_KHR;
 
-    std::vector<VkAccelerationStructureGeometryKHR> topLevelAccelerationStructureGeometries = {topLevelAccelerationStructureGeometry};
-
     VkAccelerationStructureBuildGeometryInfoKHR topLevelAccelerationStructureBuildGeometryInfo{};
     topLevelAccelerationStructureBuildGeometryInfo.sType = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_BUILD_GEOMETRY_INFO_KHR;
     topLevelAccelerationStructureBuildGeometryInfo.type = VK_ACCELERATION_STRUCTURE_TYPE_TOP_LEVEL_KHR;
@@ -151,8 +141,8 @@ AccelerationStructure RayTracingAccelerationStructureBuilder::buildTopLevelAccel
     topLevelAccelerationStructureBuildGeometryInfo.mode = VK_BUILD_ACCELERATION_STRUCTURE_MODE_BUILD_KHR;
     topLevelAccelerationStructureBuildGeometryInfo.srcAccelerationStructure = VK_NULL_HANDLE;
     topLevelAccelerationStructureBuildGeometryInfo.dstAccelerationStructure = VK_NULL_HANDLE;
-    topLevelAccelerationStructureBuildGeometryInfo.geometryCount = static_cast<uint32_t>(topLevelAccelerationStructureGeometries.size());
-    topLevelAccelerationStructureBuildGeometryInfo.pGeometries = topLevelAccelerationStructureGeometries.data();
+    topLevelAccelerationStructureBuildGeometryInfo.geometryCount = 1;
+    topLevelAccelerationStructureBuildGeometryInfo.pGeometries = &topLevelAccelerationStructureGeometry;
 
     VkAccelerationStructureBuildSizesInfoKHR topLevelAccelerationStructureBuildSizesInfo{};
     topLevelAccelerationStructureBuildSizesInfo.sType = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_BUILD_SIZES_INFO_KHR;
@@ -212,7 +202,7 @@ AccelerationStructure RayTracingAccelerationStructureBuilder::buildTopLevelAccel
 
     VkAccelerationStructureBuildRangeInfoKHR topLevelAccelerationStructureBuildRangeInfo =
     {
-            .primitiveCount = 1,
+            .primitiveCount = static_cast<uint32_t>(blas_instances.size()),
             .primitiveOffset = 0,
             .firstVertex = 0,
             .transformOffset = 0

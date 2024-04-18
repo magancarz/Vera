@@ -20,7 +20,7 @@ public:
     RayTracingAccelerationStructureBuilder(Device& device);
 
     AccelerationStructure buildBottomLevelAccelerationStructure(const BlasInput& blas_input);
-    AccelerationStructure buildTopLevelAccelerationStructure(const AccelerationStructure& blas_structure);
+    AccelerationStructure buildTopLevelAccelerationStructure(const std::vector<BlasInstance*>& blas_instances);
 
 private:
 

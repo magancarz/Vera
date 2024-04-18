@@ -43,7 +43,12 @@ void RayTracedRenderer::queryRayTracingPipelineProperties()
 void RayTracedRenderer::createAccelerationStructure()
 {
     RayTracingAccelerationStructureBuilder builder{device};
-    tlas = builder.buildTopLevelAccelerationStructure(world->objects[1]->model->blas);
+
+    std::vector<BlasInstance*> blas_instances;
+    blas_instances.reserve(world->objects.size());
+    std::transform(world->objects.begin(), world->objects.end(), std::back_inserter(blas_instances),
+                   [](const std::pair<uint32_t, std::shared_ptr<Object>>& obj_pair) { return obj_pair.second->getBlasInstance(); });
+    tlas = builder.buildTopLevelAccelerationStructure(blas_instances);
 }
 
 void RayTracedRenderer::createRayTracedImage()
@@ -248,8 +253,8 @@ void RayTracedRenderer::createDescriptors()
             .pAccelerationStructures = &tlas.acceleration_structure};
 
     auto camera_buffer_descriptor_info = camera_uniform_buffer->descriptorInfo();
-    auto vertex_buffer_descriptor_info = world->objects[1]->model->vertex_buffer->descriptorInfo();
-    auto index_buffer_descriptor_info = world->objects[1]->model->index_buffer->descriptorInfo();
+    auto vertex_buffer_descriptor_info = world->objects[1]->getModel()->vertex_buffer->descriptorInfo();
+    auto index_buffer_descriptor_info = world->objects[1]->getModel()->index_buffer->descriptorInfo();
 
     VkDescriptorImageInfo rayTraceImageDescriptorInfo = {
             .sampler = VK_NULL_HANDLE,

@@ -246,3 +246,30 @@ void Model::Builder::loadModel(const std::string& filepath)
         }
     }
 }
+
+BlasInstance Model::createBlasInstance(const glm::mat4& transform, uint32_t id)
+{
+    BlasInstance blas_instance{};
+    blas_instance.bottomLevelAccelerationStructureInstance.transform = VulkanHelper::mat4ToVkTransformMatrixKHR(transform);
+    blas_instance.bottomLevelAccelerationStructureInstance.instanceCustomIndex = id;
+    blas_instance.bottomLevelAccelerationStructureInstance.mask = 0xFF;
+    blas_instance.bottomLevelAccelerationStructureInstance.instanceShaderBindingTableRecordOffset = 0;
+    blas_instance.bottomLevelAccelerationStructureInstance.flags = VK_GEOMETRY_INSTANCE_TRIANGLE_FACING_CULL_DISABLE_BIT_KHR;
+    blas_instance.bottomLevelAccelerationStructureInstance.accelerationStructureReference = blas.bottom_level_acceleration_structure_device_address;
+
+    blas_instance.bottom_level_geometry_instance_buffer = std::make_unique<Buffer>
+    (
+            device,
+            sizeof(VkAccelerationStructureInstanceKHR),
+            1,
+            VK_BUFFER_USAGE_ACCELERATION_STRUCTURE_BUILD_INPUT_READ_ONLY_BIT_KHR | VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT,
+            VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT
+    );
+    blas_instance.bottom_level_geometry_instance_buffer->map();
+    blas_instance.bottom_level_geometry_instance_buffer->writeToBuffer(&blas_instance.bottomLevelAccelerationStructureInstance);
+    blas_instance.bottom_level_geometry_instance_buffer->unmap();
+
+    blas_instance.bottomLevelGeometryInstanceDeviceAddress = blas_instance.bottom_level_geometry_instance_buffer->getBufferDeviceAddress();
+
+    return blas_instance;
+}

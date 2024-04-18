@@ -5,6 +5,7 @@
 #include "Buffer.h"
 #include "RenderEngine/Materials/Material.h"
 #include "RenderEngine/Models/AccelerationStructure.h"
+#include "RenderEngine/Models/BlasInstance.h"
 
 class Model
 {
@@ -31,7 +32,7 @@ public:
     std::unique_ptr<Buffer> vertex_buffer;
     std::unique_ptr<Buffer> index_buffer;
 
-    AccelerationStructure blas{};
+    BlasInstance createBlasInstance(const glm::mat4& transform, uint32_t id);
 
 private:
     Device& device;
@@ -46,4 +47,6 @@ private:
     uint32_t index_count;
 
     void createBlas();
+
+    AccelerationStructure blas{};
 };

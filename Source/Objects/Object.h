@@ -5,6 +5,7 @@
 #include "Components/TransformComponent.h"
 #include "Objects/Components/PointLightComponent.h"
 #include "RenderEngine/Materials/Material.h"
+#include "RenderEngine/Models/BlasInstance.h"
 
 struct PointLight
 {
@@ -15,10 +16,9 @@ struct PointLight
 class Object
 {
 public:
-    using id_t = unsigned int;
+    using id_t = uint32_t;
 
     static Object createObject();
-    static Object createPointLight(float intensity = 10.f, float radius = 0.1f, const glm::vec3& color = {1.f, 1.f, 1.f});
 
     Object(const Object&) = delete;
     Object& operator=(const Object&) = delete;
@@ -27,15 +27,23 @@ public:
 
     [[nodiscard]] id_t getID() const { return id; }
 
-    glm::vec3 color{};
-    TransformComponent transform_component;
+    void setModel(std::shared_ptr<Model> in_model);
+    std::shared_ptr<Model> getModel() { return model; }
 
-    std::shared_ptr<Model> model;
+    BlasInstance* getBlasInstance() { return &blas_instance; }
+
     std::shared_ptr<Material> material;
-    std::unique_ptr<PointLightComponent> point_light;
+
+    TransformComponent transform_component;
 
 private:
     Object(id_t object_id) : id{object_id} {}
 
     id_t id;
+
+    std::shared_ptr<Model> model;
+
+    void createBlasInstance();
+
+    BlasInstance blas_instance{};
 };
