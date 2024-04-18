@@ -2,7 +2,10 @@
 
 #extension GL_EXT_ray_tracing : require
 #extension GL_EXT_nonuniform_qualifier : enable
+#extension GL_EXT_scalar_block_layout : enable
 #extension GL_GOOGLE_include_directive : enable
+#extension GL_EXT_shader_explicit_arithmetic_types_int64 : require
+#extension GL_EXT_buffer_reference2 : require
 
 #include "ray.glsl"
 #include "random.glsl"
@@ -11,24 +14,35 @@
 
 layout(location = 0) rayPayloadInEXT Ray payload;
 
-struct Vertex
-{
-    vec3 position;
-    uint material_index;
-    vec3 normal;
-    vec2 uv;
-};
-
 struct Material
 {
     vec3 color;
     int brightness;
 };
 
-layout(binding = 3, set = 0) buffer VertexBuffer { Vertex data[]; } vertex_buffer;
-layout(binding = 4, set = 0) buffer IndexBuffer { uint data[]; } index_buffer;
+struct ObjectDescription
+{
+    uint64_t vertex_address;
+    uint64_t index_address;
+    uint64_t material_address;
+    uint64_t alignment;
+};
+layout(binding = 3, set = 0) buffer ObjectDescriptions { ObjectDescription data[]; } object_descriptions;
 
 layout(binding = 0, set = 1) buffer MaterialsBuffer { Material data[]; } materials;
+
+struct Vertex
+{
+    vec3 position;
+    uint material_index;
+    vec3 normal;
+    uint alignment1;
+    vec2 uv;
+    uvec2 alignment2;
+};
+
+layout(buffer_reference, scalar, buffer_reference_align = 64) readonly buffer Vertices {Vertex v[]; };
+layout(buffer_reference, scalar, buffer_reference_align = 4) readonly buffer Indices {uint i[]; };
 
 hitAttributeEXT vec3 attribs;
 
@@ -51,21 +65,24 @@ void main()
         return;
     }
 
-    ivec3 indices = ivec3(
-        index_buffer.data[3 * gl_PrimitiveID + 0],
-        index_buffer.data[3 * gl_PrimitiveID + 1],
-        index_buffer.data[3 * gl_PrimitiveID + 2]);
+    ObjectDescription object_description = object_descriptions.data[gl_InstanceCustomIndexEXT];
+
+    Indices index_buffer = Indices(object_description.index_address);
+    uvec3 indices = uvec3(index_buffer.i[3 * gl_PrimitiveID + 0],
+                          index_buffer.i[3 * gl_PrimitiveID + 1],
+                          index_buffer.i[3 * gl_PrimitiveID + 2]);
+
+    Vertices vertex_buffer = Vertices(object_description.vertex_address);
+    Vertex first_vertex = vertex_buffer.v[indices.x];
+    Vertex second_vertex = vertex_buffer.v[indices.y];
+    Vertex third_vertex = vertex_buffer.v[indices.z];
 
     vec3 barycentric = vec3(1.0 - attribs.x - attribs.y, attribs.x, attribs.y);
-
-    Vertex first_vertex = vertex_buffer.data[indices.x];
-    Vertex second_vertex = vertex_buffer.data[indices.y];
-    Vertex third_vertex = vertex_buffer.data[indices.z];
 
     vec3 position = first_vertex.position * barycentric.x + second_vertex.position * barycentric.y + third_vertex.position * barycentric.z;
     vec3 geometric_normal = normalize(cross(second_vertex.position - first_vertex.position, third_vertex.position - first_vertex.position));
 
-    Material material = materials.data[first_vertex.material_index];
+    Material material = materials.data[0];//object_description.material_address];
     vec3 material_color = material.color;
 
     payload.is_active = material.brightness == 1 ? 0 : 1;

@@ -19,3 +19,14 @@ void Object::createBlasInstance()
 
     blas_instance = model->createBlasInstance(transform_component.transform(), id);
 }
+
+ObjectDescription Object::getObjectDescription() const
+{
+    ObjectDescription object_description{};
+    model->getModelDescription(object_description);
+
+    //TODO: remember to change this
+//    object_description.material_address = material->material_index;
+
+    return object_description;
+}

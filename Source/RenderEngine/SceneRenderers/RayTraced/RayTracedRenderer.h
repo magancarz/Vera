@@ -48,6 +48,10 @@ private:
     std::unique_ptr<Buffer> material_uniform_buffer;
     std::vector<Material> materials;
 
+    void createObjectDescriptionsBuffer();
+
+    std::unique_ptr<Buffer> object_descriptions_buffer;
+
     void createDescriptors();
 
     std::unique_ptr<DescriptorPool> descriptor_pool;

@@ -14,6 +14,7 @@ RayTracedRenderer::RayTracedRenderer(Device& device, World* world)
     createRayTracedImage();
     createCameraUniformBuffer();
     createMaterialsBuffer();
+    createObjectDescriptionsBuffer();
     createDescriptors();
     createRayTracingPipeline();
 }
@@ -198,18 +199,6 @@ void RayTracedRenderer::createMaterialsBuffer()
     materials.push_back(Material{.color = glm::vec3{1.0, 1.0, 1.0}, .brightness = 1});
     materials.push_back(Material{.color = glm::vec3{1.0, 0.0, 0.0}});
 
-    Buffer staging_buffer
-    {
-            device,
-            sizeof(Material),
-            static_cast<uint32_t>(materials.size()),
-            VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
-            VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT
-    };
-
-    staging_buffer.map();
-    staging_buffer.writeToBuffer((void*)materials.data());
-
     material_uniform_buffer = std::make_unique<Buffer>
     (
             device,
@@ -219,7 +208,27 @@ void RayTracedRenderer::createMaterialsBuffer()
             VK_BUFFER_USAGE_TRANSFER_DST_BIT,
             VK_MEMORY_ALLOCATE_DEVICE_ADDRESS_BIT
     );
-    device.copyBuffer(staging_buffer.getBuffer(), material_uniform_buffer->getBuffer(), static_cast<uint32_t>(materials.size() * sizeof(Material)));
+
+    material_uniform_buffer->writeWithStagingBuffer(materials.data());
+}
+
+void RayTracedRenderer::createObjectDescriptionsBuffer()
+{
+    object_descriptions_buffer = std::make_unique<Buffer>
+    (
+            device,
+            sizeof(ObjectDescription),
+            static_cast<uint32_t>(world->objects.size() + 1),
+            VK_BUFFER_USAGE_STORAGE_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT,
+            VK_MEMORY_ALLOCATE_DEVICE_ADDRESS_BIT
+    );
+    std::vector<ObjectDescription> object_descriptions;
+    object_descriptions.resize(world->objects.size() + 1);
+    for (auto& [id, object] : world->objects)
+    {
+        object_descriptions[id] = object->getObjectDescription();
+    }
+    object_descriptions_buffer->writeWithStagingBuffer(object_descriptions.data());
 }
 
 void RayTracedRenderer::createDescriptors()
@@ -237,7 +246,6 @@ void RayTracedRenderer::createDescriptors()
             .addBinding(1, VK_DESCRIPTOR_TYPE_STORAGE_IMAGE, VK_SHADER_STAGE_RAYGEN_BIT_KHR)
             .addBinding(2, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_RAYGEN_BIT_KHR | VK_SHADER_STAGE_CLOSEST_HIT_BIT_KHR)
             .addBinding(3, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, VK_SHADER_STAGE_CLOSEST_HIT_BIT_KHR)
-            .addBinding(4, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, VK_SHADER_STAGE_CLOSEST_HIT_BIT_KHR)
             .build();
 
     material_descriptor_set_layout = DescriptorSetLayout::Builder(device)
@@ -253,8 +261,7 @@ void RayTracedRenderer::createDescriptors()
             .pAccelerationStructures = &tlas.acceleration_structure};
 
     auto camera_buffer_descriptor_info = camera_uniform_buffer->descriptorInfo();
-    auto vertex_buffer_descriptor_info = world->objects[1]->getModel()->vertex_buffer->descriptorInfo();
-    auto index_buffer_descriptor_info = world->objects[1]->getModel()->index_buffer->descriptorInfo();
+    auto object_descriptions_buffer_descriptor_info = object_descriptions_buffer->descriptorInfo();
 
     VkDescriptorImageInfo rayTraceImageDescriptorInfo = {
             .sampler = VK_NULL_HANDLE,
@@ -265,8 +272,7 @@ void RayTracedRenderer::createDescriptors()
             .writeAccelerationStructure(0, &accelerationStructureDescriptorInfo)
             .writeImage(1, &rayTraceImageDescriptorInfo)
             .writeBuffer(2, &camera_buffer_descriptor_info)
-            .writeBuffer(3, &vertex_buffer_descriptor_info)
-            .writeBuffer(4, &index_buffer_descriptor_info)
+            .writeBuffer(3, &object_descriptions_buffer_descriptor_info)
             .build(descriptor_set_handle);
 
     auto material_uniform_buffer_descriptor_info = material_uniform_buffer->descriptorInfo();

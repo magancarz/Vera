@@ -6,6 +6,7 @@
 #include "RenderEngine/Materials/Material.h"
 #include "RenderEngine/Models/AccelerationStructure.h"
 #include "RenderEngine/Models/BlasInstance.h"
+#include "RenderEngine/Models/ObjectDescription.h"
 
 class Model
 {
@@ -33,6 +34,7 @@ public:
     std::unique_ptr<Buffer> index_buffer;
 
     BlasInstance createBlasInstance(const glm::mat4& transform, uint32_t id);
+    void getModelDescription(ObjectDescription& object_description) const;
 
 private:
     Device& device;

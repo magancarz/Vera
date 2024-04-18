@@ -273,3 +273,9 @@ BlasInstance Model::createBlasInstance(const glm::mat4& transform, uint32_t id)
 
     return blas_instance;
 }
+
+void Model::getModelDescription(ObjectDescription& object_description) const
+{
+    object_description.vertex_address = vertex_buffer->getBufferDeviceAddress();
+    object_description.index_address = index_buffer->getBufferDeviceAddress();
+}

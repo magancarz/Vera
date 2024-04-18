@@ -31,8 +31,7 @@ public:
     std::shared_ptr<Model> getModel() { return model; }
 
     BlasInstance* getBlasInstance() { return &blas_instance; }
-
-    std::shared_ptr<Material> material;
+    ObjectDescription getObjectDescription() const;
 
     TransformComponent transform_component;
 
@@ -42,6 +41,7 @@ private:
     id_t id;
 
     std::shared_ptr<Model> model;
+    std::shared_ptr<Material> material;
 
     void createBlasInstance();
 
