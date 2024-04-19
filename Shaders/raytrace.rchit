@@ -13,6 +13,7 @@
 #include "lambertian.glsl"
 
 layout(location = 0) rayPayloadInEXT Ray payload;
+layout(location = 1) rayPayloadEXT bool is_shadow;
 
 struct Material
 {
@@ -25,7 +26,10 @@ struct ObjectDescription
     uint64_t vertex_address;
     uint64_t index_address;
     uint64_t material_address;
+    uint64_t num_of_triangles;
 };
+
+layout(binding = 0, set = 0) uniform accelerationStructureEXT topLevelAS;
 layout(binding = 3, set = 0) buffer ObjectDescriptions { ObjectDescription data[]; } object_descriptions;
 
 layout(binding = 0, set = 1) buffer MaterialsBuffer { Material data[]; } materials;
@@ -43,6 +47,7 @@ struct Vertex
 layout(buffer_reference, scalar) readonly buffer Vertices { Vertex v[]; };
 layout(buffer_reference, scalar) readonly buffer Indices { uint i[]; };
 layout(buffer_reference, scalar) readonly buffer MaterialBuffer { Material m; };
+layout(buffer_reference, scalar, buffer_reference_align = 4) readonly buffer LightIndices { uint l[]; };
 
 hitAttributeEXT vec3 attribs;
 
@@ -84,6 +89,34 @@ void main()
 
     vec3 position = first_vertex.position * barycentric.x + second_vertex.position * barycentric.y + third_vertex.position * barycentric.z;
     position = vec3(gl_ObjectToWorldEXT * vec4(position, 1.0));
+
+    vec3 positionToLightDirection = normalize(vec3(0, 5.999, 0) - position);
+    vec3 shadowRayOrigin = position;
+    vec3 shadowRayDirection = positionToLightDirection;
+    float shadowRayDistance = length(vec3(0, 5.999, 0) - position) - 0.0001f;
+
+    uint shadowRayFlags = gl_RayFlagsTerminateOnFirstHitEXT | gl_RayFlagsOpaqueEXT | gl_RayFlagsSkipClosestHitShaderEXT;
+
+    is_shadow = true;
+    traceRayEXT(
+        topLevelAS,
+        shadowRayFlags,
+        0xFF,
+        0,
+        0,
+        1,
+        shadowRayOrigin,
+        0.001,
+        shadowRayDirection,
+        shadowRayDistance,
+        1);
+
+    if (is_shadow)
+    {
+        payload.color *= vec3(0);
+        payload.is_active = 0;
+        return;
+    }
 
     MaterialBuffer material_buffer = MaterialBuffer(object_description.material_address);
     Material material = material_buffer.m;

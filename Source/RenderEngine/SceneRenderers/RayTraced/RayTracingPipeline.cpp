@@ -125,32 +125,32 @@ void RayTracingPipeline::createPipeline()
     // =========================================================================
     // Ray Miss Shader Module (Shadow)
 
-//    std::ifstream rayMissShadowFile("Shaders/shader.shadow.rmiss.spv",
-//                                    std::ios::binary | std::ios::ate);
-//    std::streamsize rayMissShadowFileSize = rayMissShadowFile.tellg();
-//    rayMissShadowFile.seekg(0, std::ios::beg);
-//    std::vector<uint32_t> rayMissShadowShaderSource(rayMissShadowFileSize /
-//                                                    sizeof(uint32_t));
-//
-//    rayMissShadowFile.read(
-//            reinterpret_cast<char *>(rayMissShadowShaderSource.data()),
-//            rayMissShadowFileSize);
-//
-//    rayMissShadowFile.close();
-//
-//    VkShaderModuleCreateInfo rayMissShadowShaderModuleCreateInfo = {
-//            .sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO,
-//            .pNext = NULL,
-//            .flags = 0,
-//            .codeSize = (uint32_t)rayMissShadowShaderSource.size() * sizeof(uint32_t),
-//            .pCode = rayMissShadowShaderSource.data()};
-//
-//    VkShaderModule rayMissShadowShaderModuleHandle = VK_NULL_HANDLE;
-//    if (vkCreateShaderModule(device.getDevice(), &rayMissShadowShaderModuleCreateInfo,
-//                             NULL, &rayMissShadowShaderModuleHandle) != VK_SUCCESS)
-//    {
-//        throw std::runtime_error("Failed to create shader module!");
-//    }
+    std::ifstream rayMissShadowFile("Shaders/raytrace_shadow.rmiss.spv",
+                                    std::ios::binary | std::ios::ate);
+    std::streamsize rayMissShadowFileSize = rayMissShadowFile.tellg();
+    rayMissShadowFile.seekg(0, std::ios::beg);
+    std::vector<uint32_t> rayMissShadowShaderSource(rayMissShadowFileSize / sizeof(uint32_t));
+    rayMissShadowFile.read(
+            reinterpret_cast<char *>(rayMissShadowShaderSource.data()),
+            rayMissShadowFileSize);
+
+    rayMissShadowFile.close();
+
+    VkShaderModuleCreateInfo rayMissShadowShaderModuleCreateInfo =
+    {
+            .sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO,
+            .pNext = NULL,
+            .flags = 0,
+            .codeSize = (uint32_t)rayMissShadowShaderSource.size() * sizeof(uint32_t),
+            .pCode = rayMissShadowShaderSource.data()
+    };
+
+    VkShaderModule rayMissShadowShaderModuleHandle = VK_NULL_HANDLE;
+    if (vkCreateShaderModule(device.getDevice(), &rayMissShadowShaderModuleCreateInfo,
+                             NULL, &rayMissShadowShaderModuleHandle) != VK_SUCCESS)
+    {
+        throw std::runtime_error("Failed to create shader module!");
+    }
 
     // =========================================================================
     // Ray Tracing Pipeline
@@ -177,14 +177,14 @@ void RayTracingPipeline::createPipeline()
                     .stage = VK_SHADER_STAGE_MISS_BIT_KHR,
                     .module = rayMissShaderModuleHandle,
                     .pName = "main",
-                    .pSpecializationInfo = NULL}/*,
+                    .pSpecializationInfo = NULL},
             {.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO,
                     .pNext = NULL,
                     .flags = 0,
                     .stage = VK_SHADER_STAGE_MISS_BIT_KHR,
                     .module = rayMissShadowShaderModuleHandle,
                     .pName = "main",
-                    .pSpecializationInfo = NULL}*/};
+                    .pSpecializationInfo = NULL}};
 
     std::vector<VkRayTracingShaderGroupCreateInfoKHR>
             rayTracingShaderGroupCreateInfoList = {
@@ -211,7 +211,7 @@ void RayTracingPipeline::createPipeline()
                     .closestHitShader = VK_SHADER_UNUSED_KHR,
                     .anyHitShader = VK_SHADER_UNUSED_KHR,
                     .intersectionShader = VK_SHADER_UNUSED_KHR,
-                    .pShaderGroupCaptureReplayHandle = NULL}/*,
+                    .pShaderGroupCaptureReplayHandle = NULL},
             {.sType = VK_STRUCTURE_TYPE_RAY_TRACING_SHADER_GROUP_CREATE_INFO_KHR,
                     .pNext = NULL,
                     .type = VK_RAY_TRACING_SHADER_GROUP_TYPE_GENERAL_KHR,
@@ -219,7 +219,7 @@ void RayTracingPipeline::createPipeline()
                     .closestHitShader = VK_SHADER_UNUSED_KHR,
                     .anyHitShader = VK_SHADER_UNUSED_KHR,
                     .intersectionShader = VK_SHADER_UNUSED_KHR,
-                    .pShaderGroupCaptureReplayHandle = NULL}*/};
+                    .pShaderGroupCaptureReplayHandle = NULL}};
 
     VkRayTracingPipelineCreateInfoKHR rayTracingPipelineCreateInfo = {
             .sType = VK_STRUCTURE_TYPE_RAY_TRACING_PIPELINE_CREATE_INFO_KHR,
@@ -229,7 +229,7 @@ void RayTracingPipeline::createPipeline()
             .pStages = pipelineShaderStageCreateInfoList.data(),
             .groupCount = static_cast<uint32_t>(rayTracingShaderGroupCreateInfoList.size()),
             .pGroups = rayTracingShaderGroupCreateInfoList.data(),
-            .maxPipelineRayRecursionDepth = 1,
+            .maxPipelineRayRecursionDepth = 2,
             .pLibraryInfo = NULL,
             .pLibraryInterface = NULL,
             .pDynamicState = NULL,
@@ -299,7 +299,7 @@ void RayTracingPipeline::createPipeline()
 
     char *shaderHandleBuffer = new char[shaderBindingTableSize];
     if (pvkGetRayTracingShaderGroupHandlesKHR(
-            device.getDevice(), rayTracingPipelineHandle, 0, 3, shaderBindingTableSize,
+            device.getDevice(), rayTracingPipelineHandle, 0, 4, shaderBindingTableSize,
             shaderHandleBuffer) != VK_SUCCESS) {
         throw std::runtime_error("Failed to get ray tracing shader group handles");
     }

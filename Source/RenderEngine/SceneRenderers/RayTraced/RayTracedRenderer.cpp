@@ -14,6 +14,7 @@ RayTracedRenderer::RayTracedRenderer(Device& device, World* world)
     createRayTracedImage();
     createCameraUniformBuffer();
     createObjectDescriptionsBuffer();
+    createLightIndicesBuffer();
     createDescriptors();
     createRayTracingPipeline();
 }
@@ -46,8 +47,13 @@ void RayTracedRenderer::createAccelerationStructure()
 
     std::vector<BlasInstance*> blas_instances;
     blas_instances.reserve(world->objects.size());
-    std::transform(world->objects.begin(), world->objects.end(), std::back_inserter(blas_instances),
-                   [](const std::pair<uint32_t, std::shared_ptr<Object>>& obj_pair) { return obj_pair.second->getBlasInstance(); });
+    size_t i = 0;
+    for (auto [_, object] : world->objects)
+    {
+        auto blas_instance = object->getBlasInstance();
+        blas_instance->bottomLevelAccelerationStructureInstance.instanceCustomIndex = i++;
+        blas_instances.push_back(blas_instance);
+    }
     tlas = builder.buildTopLevelAccelerationStructure(blas_instances);
 }
 
@@ -193,17 +199,40 @@ void RayTracedRenderer::createObjectDescriptionsBuffer()
     (
             device,
             sizeof(ObjectDescription),
-            static_cast<uint32_t>(world->objects.size() + 1),
+            static_cast<uint32_t>(world->objects.size()),
             VK_BUFFER_USAGE_STORAGE_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT,
             VK_MEMORY_ALLOCATE_DEVICE_ADDRESS_BIT
     );
     std::vector<ObjectDescription> object_descriptions;
-    object_descriptions.resize(world->objects.size() + 1);
-    for (auto& [id, object] : world->objects)
+    object_descriptions.reserve(world->objects.size());
+    for (auto& [_, object] : world->objects)
     {
-        object_descriptions[id] = object->getObjectDescription();
+        object_descriptions.emplace_back(object->getObjectDescription());
     }
     object_descriptions_buffer->writeWithStagingBuffer(object_descriptions.data());
+}
+
+void RayTracedRenderer::createLightIndicesBuffer()
+{
+    std::vector<uint32_t> light_indices;
+    size_t i = 0;
+    for (auto& [_, object] : world->objects)
+    {
+        if (object->isLightObject())
+        {
+            light_indices.push_back(i);
+        }
+        ++i;
+    }
+    light_indices_buffer = std::make_unique<Buffer>
+    (
+            device,
+            sizeof(uint32_t),
+            static_cast<uint32_t>(light_indices.size()),
+            VK_BUFFER_USAGE_STORAGE_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT,
+            VK_MEMORY_ALLOCATE_DEVICE_ADDRESS_BIT
+    );
+    light_indices_buffer->writeWithStagingBuffer(light_indices.data());
 }
 
 void RayTracedRenderer::createDescriptors()
@@ -225,8 +254,7 @@ void RayTracedRenderer::createDescriptors()
 
     VkWriteDescriptorSetAccelerationStructureKHR
             accelerationStructureDescriptorInfo = {
-            .sType =
-            VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET_ACCELERATION_STRUCTURE_KHR,
+            .sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET_ACCELERATION_STRUCTURE_KHR,
             .pNext = NULL,
             .accelerationStructureCount = 1,
             .pAccelerationStructures = &tlas.acceleration_structure};

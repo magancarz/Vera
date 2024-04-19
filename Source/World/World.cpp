@@ -35,6 +35,16 @@ void World::loadObjects(Device& device, const std::vector<std::shared_ptr<Materi
     top_plane->setMaterial(white_lambertian);
     objects.emplace(top_plane->getID(), std::move(top_plane));
 
+//    auto front_plane = std::make_shared<Object>(Object::createObject());
+//    front_plane->transform_component.translation.y = 3.f;
+//    front_plane->transform_component.translation.z = 3.f;
+//    front_plane->transform_component.rotation.x = glm::radians(90.f);
+//    front_plane->transform_component.rotation.y = glm::radians(180.f);
+//    front_plane->transform_component.scale = glm::vec3{3.f};
+//    front_plane->setModel(plane_model);
+//    front_plane->setMaterial(white_lambertian);
+//    objects.emplace(front_plane->getID(), std::move(front_plane));
+
     auto back_plane = std::make_shared<Object>(Object::createObject());
     back_plane->transform_component.translation.y = 3.f;
     back_plane->transform_component.translation.z = -3.f;

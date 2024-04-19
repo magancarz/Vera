@@ -17,6 +17,7 @@ public:
     Material(Device& device, MaterialInfo in_material_info);
 
     void getMaterialDescription(ObjectDescription& object_description);
+    bool isLightMaterial() const { return material_info.brightness > 0; }
 
 private:
     Device& device;

@@ -277,4 +277,5 @@ void Model::getModelDescription(ObjectDescription& object_description) const
 {
     object_description.vertex_address = vertex_buffer->getBufferDeviceAddress();
     object_description.index_address = index_buffer->getBufferDeviceAddress();
+    object_description.num_of_triangles = index_count / 3;
 }

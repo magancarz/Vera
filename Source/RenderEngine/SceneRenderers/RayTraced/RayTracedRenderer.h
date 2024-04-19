@@ -46,6 +46,10 @@ private:
 
     std::unique_ptr<Buffer> object_descriptions_buffer;
 
+    void createLightIndicesBuffer();
+
+    std::unique_ptr<Buffer> light_indices_buffer;
+
     void createDescriptors();
 
     std::unique_ptr<DescriptorPool> descriptor_pool;

@@ -32,6 +32,7 @@ public:
 
     void setMaterial(std::shared_ptr<Material> in_material);
     std::shared_ptr<Material> getMaterial() { return material; }
+    bool isLightObject() { return material->isLightMaterial(); };
 
     BlasInstance* getBlasInstance() { return &blas_instance; }
     ObjectDescription getObjectDescription() const;
