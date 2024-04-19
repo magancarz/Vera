@@ -1,5 +1,7 @@
 #version 460
 
+#define MAX_DEPTH 2
+
 #extension GL_EXT_ray_tracing : require
 #extension GL_GOOGLE_include_directive : enable
 
@@ -41,17 +43,15 @@ void main()
 
     uint rayFlags = gl_RayFlagsOpaqueEXT;
     float tMin = 0.001;
-    float tMax = 10000.0;
+    float tMax = 1000.0;
 
     payload.origin = origin;
     payload.direction = direction;
     payload.color = vec3(1.0, 1.0, 1.0);
     payload.is_active = 1;
     payload.seed = seed;
-    payload.depth = 0;
 
-    uint max_depth = 2;
-    for (int current_depth = 0; current_depth < max_depth; ++current_depth)
+    for (int current_depth = 0; current_depth < MAX_DEPTH; ++current_depth)
     {
         traceRayEXT(
             topLevelAS, // acceleration structure
@@ -68,8 +68,7 @@ void main()
             );
     }
 
-    uint boolean = max_depth == payload.depth ? 1 : 0;
-    payload.color = payload.color * (1 - boolean);
+    payload.color = payload.color * (1 - payload.is_active);
 
     vec3 previous_color = imageLoad(image, ivec2(gl_LaunchIDEXT.xy)).xyz;
     previous_color *= push_constant.frames;

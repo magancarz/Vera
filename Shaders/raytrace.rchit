@@ -33,8 +33,11 @@ layout(binding = 0, set = 1) buffer MaterialsBuffer { Material data[]; } materia
 struct Vertex
 {
     vec3 position;
+    uint alignment1;
     vec3 normal;
+    uint alignment2;
     vec2 uv;
+    vec2 alignment3;
 };
 
 layout(buffer_reference, scalar) readonly buffer Vertices { Vertex v[]; };
@@ -76,15 +79,17 @@ void main()
 
     vec3 barycentric = vec3(1.0 - attribs.x - attribs.y, attribs.x, attribs.y);
 
+    vec3 geometric_normal = first_vertex.normal * barycentric.x + second_vertex.normal * barycentric.y + third_vertex.normal * barycentric.z;
+    geometric_normal = normalize(vec3(geometric_normal * gl_WorldToObjectEXT));
+
     vec3 position = first_vertex.position * barycentric.x + second_vertex.position * barycentric.y + third_vertex.position * barycentric.z;
-    vec3 geometric_normal = normalize(cross(second_vertex.position - first_vertex.position, third_vertex.position - first_vertex.position));
+    position = vec3(gl_ObjectToWorldEXT * vec4(position, 1.0));
 
     MaterialBuffer material_buffer = MaterialBuffer(object_description.material_address);
     Material material = material_buffer.m;
     vec3 material_color = material.color;
 
     payload.is_active = material.brightness == 1 ? 0 : 1;
-    payload.depth = material.brightness == 1 ? 0 : payload.depth;
 
     payload.origin = vec4(position, 1.0);
 
@@ -96,6 +101,4 @@ void main()
     float cosine_pdf_value = valueFromCosinePDF(payload.direction.xyz, w);
     float scattering_pdf = scatteringPDFFromLambertian(geometric_normal, payload.direction.xyz);
     payload.color *= material_color * scattering_pdf / cosine_pdf_value;
-
-    payload.depth += 1;
 }

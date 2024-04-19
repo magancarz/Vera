@@ -11,8 +11,11 @@
 struct Vertex
 {
     glm::vec3 position{};
+    uint32_t alignment1;
     glm::vec3 normal{};
+    uint32_t alignment2;
     glm::vec2 uv{};
+    glm::vec2 alignment3{};
 
     bool operator==(const Vertex& other) const
     {

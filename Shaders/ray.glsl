@@ -5,5 +5,4 @@ struct Ray
     vec3 color;
     int is_active;
     uint seed;
-    uint depth;
 };
