@@ -11,6 +11,7 @@
 #include "random.glsl"
 #include "cosine_pdf.glsl"
 #include "lambertian.glsl"
+#include "defines.glsl"
 
 layout(location = 0) rayPayloadInEXT Ray payload;
 layout(location = 1) rayPayloadEXT bool is_shadow;
@@ -72,6 +73,17 @@ void main()
 
     ObjectDescription object_description = object_descriptions.data[gl_InstanceCustomIndexEXT];
 
+    MaterialBuffer material_buffer = MaterialBuffer(object_description.material_address);
+    Material material = material_buffer.m;
+    vec3 material_color = material.color;
+
+    if (material.brightness > 0)
+    {
+        payload.is_active = 0;
+        payload.color *= material.color * 20;
+        return;
+    }
+
     Indices index_buffer = Indices(object_description.index_address);
     uvec3 indices = uvec3(index_buffer.i[3 * gl_PrimitiveID + 0],
                           index_buffer.i[3 * gl_PrimitiveID + 1],
@@ -90,12 +102,13 @@ void main()
     vec3 position = first_vertex.position * barycentric.x + second_vertex.position * barycentric.y + third_vertex.position * barycentric.z;
     position = vec3(gl_ObjectToWorldEXT * vec4(position, 1.0));
 
-    vec3 positionToLightDirection = normalize(vec3(0, 5.999, 0) - position);
+    vec3 random_light_position = vec3(rnd(payload.seed) - 0.5, 5.999, rnd(payload.seed) - 0.5);
+    vec3 positionToLightDirection = normalize(random_light_position - position);
     vec3 shadowRayOrigin = position;
     vec3 shadowRayDirection = positionToLightDirection;
-    float shadowRayDistance = length(vec3(0, 5.999, 0) - position) - 0.0001f;
+    float shadowRayDistance = length(random_light_position - position) - T_MIN;
 
-    uint shadowRayFlags = gl_RayFlagsTerminateOnFirstHitEXT | gl_RayFlagsOpaqueEXT | gl_RayFlagsSkipClosestHitShaderEXT;
+    const uint shadowRayFlags = gl_RayFlagsTerminateOnFirstHitEXT | gl_RayFlagsOpaqueEXT | gl_RayFlagsSkipClosestHitShaderEXT;
 
     is_shadow = true;
     traceRayEXT(
@@ -106,7 +119,7 @@ void main()
         0,
         1,
         shadowRayOrigin,
-        0.001,
+        T_MIN,
         shadowRayDirection,
         shadowRayDistance,
         1);
@@ -118,20 +131,23 @@ void main()
         return;
     }
 
-    MaterialBuffer material_buffer = MaterialBuffer(object_description.material_address);
-    Material material = material_buffer.m;
-    vec3 material_color = material.color;
-
-    payload.is_active = material.brightness == 1 ? 0 : 1;
-
     payload.origin = vec4(position, 1.0);
 
     vec3 u, v, w;
     w = geometric_normal;
     generateOrthonormalBasis(u, v, w);
-    payload.direction = vec4(generateRandomDirectionWithCosinePDF(payload.seed, u, v, w), 0.0);
+    vec4 random_cosine_direction = vec4(generateRandomDirectionWithCosinePDF(payload.seed, u, v, w), 0.0);
+    payload.direction = rnd(payload.seed) > 0.5 ? random_cosine_direction : vec4(shadowRayDirection, 0.0);
+
+    float cosine = abs(dot(payload.direction.xyz, geometric_normal));
+    cosine = cosine < 0.00000001f ? 0.00000001f : cosine;
+    float distance_squared = shadowRayDistance * shadowRayDistance;
+    const float area = 1.f;
+    float sampling_pdf_value = distance_squared / (cosine * area);
 
     float cosine_pdf_value = valueFromCosinePDF(payload.direction.xyz, w);
+
+    float final_pdf_value = (sampling_pdf_value + cosine_pdf_value) * 0.5f;
     float scattering_pdf = scatteringPDFFromLambertian(geometric_normal, payload.direction.xyz);
-    payload.color *= material_color * scattering_pdf / cosine_pdf_value;
+    payload.color *= material_color * scattering_pdf / final_pdf_value;
 }

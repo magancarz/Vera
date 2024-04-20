@@ -10,8 +10,6 @@ struct CameraUBO
 {
     glm::mat4 camera_view{};
     glm::mat4 camera_proj{};
-
-    unsigned int frame_count = 0;
 };
 
 class RayTracedRenderer : public SceneRenderer

@@ -7,6 +7,7 @@
 
 #include "ray.glsl"
 #include "random.glsl"
+#include "defines.glsl"
 
 layout(binding = 0, set = 0) uniform accelerationStructureEXT topLevelAS;
 layout(binding = 1, set = 0, rgba32f) uniform image2D image;
@@ -42,7 +43,6 @@ void main()
     vec4 direction = inverse(camera.view) * vec4(normalize(target.xyz), 0);
 
     uint rayFlags = gl_RayFlagsOpaqueEXT;
-    float tMin = 0.0001;
     float tMax = 1000.0;
 
     payload.origin = origin;
@@ -61,7 +61,7 @@ void main()
             0,              // sbtRecordStride
             0,              // missIndex
             payload.origin.xyz,     // ray origin
-            tMin,           // ray min range
+            T_MIN,           // ray min range
             payload.direction.xyz,  // ray direction
             tMax,           // ray max range
             0               // payload (location = 0)
