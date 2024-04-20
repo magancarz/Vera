@@ -2,6 +2,7 @@
 
 #include "RenderEngine/RenderingAPI/Device.h"
 #include "PushConstantRay.h"
+#include "RenderEngine/RenderingAPI/Buffer.h"
 
 class RayTracingPipeline
 {
@@ -22,10 +23,13 @@ public:
 
 private:
     void createPipeline();
+    void createShaderBindingTable();
 
     Device& device;
     VkDescriptorSetLayout descriptor_set_layout;
     VkPhysicalDeviceRayTracingPipelinePropertiesKHR ray_tracing_properties;
+
+    std::unique_ptr<Buffer> shader_binding_table;
 
     VkPipelineLayout pipelineLayoutHandle{VK_NULL_HANDLE};
     VkPipeline rayTracingPipelineHandle{VK_NULL_HANDLE};

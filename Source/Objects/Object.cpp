@@ -10,7 +10,6 @@ Object Object::createObject()
 void Object::setModel(std::shared_ptr<Model> in_model)
 {
     model = std::move(in_model);
-    createBlasInstance();
 }
 
 void Object::setMaterial(std::shared_ptr<Material> in_material)
@@ -20,9 +19,10 @@ void Object::setMaterial(std::shared_ptr<Material> in_material)
 
 void Object::createBlasInstance()
 {
-    assert(model != nullptr);
+    assert(model != nullptr && material != nullptr);
 
     blas_instance = model->createBlasInstance(transform_component.transform(), id);
+    material->assignMaterialHitGroup(blas_instance);
 }
 
 ObjectDescription Object::getObjectDescription()

@@ -6,6 +6,12 @@ Material::Material(Device& device, MaterialInfo in_material_info)
     createMaterialBuffer();
 }
 
+void Material::assignMaterialHitGroup(BlasInstance& blas_instance)
+{
+    //TODO: change it ofc
+    blas_instance.bottomLevelAccelerationStructureInstance.instanceShaderBindingTableRecordOffset = material_info.brightness > 0 ? 1 : 0;
+}
+
 void Material::createMaterialBuffer()
 {
     material_info_buffer = std::make_unique<Buffer>

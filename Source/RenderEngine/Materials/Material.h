@@ -4,6 +4,7 @@
 
 #include "RenderEngine/RenderingAPI/Buffer.h"
 #include "RenderEngine/Models/ObjectDescription.h"
+#include "RenderEngine/Models/BlasInstance.h"
 
 struct MaterialInfo
 {
@@ -15,6 +16,8 @@ class Material
 {
 public:
     Material(Device& device, MaterialInfo in_material_info);
+
+    void assignMaterialHitGroup(BlasInstance& blas_instance);
 
     void getMaterialDescription(ObjectDescription& object_description);
     bool isLightMaterial() const { return material_info.brightness > 0; }

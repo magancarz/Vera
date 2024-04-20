@@ -34,6 +34,7 @@ public:
     std::shared_ptr<Material> getMaterial() { return material; }
     bool isLightObject() { return material->isLightMaterial(); };
 
+    void createBlasInstance();
     BlasInstance* getBlasInstance() { return &blas_instance; }
     ObjectDescription getObjectDescription();
 
@@ -46,8 +47,6 @@ private:
 
     std::shared_ptr<Model> model;
     std::shared_ptr<Material> material;
-
-    void createBlasInstance();
 
     BlasInstance blas_instance{};
 };

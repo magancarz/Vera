@@ -1,6 +1,7 @@
 #include "RayTracingPipeline.h"
 #include "RenderEngine/RenderingAPI/VulkanHelper.h"
 #include "PushConstantRay.h"
+#include "RenderEngine/RenderingAPI/Buffer.h"
 
 #include <fstream>
 
@@ -10,6 +11,7 @@ RayTracingPipeline::RayTracingPipeline(Device& device, VkDescriptorSetLayout des
       ray_tracing_properties{ray_tracing_properties}
 {
     createPipeline();
+    createShaderBindingTable();
 }
 
 void RayTracingPipeline::createPipeline()
@@ -21,7 +23,6 @@ void RayTracingPipeline::createPipeline()
     push_constant_range.offset = 0;
     push_constant_range.size = sizeof(PushConstantRay);
 
-    VkResult result;
     VkPipelineLayoutCreateInfo pipelineLayoutCreateInfo = {
             .sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO,
             .pNext = NULL,
@@ -61,6 +62,30 @@ void RayTracingPipeline::createPipeline()
 
     VkShaderModule rayClosestHitShaderModuleHandle = VK_NULL_HANDLE;
     if (vkCreateShaderModule(device.getDevice(), &rayClosestHitShaderModuleCreateInfo, NULL, &rayClosestHitShaderModuleHandle) != VK_SUCCESS)
+    {
+        throw std::runtime_error("Failed to create shader module!");
+    }
+
+    ////////////////////////////
+    std::ifstream rayClosestHitLightFile("Shaders/raytrace_light.rchit.spv",
+                                    std::ios::binary | std::ios::ate);
+    std::streamsize rayClosestHitLightFileSize = rayClosestHitLightFile.tellg();
+    rayClosestHitLightFile.seekg(0, std::ios::beg);
+
+    std::vector<uint32_t> rayClosestHitLightShaderSource(rayClosestHitLightFileSize / sizeof(uint32_t));
+    rayClosestHitLightFile.read(reinterpret_cast<char *>(rayClosestHitLightShaderSource.data()), rayClosestHitLightFileSize);
+
+    rayClosestHitLightFile.close();
+
+    VkShaderModuleCreateInfo rayClosestHitLightShaderModuleCreateInfo = {
+            .sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO,
+            .pNext = NULL,
+            .flags = 0,
+            .codeSize = (uint32_t)rayClosestHitLightShaderSource.size() * sizeof(uint32_t),
+            .pCode = rayClosestHitLightShaderSource.data()};
+
+    VkShaderModule rayClosestHitLightShaderModuleHandle = VK_NULL_HANDLE;
+    if (vkCreateShaderModule(device.getDevice(), &rayClosestHitLightShaderModuleCreateInfo, NULL, &rayClosestHitLightShaderModuleHandle) != VK_SUCCESS)
     {
         throw std::runtime_error("Failed to create shader module!");
     }
@@ -155,80 +180,91 @@ void RayTracingPipeline::createPipeline()
     // =========================================================================
     // Ray Tracing Pipeline
 
-    std::vector<VkPipelineShaderStageCreateInfo>
-            pipelineShaderStageCreateInfoList = {
-            {.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO,
-                    .pNext = NULL,
-                    .flags = 0,
-                    .stage = VK_SHADER_STAGE_CLOSEST_HIT_BIT_KHR,
-                    .module = rayClosestHitShaderModuleHandle,
-                    .pName = "main",
-                    .pSpecializationInfo = NULL},
-            {.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO,
-                    .pNext = NULL,
-                    .flags = 0,
-                    .stage = VK_SHADER_STAGE_RAYGEN_BIT_KHR,
-                    .module = rayGenerateShaderModuleHandle,
-                    .pName = "main",
-                    .pSpecializationInfo = NULL},
-            {.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO,
-                    .pNext = NULL,
-                    .flags = 0,
-                    .stage = VK_SHADER_STAGE_MISS_BIT_KHR,
-                    .module = rayMissShaderModuleHandle,
-                    .pName = "main",
-                    .pSpecializationInfo = NULL},
-            {.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO,
-                    .pNext = NULL,
-                    .flags = 0,
-                    .stage = VK_SHADER_STAGE_MISS_BIT_KHR,
-                    .module = rayMissShadowShaderModuleHandle,
-                    .pName = "main",
-                    .pSpecializationInfo = NULL}};
+    enum StageIndices
+    {
+        ray_gen,
+        closest_hit_lambertian,
+        closest_hit_light,
+        miss,
+        miss_shadow,
+        shader_group_count
+    };
 
-    std::vector<VkRayTracingShaderGroupCreateInfoKHR>
-            rayTracingShaderGroupCreateInfoList = {
-            {.sType = VK_STRUCTURE_TYPE_RAY_TRACING_SHADER_GROUP_CREATE_INFO_KHR,
-                    .pNext = NULL,
-                    .type = VK_RAY_TRACING_SHADER_GROUP_TYPE_TRIANGLES_HIT_GROUP_KHR,
-                    .generalShader = VK_SHADER_UNUSED_KHR,
-                    .closestHitShader = 0,
-                    .anyHitShader = VK_SHADER_UNUSED_KHR,
-                    .intersectionShader = VK_SHADER_UNUSED_KHR,
-                    .pShaderGroupCaptureReplayHandle = NULL},
-            {.sType = VK_STRUCTURE_TYPE_RAY_TRACING_SHADER_GROUP_CREATE_INFO_KHR,
-                    .pNext = NULL,
-                    .type = VK_RAY_TRACING_SHADER_GROUP_TYPE_GENERAL_KHR,
-                    .generalShader = 1,
-                    .closestHitShader = VK_SHADER_UNUSED_KHR,
-                    .anyHitShader = VK_SHADER_UNUSED_KHR,
-                    .intersectionShader = VK_SHADER_UNUSED_KHR,
-                    .pShaderGroupCaptureReplayHandle = NULL},
-            {.sType = VK_STRUCTURE_TYPE_RAY_TRACING_SHADER_GROUP_CREATE_INFO_KHR,
-                    .pNext = NULL,
-                    .type = VK_RAY_TRACING_SHADER_GROUP_TYPE_GENERAL_KHR,
-                    .generalShader = 2,
-                    .closestHitShader = VK_SHADER_UNUSED_KHR,
-                    .anyHitShader = VK_SHADER_UNUSED_KHR,
-                    .intersectionShader = VK_SHADER_UNUSED_KHR,
-                    .pShaderGroupCaptureReplayHandle = NULL},
-            {.sType = VK_STRUCTURE_TYPE_RAY_TRACING_SHADER_GROUP_CREATE_INFO_KHR,
-                    .pNext = NULL,
-                    .type = VK_RAY_TRACING_SHADER_GROUP_TYPE_GENERAL_KHR,
-                    .generalShader = 3,
-                    .closestHitShader = VK_SHADER_UNUSED_KHR,
-                    .anyHitShader = VK_SHADER_UNUSED_KHR,
-                    .intersectionShader = VK_SHADER_UNUSED_KHR,
-                    .pShaderGroupCaptureReplayHandle = NULL}};
+    std::vector<VkPipelineShaderStageCreateInfo> pipeline_shader_stage_create_info_list;
+    pipeline_shader_stage_create_info_list.reserve(shader_group_count);
+    VkPipelineShaderStageCreateInfo stage_create_info{VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO};
+    stage_create_info.pName = "main";
+
+    stage_create_info.stage = VK_SHADER_STAGE_RAYGEN_BIT_KHR;
+    stage_create_info.module = rayGenerateShaderModuleHandle;
+    pipeline_shader_stage_create_info_list.push_back(stage_create_info);
+
+    stage_create_info.stage = VK_SHADER_STAGE_CLOSEST_HIT_BIT_KHR;
+    stage_create_info.module = rayClosestHitShaderModuleHandle;
+    pipeline_shader_stage_create_info_list.push_back(stage_create_info);
+
+    stage_create_info.stage = VK_SHADER_STAGE_CLOSEST_HIT_BIT_KHR;
+    stage_create_info.module = rayClosestHitLightShaderModuleHandle;
+    pipeline_shader_stage_create_info_list.push_back(stage_create_info);
+
+    stage_create_info.stage = VK_SHADER_STAGE_MISS_BIT_KHR;
+    stage_create_info.module = rayMissShaderModuleHandle;
+    pipeline_shader_stage_create_info_list.push_back(stage_create_info);
+
+    stage_create_info.stage = VK_SHADER_STAGE_MISS_BIT_KHR;
+    stage_create_info.module = rayMissShadowShaderModuleHandle;
+    pipeline_shader_stage_create_info_list.push_back(stage_create_info);
+
+    std::vector<VkRayTracingShaderGroupCreateInfoKHR> ray_tracing_shader_group_create_info_list;
+
+    VkRayTracingShaderGroupCreateInfoKHR ray_generate_shader_group_create_info{VK_STRUCTURE_TYPE_RAY_TRACING_SHADER_GROUP_CREATE_INFO_KHR};
+    ray_generate_shader_group_create_info.type = VK_RAY_TRACING_SHADER_GROUP_TYPE_GENERAL_KHR;
+    ray_generate_shader_group_create_info.generalShader = ray_gen;
+    ray_generate_shader_group_create_info.closestHitShader = VK_SHADER_UNUSED_KHR;
+    ray_generate_shader_group_create_info.anyHitShader = VK_SHADER_UNUSED_KHR;
+    ray_generate_shader_group_create_info.intersectionShader = VK_SHADER_UNUSED_KHR;
+    ray_tracing_shader_group_create_info_list.push_back(ray_generate_shader_group_create_info);
+
+    VkRayTracingShaderGroupCreateInfoKHR closest_hit_lambertian_shader_group_create_info{VK_STRUCTURE_TYPE_RAY_TRACING_SHADER_GROUP_CREATE_INFO_KHR};
+    closest_hit_lambertian_shader_group_create_info.type = VK_RAY_TRACING_SHADER_GROUP_TYPE_TRIANGLES_HIT_GROUP_KHR;
+    closest_hit_lambertian_shader_group_create_info.closestHitShader = closest_hit_lambertian;
+    closest_hit_lambertian_shader_group_create_info.generalShader = VK_SHADER_UNUSED_KHR;
+    closest_hit_lambertian_shader_group_create_info.anyHitShader = VK_SHADER_UNUSED_KHR;
+    closest_hit_lambertian_shader_group_create_info.intersectionShader = VK_SHADER_UNUSED_KHR;
+    ray_tracing_shader_group_create_info_list.push_back(closest_hit_lambertian_shader_group_create_info);
+
+    VkRayTracingShaderGroupCreateInfoKHR closest_hit_light_shader_group_create_info{VK_STRUCTURE_TYPE_RAY_TRACING_SHADER_GROUP_CREATE_INFO_KHR};
+    closest_hit_light_shader_group_create_info.type = VK_RAY_TRACING_SHADER_GROUP_TYPE_TRIANGLES_HIT_GROUP_KHR;
+    closest_hit_light_shader_group_create_info.closestHitShader = closest_hit_light;
+    closest_hit_light_shader_group_create_info.generalShader = VK_SHADER_UNUSED_KHR;
+    closest_hit_light_shader_group_create_info.anyHitShader = VK_SHADER_UNUSED_KHR;
+    closest_hit_light_shader_group_create_info.intersectionShader = VK_SHADER_UNUSED_KHR;
+    ray_tracing_shader_group_create_info_list.push_back(closest_hit_light_shader_group_create_info);
+
+    VkRayTracingShaderGroupCreateInfoKHR miss_shader_group_create_info{VK_STRUCTURE_TYPE_RAY_TRACING_SHADER_GROUP_CREATE_INFO_KHR};
+    miss_shader_group_create_info.type = VK_RAY_TRACING_SHADER_GROUP_TYPE_GENERAL_KHR;
+    miss_shader_group_create_info.generalShader = miss;
+    miss_shader_group_create_info.closestHitShader = VK_SHADER_UNUSED_KHR;
+    miss_shader_group_create_info.anyHitShader = VK_SHADER_UNUSED_KHR;
+    miss_shader_group_create_info.intersectionShader = VK_SHADER_UNUSED_KHR;
+    ray_tracing_shader_group_create_info_list.push_back(miss_shader_group_create_info);
+
+    VkRayTracingShaderGroupCreateInfoKHR miss_shadow_shader_group_create_info{VK_STRUCTURE_TYPE_RAY_TRACING_SHADER_GROUP_CREATE_INFO_KHR};
+    miss_shadow_shader_group_create_info.type = VK_RAY_TRACING_SHADER_GROUP_TYPE_GENERAL_KHR;
+    miss_shadow_shader_group_create_info.generalShader = miss_shadow;
+    miss_shadow_shader_group_create_info.closestHitShader = VK_SHADER_UNUSED_KHR;
+    miss_shadow_shader_group_create_info.anyHitShader = VK_SHADER_UNUSED_KHR;
+    miss_shadow_shader_group_create_info.intersectionShader = VK_SHADER_UNUSED_KHR;
+    ray_tracing_shader_group_create_info_list.push_back(miss_shadow_shader_group_create_info);
 
     VkRayTracingPipelineCreateInfoKHR rayTracingPipelineCreateInfo = {
             .sType = VK_STRUCTURE_TYPE_RAY_TRACING_PIPELINE_CREATE_INFO_KHR,
             .pNext = NULL,
             .flags = 0,
-            .stageCount = static_cast<uint32_t>(pipelineShaderStageCreateInfoList.size()),
-            .pStages = pipelineShaderStageCreateInfoList.data(),
-            .groupCount = static_cast<uint32_t>(rayTracingShaderGroupCreateInfoList.size()),
-            .pGroups = rayTracingShaderGroupCreateInfoList.data(),
+            .stageCount = static_cast<uint32_t>(pipeline_shader_stage_create_info_list.size()),
+            .pStages = pipeline_shader_stage_create_info_list.data(),
+            .groupCount = static_cast<uint32_t>(ray_tracing_shader_group_create_info_list.size()),
+            .pGroups = ray_tracing_shader_group_create_info_list.data(),
             .maxPipelineRayRecursionDepth = 2,
             .pLibraryInfo = NULL,
             .pLibraryInterface = NULL,
@@ -243,116 +279,78 @@ void RayTracingPipeline::createPipeline()
     {
         throw std::runtime_error("Failed to create ray tracing pipeline!");
     }
+}
+
+//TODO: put it in some helper function
+template <class integral>
+constexpr integral align_up(integral x, size_t a) noexcept
+{
+    return integral((x + (integral(a) - 1)) & ~integral(a - 1));
+}
+
+void RayTracingPipeline::createShaderBindingTable()
+{
+    uint32_t miss_count = 2;
+    uint32_t hit_count = 2;
+    uint32_t handle_count = 1 + hit_count + miss_count;
+    uint32_t handle_size  = ray_tracing_properties.shaderGroupHandleSize;
+
+    uint32_t handle_size_aligned = align_up(handle_size, ray_tracing_properties.shaderGroupHandleAlignment);
 
     VkDeviceSize progSize = ray_tracing_properties.shaderGroupBaseAlignment;
+    rgenShaderBindingTable.stride = align_up(handle_size_aligned, ray_tracing_properties.shaderGroupBaseAlignment);
+    rgenShaderBindingTable.size = rgenShaderBindingTable.stride;
 
-    VkDeviceSize shaderBindingTableSize = progSize * 4;
+    rchitShaderBindingTable.stride = handle_size_aligned;
+    rchitShaderBindingTable.size = align_up(hit_count * handle_size_aligned, ray_tracing_properties.shaderGroupBaseAlignment);
 
-    auto queue_index = device.findPhysicalQueueFamilies().graphicsFamily;
-    VkBufferCreateInfo shaderBindingTableBufferCreateInfo = {
-            .sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO,
-            .pNext = NULL,
-            .flags = 0,
-            .size = shaderBindingTableSize,
-            .usage = VK_BUFFER_USAGE_SHADER_BINDING_TABLE_BIT_KHR |
-                     VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT,
-            .sharingMode = VK_SHARING_MODE_EXCLUSIVE,
-            .queueFamilyIndexCount = 1,
-            .pQueueFamilyIndices = &queue_index};
+    rmissShaderBindingTable.stride = handle_size_aligned;
+    rmissShaderBindingTable.size = align_up(miss_count * handle_size_aligned, ray_tracing_properties.shaderGroupBaseAlignment);
 
-    VkBuffer shaderBindingTableBufferHandle = VK_NULL_HANDLE;
+    uint32_t dataSize = handle_count * handle_size;
+    std::vector<uint8_t> handles(dataSize);
+    auto result = pvkGetRayTracingShaderGroupHandlesKHR(device.getDevice(), rayTracingPipelineHandle, 0, handle_count, dataSize, handles.data());
+    assert(result == VK_SUCCESS);
 
-    if (vkCreateBuffer(device.getDevice(), &shaderBindingTableBufferCreateInfo,
-                       NULL, &shaderBindingTableBufferHandle) != VK_SUCCESS)
+    VkDeviceSize sbtSize = rgenShaderBindingTable.size + rchitShaderBindingTable.size + rmissShaderBindingTable.size + callableShaderBindingTable.size;
+    shader_binding_table = std::make_unique<Buffer>
+    (
+            device,
+            sbtSize,
+            1,
+            VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT | VK_BUFFER_USAGE_SHADER_BINDING_TABLE_BIT_KHR,
+            VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT
+    );
+
+    VkBufferDeviceAddressInfo info{VK_STRUCTURE_TYPE_BUFFER_DEVICE_ADDRESS_INFO, nullptr, shader_binding_table->getBuffer()};
+    VkDeviceAddress sbtAddress = vkGetBufferDeviceAddress(device.getDevice(), &info);
+    rgenShaderBindingTable.deviceAddress = sbtAddress;
+    rchitShaderBindingTable.deviceAddress = sbtAddress + rgenShaderBindingTable.size;
+    rmissShaderBindingTable.deviceAddress = sbtAddress + rgenShaderBindingTable.size + rchitShaderBindingTable.size;
+
+    auto get_handle = [&] (uint32_t i) { return handles.data() + i * handle_size; };
+    shader_binding_table->map();
+    auto sbt_buffer = reinterpret_cast<uint8_t*>(shader_binding_table->getMappedMemory());
+    uint8_t* data{nullptr};
+    uint32_t handle_idx{0};
+
+    data = sbt_buffer;
+    memcpy(data, get_handle(handle_idx++), handle_size);
+
+    data = sbt_buffer + rgenShaderBindingTable.size;
+    for(uint32_t c = 0; c < hit_count; ++c)
     {
-        throw std::runtime_error("Failed to create buffer");
+        memcpy(data, get_handle(handle_idx++), handle_size);
+        data += rchitShaderBindingTable.stride;
     }
 
-    VkMemoryRequirements shaderBindingTableMemoryRequirements;
-    vkGetBufferMemoryRequirements(device.getDevice(), shaderBindingTableBufferHandle,
-                                  &shaderBindingTableMemoryRequirements);
-
-    uint32_t shaderBindingTableMemoryTypeIndex = device.findMemoryType(shaderBindingTableMemoryRequirements.memoryTypeBits, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT);
-
-    VkMemoryAllocateFlagsInfo memoryAllocateFlagsInfo = {
-            .sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_FLAGS_INFO,
-            .pNext = NULL,
-            .flags = VK_MEMORY_ALLOCATE_DEVICE_ADDRESS_BIT,
-            .deviceMask = 0};
-
-    VkMemoryAllocateInfo shaderBindingTableMemoryAllocateInfo = {
-            .sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO,
-            .pNext = &memoryAllocateFlagsInfo,
-            .allocationSize = shaderBindingTableMemoryRequirements.size,
-            .memoryTypeIndex = shaderBindingTableMemoryTypeIndex};
-
-    VkDeviceMemory shaderBindingTableDeviceMemoryHandle = VK_NULL_HANDLE;
-    if (vkAllocateMemory(device.getDevice(), &shaderBindingTableMemoryAllocateInfo,
-                         NULL, &shaderBindingTableDeviceMemoryHandle) != VK_SUCCESS) {
-        throw std::runtime_error("Failed to allocate memory");
+    data = sbt_buffer + rgenShaderBindingTable.size + rchitShaderBindingTable.size;
+    for(uint32_t c = 0; c < miss_count; ++c)
+    {
+        memcpy(data, get_handle(handle_idx++), handle_size);
+        data += rmissShaderBindingTable.stride;
     }
-
-    if (vkBindBufferMemory(device.getDevice(), shaderBindingTableBufferHandle,
-                           shaderBindingTableDeviceMemoryHandle, 0) != VK_SUCCESS) {
-        throw std::runtime_error("Failed to bind buffer memory");
-    }
-
-    char *shaderHandleBuffer = new char[shaderBindingTableSize];
-    if (pvkGetRayTracingShaderGroupHandlesKHR(
-            device.getDevice(), rayTracingPipelineHandle, 0, 4, shaderBindingTableSize,
-            shaderHandleBuffer) != VK_SUCCESS) {
-        throw std::runtime_error("Failed to get ray tracing shader group handles");
-    }
-
-    void *hostShaderBindingTableMemoryBuffer;
-    result = vkMapMemory(device.getDevice(), shaderBindingTableDeviceMemoryHandle, 0,
-                         shaderBindingTableSize, 0,
-                         &hostShaderBindingTableMemoryBuffer);
-
-    for (uint32_t x = 0; x < 4; x++) {
-        memcpy(hostShaderBindingTableMemoryBuffer,
-               shaderHandleBuffer + x * ray_tracing_properties
-                       .shaderGroupHandleSize,
-               ray_tracing_properties.shaderGroupHandleSize);
-
-        hostShaderBindingTableMemoryBuffer =
-                reinterpret_cast<char *>(hostShaderBindingTableMemoryBuffer) +
-                        ray_tracing_properties.shaderGroupBaseAlignment;
-    }
-
-    if (result != VK_SUCCESS) {
-        throw std::runtime_error("Failed to map memory");
-    }
-
-    vkUnmapMemory(device.getDevice(), shaderBindingTableDeviceMemoryHandle);
-
-    VkBufferDeviceAddressInfo shaderBindingTableBufferDeviceAddressInfo = {
-            .sType = VK_STRUCTURE_TYPE_BUFFER_DEVICE_ADDRESS_INFO,
-            .pNext = NULL,
-            .buffer = shaderBindingTableBufferHandle};
-
-    shaderBindingTableBufferDeviceAddress = vkGetBufferDeviceAddress(
-            device.getDevice(),
-            &shaderBindingTableBufferDeviceAddressInfo);
-
-    hitGroupOffset = 0u * progSize;
-    rayGenOffset = 1u * progSize;
-    missOffset = 2u * progSize;
-
-    rchitShaderBindingTable = VkStridedDeviceAddressRegionKHR{
-            .deviceAddress = shaderBindingTableBufferDeviceAddress + hitGroupOffset,
-            .stride = progSize,
-            .size = progSize};
-
-    rgenShaderBindingTable = VkStridedDeviceAddressRegionKHR{
-            .deviceAddress = shaderBindingTableBufferDeviceAddress + rayGenOffset,
-            .stride = progSize,
-            .size = progSize};
-
-    rmissShaderBindingTable = VkStridedDeviceAddressRegionKHR{
-            .deviceAddress = shaderBindingTableBufferDeviceAddress + missOffset,
-            .stride = progSize,
-            .size = progSize * 2};
+    shader_binding_table->unmap();
 }
 
 void RayTracingPipeline::bind(VkCommandBuffer command_buffer)

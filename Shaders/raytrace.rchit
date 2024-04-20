@@ -72,13 +72,6 @@ void main()
     Material material = material_buffer.m;
     vec3 material_color = material.color;
 
-    if (material.brightness > 0)
-    {
-        payload.is_active = 0;
-        payload.color *= material.color * material.brightness;
-        return;
-    }
-
     Indices index_buffer = Indices(object_description.index_address);
     uvec3 indices = uvec3(index_buffer.i[3 * gl_PrimitiveID + 0],
                           index_buffer.i[3 * gl_PrimitiveID + 1],

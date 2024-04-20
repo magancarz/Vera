@@ -25,6 +25,7 @@ void World::loadObjects(Device& device, const std::vector<std::shared_ptr<Materi
     bottom_plane->transform_component.scale = glm::vec3{3.f};
     bottom_plane->setModel(plane_model);
     bottom_plane->setMaterial(white_lambertian);
+    bottom_plane->createBlasInstance();
     objects.emplace(bottom_plane->getID(), std::move(bottom_plane));
 
     auto top_plane = std::make_shared<Object>(Object::createObject());
@@ -33,6 +34,7 @@ void World::loadObjects(Device& device, const std::vector<std::shared_ptr<Materi
     top_plane->transform_component.scale = glm::vec3{3.f};
     top_plane->setModel(plane_model);
     top_plane->setMaterial(white_lambertian);
+    top_plane->createBlasInstance();
     objects.emplace(top_plane->getID(), std::move(top_plane));
 
 //    auto front_plane = std::make_shared<Object>(Object::createObject());
@@ -43,6 +45,7 @@ void World::loadObjects(Device& device, const std::vector<std::shared_ptr<Materi
 //    front_plane->transform_component.scale = glm::vec3{3.f};
 //    front_plane->setModel(plane_model);
 //    front_plane->setMaterial(white_lambertian);
+//    front_plane->createBlasInstance();
 //    objects.emplace(front_plane->getID(), std::move(front_plane));
 
     auto back_plane = std::make_shared<Object>(Object::createObject());
@@ -52,6 +55,7 @@ void World::loadObjects(Device& device, const std::vector<std::shared_ptr<Materi
     back_plane->transform_component.scale = glm::vec3{3.f};
     back_plane->setModel(plane_model);
     back_plane->setMaterial(white_lambertian);
+    back_plane->createBlasInstance();
     objects.emplace(back_plane->getID(), std::move(back_plane));
 
     auto left_plane = std::make_shared<Object>(Object::createObject());
@@ -62,6 +66,7 @@ void World::loadObjects(Device& device, const std::vector<std::shared_ptr<Materi
     left_plane->transform_component.scale = glm::vec3{3.f};
     left_plane->setModel(plane_model);
     left_plane->setMaterial(red_lambertian);
+    left_plane->createBlasInstance();
     objects.emplace(left_plane->getID(), std::move(left_plane));
 
     auto right_plane = std::make_shared<Object>(Object::createObject());
@@ -72,6 +77,7 @@ void World::loadObjects(Device& device, const std::vector<std::shared_ptr<Materi
     right_plane->transform_component.scale = glm::vec3{3.f};
     right_plane->setModel(plane_model);
     right_plane->setMaterial(green_lambertian);
+    right_plane->createBlasInstance();
     objects.emplace(right_plane->getID(), std::move(right_plane));
 
     auto light_plane = std::make_shared<Object>(Object::createObject());
@@ -79,6 +85,7 @@ void World::loadObjects(Device& device, const std::vector<std::shared_ptr<Materi
     light_plane->transform_component.scale = glm::vec3{.5f};
     light_plane->setModel(plane_model);
     light_plane->setMaterial(diffuse_light);
+    light_plane->createBlasInstance();
     objects.emplace(light_plane->getID(), std::move(light_plane));
 
     auto dragon = std::make_shared<Object>(Object::createObject());
@@ -86,6 +93,7 @@ void World::loadObjects(Device& device, const std::vector<std::shared_ptr<Materi
     dragon->transform_component.scale = glm::vec3{0.25f};
     dragon->setModel(cube_model);
     dragon->setMaterial(white_lambertian);
+    dragon->createBlasInstance();
     objects.emplace(dragon->getID(), std::move(dragon));
 }
 
