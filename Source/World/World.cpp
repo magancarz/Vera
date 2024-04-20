@@ -88,11 +88,12 @@ void World::loadObjects(Device& device, const std::vector<std::shared_ptr<Materi
     light_plane->createBlasInstance();
     objects.emplace(light_plane->getID(), std::move(light_plane));
 
+    auto specular = std::make_shared<Material>(device, MaterialInfo{.color = glm::vec3{1.f, 1.f, 1.f}, .fuzziness = 0.5f});
     auto dragon = std::make_shared<Object>(Object::createObject());
     dragon->transform_component.translation.y = 2.f;
     dragon->transform_component.scale = glm::vec3{0.25f};
     dragon->setModel(cube_model);
-    dragon->setMaterial(white_lambertian);
+    dragon->setMaterial(specular);
     dragon->createBlasInstance();
     objects.emplace(dragon->getID(), std::move(dragon));
 }

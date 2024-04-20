@@ -5,6 +5,7 @@ target_sources(Vera-Lib PRIVATE
         Model.cpp
         Buffer.cpp
         Descriptors.cpp
-        VulkanHelper.cpp)
+        VulkanHelper.cpp
+        ShaderModule.cpp)
 
 add_subdirectory(Textures)

@@ -3,6 +3,7 @@
 #include "RenderEngine/RenderingAPI/Device.h"
 #include "PushConstantRay.h"
 #include "RenderEngine/RenderingAPI/Buffer.h"
+#include "RenderEngine/RenderingAPI/ShaderModule.h"
 
 class RayTracingPipeline
 {

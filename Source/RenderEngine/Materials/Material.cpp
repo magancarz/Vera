@@ -9,7 +9,16 @@ Material::Material(Device& device, MaterialInfo in_material_info)
 void Material::assignMaterialHitGroup(BlasInstance& blas_instance)
 {
     //TODO: change it ofc
-    blas_instance.bottomLevelAccelerationStructureInstance.instanceShaderBindingTableRecordOffset = material_info.brightness > 0 ? 1 : 0;
+    uint32_t shader_off = 0;
+    if (material_info.brightness > 0)
+    {
+        shader_off = 1;
+    }
+    else if (material_info.fuzziness >= 0)
+    {
+        shader_off = 2;
+    }
+    blas_instance.bottomLevelAccelerationStructureInstance.instanceShaderBindingTableRecordOffset = shader_off;
 }
 
 void Material::createMaterialBuffer()

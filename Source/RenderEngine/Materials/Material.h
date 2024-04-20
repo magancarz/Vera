@@ -10,6 +10,7 @@ struct MaterialInfo
 {
     glm::vec3 color{};
     unsigned int brightness{0};
+    alignas(16) float fuzziness{-1};
 };
 
 class Material

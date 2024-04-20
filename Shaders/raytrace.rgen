@@ -46,8 +46,9 @@ void main()
     payload.color = vec3(1.0, 1.0, 1.0);
     payload.is_active = 1;
     payload.seed = seed;
+    payload.depth = 0;
 
-    for (int current_depth = 0; current_depth < MAX_DEPTH; ++current_depth)
+    for (; payload.depth < MAX_DEPTH;)
     {
         traceRayEXT(
             topLevelAS, // acceleration structure
@@ -62,6 +63,11 @@ void main()
             T_MAX,           // ray max range
             0               // payload (location = 0)
             );
+
+        if (payload.is_active == 0)
+        {
+            break;
+        }
     }
 
     payload.color = payload.color * (1 - payload.is_active);
