@@ -15,7 +15,7 @@
 #include "RenderEngine/Models/RayTracingAccelerationStructureBuilder.h"
 
 Model::Model(Device& device, const Model::Builder& builder)
-        : device{device}
+        : device{device}, surface_area{builder.area}
 {
     createVertexBuffers(builder.vertices);
     createIndexBuffers(builder.indices);
@@ -244,6 +244,15 @@ void Model::Builder::loadModel(const std::string& filepath)
             indices.push_back(unique_vertices[vertex]);
         }
     }
+
+    for (size_t i = 0; i < indices.size(); i += 3)
+    {
+        Vertex first_vertex = vertices[indices[i + 0]];
+        Vertex second_vertex = vertices[indices[i + 1]];
+        Vertex third_vertex = vertices[indices[i + 2]];
+
+        area += glm::length(glm::cross(glm::vec3{second_vertex.position - first_vertex.position}, glm::vec3{third_vertex.position - first_vertex.position})) / 2.f;
+    }
 }
 
 BlasInstance Model::createBlasInstance(const glm::mat4& transform, uint32_t id)
@@ -278,4 +287,5 @@ void Model::getModelDescription(ObjectDescription& object_description) const
     object_description.vertex_address = vertex_buffer->getBufferDeviceAddress();
     object_description.index_address = index_buffer->getBufferDeviceAddress();
     object_description.num_of_triangles = index_count / 3;
+    object_description.surface_area = surface_area;
 }

@@ -224,6 +224,7 @@ void RayTracedRenderer::createLightIndicesBuffer()
         }
         ++i;
     }
+    number_of_lights = light_indices.size();
     light_indices_buffer = std::make_unique<Buffer>
     (
             device,
@@ -241,7 +242,7 @@ void RayTracedRenderer::createDescriptors()
             .setMaxSets(2)
             .addPoolSize(VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_KHR, 1)
             .addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1)
-            .addPoolSize(VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 4)
+            .addPoolSize(VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 3)
             .addPoolSize(VK_DESCRIPTOR_TYPE_STORAGE_IMAGE, 1)
             .build();
 
@@ -250,6 +251,7 @@ void RayTracedRenderer::createDescriptors()
             .addBinding(1, VK_DESCRIPTOR_TYPE_STORAGE_IMAGE, VK_SHADER_STAGE_RAYGEN_BIT_KHR)
             .addBinding(2, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_RAYGEN_BIT_KHR | VK_SHADER_STAGE_CLOSEST_HIT_BIT_KHR)
             .addBinding(3, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, VK_SHADER_STAGE_CLOSEST_HIT_BIT_KHR)
+            .addBinding(4, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, VK_SHADER_STAGE_CLOSEST_HIT_BIT_KHR)
             .build();
 
     VkWriteDescriptorSetAccelerationStructureKHR
@@ -261,6 +263,7 @@ void RayTracedRenderer::createDescriptors()
 
     auto camera_buffer_descriptor_info = camera_uniform_buffer->descriptorInfo();
     auto object_descriptions_buffer_descriptor_info = object_descriptions_buffer->descriptorInfo();
+    auto light_indices_descriptor_info = light_indices_buffer->descriptorInfo();
 
     VkDescriptorImageInfo rayTraceImageDescriptorInfo = {
             .sampler = VK_NULL_HANDLE,
@@ -272,6 +275,7 @@ void RayTracedRenderer::createDescriptors()
             .writeImage(1, &rayTraceImageDescriptorInfo)
             .writeBuffer(2, &camera_buffer_descriptor_info)
             .writeBuffer(3, &object_descriptions_buffer_descriptor_info)
+            .writeBuffer(4, &light_indices_descriptor_info)
             .build(descriptor_set_handle);
 }
 
@@ -295,6 +299,7 @@ void RayTracedRenderer::renderScene(FrameInfo& frame_info)
     push_constant_ray.time = std::chrono::system_clock::now().time_since_epoch().count();
     current_number_of_frames = frame_info.player_moved ? 0 : current_number_of_frames;
     push_constant_ray.frames = current_number_of_frames;
+    push_constant_ray.number_of_lights = number_of_lights;
     ray_tracing_pipeline->pushConstants(frame_info.command_buffer, push_constant_ray);
 
     pvkCmdTraceRaysKHR(frame_info.command_buffer,

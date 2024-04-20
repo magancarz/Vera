@@ -17,7 +17,7 @@ void RayTracingPipeline::createPipeline()
     std::vector<VkDescriptorSetLayout> descriptorSetLayoutHandleList = {descriptor_set_layout};
 
     VkPushConstantRange push_constant_range{};
-    push_constant_range.stageFlags = VK_SHADER_STAGE_RAYGEN_BIT_KHR;
+    push_constant_range.stageFlags = VK_SHADER_STAGE_RAYGEN_BIT_KHR | VK_SHADER_STAGE_CLOSEST_HIT_BIT_KHR | VK_SHADER_STAGE_MISS_BIT_KHR;
     push_constant_range.offset = 0;
     push_constant_range.size = sizeof(PushConstantRay);
 
@@ -378,7 +378,7 @@ void RayTracingPipeline::pushConstants(VkCommandBuffer command_buffer, const Pus
     vkCmdPushConstants(
             command_buffer,
             pipelineLayoutHandle,
-            VK_SHADER_STAGE_RAYGEN_BIT_KHR,
+            VK_SHADER_STAGE_RAYGEN_BIT_KHR | VK_SHADER_STAGE_CLOSEST_HIT_BIT_KHR | VK_SHADER_STAGE_MISS_BIT_KHR,
             0,
             sizeof(PushConstantRay),
             &push_constant_ray);

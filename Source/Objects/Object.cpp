@@ -25,10 +25,12 @@ void Object::createBlasInstance()
     blas_instance = model->createBlasInstance(transform_component.transform(), id);
 }
 
-ObjectDescription Object::getObjectDescription() const
+ObjectDescription Object::getObjectDescription()
 {
     ObjectDescription object_description{};
     model->getModelDescription(object_description);
     material->getMaterialDescription(object_description);
+    object_description.surface_area *= transform_component.scale.x * transform_component.scale.x;
+    object_description.object_to_world = transform_component.transform();
     return object_description;
 }

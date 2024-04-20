@@ -1,7 +1,5 @@
 #version 460
 
-#define MAX_DEPTH 2
-
 #extension GL_EXT_ray_tracing : require
 #extension GL_GOOGLE_include_directive : enable
 
@@ -15,14 +13,13 @@ layout(binding = 2, set = 0) uniform Camera
 {
     mat4 view;
     mat4 proj;
-
-    uint frameCount;
 } camera;
 
 layout(push_constant) uniform PushConstantRay
 {
     uint time;
     uint frames;
+    uint number_of_lights;
 } push_constant;
 
 layout(location = 0) rayPayloadEXT Ray payload;
@@ -43,7 +40,6 @@ void main()
     vec4 direction = inverse(camera.view) * vec4(normalize(target.xyz), 0);
 
     uint rayFlags = gl_RayFlagsOpaqueEXT;
-    float tMax = 1000.0;
 
     payload.origin = origin;
     payload.direction = direction;
@@ -63,7 +59,7 @@ void main()
             payload.origin.xyz,     // ray origin
             T_MIN,           // ray min range
             payload.direction.xyz,  // ray direction
-            tMax,           // ray max range
+            T_MAX,           // ray max range
             0               // payload (location = 0)
             );
     }

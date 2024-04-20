@@ -28,12 +28,13 @@ struct ObjectDescription
     uint64_t index_address;
     uint64_t material_address;
     uint64_t num_of_triangles;
+    mat4 object_to_world;
+    float surface_area;
 };
 
 layout(binding = 0, set = 0) uniform accelerationStructureEXT topLevelAS;
 layout(binding = 3, set = 0) buffer ObjectDescriptions { ObjectDescription data[]; } object_descriptions;
-
-layout(binding = 0, set = 1) buffer MaterialsBuffer { Material data[]; } materials;
+layout(binding = 4, set = 0) buffer LightIndices { uint l[]; } light_indices;
 
 struct Vertex
 {
@@ -48,21 +49,15 @@ struct Vertex
 layout(buffer_reference, scalar) readonly buffer Vertices { Vertex v[]; };
 layout(buffer_reference, scalar) readonly buffer Indices { uint i[]; };
 layout(buffer_reference, scalar) readonly buffer MaterialBuffer { Material m; };
-layout(buffer_reference, scalar, buffer_reference_align = 4) readonly buffer LightIndices { uint l[]; };
+
+layout(push_constant) uniform PushConstantRay
+{
+    uint time;
+    uint frames;
+    uint number_of_lights;
+} push_constant;
 
 hitAttributeEXT vec3 attribs;
-
-vec3 randomInHemisphere(uint seed, vec3 normal)
-{
-    float x = rnd(seed) * 2.0 - 1.0;
-    float y = rnd(seed) * 2.0 - 1.0;
-    float z = rnd(seed) * 2.0 - 1.0;
-
-    vec3 random = vec3(x, y, z);
-    random = normalize(random);
-    random *= sign(dot(random, normal));
-    return random;
-}
 
 void main()
 {
@@ -80,7 +75,7 @@ void main()
     if (material.brightness > 0)
     {
         payload.is_active = 0;
-        payload.color *= material.color * 20;
+        payload.color *= material.color * material.brightness;
         return;
     }
 
@@ -97,16 +92,43 @@ void main()
     vec3 barycentric = vec3(1.0 - attribs.x - attribs.y, attribs.x, attribs.y);
 
     vec3 geometric_normal = first_vertex.normal * barycentric.x + second_vertex.normal * barycentric.y + third_vertex.normal * barycentric.z;
-    geometric_normal = normalize(vec3(geometric_normal * gl_WorldToObjectEXT));
+    geometric_normal = normalize(geometric_normal);
 
     vec3 position = first_vertex.position * barycentric.x + second_vertex.position * barycentric.y + third_vertex.position * barycentric.z;
     position = vec3(gl_ObjectToWorldEXT * vec4(position, 1.0));
 
-    vec3 random_light_position = vec3(rnd(payload.seed) - 0.5, 5.999, rnd(payload.seed) - 0.5);
-    vec3 positionToLightDirection = normalize(random_light_position - position);
+    ObjectDescription random_light = object_descriptions.data[light_indices.l[uint(floor(rnd(payload.seed) * float(push_constant.number_of_lights)))]];
+    Indices light_index_buffer = Indices(random_light.index_address);
+
+    uint light_random_primitive = uint(floor(rnd(payload.seed) * float(random_light.num_of_triangles)));
+
+    uvec3 light_indices = uvec3(light_index_buffer.i[3 * light_random_primitive + 0],
+                                light_index_buffer.i[3 * light_random_primitive + 1],
+                                light_index_buffer.i[3 * light_random_primitive + 2]);
+
+    Vertices light_vertices = Vertices(random_light.vertex_address);
+    Vertex light_first_vertex = light_vertices.v[light_indices.x];
+    Vertex light_second_vertex = light_vertices.v[light_indices.y];
+    Vertex light_third_vertex = light_vertices.v[light_indices.z];
+
+    vec2 uv = vec2(rnd(payload.seed), rnd(payload.seed));
+    if (uv.x + uv.y > 1.0f)
+    {
+        uv.x = 1.0f - uv.x;
+        uv.y = 1.0f - uv.y;
+    }
+
+    vec3 light_barycentric = vec3(1.0 - uv.x - uv.y, uv.x, uv.y);
+    vec3 light_normal = light_first_vertex.normal * light_barycentric.x + light_second_vertex.normal * light_barycentric.y + light_third_vertex.normal * light_barycentric.z;
+    light_normal = normalize(light_normal);
+
+    vec3 light_position = light_first_vertex.position * light_barycentric.x + light_second_vertex.position * light_barycentric.y + light_third_vertex.position * light_barycentric.z;
+    light_position = vec3(random_light.object_to_world * vec4(light_position, 1.0));
+
+    vec3 positionToLightDirection = normalize(light_position - position);
     vec3 shadowRayOrigin = position;
     vec3 shadowRayDirection = positionToLightDirection;
-    float shadowRayDistance = length(random_light_position - position) - T_MIN;
+    float shadowRayDistance = length(light_position - position) - T_MIN;
 
     const uint shadowRayFlags = gl_RayFlagsTerminateOnFirstHitEXT | gl_RayFlagsOpaqueEXT | gl_RayFlagsSkipClosestHitShaderEXT;
 
@@ -139,11 +161,10 @@ void main()
     vec4 random_cosine_direction = vec4(generateRandomDirectionWithCosinePDF(payload.seed, u, v, w), 0.0);
     payload.direction = rnd(payload.seed) > 0.5 ? random_cosine_direction : vec4(shadowRayDirection, 0.0);
 
-    float cosine = abs(dot(payload.direction.xyz, geometric_normal));
+    float cosine = abs(dot(payload.direction.xyz, light_normal));
     cosine = cosine < 0.00000001f ? 0.00000001f : cosine;
     float distance_squared = shadowRayDistance * shadowRayDistance;
-    const float area = 1.f;
-    float sampling_pdf_value = distance_squared / (cosine * area);
+    float sampling_pdf_value = distance_squared / (cosine * random_light.surface_area);
 
     float cosine_pdf_value = valueFromCosinePDF(payload.direction.xyz, w);
 

@@ -15,6 +15,7 @@ public:
     {
         std::vector<Vertex> vertices{};
         std::vector<uint32_t> indices{};
+        float area;
 
         void loadModel(const std::string& filepath);
     };
@@ -38,6 +39,8 @@ public:
 
 private:
     Device& device;
+
+    float surface_area{0.f};
 
     void createVertexBuffers(const std::vector<Vertex>& vertices);
 

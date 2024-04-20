@@ -47,6 +47,7 @@ private:
     void createLightIndicesBuffer();
 
     std::unique_ptr<Buffer> light_indices_buffer;
+    uint32_t number_of_lights{0};
 
     void createDescriptors();
 

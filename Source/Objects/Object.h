@@ -35,7 +35,7 @@ public:
     bool isLightObject() { return material->isLightMaterial(); };
 
     BlasInstance* getBlasInstance() { return &blas_instance; }
-    ObjectDescription getObjectDescription() const;
+    ObjectDescription getObjectDescription();
 
     TransformComponent transform_component;
 
