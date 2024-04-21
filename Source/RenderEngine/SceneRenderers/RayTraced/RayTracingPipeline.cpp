@@ -46,6 +46,7 @@ void RayTracingPipeline::createPipeline()
         closest_hit_lambertian,
         closest_hit_light,
         closest_hit_specular,
+        closest_hit_dielectric,
         miss,
         miss_shadow,
         shader_group_count
@@ -74,6 +75,11 @@ void RayTracingPipeline::createPipeline()
     ShaderModule closest_hit_specular_shader_module{device, "Shaders/raytrace_specular.rchit.spv"};
     stage_create_info.stage = VK_SHADER_STAGE_CLOSEST_HIT_BIT_KHR;
     stage_create_info.module = closest_hit_specular_shader_module.getShaderModule();
+    pipeline_shader_stage_create_info_list.push_back(stage_create_info);
+
+    ShaderModule closest_hit_dielectric_shader_module{device, "Shaders/raytrace_dielectric.rchit.spv"};
+    stage_create_info.stage = VK_SHADER_STAGE_CLOSEST_HIT_BIT_KHR;
+    stage_create_info.module = closest_hit_dielectric_shader_module.getShaderModule();
     pipeline_shader_stage_create_info_list.push_back(stage_create_info);
 
     ShaderModule miss_shader_module{device, "Shaders/raytrace.rmiss.spv"};
@@ -120,6 +126,14 @@ void RayTracingPipeline::createPipeline()
     closest_hit_specular_shader_group_create_info.intersectionShader = VK_SHADER_UNUSED_KHR;
     ray_tracing_shader_group_create_info_list.push_back(closest_hit_specular_shader_group_create_info);
 
+    VkRayTracingShaderGroupCreateInfoKHR closest_hit_dielectric_shader_group_create_info{VK_STRUCTURE_TYPE_RAY_TRACING_SHADER_GROUP_CREATE_INFO_KHR};
+    closest_hit_dielectric_shader_group_create_info.type = VK_RAY_TRACING_SHADER_GROUP_TYPE_TRIANGLES_HIT_GROUP_KHR;
+    closest_hit_dielectric_shader_group_create_info.closestHitShader = closest_hit_dielectric;
+    closest_hit_dielectric_shader_group_create_info.generalShader = VK_SHADER_UNUSED_KHR;
+    closest_hit_dielectric_shader_group_create_info.anyHitShader = VK_SHADER_UNUSED_KHR;
+    closest_hit_dielectric_shader_group_create_info.intersectionShader = VK_SHADER_UNUSED_KHR;
+    ray_tracing_shader_group_create_info_list.push_back(closest_hit_dielectric_shader_group_create_info);
+
     VkRayTracingShaderGroupCreateInfoKHR miss_shader_group_create_info{VK_STRUCTURE_TYPE_RAY_TRACING_SHADER_GROUP_CREATE_INFO_KHR};
     miss_shader_group_create_info.type = VK_RAY_TRACING_SHADER_GROUP_TYPE_GENERAL_KHR;
     miss_shader_group_create_info.generalShader = miss;
@@ -163,7 +177,7 @@ void RayTracingPipeline::createPipeline()
 void RayTracingPipeline::createShaderBindingTable()
 {
     uint32_t miss_count = 2;
-    uint32_t hit_count = 3;
+    uint32_t hit_count = 4;
     uint32_t handle_count = 1 + hit_count + miss_count;
     uint32_t handle_size  = ray_tracing_properties.shaderGroupHandleSize;
 

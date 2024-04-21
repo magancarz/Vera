@@ -11,16 +11,11 @@
 #include "random.glsl"
 #include "cosine_pdf.glsl"
 #include "lambertian.glsl"
+#include "material.glsl"
 #include "defines.glsl"
 
 layout(location = 0) rayPayloadInEXT Ray payload;
 layout(location = 1) rayPayloadEXT bool is_shadow;
-
-struct Material
-{
-    vec3 color;
-    int brightness;
-};
 
 struct ObjectDescription
 {
@@ -119,32 +114,8 @@ void main()
     light_position = vec3(random_light.object_to_world * vec4(light_position, 1.0));
 
     vec3 positionToLightDirection = normalize(light_position - position);
-    vec3 shadowRayOrigin = position;
     vec3 shadowRayDirection = positionToLightDirection;
     float shadowRayDistance = length(light_position - position) - T_MIN;
-
-    const uint shadowRayFlags = gl_RayFlagsTerminateOnFirstHitEXT | gl_RayFlagsOpaqueEXT | gl_RayFlagsSkipClosestHitShaderEXT;
-
-    is_shadow = true;
-    traceRayEXT(
-        topLevelAS,
-        shadowRayFlags,
-        0xFF,
-        0,
-        0,
-        1,
-        shadowRayOrigin,
-        T_MIN,
-        shadowRayDirection,
-        shadowRayDistance,
-        1);
-
-    if (is_shadow)
-    {
-        payload.color *= vec3(0);
-        payload.is_active = 0;
-        return;
-    }
 
     payload.origin = vec4(position, 1.0);
 

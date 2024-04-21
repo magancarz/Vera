@@ -48,7 +48,7 @@ void main()
     payload.seed = seed;
     payload.depth = 0;
 
-    for (; payload.depth < MAX_DEPTH;)
+    for (uint current_depth = 0; payload.depth < DEPTH_LIMIT; ++current_depth)
     {
         traceRayEXT(
             topLevelAS, // acceleration structure
@@ -64,7 +64,7 @@ void main()
             0               // payload (location = 0)
             );
 
-        if (payload.is_active == 0)
+        if (payload.is_active == 0 || payload.depth > MAX_DEPTH)
         {
             break;
         }

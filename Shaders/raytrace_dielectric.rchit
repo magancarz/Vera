@@ -76,9 +76,27 @@ void main()
     position = vec3(gl_ObjectToWorldEXT * vec4(position, 1.0));
 
     payload.origin = vec4(position, 1.0);
-    vec3 reflection = reflect(payload.direction.xyz, geometric_normal);
-    vec3 random_direction = randomInUnitHemisphere(payload.seed, geometric_normal);
-    payload.direction = vec4(normalize(reflection + random_direction * material.fuzziness), 0.0);
+
+    const float NdotD = dot(geometric_normal, payload.direction.xyz);
+    vec3 refrNormal = geometric_normal;
+    float refrEta;
+
+    if(NdotD > 0.0f) {
+        refrNormal = -geometric_normal;
+        refrEta = 1.0f / material.refractive_index;
+    } else {
+        refrNormal = geometric_normal;
+        refrEta = material.refractive_index;
+    }
+
+    vec3 refraction = refract(payload.direction.xyz, refrNormal, refrEta);
+    vec3 reflection = reflect(payload.direction.xyz, refrNormal);
+
+    float cos_theta = dot(-payload.direction.xyz, geometric_normal);
+    float sin_theta = sqrt(1.0 - cos_theta * cos_theta);
+
+    bool cannot_refract = refrEta * sin_theta > 1.0;
+    vec3 final_direction = cannot_refract ? reflection : refraction;
+    payload.direction = vec4(final_direction, 0.0);
     payload.color *= material_color;
-    payload.depth += 1;
 }

@@ -8,14 +8,9 @@
 #extension GL_EXT_buffer_reference2 : require
 
 #include "ray.glsl"
+#include "material.glsl"
 
 layout(location = 0) rayPayloadInEXT Ray payload;
-
-struct Material
-{
-    vec3 color;
-    int brightness;
-};
 
 struct ObjectDescription
 {

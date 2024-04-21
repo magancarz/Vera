@@ -18,6 +18,10 @@ void Material::assignMaterialHitGroup(BlasInstance& blas_instance)
     {
         shader_off = 2;
     }
+    else if (material_info.refractive_index >= 0)
+    {
+        shader_off = 3;
+    }
     blas_instance.bottomLevelAccelerationStructureInstance.instanceShaderBindingTableRecordOffset = shader_off;
 }
 
