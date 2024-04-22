@@ -14,7 +14,7 @@ World::World(Window& window)
 void World::loadObjects(Device& device, const std::vector<std::shared_ptr<Material>>& available_materials)
 {
     std::shared_ptr<Model> plane_model = Model::createModelFromFile(device, "Resources/Models/plane.obj");
-    std::shared_ptr<Model> cube_model = Model::createModelFromFile(device, "Resources/Models/sphere.obj");
+    std::shared_ptr<Model> cube_model = Model::createModelFromFile(device, "Resources/Models/bunny.obj");
 
     auto white_lambertian = std::make_shared<Material>(device, MaterialInfo{.color = glm::vec3{0.8f, 0.8f, 0.8f}});
     auto red_lambertian = std::make_shared<Material>(device, MaterialInfo{.color = glm::vec3{0.8f, 0.f, 0.f}});
@@ -88,7 +88,7 @@ void World::loadObjects(Device& device, const std::vector<std::shared_ptr<Materi
     light_plane->createBlasInstance();
     objects.emplace(light_plane->getID(), std::move(light_plane));
 
-    auto specular = std::make_shared<Material>(device, MaterialInfo{.color = glm::vec3{1.f, 1.f, 1.f}, .refractive_index = 1.01f});
+    auto specular = std::make_shared<Material>(device, MaterialInfo{.color = glm::vec3{1.f, 1.f, 1.f}, .refractive_index = 1.17});
     auto dragon = std::make_shared<Object>(Object::createObject());
     dragon->transform_component.translation.y = 2.f;
 //    dragon->transform_component.scale = glm::vec3{0.25f};

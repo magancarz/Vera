@@ -77,26 +77,28 @@ void main()
 
     payload.origin = position;
 
-    const float NdotD = dot(geometric_normal, payload.direction.xyz);
-    vec3 refrNormal = geometric_normal;
-    float refrEta;
-
-    if(NdotD > 0.0f) {
-        refrNormal = -geometric_normal;
-        refrEta = 1.0f / material.refractive_index;
-    } else {
-        refrNormal = geometric_normal;
-        refrEta = material.refractive_index;
+    const bool front_face = dot(-geometric_normal, payload.direction) > 0;
+    float refraction_ratio = material.refractive_index;
+    vec3 normal = -geometric_normal;
+    if (front_face)
+    {
+        refraction_ratio = 1.0 / refraction_ratio;
+        normal = geometric_normal;
     }
 
-    vec3 refraction = refract(payload.direction.xyz, refrNormal, refrEta);
-    vec3 reflection = reflect(payload.direction.xyz, refrNormal);
+    vec3 refraction = refract(payload.direction.xyz, normal, refraction_ratio);
+    vec3 reflection = reflect(payload.direction.xyz, normal);
 
     float cos_theta = dot(-payload.direction.xyz, geometric_normal);
     float sin_theta = sqrt(1.0 - cos_theta * cos_theta);
 
-    bool cannot_refract = refrEta * sin_theta > 1.0;
-    vec3 final_direction = cannot_refract ? reflection : refraction;
+    const float r0 = (1.0f - refraction_ratio) / (1.0f + refraction_ratio);
+    const float r0_squared = r0 * r0;
+    const float schlick = r0_squared + (1.0f - r0_squared) * pow((1.0f - cos_theta), 5.0f);
+
+    bool cannot_refract = refraction_ratio * sin_theta > 1.0;
+    bool schlick_value = schlick > rnd(payload.seed);
+    vec3 final_direction = cannot_refract || schlick_value ? reflection : refraction;
     payload.direction = final_direction;
     payload.color *= material_color;
 }
