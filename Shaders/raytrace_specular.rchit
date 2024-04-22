@@ -75,10 +75,10 @@ void main()
     vec3 position = first_vertex.position * barycentric.x + second_vertex.position * barycentric.y + third_vertex.position * barycentric.z;
     position = vec3(gl_ObjectToWorldEXT * vec4(position, 1.0));
 
-    payload.origin = vec4(position, 1.0);
+    payload.origin = position;
     vec3 reflection = reflect(payload.direction.xyz, geometric_normal);
     vec3 random_direction = randomInUnitHemisphere(payload.seed, geometric_normal);
-    payload.direction = vec4(normalize(reflection + random_direction * material.fuzziness), 0.0);
+    payload.direction = normalize(reflection + random_direction * material.fuzziness);
     payload.color *= material_color;
     payload.depth += 1;
 }

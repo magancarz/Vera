@@ -117,13 +117,13 @@ void main()
     vec3 shadowRayDirection = positionToLightDirection;
     float shadowRayDistance = length(light_position - position) - T_MIN;
 
-    payload.origin = vec4(position, 1.0);
+    payload.origin = position;
 
     vec3 u, v, w;
     w = geometric_normal;
     generateOrthonormalBasis(u, v, w);
-    vec4 random_cosine_direction = vec4(generateRandomDirectionWithCosinePDF(payload.seed, u, v, w), 0.0);
-    payload.direction = rnd(payload.seed) > 0.5 ? random_cosine_direction : vec4(shadowRayDirection, 0.0);
+    vec3 random_cosine_direction = generateRandomDirectionWithCosinePDF(payload.seed, u, v, w);
+    payload.direction = rnd(payload.seed) > 0.5 ? random_cosine_direction : shadowRayDirection;
 
     float cosine = abs(dot(payload.direction.xyz, light_normal));
     cosine = cosine < 0.00000001f ? 0.00000001f : cosine;

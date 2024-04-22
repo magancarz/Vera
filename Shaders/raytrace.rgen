@@ -41,14 +41,14 @@ void main()
 
     uint rayFlags = gl_RayFlagsOpaqueEXT;
 
-    payload.origin = origin;
-    payload.direction = direction;
+    payload.origin = origin.xyz;
+    payload.direction = direction.xyz;
     payload.color = vec3(1.0, 1.0, 1.0);
     payload.is_active = 1;
     payload.seed = seed;
     payload.depth = 0;
 
-    for (uint current_depth = 0; payload.depth < DEPTH_LIMIT; ++current_depth)
+    for (uint current_depth = 0; current_depth < DEPTH_LIMIT; ++current_depth)
     {
         traceRayEXT(
             topLevelAS, // acceleration structure
@@ -57,9 +57,9 @@ void main()
             0,              // sbtRecordOffset
             0,              // sbtRecordStride
             0,              // missIndex
-            payload.origin.xyz,     // ray origin
+            payload.origin,     // ray origin
             T_MIN,           // ray min range
-            payload.direction.xyz,  // ray direction
+            payload.direction,  // ray direction
             T_MAX,           // ray max range
             0               // payload (location = 0)
             );

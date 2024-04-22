@@ -75,7 +75,7 @@ void main()
     vec3 position = first_vertex.position * barycentric.x + second_vertex.position * barycentric.y + third_vertex.position * barycentric.z;
     position = vec3(gl_ObjectToWorldEXT * vec4(position, 1.0));
 
-    payload.origin = vec4(position, 1.0);
+    payload.origin = position;
 
     const float NdotD = dot(geometric_normal, payload.direction.xyz);
     vec3 refrNormal = geometric_normal;
@@ -97,6 +97,6 @@ void main()
 
     bool cannot_refract = refrEta * sin_theta > 1.0;
     vec3 final_direction = cannot_refract ? reflection : refraction;
-    payload.direction = vec4(final_direction, 0.0);
+    payload.direction = final_direction;
     payload.color *= material_color;
 }
