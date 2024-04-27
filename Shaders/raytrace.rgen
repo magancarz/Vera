@@ -72,6 +72,10 @@ void main()
 
     payload.color = payload.color * (1 - payload.is_active);
 
+    payload.color.x = isinf(payload.color.x) || isnan(payload.color.x) ? 0.0f : payload.color.x;
+    payload.color.y = isinf(payload.color.y) || isnan(payload.color.y) ? 0.0f : payload.color.y;
+    payload.color.z = isinf(payload.color.z) || isnan(payload.color.z) ? 0.0f : payload.color.z;
+
     vec3 previous_color = imageLoad(image, ivec2(gl_LaunchIDEXT.xy)).xyz;
     previous_color *= push_constant.frames;
 

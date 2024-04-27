@@ -14,7 +14,7 @@ World::World(Window& window)
 void World::loadObjects(Device& device, const std::vector<std::shared_ptr<Material>>& available_materials)
 {
     std::shared_ptr<Model> plane_model = Model::createModelFromFile(device, "Resources/Models/plane.obj");
-    std::shared_ptr<Model> cube_model = Model::createModelFromFile(device, "Resources/Models/bunny.obj");
+    std::shared_ptr<Model> cube_model = Model::createModelFromFile(device, "Resources/Models/dragon.obj");
 
     auto white_lambertian = std::make_shared<Material>(device, MaterialInfo{.color = glm::vec3{0.8f, 0.8f, 0.8f}});
     auto red_lambertian = std::make_shared<Material>(device, MaterialInfo{.color = glm::vec3{0.8f, 0.f, 0.f}});
@@ -38,6 +38,7 @@ void World::loadObjects(Device& device, const std::vector<std::shared_ptr<Materi
     objects.emplace(top_plane->getID(), std::move(top_plane));
 
 //    auto front_plane = std::make_shared<Object>(Object::createObject());
+//    front_plane->transform_component.translation.x = 1.5f;
 //    front_plane->transform_component.translation.y = 3.f;
 //    front_plane->transform_component.translation.z = 3.f;
 //    front_plane->transform_component.rotation.x = glm::radians(90.f);
@@ -80,20 +81,39 @@ void World::loadObjects(Device& device, const std::vector<std::shared_ptr<Materi
     right_plane->createBlasInstance();
     objects.emplace(right_plane->getID(), std::move(right_plane));
 
-    auto light_plane = std::make_shared<Object>(Object::createObject());
-    light_plane->transform_component.translation.y = 5.999f;
-    light_plane->transform_component.scale = glm::vec3{.5f};
-    light_plane->setModel(plane_model);
-    light_plane->setMaterial(diffuse_light);
-    light_plane->createBlasInstance();
-    objects.emplace(light_plane->getID(), std::move(light_plane));
+//    auto right_light_plane = std::make_shared<Object>(Object::createObject());
+//    right_light_plane->transform_component.translation.x = -2.f;
+//    right_light_plane->transform_component.translation.y = 5.999f;
+//    right_light_plane->transform_component.scale = glm::vec3{.5f};
+//    right_light_plane->setModel(plane_model);
+//    right_light_plane->setMaterial(diffuse_light);
+//    right_light_plane->createBlasInstance();
+//    objects.emplace(right_light_plane->getID(), std::move(right_light_plane));
+//
+//    auto left_light_plane = std::make_shared<Object>(Object::createObject());
+//    left_light_plane->transform_component.translation.x = 2.f;
+//    left_light_plane->transform_component.translation.y = 5.999f;
+//    left_light_plane->transform_component.scale = glm::vec3{.5f};
+//    left_light_plane->setModel(plane_model);
+//    left_light_plane->setMaterial(diffuse_light);
+//    left_light_plane->createBlasInstance();
+//    objects.emplace(left_light_plane->getID(), std::move(left_light_plane));
 
-    auto specular = std::make_shared<Material>(device, MaterialInfo{.color = glm::vec3{1.f, 1.f, 1.f}, .refractive_index = 1.17});
+    auto middle_light_plane = std::make_shared<Object>(Object::createObject());
+    middle_light_plane->transform_component.translation.y = 5.999f;
+    middle_light_plane->transform_component.scale = glm::vec3{.5f};
+    middle_light_plane->setModel(plane_model);
+    middle_light_plane->setMaterial(diffuse_light);
+    middle_light_plane->createBlasInstance();
+    objects.emplace(middle_light_plane->getID(), std::move(middle_light_plane));
+
+    auto specular = std::make_shared<Material>(device, MaterialInfo{.color = glm::vec3{1.f, 1.f, 1.f}, .refractive_index = 2.17});
     auto dragon = std::make_shared<Object>(Object::createObject());
-    dragon->transform_component.translation.y = 2.f;
-//    dragon->transform_component.scale = glm::vec3{0.25f};
+    dragon->transform_component.translation.x = 2.5f;
+    dragon->transform_component.translation.y = -0.5f;
+    dragon->transform_component.scale = glm::vec3{0.25f};
     dragon->setModel(cube_model);
-    dragon->setMaterial(specular);
+    dragon->setMaterial(white_lambertian);
     dragon->createBlasInstance();
     objects.emplace(dragon->getID(), std::move(dragon));
 }
