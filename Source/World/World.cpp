@@ -19,7 +19,7 @@ void World::loadObjects(Device& device, const std::vector<std::shared_ptr<Materi
     auto white_lambertian = std::make_shared<Material>(device, MaterialInfo{.color = glm::vec3{0.8f, 0.8f, 0.8f}});
     auto red_lambertian = std::make_shared<Material>(device, MaterialInfo{.color = glm::vec3{0.8f, 0.f, 0.f}});
     auto green_lambertian = std::make_shared<Material>(device, MaterialInfo{.color = glm::vec3{0.f, 0.8f, 0.f}});
-    auto diffuse_light = std::make_shared<Material>(device, MaterialInfo{.color = glm::vec3{1.f, 1.f, 1.f}, .brightness = 50});
+    auto diffuse_light = std::make_shared<Material>(device, MaterialInfo{.color = glm::vec3{1.f, 1.f, 1.f}, .brightness = 5});
 
     auto bottom_plane = std::make_shared<Object>(Object::createObject());
     bottom_plane->transform_component.scale = glm::vec3{3.f};
@@ -107,10 +107,9 @@ void World::loadObjects(Device& device, const std::vector<std::shared_ptr<Materi
     middle_light_plane->createBlasInstance();
     objects.emplace(middle_light_plane->getID(), std::move(middle_light_plane));
 
-    auto specular = std::make_shared<Material>(device, MaterialInfo{.color = glm::vec3{1.f, 1.f, 1.f}, .refractive_index = 2.17});
+    auto specular = std::make_shared<Material>(device, MaterialInfo{.color = glm::vec3{1.f, 1.f, 1.f}, .fuzziness = 0.2f});
     auto dragon = std::make_shared<Object>(Object::createObject());
-    dragon->transform_component.translation.x = 2.5f;
-    dragon->transform_component.translation.y = -0.5f;
+    dragon->transform_component.translation.y = 1.5f;
     dragon->transform_component.scale = glm::vec3{0.25f};
     dragon->setModel(cube_model);
     dragon->setMaterial(white_lambertian);
