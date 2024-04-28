@@ -117,7 +117,7 @@ void main()
     light_position = vec3(random_light.object_to_world * vec4(light_position, 1.0));
 
     float temp = rnd(payload.seed);
-    vec3 positionToLightDirection = temp > 0.5 ? normalize(light_position - position) : normalize(vec3(1, 1, 1));
+    vec3 positionToLightDirection = temp > 0.5 ? normalize(light_position - position) : normalize(vec3(1, 0.5, 1));
     vec3 shadowRayDirection = positionToLightDirection;
 
     vec3 u, v, w;
