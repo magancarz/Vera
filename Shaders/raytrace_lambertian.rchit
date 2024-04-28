@@ -69,8 +69,8 @@ void main()
 
     Indices index_buffer = Indices(object_description.index_address);
     uvec3 indices = uvec3(index_buffer.i[3 * gl_PrimitiveID + 0],
-    index_buffer.i[3 * gl_PrimitiveID + 1],
-    index_buffer.i[3 * gl_PrimitiveID + 2]);
+                        index_buffer.i[3 * gl_PrimitiveID + 1],
+                        index_buffer.i[3 * gl_PrimitiveID + 2]);
 
     Vertices vertex_buffer = Vertices(object_description.vertex_address);
     Vertex first_vertex = vertex_buffer.v[indices.x];
@@ -116,39 +116,15 @@ void main()
     vec3 light_position = light_first_vertex.position * light_barycentric.x + light_second_vertex.position * light_barycentric.y + light_third_vertex.position * light_barycentric.z;
     light_position = vec3(random_light.object_to_world * vec4(light_position, 1.0));
 
-    vec3 positionToLightDirection = normalize(light_position - position);
-    vec3 shadowRayOrigin = position;
+    float temp = rnd(payload.seed);
+    vec3 positionToLightDirection = temp > 0.5 ? normalize(light_position - position) : normalize(vec3(1, 1, 1));
     vec3 shadowRayDirection = positionToLightDirection;
-    float shadowRayDistance = length(light_position - position) - T_MIN;
-
-    const uint shadowRayFlags = gl_RayFlagsTerminateOnFirstHitEXT | gl_RayFlagsOpaqueEXT | gl_RayFlagsSkipClosestHitShaderEXT;
-
-    is_shadow = true;
-    traceRayEXT(
-        topLevelAS,
-        shadowRayFlags,
-        0xFF,
-        0,
-        0,
-        1,
-        shadowRayOrigin,
-        T_MIN,
-        shadowRayDirection,
-        shadowRayDistance,
-        1);
-
-    if (is_shadow)
-    {
-        payload.color *= vec3(0);
-        payload.is_active = 0;
-        return;
-    }
 
     vec3 u, v, w;
     w = geometric_normal;
     generateOrthonormalBasis(u, v, w);
     vec3 random_cosine_direction = generateRandomDirectionWithCosinePDF(payload.seed, u, v, w);
-    payload.direction = random_cosine_direction;
+    payload.direction = payload.depth + 1 > MAX_RAY_DEPTH ? positionToLightDirection : random_cosine_direction;
 
     payload.color *= material_color;
     payload.depth += 1;
