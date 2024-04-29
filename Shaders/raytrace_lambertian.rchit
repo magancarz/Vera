@@ -116,7 +116,9 @@ void main()
     vec3 light_position = light_first_vertex.position * light_barycentric.x + light_second_vertex.position * light_barycentric.y + light_third_vertex.position * light_barycentric.z;
     light_position = vec3(random_light.object_to_world * vec4(light_position, 1.0));
 
-    vec3 positionToLightDirection = normalize(vec3(1 + rnd(payload.seed) * 0.5, 1 + rnd(payload.seed) * 0.5, 1 + rnd(payload.seed) * 0.5));
+    vec3 random_dir = normalize(vec3(rnd(payload.seed), rnd(payload.seed), rnd(payload.seed)));
+    random_dir *= sign(dot(random_dir, geometric_normal));
+    vec3 positionToLightDirection = normalize(vec3(1) + random_dir);
 
     vec3 u, v, w;
     w = geometric_normal;

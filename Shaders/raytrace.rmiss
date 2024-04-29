@@ -9,7 +9,7 @@ layout(location = 0) rayPayloadInEXT Ray payload;
 
 void main()
 {
-    const vec3 SUN = normalize(vec3(0, 1, 1));
+    const vec3 SUN = normalize(vec3(1, 1, 1));
     float sun_amount = max(dot(payload.direction, SUN), 0.0);
     vec3 sun_color = vec3(0.6, 0.4, 0.2);
 
