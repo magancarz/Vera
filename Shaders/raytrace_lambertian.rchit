@@ -15,7 +15,7 @@
 #include "defines.glsl"
 
 layout(location = 0) rayPayloadInEXT Ray payload;
-layout(location = 1) rayPayloadEXT bool is_shadow;
+layout(location = 1) rayPayloadEXT bool occluded;
 
 struct ObjectDescription
 {
@@ -94,8 +94,8 @@ void main()
     uint light_random_primitive = uint(floor(rnd(payload.seed) * float(random_light.num_of_triangles)));
 
     uvec3 light_indices = uvec3(light_index_buffer.i[3 * light_random_primitive + 0],
-    light_index_buffer.i[3 * light_random_primitive + 1],
-    light_index_buffer.i[3 * light_random_primitive + 2]);
+                                light_index_buffer.i[3 * light_random_primitive + 1],
+                                light_index_buffer.i[3 * light_random_primitive + 2]);
 
     Vertices light_vertices = Vertices(random_light.vertex_address);
     Vertex light_first_vertex = light_vertices.v[light_indices.x];
@@ -116,16 +116,34 @@ void main()
     vec3 light_position = light_first_vertex.position * light_barycentric.x + light_second_vertex.position * light_barycentric.y + light_third_vertex.position * light_barycentric.z;
     light_position = vec3(random_light.object_to_world * vec4(light_position, 1.0));
 
-    float temp = rnd(payload.seed);
-    vec3 positionToLightDirection = temp > 0.5 ? normalize(light_position - position) : normalize(vec3(1, 0.5, 1));
-    vec3 shadowRayDirection = positionToLightDirection;
+    vec3 positionToLightDirection = normalize(vec3(1 + rnd(payload.seed) * 0.5, 1 + rnd(payload.seed) * 0.5, 1 + rnd(payload.seed) * 0.5));
 
     vec3 u, v, w;
     w = geometric_normal;
     generateOrthonormalBasis(u, v, w);
     vec3 random_cosine_direction = generateRandomDirectionWithCosinePDF(payload.seed, u, v, w);
-    payload.direction = payload.depth + 1 > MAX_RAY_DEPTH ? positionToLightDirection : random_cosine_direction;
+    payload.direction = rnd(payload.seed) > 0.5 ? positionToLightDirection : random_cosine_direction;
 
-    payload.color *= material_color;
+    const uint rayFlags = gl_RayFlagsTerminateOnFirstHitEXT;
+    occluded = false;
+    traceRayEXT(
+        topLevelAS, // acceleration structure
+        rayFlags,       // rayFlags
+        0xFF,           // cullMask
+        1,              // sbtRecordOffset
+        0,              // sbtRecordStride
+        1,              // missIndex
+        payload.origin,     // ray origin
+        T_MIN,           // ray min range
+        payload.direction,  // ray direction
+        T_MAX,           // ray max range
+        1               // payload (location = 0)
+        );
+
+    float scattering_pdf = scatteringPDFFromLambertian(payload.direction, geometric_normal);
+    float cosine = occluded ? 0 : max(dot(normalize(vec3(1)), payload.direction), 0.0);
+    vec3 sun_contribution = vec3(1) * 10 * cosine;
+
+    payload.color *= material_color * scattering_pdf * sun_contribution;
     payload.depth += 1;
 }

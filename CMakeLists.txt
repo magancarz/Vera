@@ -31,6 +31,7 @@ file(GLOB SHADERS
         ${SHADER_SOURCE_DIR}/*.vert
         ${SHADER_SOURCE_DIR}/*.frag
         ${SHADER_SOURCE_DIR}/*.rchit
+        ${SHADER_SOURCE_DIR}/*.rahit
         ${SHADER_SOURCE_DIR}/*.rgen
         ${SHADER_SOURCE_DIR}/*.rmiss)
 

@@ -43,12 +43,13 @@ void RayTracingPipeline::createPipeline()
     enum StageIndices
     {
         ray_gen,
-        closest_hit_lambertian,
-        closest_hit_light,
-        closest_hit_specular,
-        closest_hit_dielectric,
         miss,
         miss_shadow,
+        closest_hit_lambertian,
+        any_hit_occlusion,
+//        closest_hit_light,
+//        closest_hit_specular,
+//        closest_hit_dielectric,
         shader_group_count
     };
 
@@ -62,25 +63,20 @@ void RayTracingPipeline::createPipeline()
     stage_create_info.module = ray_gen_shader_module.getShaderModule();
     pipeline_shader_stage_create_info_list.push_back(stage_create_info);
 
-    ShaderModule closest_hit_lambertian_shader_module{device, "Shaders/raytrace_lambertian.rchit.spv"};
-    stage_create_info.stage = VK_SHADER_STAGE_CLOSEST_HIT_BIT_KHR;
-    stage_create_info.module = closest_hit_lambertian_shader_module.getShaderModule();
-    pipeline_shader_stage_create_info_list.push_back(stage_create_info);
+//    ShaderModule closest_hit_light_shader_module{device, "Shaders/raytrace_light.rchit.spv"};
+//    stage_create_info.stage = VK_SHADER_STAGE_CLOSEST_HIT_BIT_KHR;
+//    stage_create_info.module = closest_hit_light_shader_module.getShaderModule();
+//    pipeline_shader_stage_create_info_list.push_back(stage_create_info);
 
-    ShaderModule closest_hit_light_shader_module{device, "Shaders/raytrace_light.rchit.spv"};
-    stage_create_info.stage = VK_SHADER_STAGE_CLOSEST_HIT_BIT_KHR;
-    stage_create_info.module = closest_hit_light_shader_module.getShaderModule();
-    pipeline_shader_stage_create_info_list.push_back(stage_create_info);
-
-    ShaderModule closest_hit_specular_shader_module{device, "Shaders/raytrace_specular.rchit.spv"};
-    stage_create_info.stage = VK_SHADER_STAGE_CLOSEST_HIT_BIT_KHR;
-    stage_create_info.module = closest_hit_specular_shader_module.getShaderModule();
-    pipeline_shader_stage_create_info_list.push_back(stage_create_info);
-
-    ShaderModule closest_hit_dielectric_shader_module{device, "Shaders/raytrace_dielectric.rchit.spv"};
-    stage_create_info.stage = VK_SHADER_STAGE_CLOSEST_HIT_BIT_KHR;
-    stage_create_info.module = closest_hit_dielectric_shader_module.getShaderModule();
-    pipeline_shader_stage_create_info_list.push_back(stage_create_info);
+//    ShaderModule closest_hit_specular_shader_module{device, "Shaders/raytrace_specular.rchit.spv"};
+//    stage_create_info.stage = VK_SHADER_STAGE_CLOSEST_HIT_BIT_KHR;
+//    stage_create_info.module = closest_hit_specular_shader_module.getShaderModule();
+//    pipeline_shader_stage_create_info_list.push_back(stage_create_info);
+//
+//    ShaderModule closest_hit_dielectric_shader_module{device, "Shaders/raytrace_dielectric.rchit.spv"};
+//    stage_create_info.stage = VK_SHADER_STAGE_CLOSEST_HIT_BIT_KHR;
+//    stage_create_info.module = closest_hit_dielectric_shader_module.getShaderModule();
+//    pipeline_shader_stage_create_info_list.push_back(stage_create_info);
 
     ShaderModule miss_shader_module{device, "Shaders/raytrace.rmiss.spv"};
     stage_create_info.stage = VK_SHADER_STAGE_MISS_BIT_KHR;
@@ -90,6 +86,16 @@ void RayTracingPipeline::createPipeline()
     ShaderModule miss_shadow_shader_module{device, "Shaders/raytrace_shadow.rmiss.spv"};
     stage_create_info.stage = VK_SHADER_STAGE_MISS_BIT_KHR;
     stage_create_info.module = miss_shadow_shader_module.getShaderModule();
+    pipeline_shader_stage_create_info_list.push_back(stage_create_info);
+
+    ShaderModule closest_hit_lambertian_shader_module{device, "Shaders/raytrace_lambertian.rchit.spv"};
+    stage_create_info.stage = VK_SHADER_STAGE_CLOSEST_HIT_BIT_KHR;
+    stage_create_info.module = closest_hit_lambertian_shader_module.getShaderModule();
+    pipeline_shader_stage_create_info_list.push_back(stage_create_info);
+
+    ShaderModule any_hit_occlusion_shader_module{device, "Shaders/raytrace_occlusion.rchit.spv"};
+    stage_create_info.stage = VK_SHADER_STAGE_CLOSEST_HIT_BIT_KHR;
+    stage_create_info.module = any_hit_occlusion_shader_module.getShaderModule();
     pipeline_shader_stage_create_info_list.push_back(stage_create_info);
 
     std::vector<VkRayTracingShaderGroupCreateInfoKHR> ray_tracing_shader_group_create_info_list;
@@ -102,37 +108,29 @@ void RayTracingPipeline::createPipeline()
     ray_generate_shader_group_create_info.intersectionShader = VK_SHADER_UNUSED_KHR;
     ray_tracing_shader_group_create_info_list.push_back(ray_generate_shader_group_create_info);
 
-    VkRayTracingShaderGroupCreateInfoKHR closest_hit_lambertian_shader_group_create_info{VK_STRUCTURE_TYPE_RAY_TRACING_SHADER_GROUP_CREATE_INFO_KHR};
-    closest_hit_lambertian_shader_group_create_info.type = VK_RAY_TRACING_SHADER_GROUP_TYPE_TRIANGLES_HIT_GROUP_KHR;
-    closest_hit_lambertian_shader_group_create_info.closestHitShader = closest_hit_lambertian;
-    closest_hit_lambertian_shader_group_create_info.generalShader = VK_SHADER_UNUSED_KHR;
-    closest_hit_lambertian_shader_group_create_info.anyHitShader = VK_SHADER_UNUSED_KHR;
-    closest_hit_lambertian_shader_group_create_info.intersectionShader = VK_SHADER_UNUSED_KHR;
-    ray_tracing_shader_group_create_info_list.push_back(closest_hit_lambertian_shader_group_create_info);
-
-    VkRayTracingShaderGroupCreateInfoKHR closest_hit_light_shader_group_create_info{VK_STRUCTURE_TYPE_RAY_TRACING_SHADER_GROUP_CREATE_INFO_KHR};
-    closest_hit_light_shader_group_create_info.type = VK_RAY_TRACING_SHADER_GROUP_TYPE_TRIANGLES_HIT_GROUP_KHR;
-    closest_hit_light_shader_group_create_info.closestHitShader = closest_hit_light;
-    closest_hit_light_shader_group_create_info.generalShader = VK_SHADER_UNUSED_KHR;
-    closest_hit_light_shader_group_create_info.anyHitShader = VK_SHADER_UNUSED_KHR;
-    closest_hit_light_shader_group_create_info.intersectionShader = VK_SHADER_UNUSED_KHR;
-    ray_tracing_shader_group_create_info_list.push_back(closest_hit_light_shader_group_create_info);
-
-    VkRayTracingShaderGroupCreateInfoKHR closest_hit_specular_shader_group_create_info{VK_STRUCTURE_TYPE_RAY_TRACING_SHADER_GROUP_CREATE_INFO_KHR};
-    closest_hit_specular_shader_group_create_info.type = VK_RAY_TRACING_SHADER_GROUP_TYPE_TRIANGLES_HIT_GROUP_KHR;
-    closest_hit_specular_shader_group_create_info.closestHitShader = closest_hit_specular;
-    closest_hit_specular_shader_group_create_info.generalShader = VK_SHADER_UNUSED_KHR;
-    closest_hit_specular_shader_group_create_info.anyHitShader = VK_SHADER_UNUSED_KHR;
-    closest_hit_specular_shader_group_create_info.intersectionShader = VK_SHADER_UNUSED_KHR;
-    ray_tracing_shader_group_create_info_list.push_back(closest_hit_specular_shader_group_create_info);
-
-    VkRayTracingShaderGroupCreateInfoKHR closest_hit_dielectric_shader_group_create_info{VK_STRUCTURE_TYPE_RAY_TRACING_SHADER_GROUP_CREATE_INFO_KHR};
-    closest_hit_dielectric_shader_group_create_info.type = VK_RAY_TRACING_SHADER_GROUP_TYPE_TRIANGLES_HIT_GROUP_KHR;
-    closest_hit_dielectric_shader_group_create_info.closestHitShader = closest_hit_dielectric;
-    closest_hit_dielectric_shader_group_create_info.generalShader = VK_SHADER_UNUSED_KHR;
-    closest_hit_dielectric_shader_group_create_info.anyHitShader = VK_SHADER_UNUSED_KHR;
-    closest_hit_dielectric_shader_group_create_info.intersectionShader = VK_SHADER_UNUSED_KHR;
-    ray_tracing_shader_group_create_info_list.push_back(closest_hit_dielectric_shader_group_create_info);
+//    VkRayTracingShaderGroupCreateInfoKHR closest_hit_light_shader_group_create_info{VK_STRUCTURE_TYPE_RAY_TRACING_SHADER_GROUP_CREATE_INFO_KHR};
+//    closest_hit_light_shader_group_create_info.type = VK_RAY_TRACING_SHADER_GROUP_TYPE_TRIANGLES_HIT_GROUP_KHR;
+//    closest_hit_light_shader_group_create_info.closestHitShader = closest_hit_light;
+//    closest_hit_light_shader_group_create_info.generalShader = VK_SHADER_UNUSED_KHR;
+//    closest_hit_light_shader_group_create_info.anyHitShader = VK_SHADER_UNUSED_KHR;
+//    closest_hit_light_shader_group_create_info.intersectionShader = VK_SHADER_UNUSED_KHR;
+//    ray_tracing_shader_group_create_info_list.push_back(closest_hit_light_shader_group_create_info);
+//
+//    VkRayTracingShaderGroupCreateInfoKHR closest_hit_specular_shader_group_create_info{VK_STRUCTURE_TYPE_RAY_TRACING_SHADER_GROUP_CREATE_INFO_KHR};
+//    closest_hit_specular_shader_group_create_info.type = VK_RAY_TRACING_SHADER_GROUP_TYPE_TRIANGLES_HIT_GROUP_KHR;
+//    closest_hit_specular_shader_group_create_info.closestHitShader = closest_hit_specular;
+//    closest_hit_specular_shader_group_create_info.generalShader = VK_SHADER_UNUSED_KHR;
+//    closest_hit_specular_shader_group_create_info.anyHitShader = VK_SHADER_UNUSED_KHR;
+//    closest_hit_specular_shader_group_create_info.intersectionShader = VK_SHADER_UNUSED_KHR;
+//    ray_tracing_shader_group_create_info_list.push_back(closest_hit_specular_shader_group_create_info);
+//
+//    VkRayTracingShaderGroupCreateInfoKHR closest_hit_dielectric_shader_group_create_info{VK_STRUCTURE_TYPE_RAY_TRACING_SHADER_GROUP_CREATE_INFO_KHR};
+//    closest_hit_dielectric_shader_group_create_info.type = VK_RAY_TRACING_SHADER_GROUP_TYPE_TRIANGLES_HIT_GROUP_KHR;
+//    closest_hit_dielectric_shader_group_create_info.closestHitShader = closest_hit_dielectric;
+//    closest_hit_dielectric_shader_group_create_info.generalShader = VK_SHADER_UNUSED_KHR;
+//    closest_hit_dielectric_shader_group_create_info.anyHitShader = VK_SHADER_UNUSED_KHR;
+//    closest_hit_dielectric_shader_group_create_info.intersectionShader = VK_SHADER_UNUSED_KHR;
+//    ray_tracing_shader_group_create_info_list.push_back(closest_hit_dielectric_shader_group_create_info);
 
     VkRayTracingShaderGroupCreateInfoKHR miss_shader_group_create_info{VK_STRUCTURE_TYPE_RAY_TRACING_SHADER_GROUP_CREATE_INFO_KHR};
     miss_shader_group_create_info.type = VK_RAY_TRACING_SHADER_GROUP_TYPE_GENERAL_KHR;
@@ -149,6 +147,22 @@ void RayTracingPipeline::createPipeline()
     miss_shadow_shader_group_create_info.anyHitShader = VK_SHADER_UNUSED_KHR;
     miss_shadow_shader_group_create_info.intersectionShader = VK_SHADER_UNUSED_KHR;
     ray_tracing_shader_group_create_info_list.push_back(miss_shadow_shader_group_create_info);
+
+    VkRayTracingShaderGroupCreateInfoKHR closest_hit_lambertian_shader_group_create_info{VK_STRUCTURE_TYPE_RAY_TRACING_SHADER_GROUP_CREATE_INFO_KHR};
+    closest_hit_lambertian_shader_group_create_info.type = VK_RAY_TRACING_SHADER_GROUP_TYPE_TRIANGLES_HIT_GROUP_KHR;
+    closest_hit_lambertian_shader_group_create_info.closestHitShader = closest_hit_lambertian;
+    closest_hit_lambertian_shader_group_create_info.generalShader = VK_SHADER_UNUSED_KHR;
+    closest_hit_lambertian_shader_group_create_info.anyHitShader = VK_SHADER_UNUSED_KHR;
+    closest_hit_lambertian_shader_group_create_info.intersectionShader = VK_SHADER_UNUSED_KHR;
+    ray_tracing_shader_group_create_info_list.push_back(closest_hit_lambertian_shader_group_create_info);
+
+    VkRayTracingShaderGroupCreateInfoKHR any_hit_occlusion_shader_group_create_info{VK_STRUCTURE_TYPE_RAY_TRACING_SHADER_GROUP_CREATE_INFO_KHR};
+    any_hit_occlusion_shader_group_create_info.type = VK_RAY_TRACING_SHADER_GROUP_TYPE_TRIANGLES_HIT_GROUP_KHR;
+    any_hit_occlusion_shader_group_create_info.closestHitShader = any_hit_occlusion;
+    any_hit_occlusion_shader_group_create_info.generalShader = VK_SHADER_UNUSED_KHR;
+    any_hit_occlusion_shader_group_create_info.anyHitShader = VK_SHADER_UNUSED_KHR;
+    any_hit_occlusion_shader_group_create_info.intersectionShader = VK_SHADER_UNUSED_KHR;
+    ray_tracing_shader_group_create_info_list.push_back(any_hit_occlusion_shader_group_create_info);
 
     VkRayTracingPipelineCreateInfoKHR rayTracingPipelineCreateInfo = {
             .sType = VK_STRUCTURE_TYPE_RAY_TRACING_PIPELINE_CREATE_INFO_KHR,
@@ -176,28 +190,29 @@ void RayTracingPipeline::createPipeline()
 
 void RayTracingPipeline::createShaderBindingTable()
 {
+    constexpr uint32_t ray_gen_count = 1;
     uint32_t miss_count = 2;
-    uint32_t hit_count = 4;
-    uint32_t handle_count = 1 + hit_count + miss_count;
-    uint32_t handle_size  = ray_tracing_properties.shaderGroupHandleSize;
+    uint32_t hit_count = 2;
+    uint32_t handle_count = ray_gen_count + miss_count + hit_count;
+    uint32_t handle_size = ray_tracing_properties.shaderGroupHandleSize;
 
     uint32_t handle_size_aligned = VulkanHelper::align_up(handle_size, ray_tracing_properties.shaderGroupHandleAlignment);
 
     rgenShaderBindingTable.stride = VulkanHelper::align_up(handle_size_aligned, ray_tracing_properties.shaderGroupBaseAlignment);
     rgenShaderBindingTable.size = rgenShaderBindingTable.stride;
 
-    rchitShaderBindingTable.stride = handle_size_aligned;
-    rchitShaderBindingTable.size = VulkanHelper::align_up(hit_count * handle_size_aligned, ray_tracing_properties.shaderGroupBaseAlignment);
-
     rmissShaderBindingTable.stride = handle_size_aligned;
     rmissShaderBindingTable.size = VulkanHelper::align_up(miss_count * handle_size_aligned, ray_tracing_properties.shaderGroupBaseAlignment);
+
+    rchitShaderBindingTable.stride = handle_size_aligned;
+    rchitShaderBindingTable.size = VulkanHelper::align_up(hit_count * handle_size_aligned, ray_tracing_properties.shaderGroupBaseAlignment);
 
     uint32_t dataSize = handle_count * handle_size;
     std::vector<uint8_t> handles(dataSize);
     auto result = pvkGetRayTracingShaderGroupHandlesKHR(device.getDevice(), rayTracingPipelineHandle, 0, handle_count, dataSize, handles.data());
     assert(result == VK_SUCCESS);
 
-    VkDeviceSize sbtSize = rgenShaderBindingTable.size + rchitShaderBindingTable.size + rmissShaderBindingTable.size + callableShaderBindingTable.size;
+    VkDeviceSize sbtSize = rgenShaderBindingTable.size + rmissShaderBindingTable.size + rchitShaderBindingTable.size + callableShaderBindingTable.size;
     shader_binding_table = std::make_unique<Buffer>
     (
             device,
@@ -210,8 +225,8 @@ void RayTracingPipeline::createShaderBindingTable()
     VkBufferDeviceAddressInfo info{VK_STRUCTURE_TYPE_BUFFER_DEVICE_ADDRESS_INFO, nullptr, shader_binding_table->getBuffer()};
     VkDeviceAddress sbtAddress = vkGetBufferDeviceAddress(device.getDevice(), &info);
     rgenShaderBindingTable.deviceAddress = sbtAddress;
-    rchitShaderBindingTable.deviceAddress = sbtAddress + rgenShaderBindingTable.size;
-    rmissShaderBindingTable.deviceAddress = sbtAddress + rgenShaderBindingTable.size + rchitShaderBindingTable.size;
+    rmissShaderBindingTable.deviceAddress = sbtAddress + rgenShaderBindingTable.size;
+    rchitShaderBindingTable.deviceAddress = sbtAddress + rgenShaderBindingTable.size + rmissShaderBindingTable.size;
 
     auto get_handle = [&] (uint32_t i) { return handles.data() + i * handle_size; };
     shader_binding_table->map();
@@ -226,14 +241,14 @@ void RayTracingPipeline::createShaderBindingTable()
     for(uint32_t c = 0; c < hit_count; ++c)
     {
         memcpy(data, get_handle(handle_idx++), handle_size);
-        data += rchitShaderBindingTable.stride;
+        data += rmissShaderBindingTable.stride;
     }
 
-    data = sbt_buffer + rgenShaderBindingTable.size + rchitShaderBindingTable.size;
+    data = sbt_buffer + rgenShaderBindingTable.size + rmissShaderBindingTable.size;
     for(uint32_t c = 0; c < miss_count; ++c)
     {
         memcpy(data, get_handle(handle_idx++), handle_size);
-        data += rmissShaderBindingTable.stride;
+        data += rchitShaderBindingTable.stride;
     }
     shader_binding_table->unmap();
 }
