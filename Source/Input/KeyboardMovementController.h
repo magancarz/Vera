@@ -25,7 +25,7 @@ public:
 
     KeyMappings keys{};
     float move_speed{12.f};
-    float look_speed{1.f};
+    float look_speed{2.f};
 
     bool player_moved{false};
 };

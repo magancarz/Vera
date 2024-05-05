@@ -156,6 +156,6 @@ void main()
     float cosine = occluded ? 0 : max(dot(normalize(vec3(1)), payload.direction), 0.0);
     vec3 sun_contribution = vec3(1) * 1 * cosine;
 
-    payload.color *= material_color * scattering_pdf + sun_contribution;
+    payload.color *= sun_contribution + material_color * scattering_pdf;
     payload.depth += 1;
 }

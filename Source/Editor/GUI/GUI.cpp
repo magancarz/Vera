@@ -5,6 +5,7 @@
 #include "RenderEngine/RenderingAPI/SwapChain.h"
 #include "RenderEngine/RenderingAPI/Descriptors.h"
 #include "RenderEngine/RenderingAPI/VulkanDefines.h"
+#include "RenderEngine/FrameInfo.h"
 
 GUI::GUI(Device& device, Window& window, std::shared_ptr<SwapChain> swap_chain)
     : device{device}, window{window}, swap_chain{std::move(swap_chain)}
@@ -17,7 +18,6 @@ void GUI::initializeImGui()
     createContext();
     createDescriptorPool();
     createRenderPass();
-    createCommandPoolAndBuffers();
     createFramebuffers();
     setupRendererBackends();
 }
@@ -51,7 +51,7 @@ void GUI::createRenderPass()
     attachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
     attachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
     attachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-    attachment.initialLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+    attachment.initialLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
     attachment.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
 
     VkAttachmentReference color_attachment{};
@@ -83,13 +83,6 @@ void GUI::createRenderPass()
     {
         throw std::runtime_error("Could not create Dear ImGui's render pass");
     }
-}
-
-void GUI::createCommandPoolAndBuffers()
-{
-    device.createCommandPool(&command_pool, VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT);
-    command_buffers.resize(SwapChain::MAX_FRAMES_IN_FLIGHT);
-    device.createCommandBuffers(command_buffers.data(), static_cast<uint32_t>(command_buffers.size()), command_pool);
 }
 
 void GUI::createFramebuffers()
@@ -148,7 +141,6 @@ void GUI::setupRendererBackends()
     init_info.MinImageCount = SwapChain::MAX_FRAMES_IN_FLIGHT;
     init_info.ImageCount = SwapChain::MAX_FRAMES_IN_FLIGHT;
     init_info.MSAASamples = VK_SAMPLE_COUNT_1_BIT;
-    init_info.Allocator = nullptr;
     init_info.CheckVkResultFn = callbacks::checkResult;
     ImGui_ImplVulkan_Init(&init_info, render_pass);
 }
@@ -160,13 +152,19 @@ GUI::~GUI()
     ImGui::DestroyContext();
 }
 
-void GUI::render()
+void GUI::render(FrameInfo& frame_info)
 {
     startFrame();
 
-    //render gui elements
+    ImGui::Begin("Hello, world!");
 
-    endFrame();
+    ImGui::Text("This is some useful text.");
+    ImGui::SameLine();
+    ImGui::Text("counter");
+
+    ImGui::End();
+
+    endFrame(frame_info.command_buffer);
 }
 
 void GUI::startFrame()
@@ -176,25 +174,13 @@ void GUI::startFrame()
     ImGui::NewFrame();
 }
 
-void GUI::endFrame()
-{
-    frameRender();
-}
-
-void GUI::frameRender()
+void GUI::endFrame(VkCommandBuffer command_buffer)
 {
     ImGui::Render();
 
     VkResult err;
 
     uint32_t frame_index = swap_chain->getCurrentFrameIndex();
-    {
-        err = vkResetCommandPool(device.getDevice(), command_pool, 0);
-        VkCommandBufferBeginInfo info{};
-        info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-        info.flags |= VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
-        err = vkBeginCommandBuffer(command_buffers[frame_index], &info);
-    }
     {
         VkClearValue clear_value{};
         clear_value.color.float32[0] = 0.f;
@@ -209,13 +195,12 @@ void GUI::frameRender()
         info.renderArea.extent.height = swap_chain->height();
         info.clearValueCount = 1;
         info.pClearValues = &clear_value;
-        vkCmdBeginRenderPass(command_buffers[frame_index], &info, VK_SUBPASS_CONTENTS_INLINE);
+        vkCmdBeginRenderPass(command_buffer, &info, VK_SUBPASS_CONTENTS_INLINE);
     }
 
     // Record dear imgui primitives into command buffer
-    ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), command_buffers[frame_index]);
+    ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), command_buffer);
 
     // Submit command buffer
-    vkCmdEndRenderPass(command_buffers[frame_index]);
-    err = vkEndCommandBuffer(command_buffers[frame_index]);
+    vkCmdEndRenderPass(command_buffer);
 }

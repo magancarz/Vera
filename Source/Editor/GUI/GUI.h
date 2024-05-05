@@ -14,9 +14,7 @@ public:
     GUI(const GUI&) = delete;
     GUI& operator=(const GUI&) = delete;
 
-    void render();
-
-    VkCommandBuffer getCommandBuffer(uint32_t frame_index) { return command_buffers[frame_index]; }
+    void render(FrameInfo& frame_info);
 
 private:
     Device& device;
@@ -36,16 +34,10 @@ private:
 
     void setupRendererBackends();
 
-    void createCommandPoolAndBuffers();
-
-    VkCommandPool command_pool;
-    std::vector<VkCommandBuffer> command_buffers;
-
     void createFramebuffers();
 
     std::vector<VkFramebuffer> framebuffers;
 
     void startFrame();
-    void frameRender();
-    void endFrame();
+    void endFrame(VkCommandBuffer command_buffer);
 };

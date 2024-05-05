@@ -5,6 +5,8 @@
 
 #include "GlobalUBO.h"
 #include "RenderEngine/SceneRenderers/RayTraced/RayTracedRenderer.h"
+#include "imgui.h"
+#include "imgui_impl_vulkan.h"
 
 Renderer::Renderer(Window& window, Device& device, World& world)
     : window{window}, device{device}, world{world}
@@ -121,10 +123,11 @@ void Renderer::render(FrameInfo& frame_info)
 
         endSwapChainRenderPass(command_buffer);
 
+        gui->render(frame_info);
+
         endFrame();
     }
 
-//    gui->render();
 }
 
 VkCommandBuffer Renderer::beginFrame()
@@ -166,7 +169,7 @@ void Renderer::endFrame()
         throw std::runtime_error("Failed to record command buffer!");
     }
 
-    std::vector<VkCommandBuffer> submit_command_buffers = { command_buffer };//, gui->getCommandBuffer(current_image_index) };
+    std::vector<VkCommandBuffer> submit_command_buffers = { command_buffer };
     auto result = swap_chain->submitCommandBuffers(submit_command_buffers.data(), submit_command_buffers.size(), &current_image_index);
     if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || window.wasWindowResized())
     {
