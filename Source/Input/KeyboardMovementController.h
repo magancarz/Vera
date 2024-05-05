@@ -24,7 +24,7 @@ public:
     bool playerMoved() const;
 
     KeyMappings keys{};
-    float move_speed{6.f};
+    float move_speed{12.f};
     float look_speed{1.f};
 
     bool player_moved{false};

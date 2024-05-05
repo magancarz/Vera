@@ -11,6 +11,7 @@ Texture::Texture(Device& device, const std::string& filepath)
     width = texture_data.width;
     height = texture_data.height;
     mip_levels = static_cast<uint32_t>(std::floor(std::log2(std::max(width, height)))) + 1;
+    image_format = VK_FORMAT_R8G8B8A8_SRGB;
 
     Buffer staging_buffer
     {
@@ -23,8 +24,6 @@ Texture::Texture(Device& device, const std::string& filepath)
 
     staging_buffer.map();
     staging_buffer.writeToBuffer(texture_data.data);
-
-    image_format = VK_FORMAT_R8G8B8A8_SRGB;
 
     VkImageCreateInfo image_create_info{};
     image_create_info.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
@@ -85,6 +84,17 @@ Texture::Texture(Device& device, const std::string& filepath)
     {
         throw std::runtime_error("Failed to create image view!");
     }
+}
+
+void Texture::createTexture()
+{
+
+}
+
+Texture::Texture(Device& device, VkFormat image_format, uint32_t width, uint32_t height)
+    : device{device}, image_format{image_format}, width{width}, height{height}
+{
+    mip_levels = 1;
 }
 
 Texture::~Texture()

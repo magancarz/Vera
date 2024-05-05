@@ -19,6 +19,9 @@ public:
 
     void renderScene(FrameInfo& frame_info) override;
 
+    VkImageView getRayTracedImageViewHandle() { return rayTraceImageViewHandle; }
+    VkSampler getRayTracedImageSampler() { return ray_traced_image_sampler; }
+
 private:
     Device& device;
     World* world;
@@ -35,6 +38,7 @@ private:
 
     VkImage rayTraceImageHandle{VK_NULL_HANDLE};
     VkImageView rayTraceImageViewHandle{VK_NULL_HANDLE};
+    VkSampler ray_traced_image_sampler{VK_NULL_HANDLE};
 
     void createCameraUniformBuffer();
 

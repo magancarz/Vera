@@ -43,8 +43,9 @@ public:
     Device(Device&&) = delete;
     Device& operator=(Device&&) = delete;
 
-    VkCommandPool getCommandPool() { return command_pool; }
+    VkInstance getInstance() { return instance; }
     VkDevice getDevice() { return device; }
+    VkCommandPool getCommandPool() { return command_pool; }
     VkPhysicalDevice getPhysicalDevice() { return used_physical_device; }
     VkSurfaceKHR surface() { return surface_khr; }
     VkQueue graphicsQueue() { return graphics_queue; }
@@ -61,6 +62,9 @@ public:
         VkMemoryPropertyFlags properties,
         VkBuffer& buffer,
         VkDeviceMemory& buffer_memory);
+
+    void createCommandPool(VkCommandPool* command_pool, VkCommandPoolCreateFlags flags);
+    void createCommandBuffers(VkCommandBuffer* command_buffer, uint32_t command_buffer_count, VkCommandPool& command_pool);
 
     VkCommandBuffer beginSingleTimeCommands();
     void endSingleTimeCommands(VkCommandBuffer command_buffer);

@@ -10,9 +10,6 @@ Window::Window(int width, int height, std::string name)
 
 Window::~Window()
 {
-//    ImGui_ImplOpenGL3_Shutdown();
-//    ImGui_ImplGlfw_Shutdown();
-//    ImGui::DestroyContext();
     glfwTerminate();
 }
 
@@ -37,15 +34,6 @@ void Window::initWindow()
 
     glfwSetWindowUserPointer(window, this);
     glfwSetFramebufferSizeCallback(window, framebufferResizeCallback);
-
-//    IMGUI_CHECKVERSION();
-//    ImGui::CreateContext();
-//    ImGuiIO& io = ImGui::GetIO();
-//    (void)io;
-//    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
-//    ImGui::StyleColorsDark();
-//    ImGui_ImplGlfw_InitForOpenGL(window, true);
-//    ImGui_ImplOpenGL3_Init("#version 330");
 }
 
 void Window::createWindowSurface(VkInstance instance, VkSurfaceKHR* surface)

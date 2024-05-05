@@ -8,6 +8,7 @@ class Texture
 {
 public:
     Texture(Device& device, const std::string& filepath);
+    Texture(Device& device, VkFormat image_format, uint32_t width, uint32_t height);
     ~Texture();
 
     VkSampler getSampler() { return sampler; }
@@ -15,10 +16,11 @@ public:
     VkImageLayout getImageLayout() { return image_layout; }
 
 private:
+    void createTexture();
     void transitionImageLayout(VkImageLayout old_layout, VkImageLayout new_layout);
     void generateMipmaps();
 
-    int width, height;
+    uint32_t width, height;
     uint32_t mip_levels;
 
     Device& device;

@@ -6,6 +6,9 @@
 #include "RenderEngine/RenderingAPI/Descriptors.h"
 #include "RenderEngine/SceneRenderers/SceneRenderer.h"
 #include "World/World.h"
+#include "Editor/GUI/GUI.h"
+#include "RenderEngine/PostProcessing/PostProcessing.h"
+#include "RenderEngine/SceneRenderers/RayTraced/RayTracedRenderer.h"
 
 class Renderer
 {
@@ -36,21 +39,36 @@ private:
     }
 
     void recreateSwapChain();
+
+    std::shared_ptr<SwapChain> swap_chain;
+
+    void createGUI();
+
+    std::unique_ptr<GUI> gui;
+
     void createCommandBuffers();
 
     void createSceneRenderer();
 
-    std::unique_ptr<SceneRenderer> scene_renderer;
+    std::unique_ptr<RayTracedRenderer> scene_renderer;
+
+    void createPostProcessingStage();
+
+    std::unique_ptr<DescriptorPool> post_process_texture_descriptor_pool;
+    std::unique_ptr<DescriptorSetLayout> post_process_texture_descriptor_set_layout;
+    VkDescriptorSet post_process_texture_descriptor_set_handle;
+    std::unique_ptr<PostProcessing> post_processing;
 
     VkCommandBuffer beginFrame();
     void endFrame();
+    void beginSwapChainRenderPass(VkCommandBuffer command_buffer);
+    void endSwapChainRenderPass(VkCommandBuffer command_buffer);
 
     void freeCommandBuffers();
 
-    std::unique_ptr<SwapChain> swap_chain;
     std::vector<VkCommandBuffer> command_buffers;
 
-    uint32_t current_image_index{0};
     bool is_frame_started{false};
     int current_frame_index{0};
+    uint32_t current_image_index{0};
 };

@@ -54,6 +54,16 @@ layout(push_constant) uniform PushConstantRay
 
 hitAttributeEXT vec3 attribs;
 
+vec3 randomUnitDirection()
+{
+    float r1 = rnd(payload.seed);
+    float r2 = rnd(payload.seed);
+    float x = cos(2 * PI * r1) * 2 * sqrt(r2 * (1 - r2));
+    float y = sin(2 * PI * r1) * 2 * sqrt(r2 * (1 - r2));
+    float z = 1 - 2 * r2;
+    return vec3(x, y, z);
+}
+
 void main()
 {
     if (payload.is_active == 0)
@@ -116,9 +126,9 @@ void main()
     vec3 light_position = light_first_vertex.position * light_barycentric.x + light_second_vertex.position * light_barycentric.y + light_third_vertex.position * light_barycentric.z;
     light_position = vec3(random_light.object_to_world * vec4(light_position, 1.0));
 
-    vec3 random_dir = normalize(vec3(rnd(payload.seed), rnd(payload.seed), rnd(payload.seed)));
-    random_dir *= sign(dot(random_dir, geometric_normal));
-    vec3 positionToLightDirection = normalize(vec3(1) + random_dir);
+    vec3 random_dir = randomUnitDirection();
+    random_dir *= sign(dot(random_dir, normalize(vec3(1))));
+    vec3 positionToLightDirection = normalize(normalize(vec3(1)) + random_dir * 0.05);
 
     vec3 u, v, w;
     w = geometric_normal;
@@ -126,7 +136,7 @@ void main()
     vec3 random_cosine_direction = generateRandomDirectionWithCosinePDF(payload.seed, u, v, w);
     payload.direction = rnd(payload.seed) > 0.5 ? positionToLightDirection : random_cosine_direction;
 
-    const uint rayFlags = gl_RayFlagsTerminateOnFirstHitEXT;
+    const uint rayFlags = gl_RayFlagsTerminateOnFirstHitEXT | gl_RayFlagsSkipClosestHitShaderEXT;
     occluded = false;
     traceRayEXT(
         topLevelAS, // acceleration structure
@@ -144,8 +154,8 @@ void main()
 
     float scattering_pdf = scatteringPDFFromLambertian(payload.direction, geometric_normal);
     float cosine = occluded ? 0 : max(dot(normalize(vec3(1)), payload.direction), 0.0);
-    vec3 sun_contribution = vec3(1) * 10 * cosine;
+    vec3 sun_contribution = vec3(1) * 1 * cosine;
 
-    payload.color *= material_color * scattering_pdf * sun_contribution;
+    payload.color *= material_color * scattering_pdf + sun_contribution;
     payload.depth += 1;
 }

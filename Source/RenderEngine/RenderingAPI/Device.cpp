@@ -534,6 +534,29 @@ void Device::createBuffer(
     vkBindBufferMemory(device, buffer, buffer_memory, 0);
 }
 
+void Device::createCommandPool(VkCommandPool* command_pool, VkCommandPoolCreateFlags flags)
+{
+    VkCommandPoolCreateInfo commandPoolCreateInfo{};
+    commandPoolCreateInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
+    commandPoolCreateInfo.queueFamilyIndex = findQueueFamilies(used_physical_device).graphicsFamily;
+    commandPoolCreateInfo.flags = flags;
+
+    if (vkCreateCommandPool(device, &commandPoolCreateInfo, nullptr, command_pool) != VK_SUCCESS)
+    {
+        throw std::runtime_error("Could not create graphics command pool");
+    }
+}
+
+void Device::createCommandBuffers(VkCommandBuffer* command_buffer, uint32_t command_buffer_count, VkCommandPool& command_pool)
+{
+    VkCommandBufferAllocateInfo commandBufferAllocateInfo{};
+    commandBufferAllocateInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+    commandBufferAllocateInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+    commandBufferAllocateInfo.commandPool = command_pool;
+    commandBufferAllocateInfo.commandBufferCount = command_buffer_count;
+    vkAllocateCommandBuffers(device, &commandBufferAllocateInfo, command_buffer);
+}
+
 VkCommandBuffer Device::beginSingleTimeCommands()
 {
     VkCommandBufferAllocateInfo allocate_info{};

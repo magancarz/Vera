@@ -68,14 +68,14 @@ public:
         VkDescriptorPoolCreateFlags pool_flags,
         const std::vector<VkDescriptorPoolSize>& pool_sizes);
     ~DescriptorPool();
+
     DescriptorPool(const DescriptorPool&) = delete;
     DescriptorPool &operator=(const DescriptorPool&) = delete;
 
-    bool allocateDescriptor(
-            const VkDescriptorSetLayout descriptor_set_layout, VkDescriptorSet& descriptor) const;
+    VkDescriptorPool descriptorPool() { return descriptor_pool; }
 
+    bool allocateDescriptor(const VkDescriptorSetLayout descriptor_set_layout, VkDescriptorSet& descriptor) const;
     void freeDescriptors(std::vector<VkDescriptorSet>& descriptors) const;
-
     void resetPool();
 
 private:

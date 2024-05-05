@@ -8,11 +8,9 @@
 
 struct FrameInfo
 {
-    int frame_index;
-    float frame_time;
     VkCommandBuffer command_buffer;
+    float frame_time;
     Camera* camera;
     bool player_moved{false};
-    std::map<int, std::shared_ptr<Object>> objects;
-    VkImage swap_chain_image;
+    VkDescriptorSet ray_traced_texture;
 };

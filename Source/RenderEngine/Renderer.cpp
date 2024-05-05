@@ -11,7 +11,9 @@ Renderer::Renderer(Window& window, Device& device, World& world)
 {
     createCommandBuffers();
     recreateSwapChain();
+    createGUI();
     createSceneRenderer();
+    createPostProcessingStage();
 }
 
 void Renderer::createCommandBuffers()
@@ -56,10 +58,37 @@ void Renderer::recreateSwapChain()
     }
 }
 
+void Renderer::createGUI()
+{
+    gui = std::make_unique<GUI>(device, window, swap_chain);
+}
+
 void Renderer::createSceneRenderer()
 {
     scene_renderer = std::make_unique<RayTracedRenderer>(device, &world);
-//    scene_renderer = std::make_unique<RasterizedRenderer>(device, swap_chain->getRenderPass());
+}
+
+void Renderer::createPostProcessingStage()
+{
+    post_process_texture_descriptor_pool = DescriptorPool::Builder(device)
+            .setMaxSets(SwapChain::MAX_FRAMES_IN_FLIGHT)
+            .addPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1)
+            .build();
+
+    post_process_texture_descriptor_set_layout = DescriptorSetLayout::Builder(device)
+            .addBinding(0, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT)
+            .build();
+
+    VkDescriptorImageInfo rayTraceImageDescriptorInfo = {
+            .sampler = scene_renderer->getRayTracedImageSampler(),
+            .imageView = scene_renderer->getRayTracedImageViewHandle(),
+            .imageLayout = VK_IMAGE_LAYOUT_GENERAL};
+
+    DescriptorWriter(*post_process_texture_descriptor_set_layout, *post_process_texture_descriptor_pool)
+            .writeImage(0, &rayTraceImageDescriptorInfo)
+            .build(post_process_texture_descriptor_set_handle);
+
+    post_processing = std::make_unique<PostProcessing>(device, swap_chain->getRenderPass(), post_process_texture_descriptor_set_layout->getDescriptorSetLayout());
 }
 
 Renderer::~Renderer()
@@ -81,14 +110,21 @@ void Renderer::render(FrameInfo& frame_info)
 {
     if (auto command_buffer = beginFrame())
     {
-        frame_info.frame_index = getFrameIndex();
         frame_info.command_buffer = command_buffer;
-        frame_info.swap_chain_image = swap_chain->getImage(getFrameIndex());
+        frame_info.ray_traced_texture = post_process_texture_descriptor_set_handle;
 
         scene_renderer->renderScene(frame_info);
 
+        beginSwapChainRenderPass(command_buffer);
+
+        post_processing->apply(frame_info);
+
+        endSwapChainRenderPass(command_buffer);
+
         endFrame();
     }
+
+//    gui->render();
 }
 
 VkCommandBuffer Renderer::beginFrame()
@@ -130,7 +166,8 @@ void Renderer::endFrame()
         throw std::runtime_error("Failed to record command buffer!");
     }
 
-    auto result = swap_chain->submitCommandBuffers(&command_buffer, &current_image_index);
+    std::vector<VkCommandBuffer> submit_command_buffers = { command_buffer };//, gui->getCommandBuffer(current_image_index) };
+    auto result = swap_chain->submitCommandBuffers(submit_command_buffers.data(), submit_command_buffers.size(), &current_image_index);
     if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || window.wasWindowResized())
     {
         window.resetWindowResizedFlag();
@@ -143,4 +180,45 @@ void Renderer::endFrame()
 
     is_frame_started = false;
     current_frame_index = (current_frame_index + 1) % SwapChain::MAX_FRAMES_IN_FLIGHT;
+}
+
+void Renderer::beginSwapChainRenderPass(VkCommandBuffer command_buffer)
+{
+    assert(is_frame_started && "Can't call beginSwapChainRenderPass if frame is not in progress!");
+    assert(command_buffer == getCurrentCommandBuffer() && "Can't begin render pass on command buffer from a different frame!");
+
+    VkRenderPassBeginInfo render_pass_info{};
+    render_pass_info.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+    render_pass_info.renderPass = swap_chain->getRenderPass();
+    render_pass_info.framebuffer = swap_chain->getFrameBuffer(current_image_index);
+
+    render_pass_info.renderArea.offset = {0, 0};
+    render_pass_info.renderArea.extent = swap_chain->getSwapChainExtent();
+
+    std::array<VkClearValue, 2> clear_values{};
+    clear_values[0].color = {0.1f, 0.1f, 0.1f, 1.0f};
+    clear_values[1].depthStencil = {1.0f, 0};
+    render_pass_info.clearValueCount = static_cast<uint32_t>(clear_values.size());
+    render_pass_info.pClearValues = clear_values.data();
+
+    vkCmdBeginRenderPass(command_buffer, &render_pass_info, VK_SUBPASS_CONTENTS_INLINE);
+
+    VkViewport viewport{};
+    viewport.x = 0.0f;
+    viewport.y = 0.0f;
+    viewport.width = static_cast<float>(swap_chain->getSwapChainExtent().width);
+    viewport.height = static_cast<float>(swap_chain->getSwapChainExtent().height);
+    viewport.minDepth = 0.0f;
+    viewport.maxDepth = 1.0f;
+    VkRect2D scissor{{0, 0}, swap_chain->getSwapChainExtent()};
+    vkCmdSetViewport(command_buffer, 0, 1, &viewport);
+    vkCmdSetScissor(command_buffer, 0, 1, &scissor);
+}
+
+void Renderer::endSwapChainRenderPass(VkCommandBuffer command_buffer)
+{
+    assert(is_frame_started && "Can't call endSwapChainRenderPass if frame is not in progress!");
+    assert(command_buffer == getCurrentCommandBuffer() && "Can't end render pass on command buffer from a different frame!");
+
+    vkCmdEndRenderPass(command_buffer);
 }

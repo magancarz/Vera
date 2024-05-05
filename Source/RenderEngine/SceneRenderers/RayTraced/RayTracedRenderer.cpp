@@ -5,6 +5,7 @@
 
 #include "RenderEngine/RenderingAPI/VulkanHelper.h"
 #include "RenderEngine/GlobalUBO.h"
+#include "RenderEngine/RenderingAPI/VulkanDefines.h"
 
 RayTracedRenderer::RayTracedRenderer(Device& device, World* world)
     : device{device}, world{world}
@@ -88,7 +89,7 @@ void RayTracedRenderer::createRayTracedImage()
             .arrayLayers = 1,
             .samples = VK_SAMPLE_COUNT_1_BIT,
             .tiling = VK_IMAGE_TILING_OPTIMAL,
-            .usage = VK_IMAGE_USAGE_STORAGE_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT,
+            .usage = VK_IMAGE_USAGE_STORAGE_BIT | VK_IMAGE_USAGE_SAMPLED_BIT,
             .sharingMode = VK_SHARING_MODE_EXCLUSIVE,
             .queueFamilyIndexCount = 1,
             .pQueueFamilyIndices = &graphics_queue_index,
@@ -148,6 +149,27 @@ void RayTracedRenderer::createRayTracedImage()
 
     if (result != VK_SUCCESS) {
         throw std::runtime_error("vkCreateImageView");
+    }
+
+    VkSamplerCreateInfo sampler_create_info{};
+    sampler_create_info.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
+    sampler_create_info.magFilter = VK_FILTER_LINEAR;
+    sampler_create_info.minFilter = VK_FILTER_LINEAR;
+    sampler_create_info.mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR;
+    sampler_create_info.addressModeU = VK_SAMPLER_ADDRESS_MODE_REPEAT;
+    sampler_create_info.addressModeV = VK_SAMPLER_ADDRESS_MODE_REPEAT;
+    sampler_create_info.addressModeW = VK_SAMPLER_ADDRESS_MODE_REPEAT;
+    sampler_create_info.mipLodBias = 0.0f;
+    sampler_create_info.compareOp = VK_COMPARE_OP_NEVER;
+    sampler_create_info.minLod = 0.0f;
+    sampler_create_info.maxLod = 1;
+    sampler_create_info.maxAnisotropy = 4.0;
+    sampler_create_info.anisotropyEnable = VK_TRUE;
+    sampler_create_info.borderColor = VK_BORDER_COLOR_FLOAT_OPAQUE_WHITE;
+
+    if (vkCreateSampler(device.getDevice(), &sampler_create_info, VulkanDefines::NO_CALLBACK, &ray_traced_image_sampler) != VK_SUCCESS)
+    {
+        throw std::runtime_error("Failed to create image sampler!");
     }
 
     // =========================================================================
@@ -309,113 +331,6 @@ void RayTracedRenderer::renderScene(FrameInfo& frame_info)
             &ray_tracing_pipeline->callableShaderBindingTable,
             //TODO: not hardcoded
             1280, 800, 1);
-
-    auto graphics_queue_index = device.findPhysicalQueueFamilies().graphicsFamily;
-
-    VkImageMemoryBarrier swapchainCopyMemoryBarrier = {
-            .sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER,
-            .pNext = NULL,
-            .srcAccessMask = 0,
-            .dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT,
-            .oldLayout = VK_IMAGE_LAYOUT_UNDEFINED,
-            .newLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-            .srcQueueFamilyIndex = graphics_queue_index,
-            .dstQueueFamilyIndex = graphics_queue_index,
-            .image = frame_info.swap_chain_image,
-            .subresourceRange = {.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT,
-                    .baseMipLevel = 0,
-                    .levelCount = 1,
-                    .baseArrayLayer = 0,
-                    .layerCount = 1}};
-
-    vkCmdPipelineBarrier(frame_info.command_buffer,
-                         VK_PIPELINE_STAGE_ALL_COMMANDS_BIT,
-                         VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, 0, 0, NULL, 0,
-                         NULL, 1, &swapchainCopyMemoryBarrier);
-
-    VkImageMemoryBarrier rayTraceCopyMemoryBarrier = {
-            .sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER,
-            .pNext = NULL,
-            .srcAccessMask = 0,
-            .dstAccessMask = VK_ACCESS_TRANSFER_READ_BIT,
-            .oldLayout = VK_IMAGE_LAYOUT_GENERAL,
-            .newLayout = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
-            .srcQueueFamilyIndex = graphics_queue_index,
-            .dstQueueFamilyIndex = graphics_queue_index,
-            .image = rayTraceImageHandle,
-            .subresourceRange = {.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT,
-                    .baseMipLevel = 0,
-                    .levelCount = 1,
-                    .baseArrayLayer = 0,
-                    .layerCount = 1}};
-
-    vkCmdPipelineBarrier(frame_info.command_buffer,
-                         VK_PIPELINE_STAGE_ALL_COMMANDS_BIT,
-                         VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, 0, 0, NULL, 0,
-                         NULL, 1, &rayTraceCopyMemoryBarrier);
-
-    VkImageCopy imageCopy = {
-            .srcSubresource = {.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT,
-                    .mipLevel = 0,
-                    .baseArrayLayer = 0,
-                    .layerCount = 1},
-            .srcOffset = {.x = 0, .y = 0, .z = 0},
-            .dstSubresource = {.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT,
-                    .mipLevel = 0,
-                    .baseArrayLayer = 0,
-                    .layerCount = 1},
-            .dstOffset = {.x = 0, .y = 0, .z = 0},
-            //TODO: not hardcoded
-            .extent = {.width = 1280,
-                    .height = 800,
-                    .depth = 1}};
-
-    vkCmdCopyImage(frame_info.command_buffer, rayTraceImageHandle,
-                   VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
-                   frame_info.swap_chain_image,
-                   VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &imageCopy);
-
-    VkImageMemoryBarrier swapchainPresentMemoryBarrier = {
-            .sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER,
-            .pNext = NULL,
-            .srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT,
-            .dstAccessMask = 0,
-            .oldLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-            .newLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR,
-            .srcQueueFamilyIndex = graphics_queue_index,
-            .dstQueueFamilyIndex = graphics_queue_index,
-            .image = frame_info.swap_chain_image,
-            .subresourceRange = {.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT,
-                    .baseMipLevel = 0,
-                    .levelCount = 1,
-                    .baseArrayLayer = 0,
-                    .layerCount = 1}};
-
-    vkCmdPipelineBarrier(frame_info.command_buffer,
-                         VK_PIPELINE_STAGE_ALL_COMMANDS_BIT,
-                         VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, 0, 0, NULL, 0,
-                         NULL, 1, &swapchainPresentMemoryBarrier);
-
-    VkImageMemoryBarrier rayTraceWriteMemoryBarrier = {
-            .sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER,
-            .pNext = NULL,
-            .srcAccessMask = VK_ACCESS_TRANSFER_READ_BIT,
-            .dstAccessMask = 0,
-            .oldLayout = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
-            .newLayout = VK_IMAGE_LAYOUT_GENERAL,
-            .srcQueueFamilyIndex = graphics_queue_index,
-            .dstQueueFamilyIndex = graphics_queue_index,
-            .image = rayTraceImageHandle,
-            .subresourceRange = {.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT,
-                    .baseMipLevel = 0,
-                    .levelCount = 1,
-                    .baseArrayLayer = 0,
-                    .layerCount = 1}};
-
-    vkCmdPipelineBarrier(frame_info.command_buffer,
-                         VK_PIPELINE_STAGE_ALL_COMMANDS_BIT,
-                         VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, 0, 0, NULL, 0,
-                         NULL, 1, &rayTraceWriteMemoryBarrier);
 
     ++current_number_of_frames;
 }

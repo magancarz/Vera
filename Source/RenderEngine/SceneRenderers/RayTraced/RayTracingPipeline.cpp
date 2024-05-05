@@ -93,8 +93,8 @@ void RayTracingPipeline::createPipeline()
     stage_create_info.module = closest_hit_lambertian_shader_module.getShaderModule();
     pipeline_shader_stage_create_info_list.push_back(stage_create_info);
 
-    ShaderModule any_hit_occlusion_shader_module{device, "Shaders/raytrace_occlusion.rchit.spv"};
-    stage_create_info.stage = VK_SHADER_STAGE_CLOSEST_HIT_BIT_KHR;
+    ShaderModule any_hit_occlusion_shader_module{device, "Shaders/raytrace_occlusion.rahit.spv"};
+    stage_create_info.stage = VK_SHADER_STAGE_ANY_HIT_BIT_KHR;
     stage_create_info.module = any_hit_occlusion_shader_module.getShaderModule();
     pipeline_shader_stage_create_info_list.push_back(stage_create_info);
 
@@ -158,9 +158,9 @@ void RayTracingPipeline::createPipeline()
 
     VkRayTracingShaderGroupCreateInfoKHR any_hit_occlusion_shader_group_create_info{VK_STRUCTURE_TYPE_RAY_TRACING_SHADER_GROUP_CREATE_INFO_KHR};
     any_hit_occlusion_shader_group_create_info.type = VK_RAY_TRACING_SHADER_GROUP_TYPE_TRIANGLES_HIT_GROUP_KHR;
-    any_hit_occlusion_shader_group_create_info.closestHitShader = any_hit_occlusion;
+    any_hit_occlusion_shader_group_create_info.closestHitShader = VK_SHADER_UNUSED_KHR;
     any_hit_occlusion_shader_group_create_info.generalShader = VK_SHADER_UNUSED_KHR;
-    any_hit_occlusion_shader_group_create_info.anyHitShader = VK_SHADER_UNUSED_KHR;
+    any_hit_occlusion_shader_group_create_info.anyHitShader = any_hit_occlusion;
     any_hit_occlusion_shader_group_create_info.intersectionShader = VK_SHADER_UNUSED_KHR;
     ray_tracing_shader_group_create_info_list.push_back(any_hit_occlusion_shader_group_create_info);
 

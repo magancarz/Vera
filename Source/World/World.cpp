@@ -17,7 +17,7 @@ void World::loadObjects(Device& device, const std::vector<std::shared_ptr<Materi
 {
     std::shared_ptr<Model> plane_model = Model::createModelFromFile(device, "Resources/Models/plane.obj");
     std::shared_ptr<Model> cube_model = Model::createModelFromFile(device, "Resources/Models/cube.obj");
-    std::shared_ptr<Model> dragon_model = Model::createModelFromFile(device, "Resources/Models/monkey.obj");
+    std::shared_ptr<Model> dragon_model = Model::createModelFromFile(device, "Resources/Models/dragon.obj");
     std::map<std::string, std::shared_ptr<Model>> models;
     models.emplace("plane", plane_model);
     models.emplace("cube", cube_model);
@@ -31,6 +31,7 @@ void World::loadObjects(Device& device, const std::vector<std::shared_ptr<Materi
 
     std::map<std::string, std::shared_ptr<Material>> materials;
     materials.emplace("white", white_lambertian);
+    materials.emplace("red", red_lambertian);
     materials.emplace("light", diffuse_light);
     materials.emplace("specular", specular);
 
@@ -54,5 +55,4 @@ void World::update(FrameInfo& frame_info)
     camera.setViewYXZ(viewer_object->transform_component.translation, viewer_object->transform_component.rotation);
     frame_info.player_moved = movement_controller.playerMoved();
     frame_info.camera = &camera;
-    frame_info.objects = objects;
 }

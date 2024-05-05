@@ -19,6 +19,7 @@ public:
     SwapChain(const SwapChain&) = delete;
     SwapChain& operator=(const SwapChain&) = delete;
 
+    uint32_t getCurrentFrameIndex() { return current_frame; }
     VkFramebuffer getFrameBuffer(int index) { return swap_chain_framebuffers[index]; }
     VkRenderPass getRenderPass() { return render_pass; }
     VkImageView getImageView(int index) { return swap_chain_image_views[index]; }
@@ -33,7 +34,7 @@ public:
     VkFormat findDepthFormat();
 
     VkResult acquireNextImage(uint32_t* image_index);
-    VkResult submitCommandBuffers(const VkCommandBuffer* buffers, uint32_t* image_index);
+    VkResult submitCommandBuffers(const VkCommandBuffer* buffers, uint32_t buffers_count, uint32_t* image_index);
 
     bool compareSwapFormats(const SwapChain& swap_chain) const
     {
@@ -45,6 +46,8 @@ private:
     void init();
     void createSwapChain();
     void createImageViews();
+    void createRenderPass();
+    void createFramebuffers();
     void createSyncObjects();
 
     VkSurfaceFormatKHR chooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& available_formats);
