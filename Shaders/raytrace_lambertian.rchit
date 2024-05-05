@@ -50,6 +50,8 @@ layout(push_constant) uniform PushConstantRay
     uint time;
     uint frames;
     uint number_of_lights;
+    float weather;
+    vec3 sun_position;
 } push_constant;
 
 hitAttributeEXT vec3 attribs;
@@ -127,8 +129,8 @@ void main()
     light_position = vec3(random_light.object_to_world * vec4(light_position, 1.0));
 
     vec3 random_dir = randomUnitDirection();
-    random_dir *= sign(dot(random_dir, normalize(vec3(1))));
-    vec3 positionToLightDirection = normalize(normalize(vec3(1)) + random_dir * 0.05);
+    random_dir *= sign(dot(random_dir, push_constant.sun_position));
+    vec3 positionToLightDirection = normalize(push_constant.sun_position + random_dir * push_constant.weather);
 
     vec3 u, v, w;
     w = geometric_normal;
@@ -153,9 +155,9 @@ void main()
         );
 
     float scattering_pdf = scatteringPDFFromLambertian(payload.direction, geometric_normal);
-    float cosine = occluded ? 0 : max(dot(normalize(vec3(1)), payload.direction), 0.0);
-    vec3 sun_contribution = vec3(1) * 1 * cosine;
+    float cosine = occluded ? 0 : max(dot(push_constant.sun_position, payload.direction), 0.0);
+    vec3 sun_contribution = vec3(1) * 10 * cosine;
 
-    payload.color *= sun_contribution + material_color * scattering_pdf;
+    payload.color *= sun_contribution * material_color * scattering_pdf;
     payload.depth += 1;
 }

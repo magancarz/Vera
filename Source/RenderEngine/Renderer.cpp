@@ -115,6 +115,8 @@ void Renderer::render(FrameInfo& frame_info)
         frame_info.command_buffer = command_buffer;
         frame_info.ray_traced_texture = post_process_texture_descriptor_set_handle;
 
+        gui->updateGUIElements(frame_info);
+
         scene_renderer->renderScene(frame_info);
 
         beginSwapChainRenderPass(command_buffer);
@@ -123,7 +125,7 @@ void Renderer::render(FrameInfo& frame_info)
 
         endSwapChainRenderPass(command_buffer);
 
-        gui->render(frame_info);
+        gui->renderGUIElements(command_buffer);
 
         endFrame();
     }
@@ -188,7 +190,7 @@ void Renderer::endFrame()
 void Renderer::beginSwapChainRenderPass(VkCommandBuffer command_buffer)
 {
     assert(is_frame_started && "Can't call beginSwapChainRenderPass if frame is not in progress!");
-    assert(command_buffer == getCurrentCommandBuffer() && "Can't begin render pass on command buffer from a different frame!");
+    assert(command_buffer == getCurrentCommandBuffer() && "Can't begin updateElements pass on command buffer from a different frame!");
 
     VkRenderPassBeginInfo render_pass_info{};
     render_pass_info.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
@@ -221,7 +223,7 @@ void Renderer::beginSwapChainRenderPass(VkCommandBuffer command_buffer)
 void Renderer::endSwapChainRenderPass(VkCommandBuffer command_buffer)
 {
     assert(is_frame_started && "Can't call endSwapChainRenderPass if frame is not in progress!");
-    assert(command_buffer == getCurrentCommandBuffer() && "Can't end render pass on command buffer from a different frame!");
+    assert(command_buffer == getCurrentCommandBuffer() && "Can't end updateElements pass on command buffer from a different frame!");
 
     vkCmdEndRenderPass(command_buffer);
 }

@@ -322,6 +322,8 @@ void RayTracedRenderer::renderScene(FrameInfo& frame_info)
     current_number_of_frames = frame_info.player_moved ? 0 : current_number_of_frames;
     push_constant_ray.frames = current_number_of_frames;
     push_constant_ray.number_of_lights = number_of_lights;
+    push_constant_ray.weather = frame_info.weather;
+    push_constant_ray.sun_position = frame_info.sun_position;
     ray_tracing_pipeline->pushConstants(frame_info.command_buffer, push_constant_ray);
 
     pvkCmdTraceRaysKHR(frame_info.command_buffer,

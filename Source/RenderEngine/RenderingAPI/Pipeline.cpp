@@ -30,7 +30,7 @@ void Pipeline::bind(VkCommandBuffer command_buffer)
 void Pipeline::createGraphicsPipeline(const std::string& vertex_file_path, const std::string& fragment_file_path, const PipelineConfigInfo& config_info)
 {
     assert(config_info.pipeline_layout != VK_NULL_HANDLE && "Cannot create graphics pipeline: no pipeline layout provided in config info!");
-    assert(config_info.render_pass != VK_NULL_HANDLE && "Cannot create graphics pipeline: no render pass provided in config info!");
+    assert(config_info.render_pass != VK_NULL_HANDLE && "Cannot create graphics pipeline: no updateElements pass provided in config info!");
 
     auto vert_code = readFile(vertex_file_path);
     auto frag_code = readFile(fragment_file_path);

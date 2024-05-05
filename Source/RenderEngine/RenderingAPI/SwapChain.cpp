@@ -235,7 +235,7 @@ void SwapChain::createRenderPass()
 
     if (vkCreateRenderPass(device.getDevice(), &render_pass_info, nullptr, &render_pass) != VK_SUCCESS)
     {
-        throw std::runtime_error("failed to create render pass!");
+        throw std::runtime_error("failed to create updateElements pass!");
     }
 }
 
