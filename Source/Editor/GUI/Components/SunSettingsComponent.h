@@ -12,6 +12,11 @@ public:
     inline static const char* const DISPLAY_NAME{"Sun Settings"};
 
 private:
+    void drawSliderElements();
+    void calculateSunPosition(FrameInfo& frame_info) const;
+    void updateFrameInfo(FrameInfo& frame_info) const;
+    void updatePreviousValues();
+
     float previous_sun_yaw_angle{30.f};
     float sun_yaw_angle{30.f};
 
