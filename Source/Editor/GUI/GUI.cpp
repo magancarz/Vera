@@ -7,11 +7,14 @@
 #include "RenderEngine/RenderingAPI/Descriptors.h"
 #include "RenderEngine/RenderingAPI/VulkanDefines.h"
 #include "RenderEngine/FrameInfo.h"
+#include "Editor/GUI/Components/Container.h"
+#include "Editor/GUI/Components/SceneSettingsWindow.h"
 
 GUI::GUI(Device& device, Window& window, std::shared_ptr<SwapChain> swap_chain)
     : device{device}, window{window}, swap_chain{std::move(swap_chain)}
 {
     initializeImGui();
+    initializeGUIComponents();
 }
 
 void GUI::initializeImGui()
@@ -146,6 +149,12 @@ void GUI::setupRendererBackends()
     ImGui_ImplVulkan_Init(&init_info, render_pass);
 }
 
+void GUI::initializeGUIComponents()
+{
+    root_component = std::make_shared<Container>("Root Component");
+    root_component->addComponent(std::make_shared<SceneSettingsWindow>());
+}
+
 GUI::~GUI()
 {
     ImGui_ImplVulkan_Shutdown();
@@ -155,37 +164,11 @@ GUI::~GUI()
 
 void GUI::updateGUIElements(FrameInfo& frame_info)
 {
-    startFrame();
-
-    ImGui::Begin("Hello, world!");
-
-    ImGui::Text("This is some useful text.");
-    ImGui::SameLine();
-    ImGui::Text("counter");
-    ImGui::SliderFloat("Sun Yaw Angle", &sun_yaw_angle, 0.0f, 360.0f);
-    ImGui::SliderFloat("Sun Pitch Angle", &sun_pitch_angle, 0.0f, 90.0f);
-    glm::vec3 initial_sun_position{1.0f, 0.0f, 0.0f};
-    glm::mat4 rotation = glm::rotate(glm::mat4(1.0f), glm::radians(sun_yaw_angle), glm::vec3{0, 1, 0});
-    rotation = glm::rotate(rotation, glm::radians(sun_pitch_angle), glm::vec3{0, 0, 1});
-    initial_sun_position = rotation * glm::vec4{initial_sun_position, 0.0f};
-    frame_info.sun_position = initial_sun_position;
-
-    ImGui::SliderFloat("Weather", &weather, 0.01f, 1.0f);
-
-    frame_info.weather = weather;
-
-    frame_info.player_moved |= abs(previous_sun_yaw_angle - sun_yaw_angle) > 0.001f
-            || abs(previous_sun_pitch_angle - sun_pitch_angle) > 0.001f
-            || abs(previous_weather - weather) > 0.001f;
-
-    previous_sun_yaw_angle = sun_yaw_angle;
-    previous_sun_pitch_angle = sun_pitch_angle;
-    previous_weather = weather;
-
-    ImGui::End();
+    startNewFrame();
+    root_component->update(frame_info);
 }
 
-void GUI::startFrame()
+void GUI::startNewFrame()
 {
     ImGui_ImplVulkan_NewFrame();
     ImGui_ImplGlfw_NewFrame();
