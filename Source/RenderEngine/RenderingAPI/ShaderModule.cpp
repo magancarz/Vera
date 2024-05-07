@@ -1,12 +1,25 @@
 #include "ShaderModule.h"
+#include "Utils/VeraDefines.h"
 #include "VulkanDefines.h"
 
 #include <fstream>
 
-ShaderModule::ShaderModule(Device& device, const std::string& path_to_shader_code)
+ShaderModule::ShaderModule(Device& device, const std::string& shader_code_file, VkShaderStageFlagBits shader_stage)
     : device{device}
 {
+    std::string path_to_shader_code = getPathToShaderCodeFile(shader_code_file, shader_stage);
     createShaderModule(path_to_shader_code);
+}
+
+std::string ShaderModule::getPathToShaderCodeFile(const std::string& shader_code_file, VkShaderStageFlagBits shader_stage)
+{
+    if (!SHADER_CODE_EXTENSIONS.contains(shader_stage))
+    {
+        throw std::runtime_error("Unsupported shader stage extension while creating shader module!");
+    }
+    std::filesystem::path file_name_with_extension{shader_code_file + SHADER_CODE_EXTENSIONS.at(shader_stage)};
+    std::filesystem::path full_file_path{VeraDefines::SHADERS_DIRECTORY_PATH / file_name_with_extension};
+    return full_file_path.generic_string();
 }
 
 void ShaderModule::createShaderModule(const std::string& path_to_shader_code)

@@ -68,6 +68,4 @@ private:
     void executeRayTracing(FrameInfo& frame_info);
 
     uint32_t current_number_of_frames{0};
-
-    ShaderBindingTableValues shader_binding_table;
 };
