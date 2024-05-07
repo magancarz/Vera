@@ -113,6 +113,7 @@ void Renderer::render(FrameInfo& frame_info)
     if (auto command_buffer = beginFrame())
     {
         frame_info.command_buffer = command_buffer;
+        frame_info.window_size = swap_chain->getSwapChainExtent();
         frame_info.ray_traced_texture = post_process_texture_descriptor_set_handle;
 
         gui->updateGUIElements(frame_info);

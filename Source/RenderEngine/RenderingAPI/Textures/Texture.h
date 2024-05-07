@@ -3,12 +3,13 @@
 #include <string>
 
 #include "RenderEngine/RenderingAPI/Device.h"
+#include "TextureData.h"
 
 class Texture
 {
 public:
     Texture(Device& device, const std::string& filepath);
-    Texture(Device& device, VkFormat image_format, uint32_t width, uint32_t height);
+    Texture(Device& device, uint32_t width, uint32_t height, VkImageUsageFlags usage_flags, VkFormat image_format = VK_FORMAT_R8G8B8A8_SRGB);
     ~Texture();
 
     VkSampler getSampler() { return sampler; }
@@ -16,18 +17,24 @@ public:
     VkImageLayout getImageLayout() { return image_layout; }
 
 private:
-    void createTexture();
+    Device& device;
+
+    void createImage(VkImageUsageFlags usage_flags);
+    void createImageView();
+    void createImageSampler();
+
+    void copyDataToImage(const TextureData& texture_data);
     void transitionImageLayout(VkImageLayout old_layout, VkImageLayout new_layout);
     void generateMipmaps();
 
     uint32_t width, height;
-    uint32_t mip_levels;
-
-    Device& device;
-    VkImage image;
-    VkDeviceMemory image_memory;
-    VkImageView image_view;
-    VkSampler sampler;
     VkFormat image_format;
-    VkImageLayout image_layout;
+    uint32_t mip_levels{1};
+
+    VkImage image{VK_NULL_HANDLE};
+    VkImageView image_view{VK_NULL_HANDLE};
+    VkSampler sampler{VK_NULL_HANDLE};
+
+    VkDeviceMemory image_memory{VK_NULL_HANDLE};
+    VkImageLayout image_layout{VK_IMAGE_LAYOUT_UNDEFINED};
 };

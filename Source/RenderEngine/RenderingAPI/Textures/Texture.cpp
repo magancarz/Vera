@@ -5,26 +5,22 @@
 #include "RenderEngine/RenderingAPI/VulkanDefines.h"
 
 Texture::Texture(Device& device, const std::string& filepath)
-    : device{device}
+    : device{device}, image_format{VK_FORMAT_R8G8B8A8_SRGB}
 {
     TextureData texture_data{filepath};
     width = texture_data.width;
     height = texture_data.height;
     mip_levels = static_cast<uint32_t>(std::floor(std::log2(std::max(width, height)))) + 1;
-    image_format = VK_FORMAT_R8G8B8A8_SRGB;
 
-    Buffer staging_buffer
-    {
-        device,
-        4,
-        static_cast<uint32_t>(width * height),
-        VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
-        VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT
-    };
+    createImage(VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT);
+    copyDataToImage(texture_data);
+    generateMipmaps();
+    createImageSampler();
+    createImageView();
+}
 
-    staging_buffer.map();
-    staging_buffer.writeToBuffer(texture_data.data);
-
+void Texture::createImage(VkImageUsageFlags usage_flags)
+{
     VkImageCreateInfo image_create_info{};
     image_create_info.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
     image_create_info.imageType = VK_IMAGE_TYPE_2D;
@@ -36,17 +32,29 @@ Texture::Texture(Device& device, const std::string& filepath)
     image_create_info.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
     image_create_info.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
     image_create_info.extent = {static_cast<uint32_t>(width), static_cast<uint32_t>(height), 1};
-    image_create_info.usage = VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT;
-
+    image_create_info.usage = usage_flags;
     device.createImageWithInfo(image_create_info, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, image, image_memory);
+}
 
+void Texture::copyDataToImage(const TextureData& texture_data)
+{
     transitionImageLayout(VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
-
+    Buffer staging_buffer
+    {
+            device,
+            4,
+            static_cast<uint32_t>(width * height),
+            VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
+            VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT
+    };
+    staging_buffer.map();
+    staging_buffer.writeToBuffer(texture_data.data);
     device.copyBufferToImage(staging_buffer.getBuffer(), image, static_cast<unsigned int>(width), static_cast<unsigned int>(height), 1);
+    transitionImageLayout(VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+}
 
-    generateMipmaps();
-    image_layout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-
+void Texture::createImageView()
+{
     VkSamplerCreateInfo sampler_create_info{};
     sampler_create_info.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
     sampler_create_info.magFilter = VK_FILTER_LINEAR;
@@ -67,7 +75,10 @@ Texture::Texture(Device& device, const std::string& filepath)
     {
         throw std::runtime_error("Failed to create image sampler!");
     }
+}
 
+void Texture::createImageSampler()
+{
     VkImageViewCreateInfo image_view_create_info{};
     image_view_create_info.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
     image_view_create_info.viewType = VK_IMAGE_VIEW_TYPE_2D;
@@ -86,15 +97,13 @@ Texture::Texture(Device& device, const std::string& filepath)
     }
 }
 
-void Texture::createTexture()
+Texture::Texture(Device& device, uint32_t width, uint32_t height, VkImageUsageFlags usage_flags, VkFormat image_format)
+    : device{device}, width{width}, height{height}, image_format{image_format}
 {
-
-}
-
-Texture::Texture(Device& device, VkFormat image_format, uint32_t width, uint32_t height)
-    : device{device}, image_format{image_format}, width{width}, height{height}
-{
-    mip_levels = 1;
+    createImage(usage_flags);
+    createImageView();
+    createImageSampler();
+    transitionImageLayout(VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_GENERAL);
 }
 
 Texture::~Texture()
@@ -140,6 +149,13 @@ void Texture::transitionImageLayout(VkImageLayout old_layout, VkImageLayout new_
 
         source_stage = VK_PIPELINE_STAGE_TRANSFER_BIT;
         destination_stage = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
+    } else if (old_layout == VK_IMAGE_LAYOUT_UNDEFINED && new_layout == VK_IMAGE_LAYOUT_GENERAL)
+    {
+        barrier.srcAccessMask = 0;
+        barrier.dstAccessMask = 0;
+
+        source_stage = VK_PIPELINE_STAGE_ALL_COMMANDS_BIT;
+        destination_stage = VK_PIPELINE_STAGE_ALL_COMMANDS_BIT;
     }
     else
     {
@@ -159,6 +175,8 @@ void Texture::transitionImageLayout(VkImageLayout old_layout, VkImageLayout new_
             &barrier);
 
     device.endSingleTimeCommands(command_buffer);
+
+    image_layout = new_layout;
 }
 
 void Texture::generateMipmaps()

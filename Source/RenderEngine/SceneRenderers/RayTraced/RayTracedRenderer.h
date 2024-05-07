@@ -5,6 +5,7 @@
 #include "RayTracingPipeline.h"
 #include "RenderEngine/RenderingAPI/Descriptors.h"
 #include "RenderEngine/Models/RayTracingAccelerationStructureBuilder.h"
+#include "RenderEngine/RenderingAPI/Textures/Texture.h"
 
 struct CameraUBO
 {
@@ -19,8 +20,8 @@ public:
 
     void renderScene(FrameInfo& frame_info) override;
 
-    VkImageView getRayTracedImageViewHandle() { return rayTraceImageViewHandle; }
-    VkSampler getRayTracedImageSampler() { return ray_traced_image_sampler; }
+    VkImageView getRayTracedImageViewHandle() { return ray_traced_texture->getImageView(); }
+    VkSampler getRayTracedImageSampler() { return ray_traced_texture->getSampler(); }
 
 private:
     Device& device;
@@ -36,9 +37,7 @@ private:
 
     void createRayTracedImage();
 
-    VkImage rayTraceImageHandle{VK_NULL_HANDLE};
-    VkImageView rayTraceImageViewHandle{VK_NULL_HANDLE};
-    VkSampler ray_traced_image_sampler{VK_NULL_HANDLE};
+    std::unique_ptr<Texture> ray_traced_texture;
 
     void createCameraUniformBuffer();
 
@@ -62,6 +61,11 @@ private:
     void createRayTracingPipeline();
 
     std::unique_ptr<RayTracingPipeline> ray_tracing_pipeline;
+
+    void updatePipelineUniformVariables(FrameInfo& frame_info);
+    void updateCameraUniformBuffer(FrameInfo& frame_info);
+    void updateRayPushConstant(FrameInfo& frame_info);
+    void executeRayTracing(FrameInfo& frame_info);
 
     uint32_t current_number_of_frames{0};
 };

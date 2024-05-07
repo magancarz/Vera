@@ -32,9 +32,9 @@ void SunSettingsComponent::calculateSunPosition(FrameInfo& frame_info) const
 void SunSettingsComponent::updateFrameInfo(FrameInfo& frame_info) const
 {
     frame_info.weather = weather;
-    frame_info.player_moved |= abs(previous_sun_yaw_angle - sun_yaw_angle) > 0.001f
-           || abs(previous_sun_pitch_angle - sun_pitch_angle) > 0.001f
-           || abs(previous_weather - weather) > 0.001f;
+    frame_info.need_to_refresh_generated_image |= abs(previous_sun_yaw_angle - sun_yaw_angle) > 0.001f
+                                                  || abs(previous_sun_pitch_angle - sun_pitch_angle) > 0.001f
+                                                  || abs(previous_weather - weather) > 0.001f;
 }
 
 void SunSettingsComponent::updatePreviousValues()

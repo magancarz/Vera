@@ -53,6 +53,6 @@ void World::update(FrameInfo& frame_info)
 {
     movement_controller.moveInPlaneXZ(window.getGFLWwindow(), frame_info.frame_time, *viewer_object);
     camera.setViewYXZ(viewer_object->transform_component.translation, viewer_object->transform_component.rotation);
-    frame_info.player_moved = movement_controller.playerMoved();
+    frame_info.need_to_refresh_generated_image = movement_controller.playerMoved();
     frame_info.camera = &camera;
 }
