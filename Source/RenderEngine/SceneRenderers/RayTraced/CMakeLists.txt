@@ -1,3 +1,4 @@
 target_sources(Vera-Lib PRIVATE
-        RayTracedRenderer.cpp
-        RayTracingPipeline.cpp)
+        RayTracedRenderer.cpp)
+
+add_subdirectory(Pipeline)

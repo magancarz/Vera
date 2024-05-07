@@ -15,7 +15,7 @@ public:
     ShaderModule(const ShaderModule&) = delete;
     ShaderModule& operator=(const ShaderModule&) = delete;
 
-    VkShaderModule getShaderModule() const { return shader_module; }
+    [[nodiscard]] VkShaderModule getShaderModule() const { return shader_module; }
 
 private:
     Device& device;

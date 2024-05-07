@@ -6,6 +6,7 @@
 #include "RenderEngine/RenderingAPI/VulkanHelper.h"
 #include "RenderEngine/GlobalUBO.h"
 #include "RenderEngine/RenderingAPI/VulkanDefines.h"
+#include "RenderEngine/SceneRenderers/RayTraced/Pipeline/RayTracingPipelineBuilder.h"
 
 RayTracedRenderer::RayTracedRenderer(Device& device, World* world)
     : device{device}, world{world}
@@ -164,7 +165,15 @@ void RayTracedRenderer::createDescriptors()
 
 void RayTracedRenderer::createRayTracingPipeline()
 {
-    ray_tracing_pipeline = std::make_unique<RayTracingPipeline>(device, descriptor_set_layout->getDescriptorSetLayout(), ray_tracing_properties);
+    ray_tracing_pipeline = RayTracingPipelineBuilder(device, ray_tracing_properties)
+            .addRayGenerationStage(std::make_unique<ShaderModule>(device, "Shaders/raytrace.rgen.spv"))
+            .addMissStage(std::make_unique<ShaderModule>(device, "Shaders/raytrace.rmiss.spv"))
+            .addMissStage(std::make_unique<ShaderModule>(device, "Shaders/raytrace_shadow.rmiss.spv"))
+            .addHitGroupWithOnlyHitShader(std::make_unique<ShaderModule>(device, "Shaders/raytrace_lambertian.rchit.spv"))
+            .addHitGroupWithOnlyAnyHitShader(std::make_unique<ShaderModule>(device, "Shaders/raytrace_occlusion.rahit.spv"))
+            .addDescriptorSetLayout(descriptor_set_layout->getDescriptorSetLayout())
+            .setMaxRecursionDepth(2)
+            .build();
 }
 
 void RayTracedRenderer::renderScene(FrameInfo& frame_info)
@@ -204,12 +213,13 @@ void RayTracedRenderer::updateRayPushConstant(FrameInfo& frame_info)
 
 void RayTracedRenderer::executeRayTracing(FrameInfo& frame_info)
 {
+    shader_binding_table = ray_tracing_pipeline->getShaderBindingTableValues();
     constexpr uint32_t DEPTH = 1;
     pvkCmdTraceRaysKHR(frame_info.command_buffer,
-            &ray_tracing_pipeline->rgenShaderBindingTable,
-            &ray_tracing_pipeline->rmissShaderBindingTable,
-            &ray_tracing_pipeline->rchitShaderBindingTable,
-            &ray_tracing_pipeline->callableShaderBindingTable,
+            &shader_binding_table.ray_gen_shader_binding_table,
+            &shader_binding_table.miss_shader_binding_table,
+            &shader_binding_table.closest_hit_shader_binding_table,
+            &shader_binding_table.callable_shader_binding_table,
             frame_info.window_size.width, frame_info.window_size.height, DEPTH);
 
     ++current_number_of_frames;

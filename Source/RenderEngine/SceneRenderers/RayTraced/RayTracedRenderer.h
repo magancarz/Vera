@@ -2,7 +2,7 @@
 
 #include "RenderEngine/SceneRenderers/SceneRenderer.h"
 #include "World/World.h"
-#include "RayTracingPipeline.h"
+#include "RenderEngine/SceneRenderers/RayTraced/Pipeline/RayTracingPipeline.h"
 #include "RenderEngine/RenderingAPI/Descriptors.h"
 #include "RenderEngine/Models/RayTracingAccelerationStructureBuilder.h"
 #include "RenderEngine/RenderingAPI/Textures/Texture.h"
@@ -68,4 +68,6 @@ private:
     void executeRayTracing(FrameInfo& frame_info);
 
     uint32_t current_number_of_frames{0};
+
+    ShaderBindingTableValues shader_binding_table;
 };
