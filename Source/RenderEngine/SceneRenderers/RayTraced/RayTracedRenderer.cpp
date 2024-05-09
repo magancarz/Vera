@@ -176,6 +176,11 @@ void RayTracedRenderer::createRayTracingPipeline()
             .build();
 }
 
+RayTracedRenderer::~RayTracedRenderer() noexcept
+{
+    pvkDestroyAccelerationStructureKHR(device.getDevice(), tlas.acceleration_structure, VulkanDefines::NO_CALLBACK);
+}
+
 void RayTracedRenderer::renderScene(FrameInfo& frame_info)
 {
     ray_tracing_pipeline->bind(frame_info.command_buffer);

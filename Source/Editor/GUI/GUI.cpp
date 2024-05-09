@@ -160,6 +160,12 @@ GUI::~GUI()
     ImGui_ImplVulkan_Shutdown();
     ImGui_ImplGlfw_Shutdown();
     ImGui::DestroyContext();
+
+    for (auto& framebuffer : framebuffers)
+    {
+        vkDestroyFramebuffer(device.getDevice(), framebuffer, VulkanDefines::NO_CALLBACK);
+    }
+    vkDestroyRenderPass(device.getDevice(), render_pass, VulkanDefines::NO_CALLBACK);
 }
 
 void GUI::updateGUIElements(FrameInfo& frame_info)

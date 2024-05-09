@@ -10,92 +10,94 @@ AccelerationStructure RayTracingAccelerationStructureBuilder::buildBottomLevelAc
 {
     AccelerationStructure acceleration_structure{};
 
-    VkAccelerationStructureBuildGeometryInfoKHR bottomLevelAccelerationStructureBuildGeometryInfo{};
-    bottomLevelAccelerationStructureBuildGeometryInfo.sType = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_BUILD_GEOMETRY_INFO_KHR;
-    bottomLevelAccelerationStructureBuildGeometryInfo.type = VK_ACCELERATION_STRUCTURE_TYPE_BOTTOM_LEVEL_KHR;
-    bottomLevelAccelerationStructureBuildGeometryInfo.flags = blas_input.flags;
-    bottomLevelAccelerationStructureBuildGeometryInfo.mode = VK_BUILD_ACCELERATION_STRUCTURE_MODE_BUILD_KHR;
-    bottomLevelAccelerationStructureBuildGeometryInfo.geometryCount = 1;
-    bottomLevelAccelerationStructureBuildGeometryInfo.pGeometries = &blas_input.acceleration_structure_geometry;
+    VkAccelerationStructureBuildGeometryInfoKHR acceleration_structure_build_geometry_info{};
+    acceleration_structure_build_geometry_info.sType = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_BUILD_GEOMETRY_INFO_KHR;
+    acceleration_structure_build_geometry_info.type = VK_ACCELERATION_STRUCTURE_TYPE_BOTTOM_LEVEL_KHR;
+    acceleration_structure_build_geometry_info.flags = blas_input.flags;
+    acceleration_structure_build_geometry_info.mode = VK_BUILD_ACCELERATION_STRUCTURE_MODE_BUILD_KHR;
+    acceleration_structure_build_geometry_info.geometryCount = 1;
+    acceleration_structure_build_geometry_info.pGeometries = &blas_input.acceleration_structure_geometry;
 
-    std::vector<uint32_t> bottomLevelMaxPrimitiveCountList = {blas_input.acceleration_structure_build_offset_info.primitiveCount};
+    std::vector<uint32_t> bottom_level_max_primitive_count_list = {blas_input.acceleration_structure_build_offset_info.primitiveCount};
 
-    VkAccelerationStructureBuildSizesInfoKHR bottomLevelAccelerationStructureBuildSizesInfo{};
-    bottomLevelAccelerationStructureBuildSizesInfo.sType = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_BUILD_SIZES_INFO_KHR;
-    bottomLevelAccelerationStructureBuildSizesInfo.pNext = nullptr;
-    bottomLevelAccelerationStructureBuildSizesInfo.accelerationStructureSize = 0;
-    bottomLevelAccelerationStructureBuildSizesInfo.updateScratchSize = 0;
-    bottomLevelAccelerationStructureBuildSizesInfo.buildScratchSize = 0;
+    VkAccelerationStructureBuildSizesInfoKHR bottom_level_acceleration_structure_build_sizes_info{};
+    bottom_level_acceleration_structure_build_sizes_info.sType = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_BUILD_SIZES_INFO_KHR;
+    bottom_level_acceleration_structure_build_sizes_info.pNext = nullptr;
+    bottom_level_acceleration_structure_build_sizes_info.accelerationStructureSize = 0;
+    bottom_level_acceleration_structure_build_sizes_info.updateScratchSize = 0;
+    bottom_level_acceleration_structure_build_sizes_info.buildScratchSize = 0;
 
     pvkGetAccelerationStructureBuildSizesKHR(
             device.getDevice(),
             VK_ACCELERATION_STRUCTURE_BUILD_TYPE_DEVICE_KHR,
-            &bottomLevelAccelerationStructureBuildGeometryInfo,
-            bottomLevelMaxPrimitiveCountList.data(),
-            &bottomLevelAccelerationStructureBuildSizesInfo);
+            &acceleration_structure_build_geometry_info,
+            bottom_level_max_primitive_count_list.data(),
+            &bottom_level_acceleration_structure_build_sizes_info);
 
     acceleration_structure.acceleration_structure_buffer = std::make_unique<Buffer>
     (
             device,
-            bottomLevelAccelerationStructureBuildSizesInfo.accelerationStructureSize,
+            bottom_level_acceleration_structure_build_sizes_info.accelerationStructureSize,
             1,
             VK_BUFFER_USAGE_ACCELERATION_STRUCTURE_STORAGE_BIT_KHR,
             VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT
     );
 
-    VkAccelerationStructureCreateInfoKHR bottomLevelAccelerationStructureCreateInfo{};
-    bottomLevelAccelerationStructureCreateInfo.sType = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_CREATE_INFO_KHR;
-    bottomLevelAccelerationStructureCreateInfo.createFlags = 0;
-    bottomLevelAccelerationStructureCreateInfo.buffer = acceleration_structure.acceleration_structure_buffer->getBuffer();
-    bottomLevelAccelerationStructureCreateInfo.offset = 0;
-    bottomLevelAccelerationStructureCreateInfo.size = bottomLevelAccelerationStructureBuildSizesInfo.accelerationStructureSize;
-    bottomLevelAccelerationStructureCreateInfo.type = VK_ACCELERATION_STRUCTURE_TYPE_BOTTOM_LEVEL_KHR;
+    VkAccelerationStructureCreateInfoKHR bottom_level_acceleration_structure_create_info{};
+    bottom_level_acceleration_structure_create_info.sType = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_CREATE_INFO_KHR;
+    bottom_level_acceleration_structure_create_info.createFlags = 0;
+    bottom_level_acceleration_structure_create_info.buffer = acceleration_structure.acceleration_structure_buffer->getBuffer();
+    bottom_level_acceleration_structure_create_info.offset = 0;
+    bottom_level_acceleration_structure_create_info.size = bottom_level_acceleration_structure_build_sizes_info.accelerationStructureSize;
+    bottom_level_acceleration_structure_create_info.type = VK_ACCELERATION_STRUCTURE_TYPE_BOTTOM_LEVEL_KHR;
 
-    VkAccelerationStructureKHR bottomLevelAccelerationStructureHandle = VK_NULL_HANDLE;
+    VkAccelerationStructureKHR bottom_level_acceleration_structure_handle{VK_NULL_HANDLE};
     if (pvkCreateAccelerationStructureKHR(
             device.getDevice(),
-            &bottomLevelAccelerationStructureCreateInfo,
+            &bottom_level_acceleration_structure_create_info,
             VulkanDefines::NO_CALLBACK,
-            &bottomLevelAccelerationStructureHandle) != VK_SUCCESS)
+            &bottom_level_acceleration_structure_handle) != VK_SUCCESS)
     {
         throw std::runtime_error("vkCreateAccelerationStructureKHR");
     }
 
-    VkAccelerationStructureDeviceAddressInfoKHR bottomLevelAccelerationStructureDeviceAddressInfo{};
-    bottomLevelAccelerationStructureDeviceAddressInfo.sType = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_DEVICE_ADDRESS_INFO_KHR;
-    bottomLevelAccelerationStructureDeviceAddressInfo.accelerationStructure = bottomLevelAccelerationStructureHandle;
+    VkAccelerationStructureDeviceAddressInfoKHR bottom_level_acceleration_structure_device_address_info{};
+    bottom_level_acceleration_structure_device_address_info.sType = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_DEVICE_ADDRESS_INFO_KHR;
+    bottom_level_acceleration_structure_device_address_info.accelerationStructure = bottom_level_acceleration_structure_handle;
 
-    acceleration_structure.bottom_level_acceleration_structure_device_address = pvkGetAccelerationStructureDeviceAddressKHR(device.getDevice(), &bottomLevelAccelerationStructureDeviceAddressInfo);
+    acceleration_structure.bottom_level_acceleration_structure_device_address = pvkGetAccelerationStructureDeviceAddressKHR(device.getDevice(), &bottom_level_acceleration_structure_device_address_info);
     auto bottom_level_acceleration_structure_scratch_buffer = std::make_unique<Buffer>
     (
             device,
-            bottomLevelAccelerationStructureBuildSizesInfo.accelerationStructureSize,
+            bottom_level_acceleration_structure_build_sizes_info.accelerationStructureSize,
             1,
             VK_BUFFER_USAGE_STORAGE_BUFFER_BIT | VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT,
             VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT
     );
 
-    VkDeviceAddress bottomLevelAccelerationStructureScratchBufferDeviceAddress = bottom_level_acceleration_structure_scratch_buffer->getBufferDeviceAddress();
+    VkDeviceAddress bottom_level_acceleration_structure_scratch_buffer_device_address = bottom_level_acceleration_structure_scratch_buffer->getBufferDeviceAddress();
 
-    bottomLevelAccelerationStructureBuildGeometryInfo.dstAccelerationStructure = bottomLevelAccelerationStructureHandle;
-    bottomLevelAccelerationStructureBuildGeometryInfo.scratchData.deviceAddress = bottomLevelAccelerationStructureScratchBufferDeviceAddress;
+    acceleration_structure_build_geometry_info.dstAccelerationStructure = bottom_level_acceleration_structure_handle;
+    acceleration_structure_build_geometry_info.scratchData.deviceAddress = bottom_level_acceleration_structure_scratch_buffer_device_address;
 
-    VkAccelerationStructureBuildRangeInfoKHR bottomLevelAccelerationStructureBuildRangeInfo{};
-    bottomLevelAccelerationStructureBuildRangeInfo.primitiveCount = blas_input.acceleration_structure_build_offset_info.primitiveCount;
-    bottomLevelAccelerationStructureBuildRangeInfo.primitiveOffset = 0;
-    bottomLevelAccelerationStructureBuildRangeInfo.firstVertex = 0;
-    bottomLevelAccelerationStructureBuildRangeInfo.transformOffset = 0;
+    VkAccelerationStructureBuildRangeInfoKHR bottom_level_acceleration_structure_build_range_info{};
+    bottom_level_acceleration_structure_build_range_info.primitiveCount = blas_input.acceleration_structure_build_offset_info.primitiveCount;
+    bottom_level_acceleration_structure_build_range_info.primitiveOffset = 0;
+    bottom_level_acceleration_structure_build_range_info.firstVertex = 0;
+    bottom_level_acceleration_structure_build_range_info.transformOffset = 0;
 
-    const VkAccelerationStructureBuildRangeInfoKHR* bottomLevelAccelerationStructureBuildRangeInfos = &bottomLevelAccelerationStructureBuildRangeInfo;
+    const VkAccelerationStructureBuildRangeInfoKHR* bottom_level_acceleration_structure_build_range_infos = &bottom_level_acceleration_structure_build_range_info;
 
     VkCommandBuffer command_buffer = device.beginSingleTimeCommands();
 
     pvkCmdBuildAccelerationStructuresKHR(
             command_buffer, 1,
-            &bottomLevelAccelerationStructureBuildGeometryInfo,
-            &bottomLevelAccelerationStructureBuildRangeInfos);
+            &acceleration_structure_build_geometry_info,
+            &bottom_level_acceleration_structure_build_range_infos);
 
     device.endSingleTimeCommands(command_buffer);
+
+    acceleration_structure.acceleration_structure = acceleration_structure_build_geometry_info.dstAccelerationStructure;
 
     return acceleration_structure;
 }
@@ -125,61 +127,61 @@ AccelerationStructure RayTracingAccelerationStructureBuilder::buildTopLevelAccel
     instances.arrayOfPointers = VK_FALSE;
     instances.data.deviceAddress = instances_buffer->getBufferDeviceAddress();
 
-    VkAccelerationStructureGeometryDataKHR topLevelAccelerationStructureGeometryData{};
-    topLevelAccelerationStructureGeometryData.instances = instances;
+    VkAccelerationStructureGeometryDataKHR top_level_acceleration_structure_geometry_data{};
+    top_level_acceleration_structure_geometry_data.instances = instances;
 
-    VkAccelerationStructureGeometryKHR topLevelAccelerationStructureGeometry{};
-    topLevelAccelerationStructureGeometry.sType = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_GEOMETRY_KHR;
-    topLevelAccelerationStructureGeometry.geometryType = VK_GEOMETRY_TYPE_INSTANCES_KHR;
-    topLevelAccelerationStructureGeometry.geometry = topLevelAccelerationStructureGeometryData;
-    topLevelAccelerationStructureGeometry.flags = VK_GEOMETRY_OPAQUE_BIT_KHR;
+    VkAccelerationStructureGeometryKHR top_level_acceleration_structure_geometry{};
+    top_level_acceleration_structure_geometry.sType = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_GEOMETRY_KHR;
+    top_level_acceleration_structure_geometry.geometryType = VK_GEOMETRY_TYPE_INSTANCES_KHR;
+    top_level_acceleration_structure_geometry.geometry = top_level_acceleration_structure_geometry_data;
+    top_level_acceleration_structure_geometry.flags = VK_GEOMETRY_OPAQUE_BIT_KHR;
 
-    VkAccelerationStructureBuildGeometryInfoKHR topLevelAccelerationStructureBuildGeometryInfo{};
-    topLevelAccelerationStructureBuildGeometryInfo.sType = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_BUILD_GEOMETRY_INFO_KHR;
-    topLevelAccelerationStructureBuildGeometryInfo.type = VK_ACCELERATION_STRUCTURE_TYPE_TOP_LEVEL_KHR;
-    topLevelAccelerationStructureBuildGeometryInfo.flags = 0;
-    topLevelAccelerationStructureBuildGeometryInfo.mode = VK_BUILD_ACCELERATION_STRUCTURE_MODE_BUILD_KHR;
-    topLevelAccelerationStructureBuildGeometryInfo.srcAccelerationStructure = VK_NULL_HANDLE;
-    topLevelAccelerationStructureBuildGeometryInfo.dstAccelerationStructure = VK_NULL_HANDLE;
-    topLevelAccelerationStructureBuildGeometryInfo.geometryCount = 1;
-    topLevelAccelerationStructureBuildGeometryInfo.pGeometries = &topLevelAccelerationStructureGeometry;
+    VkAccelerationStructureBuildGeometryInfoKHR top_level_acceleration_structure_build_geometry_info{};
+    top_level_acceleration_structure_build_geometry_info.sType = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_BUILD_GEOMETRY_INFO_KHR;
+    top_level_acceleration_structure_build_geometry_info.type = VK_ACCELERATION_STRUCTURE_TYPE_TOP_LEVEL_KHR;
+    top_level_acceleration_structure_build_geometry_info.flags = 0;
+    top_level_acceleration_structure_build_geometry_info.mode = VK_BUILD_ACCELERATION_STRUCTURE_MODE_BUILD_KHR;
+    top_level_acceleration_structure_build_geometry_info.srcAccelerationStructure = VK_NULL_HANDLE;
+    top_level_acceleration_structure_build_geometry_info.dstAccelerationStructure = VK_NULL_HANDLE;
+    top_level_acceleration_structure_build_geometry_info.geometryCount = 1;
+    top_level_acceleration_structure_build_geometry_info.pGeometries = &top_level_acceleration_structure_geometry;
 
-    VkAccelerationStructureBuildSizesInfoKHR topLevelAccelerationStructureBuildSizesInfo{};
-    topLevelAccelerationStructureBuildSizesInfo.sType = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_BUILD_SIZES_INFO_KHR;
-    topLevelAccelerationStructureBuildSizesInfo.accelerationStructureSize = 0;
-    topLevelAccelerationStructureBuildSizesInfo.updateScratchSize = 0;
-    topLevelAccelerationStructureBuildSizesInfo.buildScratchSize = 0;
+    VkAccelerationStructureBuildSizesInfoKHR top_level_acceleration_structure_build_sizes_info{};
+    top_level_acceleration_structure_build_sizes_info.sType = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_BUILD_SIZES_INFO_KHR;
+    top_level_acceleration_structure_build_sizes_info.accelerationStructureSize = 0;
+    top_level_acceleration_structure_build_sizes_info.updateScratchSize = 0;
+    top_level_acceleration_structure_build_sizes_info.buildScratchSize = 0;
 
-    std::vector<uint32_t> topLevelMaxPrimitiveCountList = {1};
+    std::vector<uint32_t> top_level_max_primitive_count_list = {1};
 
     pvkGetAccelerationStructureBuildSizesKHR(
             device.getDevice(), VK_ACCELERATION_STRUCTURE_BUILD_TYPE_DEVICE_KHR,
-            &topLevelAccelerationStructureBuildGeometryInfo,
-            topLevelMaxPrimitiveCountList.data(),
-            &topLevelAccelerationStructureBuildSizesInfo);
+            &top_level_acceleration_structure_build_geometry_info,
+            top_level_max_primitive_count_list.data(),
+            &top_level_acceleration_structure_build_sizes_info);
 
     tlas.acceleration_structure_buffer = std::make_unique<Buffer>
     (
             device,
-            topLevelAccelerationStructureBuildSizesInfo.accelerationStructureSize,
+            top_level_acceleration_structure_build_sizes_info.accelerationStructureSize,
             1,
             VK_BUFFER_USAGE_ACCELERATION_STRUCTURE_STORAGE_BIT_KHR,
             VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT
     );
 
-    VkAccelerationStructureCreateInfoKHR topLevelAccelerationStructureCreateInfo{};
-    topLevelAccelerationStructureCreateInfo.sType = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_CREATE_INFO_KHR;
-    topLevelAccelerationStructureCreateInfo.createFlags = 0;
-    topLevelAccelerationStructureCreateInfo.buffer = tlas.acceleration_structure_buffer->getBuffer();
-    topLevelAccelerationStructureCreateInfo.offset = 0;
-    topLevelAccelerationStructureCreateInfo.size = topLevelAccelerationStructureBuildSizesInfo.accelerationStructureSize;
-    topLevelAccelerationStructureCreateInfo.type = VK_ACCELERATION_STRUCTURE_TYPE_TOP_LEVEL_KHR;
-    topLevelAccelerationStructureCreateInfo.deviceAddress = 0;
+    VkAccelerationStructureCreateInfoKHR top_level_acceleration_structure_create_info{};
+    top_level_acceleration_structure_create_info.sType = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_CREATE_INFO_KHR;
+    top_level_acceleration_structure_create_info.createFlags = 0;
+    top_level_acceleration_structure_create_info.buffer = tlas.acceleration_structure_buffer->getBuffer();
+    top_level_acceleration_structure_create_info.offset = 0;
+    top_level_acceleration_structure_create_info.size = top_level_acceleration_structure_build_sizes_info.accelerationStructureSize;
+    top_level_acceleration_structure_create_info.type = VK_ACCELERATION_STRUCTURE_TYPE_TOP_LEVEL_KHR;
+    top_level_acceleration_structure_create_info.deviceAddress = 0;
 
 
     if (pvkCreateAccelerationStructureKHR(
             device.getDevice(),
-            &topLevelAccelerationStructureCreateInfo,
+            &top_level_acceleration_structure_create_info,
             VulkanDefines::NO_CALLBACK,
             &tlas.acceleration_structure) != VK_SUCCESS)
     {
@@ -189,18 +191,18 @@ AccelerationStructure RayTracingAccelerationStructureBuilder::buildTopLevelAccel
     auto top_level_acceleration_structure_scratch_buffer = std::make_unique<Buffer>
     (
             device,
-            topLevelAccelerationStructureBuildSizesInfo.buildScratchSize,
+            top_level_acceleration_structure_build_sizes_info.buildScratchSize,
             1,
             VK_BUFFER_USAGE_STORAGE_BUFFER_BIT | VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT,
             VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT
     );
 
-    VkDeviceAddress topLevelAccelerationStructureScratchBufferDeviceAddress = top_level_acceleration_structure_scratch_buffer->getBufferDeviceAddress();
+    VkDeviceAddress top_level_acceleration_structure_scratch_buffer_device_address = top_level_acceleration_structure_scratch_buffer->getBufferDeviceAddress();
 
-    topLevelAccelerationStructureBuildGeometryInfo.dstAccelerationStructure = tlas.acceleration_structure;
-    topLevelAccelerationStructureBuildGeometryInfo.scratchData.deviceAddress = topLevelAccelerationStructureScratchBufferDeviceAddress;
+    top_level_acceleration_structure_build_geometry_info.dstAccelerationStructure = tlas.acceleration_structure;
+    top_level_acceleration_structure_build_geometry_info.scratchData.deviceAddress = top_level_acceleration_structure_scratch_buffer_device_address;
 
-    VkAccelerationStructureBuildRangeInfoKHR topLevelAccelerationStructureBuildRangeInfo =
+    VkAccelerationStructureBuildRangeInfoKHR top_level_acceleration_structure_build_range_info =
     {
             .primitiveCount = static_cast<uint32_t>(blas_instances.size()),
             .primitiveOffset = 0,
@@ -208,14 +210,14 @@ AccelerationStructure RayTracingAccelerationStructureBuilder::buildTopLevelAccel
             .transformOffset = 0
     };
 
-    const VkAccelerationStructureBuildRangeInfoKHR* topLevelAccelerationStructureBuildRangeInfos = &topLevelAccelerationStructureBuildRangeInfo;
+    const VkAccelerationStructureBuildRangeInfoKHR* top_level_acceleration_structure_build_range_infos = &top_level_acceleration_structure_build_range_info;
 
     VkCommandBuffer command_buffer = device.beginSingleTimeCommands();
 
     pvkCmdBuildAccelerationStructuresKHR(
             command_buffer, 1,
-            &topLevelAccelerationStructureBuildGeometryInfo,
-            &topLevelAccelerationStructureBuildRangeInfos);
+            &top_level_acceleration_structure_build_geometry_info,
+            &top_level_acceleration_structure_build_range_infos);
 
     device.endSingleTimeCommands(command_buffer);
 

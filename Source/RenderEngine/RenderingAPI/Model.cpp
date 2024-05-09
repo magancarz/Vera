@@ -132,6 +132,11 @@ void Model::createBlas()
     blas = builder.buildBottomLevelAccelerationStructure(blas_input);
 }
 
+Model::~Model()
+{
+    pvkDestroyAccelerationStructureKHR(device.getDevice(), blas.acceleration_structure, VulkanDefines::NO_CALLBACK);
+}
+
 void Model::bind(VkCommandBuffer command_buffer)
 {
     VkBuffer buffers[] = {vertex_buffer->getBuffer()};

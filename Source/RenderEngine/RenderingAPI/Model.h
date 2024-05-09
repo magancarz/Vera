@@ -21,7 +21,7 @@ public:
     };
 
     Model(Device& device, const Model::Builder& builder);
-    ~Model() = default;
+    ~Model();
 
     Model(const Model&) = delete;
     Model& operator=(const Model&) = delete;

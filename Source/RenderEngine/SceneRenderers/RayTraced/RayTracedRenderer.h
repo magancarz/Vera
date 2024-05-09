@@ -17,6 +17,7 @@ class RayTracedRenderer : public SceneRenderer
 {
 public:
     RayTracedRenderer(Device& device, World* world);
+    ~RayTracedRenderer();
 
     void renderScene(FrameInfo& frame_info) override;
 
