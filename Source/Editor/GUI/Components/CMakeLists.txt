@@ -3,4 +3,5 @@ target_sources(Vera-Lib PRIVATE
         Container.cpp
         WindowComponent.cpp
         SceneSettingsWindow.cpp
-        SunSettingsComponent.cpp)
+        SunSettingsComponent.cpp
+        FramerateTextComponent.cpp)
