@@ -66,6 +66,30 @@ vec3 randomUnitDirection()
     return vec3(x, y, z);
 }
 
+vec3 randomToSphere(float radius, float distance_squared)
+{
+    float r1 = rnd(payload.seed);
+    float r2 = rnd(payload.seed);
+    float z = 1 + r2 * (sqrt(1 - radius * radius / distance_squared) - 1);
+
+    float phi = 2 * PI * r1;
+    float x = cos(phi) * sqrt(1 - z * z);
+    float y = sin(phi) * sqrt(1 - z * z);
+
+    return vec3(x, y, z);
+}
+
+vec3 randomToSun(float radius)
+{
+    const float distance_squared = 100.0;
+    vec3 u, v, w;
+    w = push_constant.sun_position;
+    generateOrthonormalBasis(u, v, w);
+    vec3 random_to_sphere = randomToSphere(radius, distance_squared);
+    random_to_sphere = u * random_to_sphere.x + v * random_to_sphere.y + w * random_to_sphere.z;
+    return random_to_sphere;
+}
+
 void main()
 {
     if (payload.is_active == 0)
@@ -128,9 +152,7 @@ void main()
     vec3 light_position = light_first_vertex.position * light_barycentric.x + light_second_vertex.position * light_barycentric.y + light_third_vertex.position * light_barycentric.z;
     light_position = vec3(random_light.object_to_world * vec4(light_position, 1.0));
 
-    vec3 random_dir = randomUnitDirection();
-    random_dir *= sign(dot(random_dir, push_constant.sun_position));
-    vec3 positionToLightDirection = normalize(push_constant.sun_position + random_dir * push_constant.weather);
+    vec3 positionToLightDirection = randomToSun(push_constant.weather * 10);
 
     vec3 u, v, w;
     w = geometric_normal;

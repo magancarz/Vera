@@ -32,7 +32,7 @@ private:
 
     static std::string getPathToShaderCodeFile(const std::string& shader_code_file, VkShaderStageFlagBits shader_stage);
     void createShaderModule(const std::string& path_to_shader_code);
-    std::vector<uint32_t> loadShaderSourceCode(const std::string& path_to_shader_code);
+    static std::vector<uint32_t> loadShaderSourceCode(const std::string& path_to_shader_code);
 
     VkShaderModule shader_module{VK_NULL_HANDLE};
 };
