@@ -344,7 +344,7 @@ bool Device::isDeviceSuitable(VkPhysicalDevice device)
 
     bool extensions_supported = checkDeviceExtensionSupport(device);
 
-    bool swap_chain_adequate = false;
+    bool swap_chain_adequate;
     if (extensions_supported)
     {
         SwapChainSupportDetails swap_chain_support = querySwapChainSupport(device);

@@ -185,29 +185,22 @@ void GUI::renderGUIElements(VkCommandBuffer command_buffer)
 {
     ImGui::Render();
 
-    VkResult err;
-
     uint32_t frame_index = swap_chain->getCurrentFrameIndex();
-    {
-        VkClearValue clear_value{};
-        clear_value.color.float32[0] = 0.f;
-        clear_value.color.float32[1] = 0.f;
-        clear_value.color.float32[2] = 0.f;
-        clear_value.color.float32[3] = 1.f;
-        VkRenderPassBeginInfo info{};
-        info.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-        info.renderPass = render_pass;
-        info.framebuffer = framebuffers[frame_index];
-        info.renderArea.extent.width = swap_chain->width();
-        info.renderArea.extent.height = swap_chain->height();
-        info.clearValueCount = 1;
-        info.pClearValues = &clear_value;
-        vkCmdBeginRenderPass(command_buffer, &info, VK_SUBPASS_CONTENTS_INLINE);
-    }
+    VkClearValue clear_value{};
+    clear_value.color.float32[0] = 0.f;
+    clear_value.color.float32[1] = 0.f;
+    clear_value.color.float32[2] = 0.f;
+    clear_value.color.float32[3] = 1.f;
+    VkRenderPassBeginInfo info{};
+    info.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+    info.renderPass = render_pass;
+    info.framebuffer = framebuffers[frame_index];
+    info.renderArea.extent.width = swap_chain->width();
+    info.renderArea.extent.height = swap_chain->height();
+    info.clearValueCount = 1;
+    info.pClearValues = &clear_value;
+    vkCmdBeginRenderPass(command_buffer, &info, VK_SUBPASS_CONTENTS_INLINE);
 
-    // Record dear imgui primitives into command buffer
     ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), command_buffer);
-
-    // Submit command buffer
     vkCmdEndRenderPass(command_buffer);
 }

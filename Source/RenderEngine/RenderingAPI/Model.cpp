@@ -168,7 +168,7 @@ namespace std
         size_t operator()(Vertex const &vertex) const
         {
             size_t seed = 0;
-            Algorithms::hashCombine(seed, vertex.position, vertex.normal, vertex.uv);
+            algorithms::hashCombine(seed, vertex.position, vertex.normal, vertex.uv);
             return seed;
         }
     };

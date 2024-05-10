@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.25)
-set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD 23)
 project(Vera LANGUAGES CXX)
 
 add_library(Vera-Lib STATIC Source/Vera.cpp)

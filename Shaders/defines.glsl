@@ -2,4 +2,4 @@
 #define T_MIN 0.001
 #define T_MAX 1000.0
 #define MAX_RAY_DEPTH 1
-#define MAX_CALCULATIONS_DEPTH 16
+#define MAX_CALCULATIONS_DEPTH 2
