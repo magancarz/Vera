@@ -9,6 +9,6 @@ layout(set = 0, binding = 0) uniform sampler2D image;
 void main()
 {
     vec3 texture_color = texture(image, fragment_uv).rgb;
-    texture_color = clamp(texture_color, 0.0, 1.0);
+    texture_color = vec3(1.0f) - exp(-texture_color * 2.f);
     out_color = vec4(texture_color, 1.0);
 }

@@ -1,8 +1,8 @@
 #pragma once
 
-#include "Device.h"
-#include "Vertex.h"
-#include "Buffer.h"
+#include "RenderEngine/RenderingAPI/Device.h"
+#include "RenderEngine/RenderingAPI/Vertex.h"
+#include "RenderEngine/RenderingAPI/Buffer.h"
 #include "RenderEngine/Materials/Material.h"
 #include "RenderEngine/Models/AccelerationStructure.h"
 #include "RenderEngine/Models/BlasInstance.h"

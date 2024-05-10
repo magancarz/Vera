@@ -1,2 +1,3 @@
 target_sources(Vera-Lib PRIVATE
-        RayTracingBuilder.cpp)
+        RayTracingBuilder.cpp
+        Model.cpp)

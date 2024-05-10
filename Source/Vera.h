@@ -4,7 +4,7 @@
 #include "RenderEngine/RenderingAPI/Pipeline.h"
 #include "Objects/Object.h"
 #include "RenderEngine/Renderer.h"
-#include "RenderEngine/RenderingAPI/Model.h"
+#include "RenderEngine/Models/Model.h"
 #include "RenderEngine/RenderingAPI/Descriptors.h"
 #include "RenderEngine/RenderingAPI/Textures/Texture.h"
 #include "World/World.h"

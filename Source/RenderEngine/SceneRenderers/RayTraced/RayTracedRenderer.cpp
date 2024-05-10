@@ -61,7 +61,7 @@ void RayTracedRenderer::createRayTracedImage()
             surface_capabilities.currentExtent.width,
             surface_capabilities.currentExtent.height,
             VK_IMAGE_USAGE_STORAGE_BIT | VK_IMAGE_USAGE_SAMPLED_BIT,
-            VK_FORMAT_R8G8B8A8_UNORM);
+            VK_FORMAT_R16G16B16A16_SFLOAT);
 }
 
 void RayTracedRenderer::createCameraUniformBuffer()
