@@ -127,6 +127,7 @@ void Model::createBlas()
     RayTracingAccelerationStructureBuilder::BlasInput blas_input{};
     blas_input.acceleration_structure_geometry.emplace_back(std::move(acceleration_structure_geometry));
     blas_input.acceleration_structure_build_offset_info.emplace_back(std::move(offset));
+    blas_input.flags = VK_BUILD_ACCELERATION_STRUCTURE_ALLOW_COMPACTION_BIT_KHR;
 
     RayTracingAccelerationStructureBuilder builder{device};
     blas = std::move(builder.buildBottomLevelAccelerationStructures({blas_input}, VK_BUILD_ACCELERATION_STRUCTURE_PREFER_FAST_TRACE_BIT_KHR)[0]);

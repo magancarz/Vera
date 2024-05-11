@@ -10,7 +10,7 @@ World::World(Window& window)
     viewer_object->transform_component.translation.z = 10.f;
     viewer_object->transform_component.rotation.y = glm::radians(180.f);
 
-    camera.setPerspectiveProjection(glm::radians(50.0f), window.getAspect(), 0.1f, 100.f);
+    camera.setPerspectiveProjection(glm::radians(70.0f), window.getAspect(), 0.1f, 100.f);
 }
 
 void World::loadObjects(Device& device, const std::vector<std::shared_ptr<Material>>& available_materials)
@@ -18,10 +18,12 @@ void World::loadObjects(Device& device, const std::vector<std::shared_ptr<Materi
     std::shared_ptr<Model> plane_model = Model::createModelFromFile(device, "Resources/Models/plane.obj");
     std::shared_ptr<Model> cube_model = Model::createModelFromFile(device, "Resources/Models/cube.obj");
     std::shared_ptr<Model> dragon_model = Model::createModelFromFile(device, "Resources/Models/dragon.obj");
+    std::shared_ptr<Model> sponza_model = Model::createModelFromFile(device, "Resources/Models/sponza.obj");
     std::map<std::string, std::shared_ptr<Model>> models;
     models.emplace("plane", plane_model);
     models.emplace("cube", cube_model);
     models.emplace("dragon", dragon_model);
+    models.emplace("sponza", sponza_model);
 
     auto white_lambertian = std::make_shared<Material>(device, MaterialInfo{.color = glm::vec3{0.8f, 0.8f, 0.8f}});
     auto red_lambertian = std::make_shared<Material>(device, MaterialInfo{.color = glm::vec3{0.8f, 0.f, 0.f}});

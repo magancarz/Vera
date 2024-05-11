@@ -253,36 +253,31 @@ void Device::createLogicalDevice()
         queue_create_infos.push_back(queue_create_info);
     }
 
-    VkPhysicalDeviceBufferDeviceAddressFeatures
-            physicalDeviceBufferDeviceAddressFeatures = {
-            .sType =
-            VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_BUFFER_DEVICE_ADDRESS_FEATURES,
-            .pNext = NULL,
-            .bufferDeviceAddress = VK_TRUE,
-            .bufferDeviceAddressCaptureReplay = VK_FALSE,
-            .bufferDeviceAddressMultiDevice = VK_FALSE};
+    VkPhysicalDeviceVulkan12Features vulkan_12_features{};
+    vulkan_12_features.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_2_FEATURES;
+    vulkan_12_features.hostQueryReset = VK_TRUE;
+    vulkan_12_features.bufferDeviceAddress = VK_TRUE;
+    vulkan_12_features.bufferDeviceAddressCaptureReplay = VK_FALSE;
+    vulkan_12_features.bufferDeviceAddressMultiDevice = VK_FALSE;
+    vulkan_12_features.descriptorIndexing = VK_TRUE;
 
-    VkPhysicalDeviceAccelerationStructureFeaturesKHR
-            physicalDeviceAccelerationStructureFeatures = {
-            .sType =
-            VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ACCELERATION_STRUCTURE_FEATURES_KHR,
-            .pNext = &physicalDeviceBufferDeviceAddressFeatures,
-            .accelerationStructure = VK_TRUE,
-            .accelerationStructureCaptureReplay = VK_FALSE,
-            .accelerationStructureIndirectBuild = VK_FALSE,
-            .accelerationStructureHostCommands = VK_FALSE,
-            .descriptorBindingAccelerationStructureUpdateAfterBind = VK_FALSE};
+    VkPhysicalDeviceAccelerationStructureFeaturesKHR physical_device_acceleration_structure_features{};
+    physical_device_acceleration_structure_features.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ACCELERATION_STRUCTURE_FEATURES_KHR;
+    physical_device_acceleration_structure_features.pNext = &vulkan_12_features;
+    physical_device_acceleration_structure_features.accelerationStructure = VK_TRUE;
+    physical_device_acceleration_structure_features.accelerationStructureCaptureReplay = VK_FALSE;
+    physical_device_acceleration_structure_features.accelerationStructureIndirectBuild = VK_FALSE;
+    physical_device_acceleration_structure_features.accelerationStructureHostCommands = VK_FALSE;
+    physical_device_acceleration_structure_features.descriptorBindingAccelerationStructureUpdateAfterBind = VK_FALSE;
 
-    VkPhysicalDeviceRayTracingPipelineFeaturesKHR
-            physicalDeviceRayTracingPipelineFeatures = {
-            .sType =
-            VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAY_TRACING_PIPELINE_FEATURES_KHR,
-            .pNext = &physicalDeviceAccelerationStructureFeatures,
-            .rayTracingPipeline = VK_TRUE,
-            .rayTracingPipelineShaderGroupHandleCaptureReplay = VK_FALSE,
-            .rayTracingPipelineShaderGroupHandleCaptureReplayMixed = VK_FALSE,
-            .rayTracingPipelineTraceRaysIndirect = VK_FALSE,
-            .rayTraversalPrimitiveCulling = VK_FALSE};
+    VkPhysicalDeviceRayTracingPipelineFeaturesKHR physical_device_ray_tracing_pipeline_features{};
+    physical_device_ray_tracing_pipeline_features.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAY_TRACING_PIPELINE_FEATURES_KHR;
+    physical_device_ray_tracing_pipeline_features.pNext = &physical_device_acceleration_structure_features;
+    physical_device_ray_tracing_pipeline_features.rayTracingPipeline = VK_TRUE;
+    physical_device_ray_tracing_pipeline_features.rayTracingPipelineShaderGroupHandleCaptureReplay = VK_FALSE;
+    physical_device_ray_tracing_pipeline_features.rayTracingPipelineShaderGroupHandleCaptureReplayMixed = VK_FALSE;
+    physical_device_ray_tracing_pipeline_features.rayTracingPipelineTraceRaysIndirect = VK_FALSE;
+    physical_device_ray_tracing_pipeline_features.rayTraversalPrimitiveCulling = VK_FALSE;
 
     VkPhysicalDeviceFeatures device_features{};
     device_features.samplerAnisotropy = VK_TRUE;
@@ -298,13 +293,14 @@ void Device::createLogicalDevice()
     create_info.enabledExtensionCount = static_cast<uint32_t>(device_extensions.size());
     create_info.ppEnabledExtensionNames = device_extensions.data();
 
-    create_info.pNext = &physicalDeviceRayTracingPipelineFeatures;
+    create_info.pNext = &physical_device_ray_tracing_pipeline_features;
 
     if (enable_validation_layers)
     {
         create_info.enabledLayerCount = static_cast<uint32_t>(validation_layers.size());
         create_info.ppEnabledLayerNames = validation_layers.data();
-    } else
+    }
+    else
     {
         create_info.enabledLayerCount = 0;
     }
