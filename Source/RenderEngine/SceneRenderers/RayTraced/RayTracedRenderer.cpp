@@ -56,12 +56,14 @@ void RayTracedRenderer::createRayTracedImage()
 {
     VkSurfaceCapabilitiesKHR surface_capabilities;
     vkGetPhysicalDeviceSurfaceCapabilitiesKHR(device.getPhysicalDevice(), device.surface(), &surface_capabilities);
-    ray_traced_texture = std::make_unique<Texture>(
+    ray_traced_texture = std::make_unique<Texture>
+    (
             device,
             surface_capabilities.currentExtent.width,
             surface_capabilities.currentExtent.height,
             VK_IMAGE_USAGE_STORAGE_BIT | VK_IMAGE_USAGE_SAMPLED_BIT,
-            VK_FORMAT_R16G16B16A16_SFLOAT);
+            VK_FORMAT_R16G16B16A16_SFLOAT
+    );
 }
 
 void RayTracedRenderer::createCameraUniformBuffer()

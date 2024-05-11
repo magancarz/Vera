@@ -8,21 +8,7 @@ Material::Material(Device& device, MaterialInfo in_material_info)
 
 void Material::assignMaterialHitGroup(BlasInstance& blas_instance)
 {
-    //TODO: change it ofc
-    uint32_t shader_off = 0;
-    if (material_info.brightness > 0)
-    {
-//        shader_off = 2;
-    }
-    else if (material_info.fuzziness >= 0)
-    {
-//        shader_off = 2;
-    }
-    else if (material_info.refractive_index >= 0)
-    {
-//        shader_off = 3;
-    }
-    blas_instance.bottomLevelAccelerationStructureInstance.instanceShaderBindingTableRecordOffset = 0;//shader_off;
+    blas_instance.bottomLevelAccelerationStructureInstance.instanceShaderBindingTableRecordOffset = 0;
 }
 
 void Material::createMaterialBuffer()

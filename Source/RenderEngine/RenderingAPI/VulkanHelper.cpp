@@ -121,6 +121,9 @@ void VulkanHelper::loadExtensionsFunctions(VkDevice device)
                     device, "vkGetRayTracingShaderGroupHandlesKHR");
 
     pvkCmdTraceRaysKHR = (PFN_vkCmdTraceRaysKHR)vkGetDeviceProcAddr(device, "vkCmdTraceRaysKHR");
+
+    pvkCmdWriteAccelerationStructuresPropertiesKHR = (PFN_vkCmdWriteAccelerationStructuresPropertiesKHR)vkGetDeviceProcAddr(device, "vkCmdWriteAccelerationStructuresPropertiesKHR");
+    pvkCmdCopyAccelerationStructureKHR = (PFN_vkCmdCopyAccelerationStructureKHR)vkGetDeviceProcAddr(device, "vkCmdCopyAccelerationStructureKHR");
 }
 
 VkTransformMatrixKHR VulkanHelper::mat4ToVkTransformMatrixKHR(glm::mat4 mat)

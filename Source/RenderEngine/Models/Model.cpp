@@ -125,11 +125,11 @@ void Model::createBlas()
     offset.transformOffset = 0;
 
     RayTracingAccelerationStructureBuilder::BlasInput blas_input{};
-    blas_input.acceleration_structure_geometry = acceleration_structure_geometry;
-    blas_input.acceleration_structure_build_offset_info = offset;
+    blas_input.acceleration_structure_geometry.emplace_back(std::move(acceleration_structure_geometry));
+    blas_input.acceleration_structure_build_offset_info.emplace_back(std::move(offset));
 
     RayTracingAccelerationStructureBuilder builder{device};
-    blas = builder.buildBottomLevelAccelerationStructure(blas_input);
+    blas = std::move(builder.buildBottomLevelAccelerationStructures({blas_input}, VK_BUILD_ACCELERATION_STRUCTURE_PREFER_FAST_TRACE_BIT_KHR)[0]);
 }
 
 Model::~Model()

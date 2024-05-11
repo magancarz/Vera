@@ -102,8 +102,8 @@ void Buffer::writeToBuffer(void* data, VkDeviceSize size, VkDeviceSize offset)
     }
 }
 
-//TODO: do with size and offset and other checks
-void Buffer::writeWithStagingBuffer(void* data/*, VkDeviceSize size, VkDeviceSize offset*/)
+//TODO: do it with data size and offset
+void Buffer::writeWithStagingBuffer(void* data)
 {
     Buffer staging_buffer
     {
