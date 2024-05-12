@@ -9,6 +9,7 @@ public:
 
     RayTracingPipelineBuilder& addRayGenerationStage(std::shared_ptr<ShaderModule> ray_gen);
     RayTracingPipelineBuilder& addMissStage(std::shared_ptr<ShaderModule> miss);
+    RayTracingPipelineBuilder& addHitGroup(std::shared_ptr<ShaderModule> hit, std::shared_ptr<ShaderModule> any_hit);
     RayTracingPipelineBuilder& addHitGroupWithOnlyHitShader(std::shared_ptr<ShaderModule> hit);
     RayTracingPipelineBuilder& addHitGroupWithOnlyAnyHitShader(std::shared_ptr<ShaderModule> any_hit);
 
@@ -21,6 +22,9 @@ private:
     Device& device;
     VkPhysicalDeviceRayTracingPipelinePropertiesKHR ray_tracing_properties;
 
+    uint32_t addShaderStage(
+            const std::shared_ptr<ShaderModule>& shader_module,
+            VkShaderStageFlagBits shader_stage);
     static VkPipelineShaderStageCreateInfo createShaderStageCreateInfo(
             const std::shared_ptr<ShaderModule>& shader_module,
             VkShaderStageFlagBits shader_stage);

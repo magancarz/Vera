@@ -51,7 +51,7 @@ private:
     VkPipeline pipeline_handle{VK_NULL_HANDLE};
 
     std::unique_ptr<Buffer> shader_binding_table;
-    VkStridedDeviceAddressRegionKHR closest_hit_shader_binding_table{};
+    VkStridedDeviceAddressRegionKHR hit_shader_binding_table{};
     VkStridedDeviceAddressRegionKHR ray_gen_shader_binding_table{};
     VkStridedDeviceAddressRegionKHR miss_shader_binding_table{};
     VkStridedDeviceAddressRegionKHR callable_shader_binding_table{};

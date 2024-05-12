@@ -1,3 +1,4 @@
+#include <iostream>
 #include "Material.h"
 
 Material::Material(Device& device, MaterialInfo in_material_info)
@@ -8,7 +9,18 @@ Material::Material(Device& device, MaterialInfo in_material_info)
 
 void Material::assignMaterialHitGroup(BlasInstance& blas_instance)
 {
-    blas_instance.bottomLevelAccelerationStructureInstance.instanceShaderBindingTableRecordOffset = 0;
+    //TODO: change it ofc
+    uint32_t shader_off = 0;
+    if (material_info.brightness > 0)
+    {
+        shader_off = 1;
+    }
+    else if (material_info.fuzziness >= 0)
+    {
+        shader_off = 2;
+    }
+
+    blas_instance.bottomLevelAccelerationStructureInstance.instanceShaderBindingTableRecordOffset = shader_off;
 }
 
 void Material::createMaterialBuffer()

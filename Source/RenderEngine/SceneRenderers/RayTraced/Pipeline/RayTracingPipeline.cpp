@@ -78,8 +78,8 @@ void RayTracingPipeline::createShaderBindingTable(uint32_t miss_count, uint32_t 
     miss_shader_binding_table.stride = handle_size_aligned;
     miss_shader_binding_table.size = VulkanHelper::align_up(miss_count * handle_size_aligned, ray_tracing_properties.shaderGroupBaseAlignment);
 
-    closest_hit_shader_binding_table.stride = handle_size_aligned;
-    closest_hit_shader_binding_table.size = VulkanHelper::align_up(hit_group_count * handle_size_aligned, ray_tracing_properties.shaderGroupBaseAlignment);
+    hit_shader_binding_table.stride = handle_size_aligned;
+    hit_shader_binding_table.size = VulkanHelper::align_up(hit_group_count * handle_size_aligned, ray_tracing_properties.shaderGroupBaseAlignment);
 
     uint32_t dataSize = handle_count * handle_size;
     std::vector<uint8_t> handles(dataSize);
@@ -87,7 +87,7 @@ void RayTracingPipeline::createShaderBindingTable(uint32_t miss_count, uint32_t 
         throw std::runtime_error("Cannot create ray tracing shader group handles!");
     }
 
-    VkDeviceSize sbt_size = ray_gen_shader_binding_table.size + miss_shader_binding_table.size + closest_hit_shader_binding_table.size + callable_shader_binding_table.size;
+    VkDeviceSize sbt_size = ray_gen_shader_binding_table.size + miss_shader_binding_table.size + hit_shader_binding_table.size + callable_shader_binding_table.size;
     shader_binding_table = std::make_unique<Buffer>
     (
             device,
@@ -101,7 +101,7 @@ void RayTracingPipeline::createShaderBindingTable(uint32_t miss_count, uint32_t 
     VkDeviceAddress sbt_address = vkGetBufferDeviceAddress(device.getDevice(), &info);
     ray_gen_shader_binding_table.deviceAddress = sbt_address;
     miss_shader_binding_table.deviceAddress = sbt_address + ray_gen_shader_binding_table.size;
-    closest_hit_shader_binding_table.deviceAddress = sbt_address + ray_gen_shader_binding_table.size + miss_shader_binding_table.size;
+    hit_shader_binding_table.deviceAddress = sbt_address + ray_gen_shader_binding_table.size + miss_shader_binding_table.size;
 
     auto get_handle = [&] (uint32_t i) { return handles.data() + i * handle_size; };
     shader_binding_table->map();
@@ -113,17 +113,17 @@ void RayTracingPipeline::createShaderBindingTable(uint32_t miss_count, uint32_t 
     memcpy(data, get_handle(handle_idx++), handle_size);
 
     data = sbt_buffer + ray_gen_shader_binding_table.size;
-    for(uint32_t c = 0; c < hit_group_count; ++c)
+    for(uint32_t c = 0; c < miss_count; ++c)
     {
         memcpy(data, get_handle(handle_idx++), handle_size);
         data += miss_shader_binding_table.stride;
     }
 
     data = sbt_buffer + ray_gen_shader_binding_table.size + miss_shader_binding_table.size;
-    for(uint32_t c = 0; c < miss_count; ++c)
+    for(uint32_t c = 0; c < hit_group_count; ++c)
     {
         memcpy(data, get_handle(handle_idx++), handle_size);
-        data += closest_hit_shader_binding_table.stride;
+        data += hit_shader_binding_table.stride;
     }
     shader_binding_table->unmap();
 }
@@ -169,7 +169,7 @@ ShaderBindingTableValues RayTracingPipeline::getShaderBindingTableValues()
     {
             .ray_gen_shader_binding_table = ray_gen_shader_binding_table,
             .miss_shader_binding_table = miss_shader_binding_table,
-            .closest_hit_shader_binding_table = closest_hit_shader_binding_table,
+            .closest_hit_shader_binding_table = hit_shader_binding_table,
             .callable_shader_binding_table = callable_shader_binding_table
     };
 }

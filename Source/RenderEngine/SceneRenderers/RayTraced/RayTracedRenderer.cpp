@@ -171,8 +171,15 @@ void RayTracedRenderer::createRayTracingPipeline()
             .addRayGenerationStage(std::make_unique<ShaderModule>(device, "raytrace", VK_SHADER_STAGE_RAYGEN_BIT_KHR))
             .addMissStage(std::make_unique<ShaderModule>(device, "raytrace", VK_SHADER_STAGE_MISS_BIT_KHR))
             .addMissStage(std::make_unique<ShaderModule>(device, "raytrace_shadow", VK_SHADER_STAGE_MISS_BIT_KHR))
-            .addHitGroupWithOnlyHitShader(std::make_unique<ShaderModule>(device, "raytrace_lambertian", VK_SHADER_STAGE_CLOSEST_HIT_BIT_KHR))
-            .addHitGroupWithOnlyAnyHitShader(std::make_unique<ShaderModule>(device, "raytrace_occlusion", VK_SHADER_STAGE_ANY_HIT_BIT_KHR))
+            .addHitGroup(
+                    std::make_unique<ShaderModule>(device, "raytrace_lambertian", VK_SHADER_STAGE_CLOSEST_HIT_BIT_KHR),
+                    std::make_unique<ShaderModule>(device, "raytrace_occlusion", VK_SHADER_STAGE_ANY_HIT_BIT_KHR))
+            .addHitGroup(
+                    std::make_unique<ShaderModule>(device, "raytrace_light", VK_SHADER_STAGE_CLOSEST_HIT_BIT_KHR),
+                    std::make_unique<ShaderModule>(device, "raytrace_occlusion", VK_SHADER_STAGE_ANY_HIT_BIT_KHR))
+            .addHitGroup(
+                    std::make_unique<ShaderModule>(device, "raytrace_specular", VK_SHADER_STAGE_CLOSEST_HIT_BIT_KHR),
+                    std::make_unique<ShaderModule>(device, "raytrace_occlusion", VK_SHADER_STAGE_ANY_HIT_BIT_KHR))
             .addDescriptorSetLayout(descriptor_set_layout->getDescriptorSetLayout())
             .setMaxRecursionDepth(2)
             .build();

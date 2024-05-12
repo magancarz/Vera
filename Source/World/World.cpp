@@ -18,18 +18,18 @@ void World::loadObjects(Device& device, const std::vector<std::shared_ptr<Materi
     std::shared_ptr<Model> plane_model = Model::createModelFromFile(device, "Resources/Models/plane.obj");
     std::shared_ptr<Model> cube_model = Model::createModelFromFile(device, "Resources/Models/cube.obj");
     std::shared_ptr<Model> dragon_model = Model::createModelFromFile(device, "Resources/Models/dragon.obj");
-    std::shared_ptr<Model> sponza_model = Model::createModelFromFile(device, "Resources/Models/sponza.obj");
+//    std::shared_ptr<Model> sponza_model = Model::createModelFromFile(device, "Resources/Models/sponza.obj");
     std::map<std::string, std::shared_ptr<Model>> models;
     models.emplace("plane", plane_model);
     models.emplace("cube", cube_model);
     models.emplace("dragon", dragon_model);
-    models.emplace("sponza", sponza_model);
+//    models.emplace("sponza", sponza_model);
 
     auto white_lambertian = std::make_shared<Material>(device, MaterialInfo{.color = glm::vec3{0.8f, 0.8f, 0.8f}});
     auto red_lambertian = std::make_shared<Material>(device, MaterialInfo{.color = glm::vec3{0.8f, 0.f, 0.f}});
     auto green_lambertian = std::make_shared<Material>(device, MaterialInfo{.color = glm::vec3{0.f, 0.8f, 0.f}});
     auto diffuse_light = std::make_shared<Material>(device, MaterialInfo{.color = glm::vec3{1.f, 1.f, 1.f}, .brightness = 3});
-    auto specular = std::make_shared<Material>(device, MaterialInfo{.color = glm::vec3{1.f, 1.f, 1.f}, .refractive_index = 2.41});
+    auto specular = std::make_shared<Material>(device, MaterialInfo{.color = glm::vec3{1.f, 1.f, 1.f}, .fuzziness = 0.5});
 
     std::map<std::string, std::shared_ptr<Material>> materials;
     materials.emplace("white", white_lambertian);
