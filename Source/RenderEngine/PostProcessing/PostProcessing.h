@@ -28,5 +28,5 @@ private:
     std::unique_ptr<Pipeline> simple_pipeline;
     VkPipelineLayout pipeline_layout;
 
-    std::unique_ptr<Model> scene_quad;
+    std::shared_ptr<Model> scene_quad;
 };

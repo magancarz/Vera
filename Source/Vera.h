@@ -24,7 +24,7 @@ private:
     Window window{1280, 800, "Vera"};
     Device device{window};
 
-    AssetManager asset_manager{device};
+    std::shared_ptr<AssetManager> asset_manager = AssetManager::get(&device);
     World world{window};
     std::unique_ptr<Renderer> renderer;
 };

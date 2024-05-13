@@ -2,6 +2,7 @@
 
 #include "RenderEngine/RenderingAPI/VulkanDefines.h"
 #include "Objects/Components/TransformComponent.h"
+#include "Assets/AssetManager.h"
 
 PostProcessing::PostProcessing(
         Device& device,
@@ -16,7 +17,7 @@ PostProcessing::PostProcessing(
 
 void PostProcessing::loadSceneQuad()
 {
-    scene_quad = Model::createModelFromFile(device, "scene_quad");
+    scene_quad = AssetManager::get()->fetchModel("scene_quad");
 }
 
 void PostProcessing::createPipelineLayout(VkDescriptorSetLayout input_texture)

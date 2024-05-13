@@ -13,7 +13,7 @@ World::World(Window& window)
     camera.setPerspectiveProjection(glm::radians(70.0f), window.getAspect(), 0.1f, 100.f);
 }
 
-void World::loadObjects(const ProjectInfo& project_info, AssetManager& asset_manager)
+void World::loadObjects(const ProjectInfo& project_info, const std::shared_ptr<AssetManager>& asset_manager)
 {
     for (auto& object_info : project_info.objects_infos)
     {
@@ -21,8 +21,8 @@ void World::loadObjects(const ProjectInfo& project_info, AssetManager& asset_man
         new_object->transform_component.translation = object_info.position;
         new_object->transform_component.rotation = object_info.rotation;
         new_object->transform_component.scale = glm::vec3{object_info.scale};
-        new_object->setModel(asset_manager.fetchModel(object_info.model_name));
-        new_object->setMaterial(asset_manager.fetchMaterial(object_info.material_name));
+        new_object->setModel(asset_manager->fetchModel(object_info.model_name));
+        new_object->setMaterial(asset_manager->fetchMaterial(object_info.material_name));
         new_object->createBlasInstance();
         objects.emplace(new_object->getID(), std::move(new_object));
     }

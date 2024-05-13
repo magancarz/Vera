@@ -13,7 +13,7 @@ class World
 public:
     explicit World(Window& window);
 
-    void loadObjects(const ProjectInfo& project_info, AssetManager& asset_manager);
+    void loadObjects(const ProjectInfo& project_info, const std::shared_ptr<AssetManager>& asset_manager);
 
     void update(FrameInfo& frame_info);
 
