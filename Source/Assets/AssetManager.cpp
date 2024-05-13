@@ -3,6 +3,19 @@
 AssetManager::AssetManager(Device& device)
     : device{device} {}
 
+std::shared_ptr<AssetManager> AssetManager::get(Device* device)
+{
+    assert(instance || device && "Device can't be nullptr while instance hasn't been created yet!");
+
+    std::lock_guard<std::mutex> lock(mutex);
+    if (!instance)
+    {
+        instance = std::shared_ptr<AssetManager>(new AssetManager(*device));
+    }
+
+    return instance;
+}
+
 bool AssetManager::loadNeededAssetsForProject(const ProjectInfo& project_info)
 {
     printf("Loading needed assets for the project %s...\n", project_info.project_name.c_str());
