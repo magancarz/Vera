@@ -26,7 +26,7 @@ public:
     Model(const Model&) = delete;
     Model& operator=(const Model&) = delete;
 
-    static std::unique_ptr<Model> createModelFromFile(Device& device, const std::string& filepath);
+    static std::unique_ptr<Model> createModelFromFile(Device& device, const std::string& model_name);
 
     void bind(VkCommandBuffer command_buffer);
     void draw(VkCommandBuffer command_buffer);

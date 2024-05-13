@@ -10,7 +10,9 @@ void Vera::run()
 {
     VulkanHelper::loadExtensionsFunctions(device.getDevice());
 
-    world.loadObjects(device, {});
+    ProjectInfo project_info = ProjectUtils::loadProject("vera");
+    asset_manager.loadNeededAssetsForProject(project_info);
+    world.loadObjects(project_info, asset_manager);
 
     renderer = std::make_unique<Renderer>(window, device, world);
 

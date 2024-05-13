@@ -16,7 +16,7 @@ PostProcessing::PostProcessing(
 
 void PostProcessing::loadSceneQuad()
 {
-    scene_quad = Model::createModelFromFile(device, "Resources/Models/scene_quad.obj");
+    scene_quad = Model::createModelFromFile(device, "scene_quad");
 }
 
 void PostProcessing::createPipelineLayout(VkDescriptorSetLayout input_texture)

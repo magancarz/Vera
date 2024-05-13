@@ -13,6 +13,7 @@
 #include "RenderEngine/RenderingAPI/VulkanHelper.h"
 #include "Utils/Algorithms.h"
 #include "RenderEngine/Models/RayTracingAccelerationStructureBuilder.h"
+#include "Utils/VeraDefines.h"
 
 Model::Model(Device& device, const Model::Builder& builder)
         : device{device}, surface_area{builder.area}
@@ -175,8 +176,10 @@ namespace std
     };
 }
 
-std::unique_ptr<Model> Model::createModelFromFile(Device& device, const std::string& filepath)
+std::unique_ptr<Model> Model::createModelFromFile(Device& device, const std::string& model_name)
 {
+    const std::string filepath = (paths::MODELS_DIRECTORY_PATH / model_name).generic_string() + ".obj";
+
     Builder builder{};
     builder.loadModel(filepath);
     return std::make_unique<Model>(device, builder);

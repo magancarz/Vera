@@ -18,12 +18,14 @@ struct MaterialInfo
 class Material
 {
 public:
+    static std::shared_ptr<Material> loadMaterialFromFile(Device& device, const std::string& material_name);
+
     Material(Device& device, MaterialInfo in_material_info);
 
-    void assignMaterialHitGroup(BlasInstance& blas_instance);
+    void assignMaterialHitGroup(BlasInstance& blas_instance) const;
 
     void getMaterialDescription(ObjectDescription& object_description);
-    bool isLightMaterial() const { return material_info.brightness > 0; }
+    [[nodiscard]] bool isLightMaterial() const { return material_info.brightness > 0; }
 
 private:
     Device& device;

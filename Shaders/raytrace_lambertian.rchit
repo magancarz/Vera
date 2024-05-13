@@ -178,7 +178,7 @@ void main()
 
     float scattering_pdf = scatteringPDFFromLambertian(payload.direction, geometric_normal);
     float cosine = occluded ? 0 : max(dot(push_constant.sun_position, payload.direction), 0.0);
-    vec3 sun_contribution = vec3(1) * 20 * cosine;
+    float sun_contribution = 20 * cosine;
 
     payload.color *= sun_contribution * material_color * scattering_pdf;
     payload.depth += 1;

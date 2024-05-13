@@ -13,39 +13,16 @@ World::World(Window& window)
     camera.setPerspectiveProjection(glm::radians(70.0f), window.getAspect(), 0.1f, 100.f);
 }
 
-void World::loadObjects(Device& device, const std::vector<std::shared_ptr<Material>>& available_materials)
+void World::loadObjects(const ProjectInfo& project_info, AssetManager& asset_manager)
 {
-    std::shared_ptr<Model> plane_model = Model::createModelFromFile(device, "Resources/Models/plane.obj");
-    std::shared_ptr<Model> cube_model = Model::createModelFromFile(device, "Resources/Models/cube.obj");
-    std::shared_ptr<Model> dragon_model = Model::createModelFromFile(device, "Resources/Models/dragon.obj");
-//    std::shared_ptr<Model> sponza_model = Model::createModelFromFile(device, "Resources/Models/sponza.obj");
-    std::map<std::string, std::shared_ptr<Model>> models;
-    models.emplace("plane", plane_model);
-    models.emplace("cube", cube_model);
-    models.emplace("dragon", dragon_model);
-//    models.emplace("sponza", sponza_model);
-
-    auto white_lambertian = std::make_shared<Material>(device, MaterialInfo{.color = glm::vec3{0.8f, 0.8f, 0.8f}});
-    auto red_lambertian = std::make_shared<Material>(device, MaterialInfo{.color = glm::vec3{0.8f, 0.f, 0.f}});
-    auto green_lambertian = std::make_shared<Material>(device, MaterialInfo{.color = glm::vec3{0.f, 0.8f, 0.f}});
-    auto diffuse_light = std::make_shared<Material>(device, MaterialInfo{.color = glm::vec3{1.f, 1.f, 1.f}, .brightness = 3});
-    auto specular = std::make_shared<Material>(device, MaterialInfo{.color = glm::vec3{1.f, 1.f, 1.f}, .fuzziness = 0.5});
-
-    std::map<std::string, std::shared_ptr<Material>> materials;
-    materials.emplace("white", white_lambertian);
-    materials.emplace("red", red_lambertian);
-    materials.emplace("light", diffuse_light);
-    materials.emplace("specular", specular);
-
-    ProjectInfo project_info = ProjectUtils::loadProject("vera");
     for (auto& object_info : project_info.objects_infos)
     {
         auto new_object = std::make_shared<Object>(Object::createObject());
         new_object->transform_component.translation = object_info.position;
         new_object->transform_component.rotation = object_info.rotation;
         new_object->transform_component.scale = glm::vec3{object_info.scale};
-        new_object->setModel(models[object_info.model_name]);
-        new_object->setMaterial(materials[object_info.material_name]);
+        new_object->setModel(asset_manager.fetchModel(object_info.model_name));
+        new_object->setMaterial(asset_manager.fetchMaterial(object_info.material_name));
         new_object->createBlasInstance();
         objects.emplace(new_object->getID(), std::move(new_object));
     }

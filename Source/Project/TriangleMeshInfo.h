@@ -38,10 +38,17 @@ struct TriangleMeshInfo
         return {object_name, model_name, material_name, position, rotation, fscale};
     }
 
-    std::string toString() const
+    [[nodiscard]] std::string toString() const
     {
-        return object_name + " " + model_name + " " + material_name + " " +
-               std::to_string(position.x) + " " + std::to_string(position.y) + " " + std::to_string(position.z) + " " +
-               std::to_string(rotation.x) + " " + std::to_string(rotation.y) + " " + std::to_string(rotation.z) + " " + std::to_string(scale);
+        return object_name + " "
+                + model_name + " "
+                + material_name + " "
+                + std::to_string(position.x) + " "
+                + std::to_string(position.y) + " "
+                + std::to_string(position.z) + " "
+                + std::to_string(rotation.x) + " "
+                + std::to_string(rotation.y) + " "
+                + std::to_string(rotation.z) + " "
+                + std::to_string(scale);
     }
 };

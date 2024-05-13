@@ -62,7 +62,7 @@ void RayTracedRenderer::createRayTracedImage()
             surface_capabilities.currentExtent.width,
             surface_capabilities.currentExtent.height,
             VK_IMAGE_USAGE_STORAGE_BIT | VK_IMAGE_USAGE_SAMPLED_BIT,
-            VK_FORMAT_R16G16B16A16_SFLOAT
+            VK_FORMAT_R16G16B16A16_UNORM
     );
 }
 
@@ -111,11 +111,12 @@ void RayTracedRenderer::createLightIndicesBuffer()
         ++i;
     }
     number_of_lights = light_indices.size();
+    uint32_t instances = std::max(number_of_lights, 1u);
     light_indices_buffer = std::make_unique<Buffer>
     (
             device,
             sizeof(uint32_t),
-            static_cast<uint32_t>(light_indices.size()),
+            instances,
             VK_BUFFER_USAGE_STORAGE_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT,
             VK_MEMORY_ALLOCATE_DEVICE_ADDRESS_BIT
     );
@@ -140,12 +141,10 @@ void RayTracedRenderer::createDescriptors()
             .addBinding(4, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, VK_SHADER_STAGE_CLOSEST_HIT_BIT_KHR)
             .build();
 
-    VkWriteDescriptorSetAccelerationStructureKHR
-            acceleration_structure_descriptor_info = {
-            .sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET_ACCELERATION_STRUCTURE_KHR,
-            .pNext = NULL,
-            .accelerationStructureCount = 1,
-            .pAccelerationStructures = &tlas.acceleration_structure};
+    VkWriteDescriptorSetAccelerationStructureKHR acceleration_structure_descriptor_info{};
+    acceleration_structure_descriptor_info.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET_ACCELERATION_STRUCTURE_KHR;
+    acceleration_structure_descriptor_info.accelerationStructureCount = 1;
+    acceleration_structure_descriptor_info.pAccelerationStructures = &tlas.acceleration_structure;
 
     auto camera_buffer_descriptor_info = camera_uniform_buffer->descriptorInfo();
     auto object_descriptions_buffer_descriptor_info = object_descriptions_buffer->descriptorInfo();

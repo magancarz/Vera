@@ -8,6 +8,7 @@
 #include "RenderEngine/RenderingAPI/Descriptors.h"
 #include "RenderEngine/RenderingAPI/Textures/Texture.h"
 #include "World/World.h"
+#include "Assets/AssetManager.h"
 
 class Vera
 {
@@ -23,6 +24,7 @@ private:
     Window window{1280, 800, "Vera"};
     Device device{window};
 
+    AssetManager asset_manager{device};
     World world{window};
     std::unique_ptr<Renderer> renderer;
 };

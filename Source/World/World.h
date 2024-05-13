@@ -5,13 +5,15 @@
 #include "Input/KeyboardMovementController.h"
 #include "RenderEngine/Camera.h"
 #include "RenderEngine/FrameInfo.h"
+#include "Assets/AssetManager.h"
+#include "Project/Project.h"
 
 class World
 {
 public:
-    World(Window& window);
+    explicit World(Window& window);
 
-    void loadObjects(Device& device, const std::vector<std::shared_ptr<Material>>& available_materials);
+    void loadObjects(const ProjectInfo& project_info, AssetManager& asset_manager);
 
     void update(FrameInfo& frame_info);
 
