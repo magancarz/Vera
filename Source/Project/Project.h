@@ -3,21 +3,21 @@
 #include <string>
 #include <vector>
 
-#include "TriangleMeshInfo.h"
+#include "ObjectInfo.h"
 
 struct ProjectInfo
 {
 	std::string project_name;
-	std::vector<TriangleMeshInfo> objects_infos;
+	std::vector<ObjectInfo> objects_infos;
 };
 
 class ProjectUtils
 {
 public:
-	static void saveProject(const ProjectInfo& project_info);
-	static ProjectInfo loadProject(const std::string& project_name);
+	static void saveProject(const ProjectInfo& project_info, const std::string& location = PROJECTS_DIRECTORY);
+	static ProjectInfo loadProject(const std::string& project_name, const std::string& location = PROJECTS_DIRECTORY);
 
-	inline const static std::string PROJECTS_DIRECTORY = "Projects/";
+	inline const static std::string PROJECTS_DIRECTORY = "Projects";
 	inline const static std::string PROJECT_FILE_EXTENSION = ".vproj";
 
 private:

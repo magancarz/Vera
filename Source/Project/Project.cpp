@@ -1,19 +1,28 @@
 #include "Project.h"
+#include "Utils/PathBuilder.h"
 
 #include <fstream>
 #include <iostream>
 #include <sstream>
+#include <filesystem>
 
-void ProjectUtils::saveProject(const ProjectInfo& project_info)
+void ProjectUtils::saveProject(const ProjectInfo& project_info, const std::string& location)
 {
-	std::ofstream file_stream(PROJECTS_DIRECTORY + project_info.project_name + PROJECT_FILE_EXTENSION);
+    std::string file_location = PathBuilder(location).append(project_info.project_name + PROJECT_FILE_EXTENSION).build();
+	std::ofstream file_stream(file_location);
 	if (file_stream.is_open())
 	{
 		saveProjectMetadata(file_stream, project_info);
 		saveObjectsInfos(file_stream, project_info);
 
 		file_stream.close();
+
+        std::cout << "Project named " << project_info.project_name << " saved successfully at location " << file_location << "\n";
+        return;
 	}
+
+    std::cout << "Couldn't save project named " << project_info.project_name << " at location " << file_location << "!\n";
+    std::cout << "Current working directory is " << std::filesystem::current_path() << "\n";
 }
 
 void ProjectUtils::saveProjectMetadata(std::ofstream& file_stream, const ProjectInfo& project_info)
@@ -29,9 +38,9 @@ void ProjectUtils::saveObjectsInfos(std::ofstream& file_stream, const ProjectInf
 	}
 }
 
-ProjectInfo ProjectUtils::loadProject(const std::string& project_name)
+ProjectInfo ProjectUtils::loadProject(const std::string& project_name, const std::string& location)
 {
-	std::ifstream file_stream(PROJECTS_DIRECTORY + project_name + PROJECT_FILE_EXTENSION);
+	std::ifstream file_stream(location + project_name + PROJECT_FILE_EXTENSION);
 	if (file_stream.is_open())
 	{
 		ProjectInfo project_info{};
@@ -67,7 +76,7 @@ void ProjectUtils::loadProjectMetadata(std::string previous_line, std::ifstream&
 
 void ProjectUtils::loadObjectsInfos(std::string previous_line, std::ifstream& file_stream, ProjectInfo& project_info)
 {
-	std::vector<TriangleMeshInfo> objects_infos;
+	std::vector<ObjectInfo> objects_infos;
 
 	while (!previous_line.empty() || getline(file_stream, previous_line))
 	{
@@ -79,7 +88,9 @@ void ProjectUtils::loadObjectsInfos(std::string previous_line, std::ifstream& fi
             break;
 		}
 
-		objects_infos.push_back(TriangleMeshInfo::fromString(iss.str()));
+        std::string object_info_as_string;
+        getline(iss, object_info_as_string);
+		objects_infos.push_back(ObjectInfo::fromString(object_info_as_string));
         previous_line = "";
 	}
 
