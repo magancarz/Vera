@@ -16,10 +16,12 @@ public:
 
     ~AssetManager() = default;
 
-    bool loadNeededAssetsForProject(const ProjectInfo& project_info);
+    void loadNeededAssetsForProject(const ProjectInfo& project_info);
+    void clearResources();
 
     std::shared_ptr<Model> fetchModel(const std::string& model_name);
     std::shared_ptr<Material> fetchMaterial(const std::string& material_name);
+
 
     static std::shared_ptr<AssetManager> get(Device* device = nullptr);
 

@@ -4,10 +4,14 @@
 #include <GLFW/glfw3.h>
 
 #include <string>
+#include "Utils/VeraDefines.h"
 
 class Window {
 public:
-    Window(int width, int height, std::string name);
+    Window(
+            uint32_t width = constants::DEFAULT_WINDOW_WIDTH,
+            uint32_t height = constants::DEFAULT_WINDOW_HEIGHT,
+            std::string name = constants::DEFAULT_WINDOW_TITLE);
     ~Window();
 
     Window(const Window&) = delete;
@@ -24,10 +28,10 @@ public:
 
 private:
     static void framebufferResizeCallback(GLFWwindow* window, int width, int height);
-    void initWindow();
+    void createWindow();
 
-    int width;
-    int height;
+    uint32_t width;
+    uint32_t height;
     bool framebuffer_resized = false;
 
     std::string window_name;

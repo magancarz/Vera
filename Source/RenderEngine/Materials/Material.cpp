@@ -52,22 +52,7 @@ Material::Material(Device& device, MaterialInfo in_material_info)
     : device{device}, material_info{in_material_info}
 {
     createMaterialBuffer();
-}
-
-void Material::assignMaterialHitGroup(BlasInstance& blas_instance) const
-{
-    //TODO: change it ofc
-    uint32_t shader_off = 0;
-    if (material_info.brightness > 0)
-    {
-        shader_off = 1;
-    }
-    else if (material_info.fuzziness >= 0)
-    {
-        shader_off = 2;
-    }
-
-    blas_instance.bottomLevelAccelerationStructureInstance.instanceShaderBindingTableRecordOffset = shader_off;
+    assignMaterialIndex();
 }
 
 void Material::createMaterialBuffer()
@@ -81,6 +66,23 @@ void Material::createMaterialBuffer()
         VK_MEMORY_ALLOCATE_DEVICE_ADDRESS_BIT
     );
     material_info_buffer->writeWithStagingBuffer(&material_info);
+}
+
+void Material::assignMaterialIndex()
+{
+    if (material_info.brightness > 0)
+    {
+        material_index = 1;
+    }
+    else if (material_info.fuzziness >= 0)
+    {
+        material_index = 2;
+    }
+}
+
+void Material::assignMaterialHitGroup(BlasInstance& blas_instance) const
+{
+    blas_instance.bottomLevelAccelerationStructureInstance.instanceShaderBindingTableRecordOffset = material_index;
 }
 
 void Material::getMaterialDescription(ObjectDescription& object_description)

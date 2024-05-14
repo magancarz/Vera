@@ -81,16 +81,19 @@ void Renderer::createPostProcessingStage()
             .addBinding(0, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT)
             .build();
 
-    VkDescriptorImageInfo rayTraceImageDescriptorInfo = {
-            .sampler = scene_renderer->getRayTracedImageSampler(),
-            .imageView = scene_renderer->getRayTracedImageViewHandle(),
-            .imageLayout = VK_IMAGE_LAYOUT_GENERAL};
+    VkDescriptorImageInfo ray_trace_image_descriptor_info{};
+    ray_trace_image_descriptor_info.sampler = scene_renderer->getRayTracedImageSampler();
+    ray_trace_image_descriptor_info.imageView = scene_renderer->getRayTracedImageViewHandle();
+    ray_trace_image_descriptor_info.imageLayout = VK_IMAGE_LAYOUT_GENERAL;
 
     DescriptorWriter(*post_process_texture_descriptor_set_layout, *post_process_texture_descriptor_pool)
-            .writeImage(0, &rayTraceImageDescriptorInfo)
+            .writeImage(0, &ray_trace_image_descriptor_info)
             .build(post_process_texture_descriptor_set_handle);
 
-    post_processing = std::make_unique<PostProcessing>(device, swap_chain->getRenderPass(), post_process_texture_descriptor_set_layout->getDescriptorSetLayout());
+    post_processing = std::make_unique<PostProcessing>(
+            device,
+            swap_chain->getRenderPass(),
+            post_process_texture_descriptor_set_layout->getDescriptorSetLayout());
 }
 
 Renderer::~Renderer()
@@ -117,20 +120,12 @@ void Renderer::render(FrameInfo& frame_info)
         frame_info.ray_traced_texture = post_process_texture_descriptor_set_handle;
 
         gui->updateGUIElements(frame_info);
-
         scene_renderer->renderScene(frame_info);
-
-        beginSwapChainRenderPass(command_buffer);
-
-        post_processing->apply(frame_info);
-
-        endSwapChainRenderPass(command_buffer);
-
+        applyPostProcessing(frame_info);
         gui->renderGUIElements(command_buffer);
 
         endFrame();
     }
-
 }
 
 VkCommandBuffer Renderer::beginFrame()
@@ -160,6 +155,13 @@ VkCommandBuffer Renderer::beginFrame()
         throw std::runtime_error("Failed to begin recording command buffer!");
     }
     return command_buffer;
+}
+
+void Renderer::applyPostProcessing(FrameInfo& frame_info)
+{
+    beginSwapChainRenderPass(frame_info.command_buffer);
+    post_processing->apply(frame_info);
+    endSwapChainRenderPass(frame_info.command_buffer);
 }
 
 void Renderer::endFrame()

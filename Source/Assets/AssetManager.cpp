@@ -16,7 +16,7 @@ std::shared_ptr<AssetManager> AssetManager::get(Device* device)
     return instance;
 }
 
-bool AssetManager::loadNeededAssetsForProject(const ProjectInfo& project_info)
+void AssetManager::loadNeededAssetsForProject(const ProjectInfo& project_info)
 {
     printf("Loading needed assets for the project %s...\n", project_info.project_name.c_str());
     for (auto& object_info : project_info.objects_infos)
@@ -24,12 +24,12 @@ bool AssetManager::loadNeededAssetsForProject(const ProjectInfo& project_info)
         if (!fetchModel(object_info.model_name) || !fetchMaterial(object_info.material_name))
         {
             printf("Loading needed assets for project %s ended in failure\n", project_info.project_name.c_str());
-            return false;
+            return;
         }
     }
 
     printf("Loading needed assets for project %s ended in success\n", project_info.project_name.c_str());
-    return true;
+    return;
 }
 
 std::shared_ptr<Model> AssetManager::fetchModel(const std::string& model_name)
@@ -60,4 +60,10 @@ std::shared_ptr<Material> AssetManager::fetchMaterial(const std::string& materia
     std::shared_ptr<Material> new_material = Material::loadMaterialFromFile(device, material_name);
     available_materials[material_name] = new_material;
     return new_material;
+}
+
+void AssetManager::clearResources()
+{
+    available_models.clear();
+    available_materials.clear();
 }

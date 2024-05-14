@@ -2,10 +2,10 @@
 
 #include <stdexcept>
 
-Window::Window(int width, int height, std::string name)
+Window::Window(uint32_t width, uint32_t height, std::string name)
     : width{width}, height{height}, window_name{std::move(name)}
 {
-    initWindow();
+    createWindow();
 }
 
 Window::~Window()
@@ -13,7 +13,7 @@ Window::~Window()
     glfwTerminate();
 }
 
-void Window::initWindow()
+void Window::createWindow()
 {
     if (!glfwInit())
     {
@@ -31,7 +31,6 @@ void Window::initWindow()
     }
 
     glfwMakeContextCurrent(window);
-
     glfwSetWindowUserPointer(window, this);
     glfwSetFramebufferSizeCallback(window, framebufferResizeCallback);
 }

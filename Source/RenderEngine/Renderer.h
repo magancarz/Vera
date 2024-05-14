@@ -26,13 +26,13 @@ private:
     Device& device;
     World& world;
 
-    VkCommandBuffer getCurrentCommandBuffer() const
+    [[nodiscard]] VkCommandBuffer getCurrentCommandBuffer() const
     {
         assert(is_frame_started && "Cannot get command buffer when frame not in progress");
         return command_buffers[current_frame_index];
     }
 
-    int getFrameIndex() const
+    [[nodiscard]] int getFrameIndex() const
     {
         assert(is_frame_started && "Cannot get frame index when frame not in progress!");
         return current_frame_index;
@@ -56,11 +56,13 @@ private:
 
     std::unique_ptr<DescriptorPool> post_process_texture_descriptor_pool;
     std::unique_ptr<DescriptorSetLayout> post_process_texture_descriptor_set_layout;
-    VkDescriptorSet post_process_texture_descriptor_set_handle;
+    VkDescriptorSet post_process_texture_descriptor_set_handle{VK_NULL_HANDLE};
     std::unique_ptr<PostProcessing> post_processing;
 
     VkCommandBuffer beginFrame();
     void endFrame();
+
+    void applyPostProcessing(FrameInfo& frame_info);
     void beginSwapChainRenderPass(VkCommandBuffer command_buffer);
     void endSwapChainRenderPass(VkCommandBuffer command_buffer);
 

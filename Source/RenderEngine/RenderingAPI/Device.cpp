@@ -1,4 +1,5 @@
 #include "Device.h"
+#include "VulkanHelper.h"
 
 #include <cstring>
 #include <iostream>
@@ -58,6 +59,8 @@ Device::Device(Window& window)
     pickPhysicalDevice();
     createLogicalDevice();
     createCommandPool();
+
+    VulkanHelper::loadExtensionsFunctions(device);
 }
 
 Device::~Device()

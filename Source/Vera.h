@@ -9,6 +9,7 @@
 #include "RenderEngine/RenderingAPI/Textures/Texture.h"
 #include "World/World.h"
 #include "Assets/AssetManager.h"
+#include "Utils/VeraDefines.h"
 
 class Vera
 {
@@ -21,10 +22,18 @@ public:
     Vera& operator=(const Vera&) = delete;
 
 private:
-    Window window{1280, 800, "Vera"};
+    Window window{};
     Device device{window};
+
+    void loadProject();
 
     std::shared_ptr<AssetManager> asset_manager = AssetManager::get(&device);
     World world{window};
+
+    void createRenderer();
+
     std::unique_ptr<Renderer> renderer;
+
+    void runLoop();
+    void performCleanup();
 };

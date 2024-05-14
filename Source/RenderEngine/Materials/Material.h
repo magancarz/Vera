@@ -34,4 +34,8 @@ private:
     void createMaterialBuffer();
 
     std::unique_ptr<Buffer> material_info_buffer;
+
+    void assignMaterialIndex();
+
+    uint32_t material_index{0};
 };
