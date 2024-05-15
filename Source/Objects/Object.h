@@ -7,12 +7,6 @@
 #include "RenderEngine/Materials/Material.h"
 #include "RenderEngine/Models/BlasInstance.h"
 
-struct PointLight
-{
-    glm::vec4 position{}; // ignore w
-    glm::vec4 color{}; // w is intensity
-};
-
 class Object
 {
 public:
@@ -32,16 +26,19 @@ public:
 
     void setMaterial(std::shared_ptr<Material> in_material);
     std::shared_ptr<Material> getMaterial() { return material; }
-    bool isLightObject() { return material->isLightMaterial(); };
+    bool isLight() { return material->isLightMaterial(); };
 
+    //TODO: create abstraction for creating blas instances
     void createBlasInstance();
     BlasInstance* getBlasInstance() { return &blas_instance; }
+    //
+
     ObjectDescription getObjectDescription();
 
     TransformComponent transform_component;
 
 private:
-    Object(id_t object_id) : id{object_id} {}
+    explicit Object(id_t object_id) : id{object_id} {}
 
     id_t id;
 

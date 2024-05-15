@@ -104,7 +104,7 @@ void RayTracedRenderer::createLightIndicesBuffer()
     size_t i = 0;
     for (auto& [_, object] : world->objects)
     {
-        if (object->isLightObject())
+        if (object->isLight())
         {
             light_indices.push_back(i);
         }

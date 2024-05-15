@@ -22,7 +22,6 @@ void ProjectUtils::saveProject(const ProjectInfo& project_info, const std::strin
 	}
 
     std::cout << "Couldn't save project named " << project_info.project_name << " at location " << file_location << "!\n";
-    std::cout << "Current working directory is " << std::filesystem::current_path() << "\n";
 }
 
 void ProjectUtils::saveProjectMetadata(std::ofstream& file_stream, const ProjectInfo& project_info)
@@ -40,7 +39,8 @@ void ProjectUtils::saveObjectsInfos(std::ofstream& file_stream, const ProjectInf
 
 ProjectInfo ProjectUtils::loadProject(const std::string& project_name, const std::string& location)
 {
-	std::ifstream file_stream(location + project_name + PROJECT_FILE_EXTENSION);
+    std::string file_location = PathBuilder(location).append(project_name + PROJECT_FILE_EXTENSION).build();
+	std::ifstream file_stream(file_location);
 	if (file_stream.is_open())
 	{
 		ProjectInfo project_info{};

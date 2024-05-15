@@ -21,8 +21,9 @@ public:
     };
 
     void moveInPlaneXZ(GLFWwindow* window, float delta_time, Object& object);
-    bool playerMoved() const;
+    [[nodiscard]] bool playerMoved() const;
 
+private:
     KeyMappings keys{};
     float move_speed{12.f};
     float look_speed{2.f};
