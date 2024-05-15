@@ -7,11 +7,9 @@ class TransformComponent
 {
 public:
     glm::mat4 transform();
-    glm::mat3 normalMatrix();
+    glm::mat3 normalMatrix() const;
 
-    glm::vec3 translation{};
+    glm::vec3 translation{0.f};
     glm::vec3 scale{1.f};
-    glm::vec3 rotation{};
-
-    std::unique_ptr<Buffer> transform_buffer;
+    glm::vec3 rotation{0.f};
 };

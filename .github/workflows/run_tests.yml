@@ -1,0 +1,14 @@
+name: Tests
+run-name: Tests
+on: [push]
+jobs:
+  Explore-GitHub-Actions:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "Job is running on a ${{ runner.os }} server"
+      - name: Check out repository code
+        uses: actions/checkout@v4
+      - run: echo "The ${{ github.repository }} repository has been cloned to the runner."
+      - name: Files in the repository
+        run: |
+          ls ${{ github.workspace }}

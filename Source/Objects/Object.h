@@ -3,7 +3,6 @@
 #include <glm/ext/matrix_transform.hpp>
 #include "RenderEngine/Models/Model.h"
 #include "Components/TransformComponent.h"
-#include "Objects/Components/PointLightComponent.h"
 #include "RenderEngine/Materials/Material.h"
 #include "RenderEngine/Models/BlasInstance.h"
 

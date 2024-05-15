@@ -50,3 +50,22 @@ std::string TestUtils::loadFileToString(const std::string& file_location)
     file.close();
     return content;
 }
+
+void TestUtils::printMatrix(const glm::mat4& matrix)
+{
+    printf("%f, %f, %f, %f\n", matrix[0][0], matrix[0][1], matrix[0][2], matrix[0][3]);
+    printf("%f, %f, %f, %f\n", matrix[1][0], matrix[1][1], matrix[1][2], matrix[1][3]);
+    printf("%f, %f, %f, %f\n", matrix[2][0], matrix[2][1], matrix[2][2], matrix[2][3]);
+    printf("%f, %f, %f, %f\n\n", matrix[3][0], matrix[3][1], matrix[3][2], matrix[3][3]);
+}
+
+void TestUtils::assertTwoMatricesAreEqual(const glm::mat4& first_matrix, const glm::mat4& second_matrix)
+{
+    for (int i = 0; i < 3; ++i)
+    {
+        for (int j = 0; j < 3; ++j)
+        {
+            assertTwoValuesAreEqual(first_matrix[i][j], second_matrix[i][j]);
+        }
+    }
+}
