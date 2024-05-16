@@ -15,7 +15,7 @@ jobs:
       - name: Build CMake project
         run: |
           cmake -S . -B build -DBUILD_TESTING=ON
-          cmake --build build
+          cmake --build build -j $([Environment]::ProcessorCount)
       - name: Run coverage
         run: |
           opencppcoverage --sources Source\**\ --modules build\Debug\** -- .\build\Debug\Tests.exe
