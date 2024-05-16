@@ -22,7 +22,7 @@ add_subdirectory(Libraries/imgui)
 target_include_directories(Vera-Lib PUBLIC Libraries/imgui)
 target_include_directories(Vera-Lib PUBLIC Libraries)
 
-add_executable(Vera Source/main.cpp)
+add_executable(Vera main.cpp)
 target_link_libraries(Vera Vera-Lib)
 
 set(SHADER_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/Shaders)
@@ -60,7 +60,10 @@ enable_testing()
 add_subdirectory(Libraries/gtest)
 
 if(BUILD_TESTING)
-	add_executable(Tests Tests/main.cpp)
+	file(GLOB_RECURSE SOURCES
+			Source/*.cpp
+			Source/*.h)
+	add_executable(Tests ${SOURCES})
 	set_target_properties(Tests PROPERTIES VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}")
 	target_link_libraries(Tests PRIVATE GTest::gtest_main)
 	target_link_libraries(Tests PRIVATE Vera-Lib)
