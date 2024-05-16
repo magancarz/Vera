@@ -1,5 +1,5 @@
-name: Tests
-run-name: Tests
+name: Coverage
+run-name: Coverage
 on: [push]
 jobs:
   Coverage:
