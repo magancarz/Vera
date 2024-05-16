@@ -66,7 +66,7 @@ if(BUILD_TESTING)
 	target_link_libraries(Tests PRIVATE Vera-Lib)
 	include(GoogleTest)
 	target_include_directories(Tests PRIVATE Tests)
-	add_test(NAME ApplicationTests COMMAND Tests)
+	add_test(NAME Tests COMMAND Tests)
 	add_subdirectory(Tests)
 endif()
 

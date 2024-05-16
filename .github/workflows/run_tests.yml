@@ -18,4 +18,5 @@ jobs:
           cmake --build build
       - name: Run tests
         run: |
+          cd build
           ctest --verbose
