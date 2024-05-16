@@ -20,3 +20,21 @@ jobs:
         run: |
           cd build
           ctest --verbose
+  Coverage:
+    runs-on: self-hosted
+    steps:
+      - run: echo "Job is running on a ${{ runner.os }} runner"
+      - name: Check out repository code
+        uses: actions/checkout@v4
+      - run: echo "The ${{ github.repository }} repository has been cloned to the runner."
+      - name: Files in the repository
+        run: |
+          ls ${{ github.workspace }}
+      - name: Build CMake project
+        run: |
+          cmake -S . -B build -DBUILD_TESTING=ON
+          cmake --build build
+      - name: Run coverage
+        run: |
+          cd build
+          ctest --verbose -C Debug
