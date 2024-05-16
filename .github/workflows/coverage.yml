@@ -2,7 +2,7 @@ name: Tests
 run-name: Tests
 on: [push]
 jobs:
-  Tests:
+  Coverage:
     runs-on: self-hosted
     steps:
       - run: echo "Job is running on a ${{ runner.os }} runner"
@@ -14,9 +14,8 @@ jobs:
           ls ${{ github.workspace }}
       - name: Build CMake project
         run: |
-          cmake -B build -S . -DCMAKE_TOOLCHAIN_FILE=C:/dev/vcpkg/scripts/buildsystems/vcpkg.cmake
+          cmake -S . -B build -DBUILD_TESTING=ON
           cmake --build build
-      - name: Run tests
+      - name: Run coverage
         run: |
-          cd build
-          ctest --verbose -C Debug
+          opencppcoverage --sources Source\**\ --modules build\Debug\** -- .\build\Debug\Tests.exe
