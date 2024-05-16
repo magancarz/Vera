@@ -13,3 +13,4 @@ out/
 vcpkg_installed/
 Results/
 *.spv
+Testing/

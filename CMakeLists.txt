@@ -56,6 +56,7 @@ add_custom_target(SHADERS ALL DEPENDS ${SPV_SHADERS})
 add_dependencies(Vera SHADERS)
 
 include(CTest)
+enable_testing()
 add_subdirectory(Libraries/gtest)
 
 if(BUILD_TESTING)
@@ -65,6 +66,7 @@ if(BUILD_TESTING)
 	target_link_libraries(Tests PRIVATE Vera-Lib)
 	include(GoogleTest)
 	target_include_directories(Tests PRIVATE Tests)
+	add_test(NAME ApplicationTests COMMAND Tests)
 	add_subdirectory(Tests)
 endif()
 
