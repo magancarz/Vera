@@ -8,11 +8,12 @@ jobs:
       - run: echo "Job is running on a ${{ runner.os }} runner"
       - name: Check out repository code
         uses: actions/checkout@v4
-      - run: echo "The ${{ github.repository }} repository has been cloned to the runner."
-      - name: Restore previous coverage build files
-        uses: actions/download-artifact@v4
+      - name: Restore cached coverage build files
+        id: coverage-build-files-restore
+        uses: actions/cache/restore@v4
         with:
-          name: coverage-build-files
+          path: build
+          key: coverage-build
       - name: Files in the repository
         run: |
           ls ${{ github.workspace }}
@@ -28,8 +29,10 @@ jobs:
         with:
           name: coverage-results
           path: coverage
-      - name: Uploading coverage build files
-        uses: actions/upload-artifact@v4.3.3
+      - name: Save coverage build files
+        id: coverage-build-files-save
+        uses: actions/cache/save@v4
         with:
-          name: coverage-build-files
-          path: build
+          path: |
+            build
+          key: coverage-build-${{ hashFiles('build') }}
