@@ -9,12 +9,10 @@ jobs:
       - name: Check out repository code
         uses: actions/checkout@v4
       - run: echo "The ${{ github.repository }} repository has been cloned to the runner."
-      - name: Restore cached coverage build files
-        id: coverage-build-files-restore
-        uses: actions/cache/restore@v4
+      - name: Restore previous coverage build files
+        uses: actions/download-artifact@v4
         with:
-          path: build
-          key: coverage-build
+          name: coverage-build-files
       - name: Files in the repository
         run: |
           ls ${{ github.workspace }}
@@ -30,10 +28,8 @@ jobs:
         with:
           name: coverage-results
           path: coverage
-      - name: Save coverage build files
-        id: coverage-build-files-save
-        uses: actions/cache/save@v4
+      - name: Uploading coverage build files
+        uses: actions/upload-artifact@v4.3.3
         with:
-          path: |
-            build
-          key: ${{ steps.coverage-build-files-restore.outputs.cache-primary-key }}
+          name: coverage-build-files
+          path: build
