@@ -9,10 +9,10 @@ jobs:
       - name: Check out repository code
         uses: actions/checkout@v4
       - run: echo "The ${{ github.repository }} repository has been cloned to the runner."
-#      - name: Restore previous coverage build files
-#        uses: actions/download-artifact@v4
-#        with:
-#          name: coverage-build-files
+      - name: Restore previous coverage build files
+        uses: actions/download-artifact@v4
+        with:
+          name: coverage-build-files
       - name: Files in the repository
         run: |
           ls ${{ github.workspace }}
