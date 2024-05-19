@@ -1,8 +1,16 @@
-#include "Camera.h"
+#include "CameraComponent.h"
 
-#include <glm/ext/matrix_clip_space.hpp>
+CameraComponent::CameraComponent(Object* owner, World* world, std::shared_ptr<TransformComponent> transform_component)
+    : ObjectComponent(owner, world, TickGroup::PRE_RENDER), transform_component{std::move(transform_component)} {}
 
-void Camera::setOrthographicProjection(
+void CameraComponent::update(FrameInfo& frame_info)
+{
+    setViewYXZ(transform_component->translation, transform_component->rotation);
+    frame_info.camera_view_matrix = view;
+    frame_info.camera_projection_matrix = projection;
+}
+
+void CameraComponent::setOrthographicProjection(
         float left, float right, float top, float bottom, float near, float far)
 {
     projection = glm::mat4{1.0f};
@@ -14,7 +22,7 @@ void Camera::setOrthographicProjection(
     projection[3][2] = -near / (far - near);
 }
 
-void Camera::setPerspectiveProjection(float fovy, float aspect, float near, float far)
+void CameraComponent::setPerspectiveProjection(float fovy, float aspect, float near, float far)
 {
     assert(glm::abs(aspect - std::numeric_limits<float>::epsilon()) > 0.0f);
     const float tan_half_fov_y = tan(fovy / 2.f);
@@ -26,7 +34,7 @@ void Camera::setPerspectiveProjection(float fovy, float aspect, float near, floa
     projection[3][2] = -(far * near) / (far - near);
 }
 
-void Camera::setViewDirection(glm::vec3 position, glm::vec3 direction, glm::vec3 up)
+void CameraComponent::setViewDirection(glm::vec3 position, glm::vec3 direction, glm::vec3 up)
 {
     const glm::vec3 w{glm::normalize(direction)};
     const glm::vec3 u{glm::normalize(glm::cross(w, up))};
@@ -61,12 +69,12 @@ void Camera::setViewDirection(glm::vec3 position, glm::vec3 direction, glm::vec3
     inverse_view[3][2] = position.z;
 }
 
-void Camera::setViewTarget(glm::vec3 position, glm::vec3 target, glm::vec3 up)
+void CameraComponent::setViewTarget(glm::vec3 position, glm::vec3 target, glm::vec3 up)
 {
     setViewDirection(position, target - position, up);
 }
 
-void Camera::setViewYXZ(glm::vec3 position, glm::vec3 rotation)
+void CameraComponent::setViewYXZ(glm::vec3 position, glm::vec3 rotation)
 {
     const float c3 = glm::cos(rotation.z);
     const float s3 = glm::sin(rotation.z);

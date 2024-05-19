@@ -41,9 +41,9 @@ void RayTracedRenderer::createAccelerationStructure()
     RayTracingAccelerationStructureBuilder builder{device};
 
     std::vector<BlasInstance*> blas_instances;
-    blas_instances.reserve(world->objects.size());
+    blas_instances.reserve(world->rendered_objects.size());
     size_t i = 0;
-    for (auto [_, object] : world->objects)
+    for (auto [_, object] : world->rendered_objects)
     {
         auto blas_instance = object->getBlasInstance();
         blas_instance->bottomLevelAccelerationStructureInstance.instanceCustomIndex = i++;
@@ -85,15 +85,17 @@ void RayTracedRenderer::createObjectDescriptionsBuffer()
     (
             device,
             sizeof(ObjectDescription),
-            static_cast<uint32_t>(world->objects.size()),
+            static_cast<uint32_t>(world->rendered_objects.size()),
             VK_BUFFER_USAGE_STORAGE_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT,
             VK_MEMORY_ALLOCATE_DEVICE_ADDRESS_BIT
     );
     std::vector<ObjectDescription> object_descriptions;
-    object_descriptions.reserve(world->objects.size());
-    for (auto& [_, object] : world->objects)
+    for (auto& [_, object] : world->rendered_objects)
     {
-        object_descriptions.emplace_back(object->getObjectDescription());
+        if (object->renderable())
+        {
+            object_descriptions.emplace_back(object->getObjectDescription());
+        }
     }
     object_descriptions_buffer->writeWithStagingBuffer(object_descriptions.data());
 }
@@ -102,9 +104,9 @@ void RayTracedRenderer::createLightIndicesBuffer()
 {
     std::vector<uint32_t> light_indices;
     size_t i = 0;
-    for (auto& [_, object] : world->objects)
+    for (auto& [_, object] : world->rendered_objects)
     {
-        if (object->isLight())
+        if (object->renderable() && object->isLight())
         {
             light_indices.push_back(i);
         }
@@ -205,8 +207,8 @@ void RayTracedRenderer::updatePipelineUniformVariables(FrameInfo& frame_info)
 void RayTracedRenderer::updateCameraUniformBuffer(FrameInfo& frame_info)
 {
     CameraUBO camera_ubo{};
-    camera_ubo.camera_view = frame_info.camera->getView();
-    camera_ubo.camera_proj = frame_info.camera->getProjection();
+    camera_ubo.camera_view = frame_info.camera_view_matrix;
+    camera_ubo.camera_proj = frame_info.camera_projection_matrix;
     camera_uniform_buffer->writeToBuffer(&camera_ubo);
     camera_uniform_buffer->flush();
     ray_tracing_pipeline->bindDescriptorSets(frame_info.command_buffer, {descriptor_set_handle});

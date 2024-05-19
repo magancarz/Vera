@@ -1,6 +1,6 @@
 #include "gtest/gtest.h"
 
-//TODO: make input abstraction and mock for KeyboardMovementController tests
+//TODO: make input abstraction and mock for PlayerMovementComponent tests
 struct KeyboardMovementControllerTests : public ::testing::Test
 {
     void SetUp() override {}

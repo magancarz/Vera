@@ -16,6 +16,8 @@ void Vera::run()
 
 void Vera::loadProject()
 {
+    InputManager::get(window.getGFLWwindow());
+
     ProjectInfo project_info = ProjectUtils::loadProject("vera");
     asset_manager->loadNeededAssetsForProject(project_info);
     world.loadObjects(project_info, asset_manager);

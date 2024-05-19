@@ -2,8 +2,11 @@
 
 #include "Objects/Object.h"
 #include "RenderEngine/Window.h"
+#include "Input/InputManager.h"
+#include "ObjectComponent.h"
+#include "TransformComponent.h"
 
-class KeyboardMovementController
+class PlayerMovementComponent : public ObjectComponent
 {
 public:
     struct KeyMappings
@@ -20,11 +23,17 @@ public:
         int look_down = GLFW_KEY_DOWN;
     };
 
-    void moveInPlaneXZ(GLFWwindow* window, float delta_time, Object& object);
+    explicit PlayerMovementComponent(Object* owner, World* world, std::shared_ptr<TransformComponent> transform_component);
+
+    void update(FrameInfo& frame_info) override;
     [[nodiscard]] bool playerMoved() const;
 
 private:
     KeyMappings keys{};
+    std::shared_ptr<InputManager> input_manager;
+
+    std::shared_ptr<TransformComponent> transform_component;
+
     float move_speed{12.f};
     float look_speed{2.f};
 

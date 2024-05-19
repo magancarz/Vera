@@ -1,6 +1,11 @@
 #include "TransformComponent.h"
 
-glm::mat4 TransformComponent::transform()
+TransformComponent::TransformComponent(Object* owner, World* world)
+    : ObjectComponent(owner, world) {}
+
+void TransformComponent::update(FrameInfo& frame_info) {}
+
+glm::mat4 TransformComponent::transform() const
 {
     const float c3 = glm::cos(rotation.z);
     const float s3 = glm::sin(rotation.z);

@@ -1,6 +1,5 @@
 #pragma once
 
-#include "Camera.h"
 #include "RenderEngine/RenderingAPI/SwapChain.h"
 #include "RenderEngine/Models/Model.h"
 #include "RenderEngine/RenderingAPI/Descriptors.h"
