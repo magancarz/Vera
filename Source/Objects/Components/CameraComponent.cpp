@@ -22,8 +22,10 @@ void CameraComponent::setOrthographicProjection(
     projection[3][2] = -near / (far - near);
 }
 
-void CameraComponent::setPerspectiveProjection(float fovy, float aspect, float near, float far)
+void CameraComponent::setPerspectiveProjection(float fovy, float near, float far)
 {
+    float aspect = Window::get()->getAspect();
+
     assert(glm::abs(aspect - std::numeric_limits<float>::epsilon()) > 0.0f);
     const float tan_half_fov_y = tan(fovy / 2.f);
     projection = glm::mat4{0.0f};

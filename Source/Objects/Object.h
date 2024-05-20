@@ -13,7 +13,7 @@ class Object
 public:
     using id_t = uint32_t;
 
-    static Object createObject();
+    Object();
 
     Object(const Object&) = delete;
     Object& operator=(const Object&) = delete;
@@ -58,10 +58,11 @@ public:
 private:
     explicit Object(id_t object_id) : id{object_id} {}
 
+    inline static id_t available_id = 0;
     id_t id;
 
     std::vector<std::shared_ptr<ObjectComponent>> components;
-    TransformComponent* transform_component_cache;
+    TransformComponent* transform_component_cache{nullptr};
 
     std::shared_ptr<Model> model;
     std::shared_ptr<Material> material;

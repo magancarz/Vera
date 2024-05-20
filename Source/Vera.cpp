@@ -16,22 +16,22 @@ void Vera::run()
 
 void Vera::loadProject()
 {
-    InputManager::get(window.getGFLWwindow());
+    InputManager::get(window->getGFLWwindow());
 
     ProjectInfo project_info = ProjectUtils::loadProject("vera");
     asset_manager->loadNeededAssetsForProject(project_info);
-    world.loadObjects(project_info, asset_manager);
+    world.loadProject(project_info, asset_manager);
 }
 
 void Vera::createRenderer()
 {
-    renderer = std::make_unique<Renderer>(window, device, world);
+    renderer = std::make_unique<Renderer>(*window, device, world);
 }
 
 void Vera::runLoop()
 {
     auto last_time = std::chrono::high_resolution_clock::now();
-    while (!window.shouldClose())
+    while (!window->shouldClose())
     {
         glfwPollEvents();
 

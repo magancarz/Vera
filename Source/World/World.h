@@ -12,9 +12,9 @@ class Object;
 class World
 {
 public:
-    explicit World(Window& window);
+    World() = default;
 
-    void loadObjects(const ProjectInfo& project_info, const std::shared_ptr<AssetManager>& asset_manager);
+    void loadProject(const ProjectInfo& project_info, const std::shared_ptr<AssetManager>& asset_manager);
 
     void update(FrameInfo& frame_info);
     void removeUnusedRegisteredComponents();
@@ -25,8 +25,6 @@ public:
     std::map<int, std::shared_ptr<Object>> rendered_objects;
 
 private:
-    Window& window;
-
     void loadViewerObject();
 
     std::shared_ptr<Object> viewer_object;

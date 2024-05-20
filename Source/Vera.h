@@ -21,13 +21,13 @@ public:
     Vera& operator=(const Vera&) = delete;
 
 private:
-    Window window{};
-    Device device{window};
+    std::shared_ptr<Window> window = Window::get();
+    Device device{*window};
 
     void loadProject();
 
     std::shared_ptr<AssetManager> asset_manager = AssetManager::get(&device);
-    World world{window};
+    World world{};
 
     void createRenderer();
 

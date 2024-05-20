@@ -3,11 +3,8 @@
 #include "RenderEngine/RenderingAPI/VulkanHelper.h"
 #include "Objects/Components/TransformComponent.h"
 
-Object Object::createObject()
-{
-    static id_t available_id = 0;
-    return Object{available_id++};
-}
+Object::Object()
+    : id{available_id++} {}
 
 glm::vec3 Object::getLocation()
 {

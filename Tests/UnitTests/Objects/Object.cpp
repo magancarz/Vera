@@ -10,7 +10,7 @@ struct ObjectTests : public ::testing::Test
 TEST_F(ObjectTests, shouldCreateNewObjectWithID)
 {
     // when
-    Object new_object = Object::createObject();
+    Object new_object{};
 
     // then
     EXPECT_EQ(new_object.getID(), 0);
@@ -19,15 +19,18 @@ TEST_F(ObjectTests, shouldCreateNewObjectWithID)
 TEST_F(ObjectTests, shouldAssignUniqueIDToEachObject)
 {
     // given
-    Object first_object = Object::createObject();
+    Object first_object{};
+    uint32_t second_object_id{0};
     {
-        Object second_object = Object::createObject();
+        Object second_object{};
+        second_object_id = second_object.getID();
     }
 
     // when
-    Object third_object = Object::createObject();
+    Object third_object{};
 
     // then
-    EXPECT_EQ(first_object.getID(), 1);
-    EXPECT_EQ(third_object.getID(), 3);
+    EXPECT_TRUE(first_object.getID() != second_object_id);
+    EXPECT_TRUE(first_object.getID() != third_object.getID());
+    EXPECT_TRUE(second_object_id != third_object.getID());
 }

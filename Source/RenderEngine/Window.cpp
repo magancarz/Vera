@@ -2,6 +2,17 @@
 
 #include <stdexcept>
 
+std::shared_ptr<Window> Window::get(uint32_t width, uint32_t height, std::string name)
+{
+    std::lock_guard<std::mutex> lock(mutex);
+    if (!instance)
+    {
+        instance = std::shared_ptr<Window>(new Window(width, height, std::move(name)));
+    }
+
+    return instance;
+}
+
 Window::Window(uint32_t width, uint32_t height, std::string name)
     : width{width}, height{height}, window_name{std::move(name)}
 {

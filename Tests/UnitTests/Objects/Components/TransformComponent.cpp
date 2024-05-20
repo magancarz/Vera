@@ -2,16 +2,26 @@
 #include "Objects/Components/TransformComponent.h"
 #include "TestUtils.h"
 
+#include "World/World.h"
+
 struct TransformComponentTests : public ::testing::Test
 {
-    void SetUp() override {}
+    Object owner;
+    World world;
+
+    void SetUp() override
+    {
+        owner = Object{};
+        world = World{};
+    }
+
     void TearDown() override {}
 };
 
 TEST_F(TransformComponentTests, shouldReturnIdentityTransformMatrixWhenUnchanged)
 {
     // given
-    TransformComponent transform_component{};
+    TransformComponent transform_component{&owner, &world};
 
     // when
     glm::mat4 transform = transform_component.transform();
@@ -23,7 +33,7 @@ TEST_F(TransformComponentTests, shouldReturnIdentityTransformMatrixWhenUnchanged
 TEST_F(TransformComponentTests, shouldReturnTransformWithCorrectRotation)
 {
     // given
-    TransformComponent transform_component{};
+    TransformComponent transform_component{&owner, &world};
     transform_component.rotation.x = glm::radians(90.f);
 
     glm::mat4 expected_transform{1.f};
@@ -39,7 +49,7 @@ TEST_F(TransformComponentTests, shouldReturnTransformWithCorrectRotation)
 TEST_F(TransformComponentTests, shouldReturnTransformWithCorrectTranslation)
 {
     // given
-    TransformComponent transform_component{};
+    TransformComponent transform_component{&owner, &world};
     transform_component.translation.y = 10.f;
 
     glm::mat4 expected_transform{1.f};
@@ -55,7 +65,7 @@ TEST_F(TransformComponentTests, shouldReturnTransformWithCorrectTranslation)
 TEST_F(TransformComponentTests, shouldReturnTransformWithCorrectScale)
 {
     // given
-    TransformComponent transform_component{};
+    TransformComponent transform_component{&owner, &world};
     transform_component.scale = glm::vec3{3.f, 1.f, 2.f};
 
     glm::mat4 expected_transform{1.f};
@@ -71,7 +81,7 @@ TEST_F(TransformComponentTests, shouldReturnTransformWithCorrectScale)
 TEST_F(TransformComponentTests, shouldReturnTransformWithCorrectRotationTranslationAndScale)
 {
     // given
-    TransformComponent transform_component{};
+    TransformComponent transform_component{&owner, &world};
     transform_component.rotation.x = glm::radians(90.f);
     transform_component.translation.y = 10.f;
     transform_component.scale = glm::vec3{3.f, 1.f, 2.f};
@@ -91,7 +101,7 @@ TEST_F(TransformComponentTests, shouldReturnTransformWithCorrectRotationTranslat
 TEST_F(TransformComponentTests, shouldReturnCorrectNormalMatrix)
 {
     // given
-    TransformComponent transform_component{};
+    TransformComponent transform_component{&owner, &world};
     transform_component.rotation.x = glm::radians(90.f);
     transform_component.translation.y = 10.f;
     transform_component.scale = glm::vec3{3.f, 1.f, 2.f};

@@ -3,16 +3,13 @@
 #include "Project/Project.h"
 #include "Objects/Components/CameraComponent.h"
 
-World::World(Window& window)
-    : window{window} {}
-
-void World::loadObjects(const ProjectInfo& project_info, const std::shared_ptr<AssetManager>& asset_manager)
+void World::loadProject(const ProjectInfo& project_info, const std::shared_ptr<AssetManager>& asset_manager)
 {
     loadViewerObject();
 
     for (auto& object_info : project_info.objects_infos)
     {
-        auto new_object = std::make_shared<Object>(Object::createObject());
+        auto new_object = std::make_shared<Object>();
         auto transform_component = std::make_shared<TransformComponent>(new_object.get(), this);
         transform_component->translation = object_info.position;
         transform_component->rotation = object_info.rotation;
@@ -27,7 +24,7 @@ void World::loadObjects(const ProjectInfo& project_info, const std::shared_ptr<A
 
 void World::loadViewerObject()
 {
-    viewer_object = std::make_shared<Object>(Object::createObject());
+    viewer_object = std::make_shared<Object>();
     auto transform_component = std::make_shared<TransformComponent>(viewer_object.get(), this);
     transform_component->translation.y = 5.f;
     transform_component->translation.z = 10.f;
@@ -35,7 +32,7 @@ void World::loadViewerObject()
     auto player_movement_component = std::make_shared<PlayerMovementComponent>(viewer_object.get(), this, transform_component);
     viewer_object->addComponent(std::move(player_movement_component));
     auto player_camera_component = std::make_shared<CameraComponent>(viewer_object.get(), this, transform_component);
-    player_camera_component->setPerspectiveProjection(glm::radians(70.0f), window.getAspect(), 0.1f, 100.f);
+    player_camera_component->setPerspectiveProjection(glm::radians(70.0f), 0.1f, 100.f);
     viewer_object->addComponent(std::move(player_camera_component));
     viewer_object->addComponent(std::move(transform_component));
 }
