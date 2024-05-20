@@ -40,7 +40,6 @@ public:
         return nullptr;
     }
 
-    [[nodiscard]] bool renderable() const { return model && material; }
     void setModel(std::shared_ptr<Model> in_model);
     std::shared_ptr<Model> getModel() { return model; }
 

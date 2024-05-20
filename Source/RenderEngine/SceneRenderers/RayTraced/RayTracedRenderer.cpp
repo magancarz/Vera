@@ -92,10 +92,7 @@ void RayTracedRenderer::createObjectDescriptionsBuffer()
     std::vector<ObjectDescription> object_descriptions;
     for (auto& [_, object] : world->rendered_objects)
     {
-        if (object->renderable())
-        {
-            object_descriptions.emplace_back(object->getObjectDescription());
-        }
+        object_descriptions.emplace_back(object->getObjectDescription());
     }
     object_descriptions_buffer->writeWithStagingBuffer(object_descriptions.data());
 }
@@ -106,10 +103,7 @@ void RayTracedRenderer::createLightIndicesBuffer()
     size_t i = 0;
     for (auto& [_, object] : world->rendered_objects)
     {
-        if (object->renderable() && object->isLight())
-        {
-            light_indices.push_back(i);
-        }
+        light_indices.push_back(i);
         ++i;
     }
     number_of_lights = light_indices.size();

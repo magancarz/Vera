@@ -16,10 +16,10 @@ public:
     static void printMatrix(const glm::mat4& matrix);
 
     template <typename T>
-    static void assertTwoValuesAreEqual(T first_value, T second_value, double precision = 0.000001)
+    static void expectTwoValuesToBeEqual(T first_value, T second_value, double precision = 0.000001)
     {
         EXPECT_TRUE(abs(second_value - first_value) < precision);
     }
 
-    static void assertTwoMatricesAreEqual(const glm::mat4& first_matrix, const glm::mat4& second_matrix);
+    static void expectTwoMatricesToBeEqual(const glm::mat4& actual_matrix, const glm::mat4& expected_matrix);
 };

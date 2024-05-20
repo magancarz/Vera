@@ -43,7 +43,7 @@ TEST_F(TransformComponentTests, shouldReturnTransformWithCorrectRotation)
     glm::mat4 transform = transform_component.transform();
 
     // then
-    TestUtils::assertTwoMatricesAreEqual(transform, expected_transform);
+    TestUtils::expectTwoMatricesToBeEqual(transform, expected_transform);
 }
 
 TEST_F(TransformComponentTests, shouldReturnTransformWithCorrectTranslation)
@@ -59,7 +59,7 @@ TEST_F(TransformComponentTests, shouldReturnTransformWithCorrectTranslation)
     glm::mat4 transform = transform_component.transform();
 
     // then
-    TestUtils::assertTwoMatricesAreEqual(transform, expected_transform);
+    TestUtils::expectTwoMatricesToBeEqual(transform, expected_transform);
 }
 
 TEST_F(TransformComponentTests, shouldReturnTransformWithCorrectScale)
@@ -75,7 +75,7 @@ TEST_F(TransformComponentTests, shouldReturnTransformWithCorrectScale)
     glm::mat4 transform = transform_component.transform();
 
     // then
-    TestUtils::assertTwoMatricesAreEqual(transform, expected_transform);
+    TestUtils::expectTwoMatricesToBeEqual(transform, expected_transform);
 }
 
 TEST_F(TransformComponentTests, shouldReturnTransformWithCorrectRotationTranslationAndScale)
@@ -95,7 +95,7 @@ TEST_F(TransformComponentTests, shouldReturnTransformWithCorrectRotationTranslat
     glm::mat4 transform = transform_component.transform();
 
     // then
-    TestUtils::assertTwoMatricesAreEqual(transform, expected_transform);
+    TestUtils::expectTwoMatricesToBeEqual(transform, expected_transform);
 }
 
 TEST_F(TransformComponentTests, shouldReturnCorrectNormalMatrix)
@@ -116,5 +116,5 @@ TEST_F(TransformComponentTests, shouldReturnCorrectNormalMatrix)
     glm::mat4 transform = transform_component.normalMatrix();
 
     // then
-    TestUtils::assertTwoMatricesAreEqual(transform, expected_normal_matrix);
+    TestUtils::expectTwoMatricesToBeEqual(transform, expected_normal_matrix);
 }

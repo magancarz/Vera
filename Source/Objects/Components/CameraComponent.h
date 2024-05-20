@@ -10,11 +10,7 @@ public:
 
     void update(FrameInfo& frame_info) override;
 
-    void setOrthographicProjection(float left, float right, float top, float bottom, float near, float far);
-    void setPerspectiveProjection(float fovy, float near, float far);
-
-    void setViewDirection(glm::vec3 position, glm::vec3 direction, glm::vec3 up = glm::vec3{0.f, -1.f, 0.f});
-    void setViewTarget(glm::vec3 position, glm::vec3 target, glm::vec3 up = glm::vec3{0.f, -1.f, 0.f});
+    void setPerspectiveProjection(float fovy, float aspect, float near, float far);
     void setViewYXZ(glm::vec3 position, glm::vec3 rotation);
 
     [[nodiscard]] const glm::mat4& getProjection() const { return projection; }
@@ -26,5 +22,5 @@ private:
 
     glm::mat4 projection{1.f};
     glm::mat4 view{1.f};
-    glm::mat4 inverse_view{};
+    glm::mat4 inverse_view{1.f};
 };

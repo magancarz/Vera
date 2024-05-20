@@ -32,7 +32,7 @@ void World::loadViewerObject()
     auto player_movement_component = std::make_shared<PlayerMovementComponent>(viewer_object.get(), this, transform_component);
     viewer_object->addComponent(std::move(player_movement_component));
     auto player_camera_component = std::make_shared<CameraComponent>(viewer_object.get(), this, transform_component);
-    player_camera_component->setPerspectiveProjection(glm::radians(70.0f), 0.1f, 100.f);
+    player_camera_component->setPerspectiveProjection(glm::radians(70.0f), Window::get()->getAspect(), 0.1f, 100.f);
     viewer_object->addComponent(std::move(player_camera_component));
     viewer_object->addComponent(std::move(transform_component));
 }

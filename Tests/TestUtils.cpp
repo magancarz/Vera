@@ -59,13 +59,13 @@ void TestUtils::printMatrix(const glm::mat4& matrix)
     printf("%f, %f, %f, %f\n\n", matrix[3][0], matrix[3][1], matrix[3][2], matrix[3][3]);
 }
 
-void TestUtils::assertTwoMatricesAreEqual(const glm::mat4& first_matrix, const glm::mat4& second_matrix)
+void TestUtils::expectTwoMatricesToBeEqual(const glm::mat4& actual_matrix, const glm::mat4& expected_matrix)
 {
     for (int i = 0; i < 3; ++i)
     {
         for (int j = 0; j < 3; ++j)
         {
-            assertTwoValuesAreEqual(first_matrix[i][j], second_matrix[i][j]);
+            expectTwoValuesToBeEqual(actual_matrix[i][j], expected_matrix[i][j]);
         }
     }
 }
