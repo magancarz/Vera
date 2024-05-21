@@ -5,6 +5,7 @@
 #include <string>
 #include <vector>
 #include "RenderEngine/Window.h"
+#include "Instance.h"
 
 struct SwapChainSupportDetails
 {
@@ -29,11 +30,6 @@ struct QueueFamilyIndices
 class VulkanFacade
 {
 public:
-#ifdef NDEBUG
-    const bool enable_validation_layers = false;
-#else
-    const bool enable_validation_layers = true;
-#endif
 
     VulkanFacade(Window& window);
     ~VulkanFacade();
@@ -43,7 +39,7 @@ public:
     VulkanFacade(VulkanFacade&&) = delete;
     VulkanFacade& operator=(VulkanFacade&&) = delete;
 
-    VkInstance getInstance() { return instance; }
+    VkInstance getInstance() { return instance.getInstance(); }
     VkDevice getDevice() { return device; }
     VkCommandPool getCommandPool() { return command_pool; }
     VkPhysicalDevice getPhysicalDevice() { return used_physical_device; }
@@ -81,25 +77,18 @@ public:
     VkPhysicalDeviceProperties properties;
 
 private:
-    void createInstance();
-    void setupDebugMessenger();
-    bool checkValidationLayerSupport();
-    void populateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT& create_info);
     void createSurface();
     void pickPhysicalDevice();
     bool isDeviceSuitable(VkPhysicalDevice device);
-    std::vector<const char*> getRequiredExtensions();
-    void checkIfInstanceHasGlfwRequiredInstanceExtensions();
     bool checkDeviceExtensionSupport(VkPhysicalDevice device);
     void createLogicalDevice();
     void createCommandPool();
     QueueFamilyIndices findQueueFamilies(VkPhysicalDevice device);
     SwapChainSupportDetails querySwapChainSupport(VkPhysicalDevice device);
 
-    Window& window;
+    Instance instance;
 
-    VkInstance instance;
-    VkDebugUtilsMessengerEXT debug_messenger;
+    Window& window;
     VkPhysicalDevice used_physical_device = VK_NULL_HANDLE;
     VkCommandPool command_pool;
 
@@ -108,16 +97,15 @@ private:
     VkQueue graphics_queue;
     VkQueue present_queue;
 
-    const std::vector<const char*> validation_layers = {"VK_LAYER_KHRONOS_validation"};
     const std::vector<const char*> device_extensions =
     {
-        VK_KHR_SWAPCHAIN_EXTENSION_NAME,
-        VK_KHR_ACCELERATION_STRUCTURE_EXTENSION_NAME,
-        VK_KHR_RAY_TRACING_PIPELINE_EXTENSION_NAME,
-        VK_KHR_DEFERRED_HOST_OPERATIONS_EXTENSION_NAME,
-        VK_EXT_DESCRIPTOR_INDEXING_EXTENSION_NAME,
-        VK_KHR_BIND_MEMORY_2_EXTENSION_NAME,
-        VK_KHR_SPIRV_1_4_EXTENSION_NAME,
-        VK_KHR_SHADER_FLOAT_CONTROLS_EXTENSION_NAME
+            VK_KHR_SWAPCHAIN_EXTENSION_NAME,
+            VK_KHR_ACCELERATION_STRUCTURE_EXTENSION_NAME,
+            VK_KHR_RAY_TRACING_PIPELINE_EXTENSION_NAME,
+            VK_KHR_DEFERRED_HOST_OPERATIONS_EXTENSION_NAME,
+            VK_EXT_DESCRIPTOR_INDEXING_EXTENSION_NAME,
+            VK_KHR_BIND_MEMORY_2_EXTENSION_NAME,
+            VK_KHR_SPIRV_1_4_EXTENSION_NAME,
+            VK_KHR_SHADER_FLOAT_CONTROLS_EXTENSION_NAME
     };
 };
