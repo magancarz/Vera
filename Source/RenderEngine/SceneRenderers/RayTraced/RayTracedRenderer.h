@@ -16,7 +16,7 @@ struct CameraUBO
 class RayTracedRenderer : public SceneRenderer
 {
 public:
-    RayTracedRenderer(Device& device, World* world);
+    RayTracedRenderer(VulkanFacade& device, World* world);
     ~RayTracedRenderer() noexcept;
 
     void renderScene(FrameInfo& frame_info) override;
@@ -25,7 +25,7 @@ public:
     VkSampler getRayTracedImageSampler() { return ray_traced_texture->getSampler(); }
 
 private:
-    Device& device;
+    VulkanFacade& device;
     World* world;
 
     void queryRayTracingPipelineProperties();

@@ -8,7 +8,7 @@
 #include "imgui.h"
 #include "imgui_impl_vulkan.h"
 
-Renderer::Renderer(Window& window, Device& device, World& world)
+Renderer::Renderer(Window& window, VulkanFacade& device, World& world)
     : window{window}, device{device}, world{world}
 {
     createCommandBuffers();

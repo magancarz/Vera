@@ -6,7 +6,7 @@
 #include "Vertex.h"
 
 Pipeline::Pipeline(
-        Device& device,
+        VulkanFacade& device,
         const std::string& vertex_file_path,
         const std::string& fragment_file_path,
         const PipelineConfigInfo& config_info)

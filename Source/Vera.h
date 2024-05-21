@@ -22,7 +22,7 @@ public:
 
 private:
     std::shared_ptr<Window> window = Window::get();
-    Device device{*window};
+    VulkanFacade device{*window};
 
     void loadProject();
 

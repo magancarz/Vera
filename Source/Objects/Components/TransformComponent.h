@@ -7,7 +7,7 @@
 class TransformComponent : public ObjectComponent
 {
 public:
-    TransformComponent(Object* owner, World* world);
+    TransformComponent(Object* owner);
 
     void update(FrameInfo& frame_info) override;
 

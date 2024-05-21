@@ -15,7 +15,7 @@ VkDeviceSize Buffer::getAlignment(VkDeviceSize instance_size, VkDeviceSize min_o
 }
 
 Buffer::Buffer(
-        Device& device,
+        VulkanFacade& device,
         VkDeviceSize instance_size,
         uint32_t instance_count,
         VkBufferUsageFlags usage_flags,

@@ -18,9 +18,9 @@ struct MaterialInfo
 class Material
 {
 public:
-    static std::shared_ptr<Material> loadMaterialFromFile(Device& device, const std::string& material_name);
+    static std::shared_ptr<Material> loadMaterialFromFile(VulkanFacade& device, const std::string& material_name);
 
-    Material(Device& device, MaterialInfo in_material_info);
+    Material(VulkanFacade& device, MaterialInfo in_material_info);
 
     void assignMaterialHitGroup(BlasInstance& blas_instance) const;
 
@@ -28,7 +28,7 @@ public:
     [[nodiscard]] bool isLightMaterial() const { return material_info.brightness > 0; }
 
 private:
-    Device& device;
+    VulkanFacade& device;
     MaterialInfo material_info;
 
     void createMaterialBuffer();

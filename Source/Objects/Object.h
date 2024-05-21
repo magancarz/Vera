@@ -40,18 +40,6 @@ public:
         return nullptr;
     }
 
-    void setModel(std::shared_ptr<Model> in_model);
-    std::shared_ptr<Model> getModel() { return model; }
-
-    void setMaterial(std::shared_ptr<Material> in_material);
-    std::shared_ptr<Material> getMaterial() { return material; }
-    bool isLight() { return material->isLightMaterial(); };
-
-    //TODO: create abstraction for creating blas instances
-    void createBlasInstance();
-    BlasInstance* getBlasInstance() { return &blas_instance; }
-    //
-
     ObjectDescription getObjectDescription();
 
 private:
@@ -62,9 +50,4 @@ private:
 
     std::vector<std::shared_ptr<ObjectComponent>> components;
     TransformComponent* transform_component_cache{nullptr};
-
-    std::shared_ptr<Model> model;
-    std::shared_ptr<Material> material;
-
-    BlasInstance blas_instance{};
 };

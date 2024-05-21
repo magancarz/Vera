@@ -2,14 +2,14 @@
 
 #include <string>
 
-#include "RenderEngine/RenderingAPI/Device.h"
+#include "RenderEngine/RenderingAPI/VulkanFacade.h"
 #include "TextureData.h"
 
 class Texture
 {
 public:
-    Texture(Device& device, const std::string& filepath);
-    Texture(Device& device, uint32_t width, uint32_t height, VkImageUsageFlags usage_flags, VkFormat image_format = VK_FORMAT_R8G8B8A8_SRGB);
+    Texture(VulkanFacade& device, const std::string& filepath);
+    Texture(VulkanFacade& device, uint32_t width, uint32_t height, VkImageUsageFlags usage_flags, VkFormat image_format = VK_FORMAT_R8G8B8A8_SRGB);
     ~Texture();
 
     VkSampler getSampler() { return sampler; }
@@ -17,7 +17,7 @@ public:
     VkImageLayout getImageLayout() { return image_layout; }
 
 private:
-    Device& device;
+    VulkanFacade& device;
 
     void createImage(VkImageUsageFlags usage_flags);
     void createImageView();

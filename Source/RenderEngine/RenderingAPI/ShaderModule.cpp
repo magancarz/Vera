@@ -4,7 +4,7 @@
 
 #include <fstream>
 
-ShaderModule::ShaderModule(Device& device, const std::string& shader_code_file, VkShaderStageFlagBits shader_stage)
+ShaderModule::ShaderModule(VulkanFacade& device, const std::string& shader_code_file, VkShaderStageFlagBits shader_stage)
     : device{device}
 {
     std::string path_to_shader_code = getPathToShaderCodeFile(shader_code_file, shader_stage);

@@ -2,6 +2,7 @@
 
 #include "RenderEngine/RenderingAPI/VulkanHelper.h"
 #include "Objects/Components/TransformComponent.h"
+#include "Objects/Components/MeshComponent.h"
 
 Object::Object()
     : id{available_id++} {}
@@ -23,34 +24,20 @@ glm::vec3 Object::getLocation()
 
 void Object::addComponent(std::shared_ptr<ObjectComponent> component)
 {
+    assert(component->getOwner() == this && "Component's owner should be the same as the object to which component tried to be added");
     components.emplace_back(std::move(component));
-}
-
-void Object::setModel(std::shared_ptr<Model> in_model)
-{
-    model = std::move(in_model);
-}
-
-void Object::setMaterial(std::shared_ptr<Material> in_material)
-{
-    material = std::move(in_material);
-}
-
-void Object::createBlasInstance()
-{
-    assert(model != nullptr && material != nullptr);
-
-    auto transform_component = findComponentByClass<TransformComponent>();
-    blas_instance = model->createBlasInstance(transform_component->transform(), id);
-    material->assignMaterialHitGroup(blas_instance);
 }
 
 ObjectDescription Object::getObjectDescription()
 {
+    auto mesh_component = findComponentByClass<MeshComponent>();
     auto transform_component = findComponentByClass<TransformComponent>();
+    assert(mesh_component && transform_component && "To obtain object description mesh component and transform component must be present in object components list!");
+
     ObjectDescription object_description{};
-    model->getModelDescription(object_description);
-    material->getMaterialDescription(object_description);
+    mesh_component->getModel()->getModelDescription(object_description);
+    mesh_component->getMaterial()->getMaterialDescription(object_description);
+
     object_description.surface_area *= transform_component->scale.x * transform_component->scale.x;
     object_description.object_to_world = transform_component->transform();
     return object_description;

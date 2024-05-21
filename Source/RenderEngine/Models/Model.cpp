@@ -15,7 +15,7 @@
 #include "RenderEngine/Models/RayTracingAccelerationStructureBuilder.h"
 #include "Utils/VeraDefines.h"
 
-Model::Model(Device& device, const Model::Builder& builder)
+Model::Model(VulkanFacade& device, const Model::Builder& builder)
         : device{device}, surface_area{builder.area}
 {
     createVertexBuffers(builder.vertices);
@@ -176,7 +176,7 @@ namespace std
     };
 }
 
-std::unique_ptr<Model> Model::createModelFromFile(Device& device, const std::string& model_name)
+std::unique_ptr<Model> Model::createModelFromFile(VulkanFacade& device, const std::string& model_name)
 {
     const std::string filepath = (paths::MODELS_DIRECTORY_PATH / model_name).generic_string() + ".obj";
 

@@ -171,7 +171,7 @@ static const char* getDeviceDescription(const XINPUT_CAPABILITIES* xic)
         }
     }
 
-    return "Unknown XInput Device";
+    return "Unknown XInput VulkanFacade";
 }
 
 // Lexically compare getDevice objects

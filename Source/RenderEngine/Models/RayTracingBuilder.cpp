@@ -3,7 +3,7 @@
 #include "RenderEngine/RenderingAPI/VulkanDefines.h"
 #include "RenderEngine/RenderingAPI/VulkanHelper.h"
 
-RayTracingAccelerationStructureBuilder::RayTracingAccelerationStructureBuilder(Device& device)
+RayTracingAccelerationStructureBuilder::RayTracingAccelerationStructureBuilder(VulkanFacade& device)
     : device{device} {}
 
 AccelerationStructure RayTracingAccelerationStructureBuilder::buildBottomLevelAccelerationStructure(const BlasInput& blas_input)

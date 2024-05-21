@@ -7,8 +7,9 @@
 #include "RenderEngine/GlobalUBO.h"
 #include "RenderEngine/RenderingAPI/VulkanDefines.h"
 #include "RenderEngine/SceneRenderers/RayTraced/Pipeline/RayTracingPipelineBuilder.h"
+#include "Objects/Components/MeshComponent.h"
 
-RayTracedRenderer::RayTracedRenderer(Device& device, World* world)
+RayTracedRenderer::RayTracedRenderer(VulkanFacade& device, World* world)
     : device{device}, world{world}
 {
     queryRayTracingPipelineProperties();
@@ -45,7 +46,8 @@ void RayTracedRenderer::createAccelerationStructure()
     size_t i = 0;
     for (auto [_, object] : world->rendered_objects)
     {
-        auto blas_instance = object->getBlasInstance();
+        auto mesh_component = object->findComponentByClass<MeshComponent>();
+        auto blas_instance = mesh_component->getBlasInstance();
         blas_instance->bottomLevelAccelerationStructureInstance.instanceCustomIndex = i++;
         blas_instances.push_back(blas_instance);
     }

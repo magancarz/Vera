@@ -1,6 +1,6 @@
 #pragma once
 
-#include "RenderEngine/RenderingAPI/Device.h"
+#include "RenderEngine/RenderingAPI/VulkanFacade.h"
 #include "RenderEngine/FrameInfo.h"
 #include "RenderEngine/RenderingAPI/Pipeline.h"
 
@@ -8,7 +8,7 @@ class PostProcessing
 {
 public:
     PostProcessing(
-            Device& device,
+            VulkanFacade& device,
             VkRenderPass render_pass,
             VkDescriptorSetLayout input_texture);
     ~PostProcessing();
@@ -23,7 +23,7 @@ private:
     void createPipelineLayout(VkDescriptorSetLayout input_texture);
     void createPipeline(VkRenderPass render_pass);
 
-    Device& device;
+    VulkanFacade& device;
 
     std::unique_ptr<Pipeline> simple_pipeline;
     VkPipelineLayout pipeline_layout;

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "RenderEngine/RenderingAPI/Device.h"
+#include "RenderEngine/RenderingAPI/VulkanFacade.h"
 #include "RenderEngine/RenderingAPI/Vertex.h"
 #include "RenderEngine/RenderingAPI/Buffer.h"
 #include "RenderEngine/Materials/Material.h"
@@ -20,13 +20,13 @@ public:
         void loadModel(const std::string& filepath);
     };
 
-    Model(Device& device, const Model::Builder& builder);
+    Model(VulkanFacade& device, const Model::Builder& builder);
     ~Model();
 
     Model(const Model&) = delete;
     Model& operator=(const Model&) = delete;
 
-    static std::unique_ptr<Model> createModelFromFile(Device& device, const std::string& model_name);
+    static std::unique_ptr<Model> createModelFromFile(VulkanFacade& device, const std::string& model_name);
 
     void bind(VkCommandBuffer command_buffer);
     void draw(VkCommandBuffer command_buffer);
@@ -38,7 +38,7 @@ public:
     void getModelDescription(ObjectDescription& object_description) const;
 
 private:
-    Device& device;
+    VulkanFacade& device;
 
     float surface_area{0.f};
 

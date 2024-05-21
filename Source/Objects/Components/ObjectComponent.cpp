@@ -2,11 +2,10 @@
 
 #include "World/World.h"
 
-ObjectComponent::ObjectComponent(Object* owner, World* world, TickGroup tick_group)
-    : owner{owner}, tick_group{tick_group}
-{
-    world->registerComponent(this);
-}
+ObjectComponent::ObjectComponent(Object* owner, TickGroup tick_group)
+    : owner{owner}, tick_group{tick_group} {}
+
+void ObjectComponent::update(FrameInfo& frame_info) {}
 
 void ObjectComponent::setRelativeLocation(const glm::vec3& position)
 {

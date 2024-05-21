@@ -1,11 +1,11 @@
 #include "AssetManager.h"
 
-AssetManager::AssetManager(Device& device)
+AssetManager::AssetManager(VulkanFacade& device)
     : device{device} {}
 
-std::shared_ptr<AssetManager> AssetManager::get(Device* device)
+std::shared_ptr<AssetManager> AssetManager::get(VulkanFacade* device)
 {
-    assert(instance || device && "Device can't be nullptr while instance hasn't been created yet!");
+    assert(instance || device && "VulkanFacade can't be nullptr while instance hasn't been created yet!");
 
     std::lock_guard<std::mutex> lock(mutex);
     if (!instance)

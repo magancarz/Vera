@@ -6,12 +6,12 @@
 
 #include <vulkan/vulkan.hpp>
 
-#include "Device.h"
+#include "VulkanFacade.h"
 
 class ShaderModule
 {
 public:
-    ShaderModule(Device& device, const std::string& shader_code_file, VkShaderStageFlagBits shader_stage);
+    ShaderModule(VulkanFacade& device, const std::string& shader_code_file, VkShaderStageFlagBits shader_stage);
     ~ShaderModule();
 
     ShaderModule(const ShaderModule&) = delete;
@@ -28,7 +28,7 @@ public:
     };
 
 private:
-    Device& device;
+    VulkanFacade& device;
 
     static std::string getPathToShaderCodeFile(const std::string& shader_code_file, VkShaderStageFlagBits shader_stage);
     void createShaderModule(const std::string& path_to_shader_code);

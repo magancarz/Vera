@@ -1,7 +1,7 @@
 #include "TransformComponent.h"
 
-TransformComponent::TransformComponent(Object* owner, World* world)
-    : ObjectComponent(owner, world) {}
+TransformComponent::TransformComponent(Object* owner)
+    : ObjectComponent(owner) {}
 
 void TransformComponent::update(FrameInfo& frame_info) {}
 

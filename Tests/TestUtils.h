@@ -1,6 +1,7 @@
 #pragma once
 
 #include "gtest/gtest.h"
+#include "Project/ObjectInfo.h"
 
 #include <glm/glm.hpp>
 
@@ -21,5 +22,12 @@ public:
         EXPECT_TRUE(abs(second_value - first_value) < precision);
     }
 
+    static void expectTwoVectorsToBeEqual(const glm::vec3& actual_vector, const glm::vec3& expected_vector);
     static void expectTwoMatricesToBeEqual(const glm::mat4& actual_matrix, const glm::mat4& expected_matrix);
+
+    static ObjectInfo createDummyObjectInfo(
+            std::string object_name,
+            const glm::vec3& position = {0, 0, 0},
+            const glm::vec3& rotation = {0, 0, 0},
+            float scale = 0.f);
 };

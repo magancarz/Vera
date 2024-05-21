@@ -2,7 +2,7 @@
 #include "RenderEngine/RenderingAPI/VulkanDefines.h"
 #include "RenderEngine/RenderingAPI/VulkanHelper.h"
 
-RayTracingPipelineBuilder::RayTracingPipelineBuilder(Device& device, VkPhysicalDeviceRayTracingPipelinePropertiesKHR ray_tracing_properties)
+RayTracingPipelineBuilder::RayTracingPipelineBuilder(VulkanFacade& device, VkPhysicalDeviceRayTracingPipelinePropertiesKHR ray_tracing_properties)
     : device{device}, ray_tracing_properties{ray_tracing_properties} {}
 
 RayTracingPipelineBuilder& RayTracingPipelineBuilder::addRayGenerationStage(std::shared_ptr<ShaderModule> ray_gen)

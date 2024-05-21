@@ -6,7 +6,7 @@
 class CameraComponent : public ObjectComponent
 {
 public:
-    explicit CameraComponent(Object* owner, World* world, std::shared_ptr<TransformComponent> transform_component);
+    explicit CameraComponent(Object* owner, std::shared_ptr<TransformComponent> transform_component);
 
     void update(FrameInfo& frame_info) override;
 

@@ -26,7 +26,7 @@ struct QueueFamilyIndices
     }
 };
 
-class Device
+class VulkanFacade
 {
 public:
 #ifdef NDEBUG
@@ -35,13 +35,13 @@ public:
     const bool enable_validation_layers = true;
 #endif
 
-    Device(Window& window);
-    ~Device();
+    VulkanFacade(Window& window);
+    ~VulkanFacade();
 
-    Device(const Device&) = delete;
-    Device& operator=(const Device&) = delete;
-    Device(Device&&) = delete;
-    Device& operator=(Device&&) = delete;
+    VulkanFacade(const VulkanFacade&) = delete;
+    VulkanFacade& operator=(const VulkanFacade&) = delete;
+    VulkanFacade(VulkanFacade&&) = delete;
+    VulkanFacade& operator=(VulkanFacade&&) = delete;
 
     VkInstance getInstance() { return instance; }
     VkDevice getDevice() { return device; }

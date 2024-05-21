@@ -59,6 +59,14 @@ void TestUtils::printMatrix(const glm::mat4& matrix)
     printf("%f, %f, %f, %f\n\n", matrix[3][0], matrix[3][1], matrix[3][2], matrix[3][3]);
 }
 
+void TestUtils::expectTwoVectorsToBeEqual(const glm::vec3& actual_vector, const glm::vec3& expected_vector)
+{
+    for (int i = 0; i < 2; ++i)
+    {
+        expectTwoValuesToBeEqual(actual_vector[i], expected_vector[i]);
+    }
+}
+
 void TestUtils::expectTwoMatricesToBeEqual(const glm::mat4& actual_matrix, const glm::mat4& expected_matrix)
 {
     for (int i = 0; i < 3; ++i)
@@ -68,4 +76,21 @@ void TestUtils::expectTwoMatricesToBeEqual(const glm::mat4& actual_matrix, const
             expectTwoValuesToBeEqual(actual_matrix[i][j], expected_matrix[i][j]);
         }
     }
+}
+
+ObjectInfo TestUtils::createDummyObjectInfo(
+        std::string object_name,
+        const glm::vec3& position,
+        const glm::vec3& rotation,
+        const float scale)
+{
+    return ObjectInfo
+    {
+        .object_name = std::move(object_name),
+        .model_name = "cube",
+        .material_name = "white",
+        .position = position,
+        .rotation = rotation,
+        .scale = scale
+    };
 }

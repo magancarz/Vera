@@ -4,7 +4,7 @@
 #include "RenderEngine/RenderingAPI/Buffer.h"
 #include "RenderEngine/RenderingAPI/VulkanDefines.h"
 
-Texture::Texture(Device& device, const std::string& filepath)
+Texture::Texture(VulkanFacade& device, const std::string& filepath)
     : device{device}, image_format{VK_FORMAT_R8G8B8A8_SRGB}
 {
     TextureData texture_data{filepath};
@@ -97,7 +97,7 @@ void Texture::createImageSampler()
     }
 }
 
-Texture::Texture(Device& device, uint32_t width, uint32_t height, VkImageUsageFlags usage_flags, VkFormat image_format)
+Texture::Texture(VulkanFacade& device, uint32_t width, uint32_t height, VkImageUsageFlags usage_flags, VkFormat image_format)
     : device{device}, width{width}, height{height}, image_format{image_format}
 {
     createImage(usage_flags);

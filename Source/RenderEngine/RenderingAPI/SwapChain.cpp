@@ -4,7 +4,7 @@
 #include <iostream>
 #include <stdexcept>
 
-SwapChain::SwapChain(Device& device_ref, VkExtent2D window_extent)
+SwapChain::SwapChain(VulkanFacade& device_ref, VkExtent2D window_extent)
         : device{device_ref}, window_extent{window_extent}
 {
     init();
@@ -19,7 +19,7 @@ void SwapChain::init()
     createSyncObjects();
 }
 
-SwapChain::SwapChain(Device& device_ref, VkExtent2D window_extent, std::shared_ptr<SwapChain> previous)
+SwapChain::SwapChain(VulkanFacade& device_ref, VkExtent2D window_extent, std::shared_ptr<SwapChain> previous)
         : device{device_ref}, window_extent{window_extent}, old_swap_chain{std::move(previous)}
 {
     init();

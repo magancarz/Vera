@@ -5,7 +5,7 @@
 #include <vulkan/vulkan_core.h>
 #include <vulkan/vulkan.hpp>
 
-#include "RenderEngine/RenderingAPI/Device.h"
+#include "RenderEngine/RenderingAPI/VulkanFacade.h"
 #include "World/World.h"
 #include "RenderEngine/Models/AccelerationStructure.h"
 
@@ -19,7 +19,7 @@ public:
         VkBuildAccelerationStructureFlagsKHR flags{0};
     };
 
-    RayTracingAccelerationStructureBuilder(Device& device);
+    RayTracingAccelerationStructureBuilder(VulkanFacade& device);
 
     AccelerationStructure buildBottomLevelAccelerationStructure(const BlasInput& blas_input);
     std::vector<AccelerationStructure> buildBottomLevelAccelerationStructures(
@@ -52,5 +52,5 @@ private:
             std::vector<uint32_t>& indices,
             std::vector<BuildAccelerationStructure>& build_as);
 
-    Device& device;
+    VulkanFacade& device;
 };

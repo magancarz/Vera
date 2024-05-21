@@ -5,7 +5,7 @@
 #include "Assets/AssetManager.h"
 
 PostProcessing::PostProcessing(
-        Device& device,
+        VulkanFacade& device,
         VkRenderPass render_pass,
         VkDescriptorSetLayout input_texture)
         : device{device}

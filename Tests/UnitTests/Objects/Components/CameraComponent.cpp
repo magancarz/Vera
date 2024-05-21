@@ -8,14 +8,12 @@
 struct CameraComponentTests : public ::testing::Test
 {
     Object owner;
-    World world;
     std::shared_ptr<TransformComponent> transform_component;
 
     void SetUp() override
     {
         owner = Object{};
-        world = World{};
-        transform_component = std::make_shared<TransformComponent>(&owner, &world);
+        transform_component = std::make_shared<TransformComponent>(&owner);
     }
 
     void TearDown() override
@@ -27,7 +25,7 @@ struct CameraComponentTests : public ::testing::Test
 TEST_F(CameraComponentTests, shouldReturnCorrectProjectionMatrix)
 {
     // given
-    CameraComponent camera_component{&owner, &world, transform_component};
+    CameraComponent camera_component{&owner, transform_component};
     const float fovy = 70.f, aspect = 1280.f / 800.f, near = 0.1f, far = 100.f;
     camera_component.setPerspectiveProjection(fovy, aspect, near, far);
 
@@ -50,7 +48,7 @@ TEST_F(CameraComponentTests, shouldReturnCorrectProjectionMatrix)
 TEST_F(CameraComponentTests, shouldReturnCorrectViewMatrix)
 {
     // given
-    CameraComponent camera_component{&owner, &world, transform_component};
+    CameraComponent camera_component{&owner, transform_component};
     const glm::vec3 camera_position{5.f, 10.f, -1.f};
     const glm::vec3 camera_rotation{glm::radians(55.f), glm::radians(90.f), 0};
     camera_component.setViewYXZ(camera_position, camera_rotation);
@@ -75,7 +73,7 @@ TEST_F(CameraComponentTests, shouldReturnCorrectViewMatrix)
 TEST_F(CameraComponentTests, shouldReturnCorrectInverseViewMatrix)
 {
     // given
-    CameraComponent camera_component{&owner, &world, transform_component};
+    CameraComponent camera_component{&owner, transform_component};
     const glm::vec3 camera_position{5.f, 10.f, -1.f};
     const glm::vec3 camera_rotation{glm::radians(55.f), glm::radians(90.f), 0};
     camera_component.setViewYXZ(camera_position, camera_rotation);
@@ -100,7 +98,7 @@ TEST_F(CameraComponentTests, shouldReturnCorrectInverseViewMatrix)
 TEST_F(CameraComponentTests, shouldUpdateViewMatrixInfoForEveryFrameBasedOfTransformComponentMovement)
 {
     // given
-    CameraComponent camera_component{&owner, &world, transform_component};
+    CameraComponent camera_component{&owner, transform_component};
 
     const glm::vec3 player_position{5.f, 10.f, -1.f};
     const glm::vec3 player_rotation{glm::radians(55.f), glm::radians(90.f), 0};
@@ -129,7 +127,7 @@ TEST_F(CameraComponentTests, shouldUpdateViewMatrixInfoForEveryFrameBasedOfTrans
 TEST_F(CameraComponentTests, shouldUpdateProjectionMatrixInfoForEveryFrame)
 {
     // given
-    CameraComponent camera_component{&owner, &world, transform_component};
+    CameraComponent camera_component{&owner, transform_component};
     const float fovy = 70.f, aspect = 1280.f / 800.f, near = 0.1f, far = 100.f;
     camera_component.setPerspectiveProjection(fovy, aspect, near, far);
 

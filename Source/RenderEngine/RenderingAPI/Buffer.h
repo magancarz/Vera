@@ -1,16 +1,16 @@
 #pragma once
 
-#include "Device.h"
+#include "VulkanFacade.h"
 
 class Buffer {
 public:
     Buffer(
-        Device& device,
-        VkDeviceSize instance_size,
-        uint32_t instance_count,
-        VkBufferUsageFlags usage_flags,
-        VkMemoryPropertyFlags memory_property_flags,
-        VkDeviceSize min_offset_alignment = 1);
+            VulkanFacade& device,
+            VkDeviceSize instance_size,
+            uint32_t instance_count,
+            VkBufferUsageFlags usage_flags,
+            VkMemoryPropertyFlags memory_property_flags,
+            VkDeviceSize min_offset_alignment = 1);
     ~Buffer();
 
     Buffer(const Buffer&) = delete;
@@ -44,7 +44,7 @@ public:
 private:
     static VkDeviceSize getAlignment(VkDeviceSize instance_size, VkDeviceSize min_offset_alignment);
 
-    Device& device;
+    VulkanFacade& device;
     void* mapped = nullptr;
     VkBuffer buffer = VK_NULL_HANDLE;
     VkDeviceMemory memory = VK_NULL_HANDLE;

@@ -12,7 +12,7 @@
 class Renderer
 {
 public:
-    Renderer(Window& window, Device& device, World& world);
+    Renderer(Window& window, VulkanFacade& device, World& world);
     ~Renderer();
 
     Renderer(const Renderer&) = delete;
@@ -22,7 +22,7 @@ public:
 
 private:
     Window& window;
-    Device& device;
+    VulkanFacade& device;
     World& world;
 
     [[nodiscard]] VkCommandBuffer getCurrentCommandBuffer() const

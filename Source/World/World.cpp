@@ -2,22 +2,28 @@
 #include "World.h"
 #include "Project/Project.h"
 #include "Objects/Components/CameraComponent.h"
+#include "Objects/Components/MeshComponent.h"
 
 void World::loadProject(const ProjectInfo& project_info, const std::shared_ptr<AssetManager>& asset_manager)
 {
     loadViewerObject();
 
+    asset_manager->loadNeededAssetsForProject(project_info);
     for (auto& object_info : project_info.objects_infos)
     {
         auto new_object = std::make_shared<Object>();
-        auto transform_component = std::make_shared<TransformComponent>(new_object.get(), this);
+        auto transform_component = std::make_shared<TransformComponent>(new_object.get());
+        registerComponent(transform_component);
         transform_component->translation = object_info.position;
         transform_component->rotation = object_info.rotation;
         transform_component->scale = glm::vec3{object_info.scale};
         new_object->addComponent(std::move(transform_component));
-        new_object->setModel(asset_manager->fetchModel(object_info.model_name));
-        new_object->setMaterial(asset_manager->fetchMaterial(object_info.material_name));
-        new_object->createBlasInstance();
+        auto mesh_component = std::make_shared<MeshComponent>(new_object.get());
+        registerComponent(mesh_component);
+        mesh_component->setModel(asset_manager->fetchModel(object_info.model_name));
+        mesh_component->setMaterial(asset_manager->fetchMaterial(object_info.material_name));
+        mesh_component->createBlasInstance();
+        new_object->addComponent(std::move(mesh_component));
         rendered_objects.emplace(new_object->getID(), std::move(new_object));
     }
 }
@@ -25,13 +31,16 @@ void World::loadProject(const ProjectInfo& project_info, const std::shared_ptr<A
 void World::loadViewerObject()
 {
     viewer_object = std::make_shared<Object>();
-    auto transform_component = std::make_shared<TransformComponent>(viewer_object.get(), this);
+    auto transform_component = std::make_shared<TransformComponent>(viewer_object.get());
+    registerComponent(transform_component);
     transform_component->translation.y = 5.f;
     transform_component->translation.z = 10.f;
     transform_component->rotation.y = glm::radians(180.f);
-    auto player_movement_component = std::make_shared<PlayerMovementComponent>(viewer_object.get(), this, transform_component);
+    auto player_movement_component = std::make_shared<PlayerMovementComponent>(viewer_object.get(), transform_component);
+    registerComponent(player_movement_component);
     viewer_object->addComponent(std::move(player_movement_component));
-    auto player_camera_component = std::make_shared<CameraComponent>(viewer_object.get(), this, transform_component);
+    auto player_camera_component = std::make_shared<CameraComponent>(viewer_object.get(), transform_component);
+    registerComponent(player_camera_component);
     player_camera_component->setPerspectiveProjection(glm::radians(70.0f), Window::get()->getAspect(), 0.1f, 100.f);
     viewer_object->addComponent(std::move(player_camera_component));
     viewer_object->addComponent(std::move(transform_component));
@@ -49,7 +58,7 @@ void World::removeUnusedRegisteredComponents()
     {
         tick_group_components.erase(std::remove_if(
                 tick_group_components.begin(), tick_group_components.end(),
-                [](ObjectComponent* ptr) { return ptr == nullptr; }), tick_group_components.end());
+                [](const std::weak_ptr<ObjectComponent>& component) { return component.expired(); }), tick_group_components.end());
     }
 }
 
@@ -59,14 +68,14 @@ void World::updateRegisteredComponents(FrameInfo& frame_info)
     {
         for (auto& component : tick_group_components)
         {
-            assert(component && "Registered component cannot be nullptr! All components with non existent owners should be cleaned before");
-            component->update(frame_info);
+            assert(!component.expired() && "Registered component cannot be nullptr! All components with non existent owners should be cleaned before");
+            component.lock()->update(frame_info);
         }
     }
 }
 
-void World::registerComponent(ObjectComponent* component)
+void World::registerComponent(std::weak_ptr<ObjectComponent> component)
 {
-    assert(component && "Cannot register component which is nullptr!");
-    registered_components[component->getTickGroup()].emplace_back(component);
+    assert(!component.expired() && "Cannot register component which is nullptr!");
+    registered_components[component.lock()->getTickGroup()].emplace_back(std::move(component));
 }

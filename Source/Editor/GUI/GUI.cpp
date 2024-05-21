@@ -10,7 +10,7 @@
 #include "Editor/GUI/Components/Container.h"
 #include "Editor/GUI/Components/SceneSettingsWindow.h"
 
-GUI::GUI(Device& device, Window& window, std::shared_ptr<SwapChain> swap_chain)
+GUI::GUI(VulkanFacade& device, Window& window, std::shared_ptr<SwapChain> swap_chain)
     : device{device}, window{window}, swap_chain{std::move(swap_chain)}
 {
     initializeImGui();

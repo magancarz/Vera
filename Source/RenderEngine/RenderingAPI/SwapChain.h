@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Device.h"
+#include "VulkanFacade.h"
 
 #include <vulkan/vulkan.h>
 
@@ -12,8 +12,8 @@ class SwapChain
 public:
     static constexpr int MAX_FRAMES_IN_FLIGHT = 3;
 
-    SwapChain(Device& device_ref, VkExtent2D window_extent);
-    SwapChain(Device& device_ref, VkExtent2D window_extent, std::shared_ptr<SwapChain> previous);
+    SwapChain(VulkanFacade& device_ref, VkExtent2D window_extent);
+    SwapChain(VulkanFacade& device_ref, VkExtent2D window_extent, std::shared_ptr<SwapChain> previous);
     ~SwapChain();
 
     SwapChain(const SwapChain&) = delete;
@@ -67,7 +67,7 @@ private:
     std::vector<VkImage> swap_chain_images;
     std::vector<VkImageView> swap_chain_image_views;
 
-    Device& device;
+    VulkanFacade& device;
     VkExtent2D window_extent;
 
     VkSwapchainKHR swap_chain;

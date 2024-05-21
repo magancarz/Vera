@@ -7,7 +7,7 @@
 #include <fstream>
 
 RayTracingPipeline::RayTracingPipeline(
-        Device& device,
+        VulkanFacade& device,
         const std::vector<VkPipelineShaderStageCreateInfo>& shader_stage_create_info_list,
         const std::vector<VkRayTracingShaderGroupCreateInfoKHR>& shader_group_create_info_list,
         const std::vector<VkDescriptorSetLayout>& descriptor_set_layouts,

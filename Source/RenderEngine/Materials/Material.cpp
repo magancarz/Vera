@@ -3,7 +3,7 @@
 #include "Material.h"
 #include "Utils/VeraDefines.h"
 
-std::shared_ptr<Material> Material::loadMaterialFromFile(Device& device, const std::string& material_name)
+std::shared_ptr<Material> Material::loadMaterialFromFile(VulkanFacade& device, const std::string& material_name)
 {
     printf("Trying to load material named %s...\n", material_name.c_str());
 
@@ -48,7 +48,7 @@ std::shared_ptr<Material> Material::loadMaterialFromFile(Device& device, const s
     return nullptr;
 }
 
-Material::Material(Device& device, MaterialInfo in_material_info)
+Material::Material(VulkanFacade& device, MaterialInfo in_material_info)
     : device{device}, material_info{in_material_info}
 {
     createMaterialBuffer();

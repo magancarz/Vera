@@ -1,6 +1,6 @@
 #pragma once
 
-#include "RenderEngine/RenderingAPI/Device.h"
+#include "RenderEngine/RenderingAPI/VulkanFacade.h"
 #include "RenderEngine/SceneRenderers/RayTraced/PushConstantRay.h"
 #include "RenderEngine/RenderingAPI/Buffer.h"
 #include "RenderEngine/RenderingAPI/ShaderModule.h"
@@ -17,7 +17,7 @@ class RayTracingPipeline
 {
 public:
     RayTracingPipeline(
-            Device& device,
+            VulkanFacade& device,
             const std::vector<VkPipelineShaderStageCreateInfo>& shader_stage_create_info_list,
             const std::vector<VkRayTracingShaderGroupCreateInfoKHR>& shader_group_create_info_list,
             const std::vector<VkDescriptorSetLayout>& descriptor_set_layouts,
@@ -44,7 +44,7 @@ private:
             uint32_t max_recursion_depth);
     void createShaderBindingTable(uint32_t miss_count, uint32_t hit_group_count);
 
-    Device& device;
+    VulkanFacade& device;
     VkPhysicalDeviceRayTracingPipelinePropertiesKHR ray_tracing_properties;
 
     VkPipelineLayout pipeline_layout_handle{VK_NULL_HANDLE};

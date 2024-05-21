@@ -1,6 +1,6 @@
 #pragma once
 
-#include "RenderEngine/RenderingAPI/Device.h"
+#include "RenderEngine/RenderingAPI/VulkanFacade.h"
 #include "RenderEngine/Window.h"
 #include "RenderEngine/RenderingAPI/Descriptors.h"
 #include "RenderEngine/RenderingAPI/SwapChain.h"
@@ -10,7 +10,7 @@
 class GUI
 {
 public:
-    GUI(Device& device, Window& window, std::shared_ptr<SwapChain> swap_chain);
+    GUI(VulkanFacade& device, Window& window, std::shared_ptr<SwapChain> swap_chain);
     ~GUI();
 
     GUI(const GUI&) = delete;
@@ -20,7 +20,7 @@ public:
     void renderGUIElements(VkCommandBuffer command_buffer);
 
 private:
-    Device& device;
+    VulkanFacade& device;
     Window& window;
     std::shared_ptr<SwapChain> swap_chain;
 
