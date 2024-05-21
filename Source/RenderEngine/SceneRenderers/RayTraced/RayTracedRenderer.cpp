@@ -57,7 +57,7 @@ void RayTracedRenderer::createAccelerationStructure()
 void RayTracedRenderer::createRayTracedImage()
 {
     VkSurfaceCapabilitiesKHR surface_capabilities;
-    vkGetPhysicalDeviceSurfaceCapabilitiesKHR(device.getPhysicalDevice(), device.surface(), &surface_capabilities);
+    vkGetPhysicalDeviceSurfaceCapabilitiesKHR(device.getPhysicalDevice(), device.getSurface(), &surface_capabilities);
     ray_traced_texture = std::make_unique<Texture>
     (
             device,

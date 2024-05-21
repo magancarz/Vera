@@ -149,7 +149,7 @@ void SwapChain::createSwapChain()
 
     VkSwapchainCreateInfoKHR create_info{};
     create_info.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
-    create_info.surface = device.surface();
+    create_info.surface = device.getSurface();
 
     create_info.minImageCount = image_count;
     create_info.imageFormat = surface_format.format;
