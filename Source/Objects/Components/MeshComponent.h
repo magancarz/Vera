@@ -2,6 +2,7 @@
 
 #include "Objects/Object.h"
 #include "World/World.h"
+#include "RenderEngine/RenderingAPI/Blas.h"
 
 class MeshComponent : public ObjectComponent
 {
@@ -15,12 +16,7 @@ public:
     std::shared_ptr<Material> getMaterial() { return material; }
     bool isLight() { return material->isLightMaterial(); };
 
-    void createBlasInstance();
-    BlasInstance* getBlasInstance() { return &blas_instance; }
-
 private:
     std::shared_ptr<Model> model;
     std::shared_ptr<Material> material;
-
-    BlasInstance blas_instance{};
 };

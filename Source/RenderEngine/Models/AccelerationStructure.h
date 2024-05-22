@@ -1,5 +1,7 @@
 #pragma once
 
+#include <RenderEngine/RenderingAPI/Buffer.h>
+
 struct AccelerationStructure
 {
     VkAccelerationStructureKHR acceleration_structure;

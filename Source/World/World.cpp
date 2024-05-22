@@ -22,7 +22,6 @@ void World::loadProject(const ProjectInfo& project_info, const std::shared_ptr<A
         registerComponent(mesh_component);
         mesh_component->setModel(asset_manager->fetchModel(object_info.model_name));
         mesh_component->setMaterial(asset_manager->fetchMaterial(object_info.material_name));
-        mesh_component->createBlasInstance();
         new_object->addComponent(std::move(mesh_component));
         rendered_objects.emplace(new_object->getID(), std::move(new_object));
     }

@@ -1,4 +1,5 @@
 target_sources(Vera-Lib PRIVATE
+        Blas.cpp
         VulkanFacade.cpp
         Pipeline.cpp
         SwapChain.cpp

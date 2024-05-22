@@ -335,14 +335,14 @@ void RayTracingAccelerationStructureBuilder::destroyNonCompacted(
     }
 }
 
-AccelerationStructure RayTracingAccelerationStructureBuilder::buildTopLevelAccelerationStructure(const std::vector<BlasInstance*>& blas_instances)
+AccelerationStructure RayTracingAccelerationStructureBuilder::buildTopLevelAccelerationStructure(const std::vector<BlasInstance>& blas_instances)
 {
     AccelerationStructure tlas{};
 
     std::vector<VkAccelerationStructureInstanceKHR> instances_temp{};
     instances_temp.reserve(blas_instances.size());
     std::transform(blas_instances.begin(), blas_instances.end(), std::back_inserter(instances_temp),
-                   [](const BlasInstance* blas_instance) { return blas_instance->bottomLevelAccelerationStructureInstance; });
+                   [](const BlasInstance& blas_instance) { return blas_instance.bottomLevelAccelerationStructureInstance; });
 
     auto instances_buffer = std::make_unique<Buffer>
     (

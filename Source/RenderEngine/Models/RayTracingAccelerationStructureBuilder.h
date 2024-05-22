@@ -25,7 +25,7 @@ public:
     std::vector<AccelerationStructure> buildBottomLevelAccelerationStructures(
             const std::vector<BlasInput>& blas_input,
             VkBuildAccelerationStructureFlagsKHR flags);
-    AccelerationStructure buildTopLevelAccelerationStructure(const std::vector<BlasInstance*>& blas_instances);
+    AccelerationStructure buildTopLevelAccelerationStructure(const std::vector<BlasInstance>& blas_instances);
 
 private:
     struct BuildAccelerationStructure

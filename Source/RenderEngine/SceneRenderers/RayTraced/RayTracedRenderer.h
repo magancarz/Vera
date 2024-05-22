@@ -6,6 +6,7 @@
 #include "RenderEngine/RenderingAPI/Descriptors.h"
 #include "RenderEngine/Models/RayTracingAccelerationStructureBuilder.h"
 #include "RenderEngine/RenderingAPI/Textures/Texture.h"
+#include "RenderEngine/RenderingAPI/Blas.h"
 
 struct CameraUBO
 {
@@ -17,7 +18,7 @@ class RayTracedRenderer : public SceneRenderer
 {
 public:
     RayTracedRenderer(VulkanFacade& device, World* world);
-    ~RayTracedRenderer() noexcept;
+    ~RayTracedRenderer() noexcept override;
 
     void renderScene(FrameInfo& frame_info) override;
 
@@ -34,6 +35,7 @@ private:
 
     void createAccelerationStructure();
 
+    std::map<std::string, std::unique_ptr<Blas>> blas_objects;
     AccelerationStructure tlas{};
 
     void createRayTracedImage();

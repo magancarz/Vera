@@ -12,12 +12,3 @@ void MeshComponent::setMaterial(std::shared_ptr<Material> in_material)
 {
     material = std::move(in_material);
 }
-
-void MeshComponent::createBlasInstance()
-{
-    assert(model != nullptr && material != nullptr);
-
-    auto transform_component = owner->findComponentByClass<TransformComponent>();
-    blas_instance = model->createBlasInstance(transform_component->transform(), owner->getID());
-    material->assignMaterialHitGroup(blas_instance);
-}

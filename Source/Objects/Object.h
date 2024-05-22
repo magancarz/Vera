@@ -23,6 +23,7 @@ public:
     [[nodiscard]] id_t getID() const { return id; }
 
     glm::vec3 getLocation();
+    glm::mat4 getTransform();
 
     void addComponent(std::shared_ptr<ObjectComponent> component);
 

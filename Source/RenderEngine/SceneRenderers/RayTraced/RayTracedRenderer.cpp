@@ -41,15 +41,21 @@ void RayTracedRenderer::createAccelerationStructure()
 {
     RayTracingAccelerationStructureBuilder builder{device};
 
-    std::vector<BlasInstance*> blas_instances;
+    std::vector<BlasInstance> blas_instances;
     blas_instances.reserve(world->rendered_objects.size());
     size_t i = 0;
     for (auto [_, object] : world->rendered_objects)
     {
         auto mesh_component = object->findComponentByClass<MeshComponent>();
-        auto blas_instance = mesh_component->getBlasInstance();
-        blas_instance->bottomLevelAccelerationStructureInstance.instanceCustomIndex = i++;
-        blas_instances.push_back(blas_instance);
+
+        //TODO: do it without std::unique_ptr (Blas destructor was called after if scope)
+        if (!blas_objects.contains(mesh_component->getModel()->getName()))
+        {
+            blas_objects.emplace(mesh_component->getModel()->getName(), std::make_unique<Blas>(device, mesh_component->getModel()));
+        }
+        BlasInstance blas_instance = blas_objects.at(mesh_component->getModel()->getName())->createBlasInstance(object->getTransform(), object->getID());
+        blas_instance.bottomLevelAccelerationStructureInstance.instanceCustomIndex = i++;
+        blas_instances.push_back(std::move(blas_instance));
     }
     tlas = builder.buildTopLevelAccelerationStructure(blas_instances);
 }
