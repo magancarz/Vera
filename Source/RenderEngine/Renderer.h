@@ -12,7 +12,7 @@
 class Renderer
 {
 public:
-    Renderer(Window& window, VulkanFacade& device, World& world);
+    Renderer(Window& window, VulkanFacade& device, World& world, std::shared_ptr<AssetManager> asset_manager);
     ~Renderer();
 
     Renderer(const Renderer&) = delete;
@@ -24,6 +24,7 @@ private:
     Window& window;
     VulkanFacade& device;
     World& world;
+    std::shared_ptr<AssetManager> asset_manager;
 
     [[nodiscard]] VkCommandBuffer getCurrentCommandBuffer() const
     {

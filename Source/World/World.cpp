@@ -6,8 +6,6 @@
 
 void World::loadProject(const ProjectInfo& project_info, const std::shared_ptr<AssetManager>& asset_manager)
 {
-    loadViewerObject();
-
     asset_manager->loadNeededAssetsForProject(project_info);
     for (auto& object_info : project_info.objects_infos)
     {
@@ -27,7 +25,7 @@ void World::loadProject(const ProjectInfo& project_info, const std::shared_ptr<A
     }
 }
 
-void World::loadViewerObject()
+void World::createViewerObject()
 {
     viewer_object = std::make_shared<Object>();
     auto transform_component = std::make_shared<TransformComponent>(viewer_object.get());

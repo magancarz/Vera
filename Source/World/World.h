@@ -15,6 +15,7 @@ public:
     World() = default;
 
     void loadProject(const ProjectInfo& project_info, const std::shared_ptr<AssetManager>& asset_manager);
+    void createViewerObject();
 
     void update(FrameInfo& frame_info);
 
@@ -23,8 +24,6 @@ public:
     std::map<int, std::shared_ptr<Object>> rendered_objects;
 
 protected:
-    void loadViewerObject();
-
     std::shared_ptr<Object> viewer_object;
 
     void removeUnusedRegisteredComponents();

@@ -5,6 +5,7 @@
 #include "UnitTests/Mocks/MockObjectComponent.h"
 #include "UnitTests/Mocks/MockWorld.h"
 #include "TestUtils.h"
+#include "UnitTests/Mocks/MockAssetManager.h"
 
 using ::testing::_;
 
@@ -87,13 +88,10 @@ TEST_F(WorldTests, shouldLoadProject)
     project_info.objects_infos.emplace_back(TestUtils::createDummyObjectInfo("dummy1"));
     project_info.objects_infos.emplace_back(TestUtils::createDummyObjectInfo("dummy2"));
 
-    auto window = Window::get();
-    InputManager::get(window->getGFLWwindow());
-    VulkanFacade device{*window};
-    auto asset_manager = AssetManager::get(&device);
+    auto mock_asset_manager = std::make_shared<MockAssetManager>();
 
     // when
-    world.loadProject(project_info, asset_manager);
+    world.loadProject(project_info, mock_asset_manager);
 
     // then
     EXPECT_EQ(world.rendered_objects.size(), project_info.objects_infos.size());

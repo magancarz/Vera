@@ -3,21 +3,8 @@
 #include "RenderEngine/Models/OBJModel.h"
 #include "RenderEngine/Materials/MaterialBuilder.h"
 
-AssetManager::AssetManager(VulkanFacade& device)
-    : device{device} {}
-
-std::shared_ptr<AssetManager> AssetManager::get(VulkanFacade* device)
-{
-    assert(instance || device && "VulkanFacade can't be nullptr while instance hasn't been created yet!");
-
-    std::lock_guard<std::mutex> lock(mutex);
-    if (!instance)
-    {
-        instance = std::shared_ptr<AssetManager>(new AssetManager(*device));
-    }
-
-    return instance;
-}
+AssetManager::AssetManager(VulkanFacade* vulkan_facade)
+    : vulkan_facade{vulkan_facade} {}
 
 void AssetManager::loadNeededAssetsForProject(const ProjectInfo& project_info)
 {
@@ -36,6 +23,8 @@ void AssetManager::loadNeededAssetsForProject(const ProjectInfo& project_info)
 
 std::shared_ptr<Model> AssetManager::fetchModel(const std::string& model_name)
 {
+    assert(vulkan_facade && "Vulkan facade can't be nullptr");
+
     printf("Fetching model named %s\n", model_name.c_str());
     if (available_models.contains(model_name))
     {
@@ -44,13 +33,15 @@ std::shared_ptr<Model> AssetManager::fetchModel(const std::string& model_name)
     }
 
     printf("Model was not found in available models list. Loading from file...\n");
-    std::shared_ptr<Model> new_model = OBJModel::createModelFromFile(device, model_name);
+    std::shared_ptr<Model> new_model = OBJModel::createModelFromFile(*vulkan_facade, model_name);
     available_models[model_name] = new_model;
     return new_model;
 }
 
 std::shared_ptr<Material> AssetManager::fetchMaterial(const std::string& material_name)
 {
+    assert(vulkan_facade && "Vulkan facade can't be nullptr");
+
     printf("Fetching material named %s\n", material_name.c_str());
     if (available_materials.contains(material_name))
     {
@@ -59,7 +50,7 @@ std::shared_ptr<Material> AssetManager::fetchMaterial(const std::string& materia
     }
 
     printf("Material was not found in available materials list. Loading from file...\n");
-    std::shared_ptr<Material> new_material = MaterialBuilder(device).fromAssetFile(material_name).build();
+    std::shared_ptr<Material> new_material = MaterialBuilder(*vulkan_facade).fromAssetFile(material_name).build();
     available_materials[material_name] = new_material;
     return new_material;
 }

@@ -1,6 +1,9 @@
 #include "MockAssetManager.h"
 #include "MockModel.h"
 
+MockAssetManager::MockAssetManager()
+    : AssetManager(nullptr) {}
+
 std::shared_ptr<Model> MockAssetManager::fetchModel(const std::string& model_name)
 {
     if (!available_models.contains(model_name))

@@ -20,11 +20,12 @@ void Vera::loadProject()
 
     ProjectInfo project_info = ProjectUtils::loadProject("vera");
     world.loadProject(project_info, asset_manager);
+    world.createViewerObject();
 }
 
 void Vera::createRenderer()
 {
-    renderer = std::make_unique<Renderer>(*window, device, world);
+    renderer = std::make_unique<Renderer>(*window, device, world, asset_manager);
 }
 
 void Vera::runLoop()

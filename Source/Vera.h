@@ -26,7 +26,7 @@ private:
 
     void loadProject();
 
-    std::shared_ptr<AssetManager> asset_manager = AssetManager::get(&device);
+    std::shared_ptr<AssetManager> asset_manager = std::make_shared<AssetManager>(&device);
     World world{};
 
     void createRenderer();

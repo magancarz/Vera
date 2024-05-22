@@ -8,8 +8,8 @@
 #include "imgui.h"
 #include "imgui_impl_vulkan.h"
 
-Renderer::Renderer(Window& window, VulkanFacade& device, World& world)
-    : window{window}, device{device}, world{world}
+Renderer::Renderer(Window& window, VulkanFacade& device, World& world, std::shared_ptr<AssetManager> asset_manager)
+    : window{window}, device{device}, world{world}, asset_manager(std::move(asset_manager))
 {
     createCommandBuffers();
     recreateSwapChain();
@@ -92,6 +92,7 @@ void Renderer::createPostProcessingStage()
 
     post_processing = std::make_unique<PostProcessing>(
             device,
+            asset_manager,
             swap_chain->getRenderPass(),
             post_process_texture_descriptor_set_layout->getDescriptorSetLayout());
 }
