@@ -166,7 +166,7 @@ void main()
         topLevelAS, // acceleration structure
         rayFlags,       // rayFlags
         0xFF,           // cullMask
-        0,              // sbtRecordOffset
+        1,              // sbtRecordOffset
         0,              // sbtRecordStride
         1,              // missIndex
         payload.origin,     // ray origin
