@@ -17,7 +17,7 @@ void Vera::run()
 
 void Vera::initializeApplication()
 {
-    asset_manager = std::make_shared<AssetManager>(&device);
+    asset_manager = std::make_shared<AssetManager>(device);
     input_manager = std::make_shared<GLFWInputManager>(window->getGFLWwindow());
 }
 void Vera::loadProject()

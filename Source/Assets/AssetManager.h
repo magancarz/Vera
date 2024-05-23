@@ -11,7 +11,7 @@
 class AssetManager
 {
 public:
-    explicit AssetManager(VulkanFacade* vulkan_facade);
+    explicit AssetManager(VulkanFacade& vulkan_facade);
     virtual ~AssetManager() = default;
 
     AssetManager(const AssetManager&) = delete;
@@ -24,7 +24,7 @@ public:
     virtual std::shared_ptr<Material> fetchMaterial(const std::string& material_name);
 
 protected:
-    VulkanFacade* vulkan_facade{nullptr};
+    VulkanFacade& vulkan_facade;
 
     std::unordered_map<std::string, std::shared_ptr<Model>> available_models;
     std::unordered_map<std::string, std::shared_ptr<Material>> available_materials;

@@ -7,49 +7,6 @@
 MaterialBuilder::MaterialBuilder(VulkanFacade& device)
     : device{device} {}
 
-MaterialBuilder& MaterialBuilder::fromAssetFile(const std::string& asset_name)
-{
-    printf("Trying to load material named %s...\n", asset_name.c_str());
-
-    const std::string filepath = (paths::MATERIALS_DIRECTORY_PATH / asset_name).generic_string() + ".mat";
-    std::ifstream file_stream(filepath);
-    std::string input;
-
-    if (file_stream.is_open() && getline(file_stream, input))
-    {
-        std::stringstream iss(input);
-        iss >> material_name;
-
-        std::string type;
-        iss >> type;
-
-        std::string color_x, color_y, color_z;
-        iss >> color_x;
-        iss >> color_y;
-        iss >> color_z;
-        glm::vec3 color{std::stof(color_x), std::stof(color_y), std::stof(color_z)};
-        material_info.color = color;
-
-        std::string value;
-        iss >> value;
-        material_info.brightness = std::stoi(value);
-
-        iss >> value;
-        material_info.fuzziness = std::stof(value);
-
-        iss >> value;
-        material_info.refractive_index = std::stof(value);
-
-        file_stream.close();
-
-        printf("Loading material from file ended in success\n");
-    }
-
-    printf("Failed to load material\n");
-
-    return *this;
-}
-
 MaterialBuilder& MaterialBuilder::lambertian()
 {
     material_hit_group_index = defines::material_indices::lambertian_hit_group_index;

@@ -18,7 +18,7 @@ public:
     MaterialDescription getMaterialDescription();
     [[nodiscard]] bool isLightMaterial() const { return material_info.brightness > 0; }
 
-private:
+protected:
     MaterialInfo material_info;
     std::string name;
 

@@ -30,7 +30,7 @@ void Blas::createBlas(const std::shared_ptr<Model>& model)
 
     VkAccelerationStructureGeometryKHR acceleration_structure_geometry{VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_GEOMETRY_KHR};
     acceleration_structure_geometry.geometryType = VK_GEOMETRY_TYPE_TRIANGLES_KHR;
-    acceleration_structure_geometry.flags = 0;
+    acceleration_structure_geometry.flags = VK_GEOMETRY_OPAQUE_BIT_KHR;
     acceleration_structure_geometry.geometry.triangles = triangles;
 
     VkAccelerationStructureBuildRangeInfoKHR offset{};

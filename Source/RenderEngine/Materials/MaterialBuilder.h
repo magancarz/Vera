@@ -5,9 +5,7 @@
 class MaterialBuilder
 {
 public:
-    MaterialBuilder(VulkanFacade& device);
-
-    MaterialBuilder& fromAssetFile(const std::string& asset_name);
+    explicit MaterialBuilder(VulkanFacade& device);
 
     MaterialBuilder& lambertian();
     MaterialBuilder& color(const glm::vec3& color);
