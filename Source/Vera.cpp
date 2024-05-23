@@ -16,11 +16,9 @@ void Vera::run()
 
 void Vera::loadProject()
 {
-    InputManager::get(window->getGFLWwindow());
-
     ProjectInfo project_info = ProjectUtils::loadProject("vera");
     world.loadProject(project_info, asset_manager);
-    world.createViewerObject();
+    world.createViewerObject(input_manager);
 }
 
 void Vera::createRenderer()

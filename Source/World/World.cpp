@@ -25,7 +25,7 @@ void World::loadProject(const ProjectInfo& project_info, const std::shared_ptr<A
     }
 }
 
-void World::createViewerObject()
+void World::createViewerObject(const std::shared_ptr<InputManager>& input_manager)
 {
     viewer_object = std::make_shared<Object>();
     auto transform_component = std::make_shared<TransformComponent>(viewer_object.get());
@@ -33,7 +33,7 @@ void World::createViewerObject()
     transform_component->translation.y = 5.f;
     transform_component->translation.z = 10.f;
     transform_component->rotation.y = glm::radians(180.f);
-    auto player_movement_component = std::make_shared<PlayerMovementComponent>(viewer_object.get(), transform_component);
+    auto player_movement_component = std::make_shared<PlayerMovementComponent>(viewer_object.get(), input_manager, transform_component);
     registerComponent(player_movement_component);
     viewer_object->addComponent(std::move(player_movement_component));
     auto player_camera_component = std::make_shared<CameraComponent>(viewer_object.get(), transform_component);

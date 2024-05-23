@@ -1,7 +1,7 @@
 #include "PlayerMovementComponent.h"
 
-PlayerMovementComponent::PlayerMovementComponent(Object* owner, std::shared_ptr<TransformComponent> transform_component)
-    : ObjectComponent(owner), input_manager{InputManager::get()}, transform_component{std::move(transform_component)} {}
+PlayerMovementComponent::PlayerMovementComponent(Object* owner, std::shared_ptr<InputManager> input_manager, std::shared_ptr<TransformComponent> transform_component)
+    : ObjectComponent(owner), input_manager{std::move(input_manager)}, transform_component{std::move(transform_component)} {}
 
 void PlayerMovementComponent::update(FrameInfo& frame_info)
 {

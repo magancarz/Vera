@@ -9,6 +9,7 @@
 #include "World/World.h"
 #include "Assets/AssetManager.h"
 #include "Utils/VeraDefines.h"
+#include "Input/GLFWInputManager.h"
 
 class Vera
 {
@@ -27,6 +28,7 @@ private:
     void loadProject();
 
     std::shared_ptr<AssetManager> asset_manager = std::make_shared<AssetManager>(&device);
+    std::shared_ptr<InputManager> input_manager = std::make_shared<GLFWInputManager>(window->getGFLWwindow());
     World world{};
 
     void createRenderer();

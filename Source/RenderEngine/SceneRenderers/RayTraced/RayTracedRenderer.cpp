@@ -42,9 +42,10 @@ void RayTracedRenderer::createAccelerationStructure()
     RayTracingAccelerationStructureBuilder builder{device};
 
     std::vector<BlasInstance> blas_instances;
-    blas_instances.reserve(world->rendered_objects.size());
+    rendered_objects = world->getRenderedObjects();
+    blas_instances.reserve(rendered_objects.size());
     size_t i = 0;
-    for (auto [_, object] : world->rendered_objects)
+    for (auto [_, object] : rendered_objects)
     {
         auto mesh_component = object->findComponentByClass<MeshComponent>();
 
@@ -93,12 +94,12 @@ void RayTracedRenderer::createObjectDescriptionsBuffer()
     (
             device,
             sizeof(ObjectDescription),
-            static_cast<uint32_t>(world->rendered_objects.size()),
+            static_cast<uint32_t>(rendered_objects.size()),
             VK_BUFFER_USAGE_STORAGE_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT,
             VK_MEMORY_ALLOCATE_DEVICE_ADDRESS_BIT
     );
     std::vector<ObjectDescription> object_descriptions;
-    for (auto& [_, object] : world->rendered_objects)
+    for (auto& [_, object] : rendered_objects)
     {
         object_descriptions.emplace_back(object->getObjectDescription());
     }
@@ -109,7 +110,7 @@ void RayTracedRenderer::createLightIndicesBuffer()
 {
     std::vector<uint32_t> light_indices;
     size_t i = 0;
-    for (auto& [_, object] : world->rendered_objects)
+    for (auto& [_, object] : rendered_objects)
     {
         light_indices.push_back(i);
         ++i;

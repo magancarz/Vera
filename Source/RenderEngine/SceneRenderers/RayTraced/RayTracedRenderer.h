@@ -36,6 +36,7 @@ private:
     void createAccelerationStructure();
 
     std::map<std::string, std::unique_ptr<Blas>> blas_objects;
+    std::map<int, std::shared_ptr<Object>> rendered_objects;
     AccelerationStructure tlas{};
 
     void createRayTracedImage();

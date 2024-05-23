@@ -6,6 +6,8 @@
 #include "UnitTests/Mocks/MockWorld.h"
 #include "TestUtils.h"
 #include "UnitTests/Mocks/MockAssetManager.h"
+#include "UnitTests/Mocks/MockInputManager.h"
+#include "Objects/Components/CameraComponent.h"
 
 using ::testing::_;
 
@@ -78,7 +80,7 @@ TEST_F(WorldTests, shouldRemoveDeprecatedComponentsBeforeUpdate)
     EXPECT_EQ(world.getNumberOfRegisteredComponents(), expected_number_of_components_left);
 }
 
-TEST_F(WorldTests, shouldLoadProject)
+TEST_F(WorldTests, shouldLoadObjectsFromProjectInfo)
 {
     // given
     World world{};
@@ -94,5 +96,22 @@ TEST_F(WorldTests, shouldLoadProject)
     world.loadProject(project_info, mock_asset_manager);
 
     // then
-    EXPECT_EQ(world.rendered_objects.size(), project_info.objects_infos.size());
+    EXPECT_EQ(world.getRenderedObjects().size(), project_info.objects_infos.size());
+}
+
+TEST_F(WorldTests, shouldCreateViewerObject)
+{
+    // given
+    World world{};
+
+    auto mock_input_manager = std::make_shared<MockInputManager>();
+
+    // when
+    world.createViewerObject(mock_input_manager);
+
+    // then
+    auto viewer_object = world.getViewerObject();
+    EXPECT_TRUE(viewer_object->findComponentByClass<TransformComponent>() != nullptr);
+    EXPECT_TRUE(viewer_object->findComponentByClass<PlayerMovementComponent>() != nullptr);
+    EXPECT_TRUE(viewer_object->findComponentByClass<CameraComponent>() != nullptr);
 }
