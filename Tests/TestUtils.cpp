@@ -59,6 +59,11 @@ void TestUtils::printMatrix(const glm::mat4& matrix)
     printf("%f, %f, %f, %f\n\n", matrix[3][0], matrix[3][1], matrix[3][2], matrix[3][3]);
 }
 
+void TestUtils::printVector(const glm::vec3& vector)
+{
+    printf("%f, %f, %f\n", vector[0], vector[1], vector[2]);
+}
+
 void TestUtils::expectTwoVectorsToBeEqual(const glm::vec3& actual_vector, const glm::vec3& expected_vector)
 {
     for (int i = 0; i < 2; ++i)

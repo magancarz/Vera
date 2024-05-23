@@ -1,5 +1,7 @@
 #pragma once
 
+#include <gmock/gmock.h>
+
 class MockInputManager : public InputManager
 {
 public:

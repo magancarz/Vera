@@ -18,7 +18,8 @@ void PlayerMovementComponent::update(FrameInfo& frame_info)
 
     player_moved = rotate != glm::vec3{0};
 
-    transform_component->rotation.x = glm::clamp(transform_component->rotation.x, -1.5f, 1.5f);
+    constexpr float RADIANS_85_DEGREES = glm::radians(85.f);
+    transform_component->rotation.x = glm::clamp(transform_component->rotation.x, -RADIANS_85_DEGREES, RADIANS_85_DEGREES);
     transform_component->rotation.y = glm::mod(transform_component->rotation.y, glm::two_pi<float>());
 
     float yaw = transform_component->rotation.y;
@@ -42,9 +43,4 @@ void PlayerMovementComponent::update(FrameInfo& frame_info)
     }
 
     frame_info.need_to_refresh_generated_image |= player_moved;
-}
-
-bool PlayerMovementComponent::playerMoved() const
-{
-    return player_moved;
 }

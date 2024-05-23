@@ -15,6 +15,7 @@ public:
     static std::string loadFileToString(const std::string& file_location);
 
     static void printMatrix(const glm::mat4& matrix);
+    static void printVector(const glm::vec3& vector);
 
     template <typename T>
     static void expectTwoValuesToBeEqual(T first_value, T second_value, double precision = 0.000001)

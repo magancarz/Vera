@@ -26,7 +26,11 @@ public:
     explicit PlayerMovementComponent(Object* owner, std::shared_ptr<InputManager> input_manager, std::shared_ptr<TransformComponent> transform_component);
 
     void update(FrameInfo& frame_info) override;
-    [[nodiscard]] bool playerMoved() const;
+
+    [[nodiscard]] float getMoveSpeed() const { return move_speed; }
+    [[nodiscard]] float getLookSpeed() const { return look_speed; }
+
+    [[nodiscard]] KeyMappings getKeyMappings() const { return keys; }
 
 private:
     KeyMappings keys{};
