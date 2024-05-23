@@ -22,13 +22,15 @@ public:
     Vera& operator=(const Vera&) = delete;
 
 private:
+    void initializeApplication();
+
     std::shared_ptr<Window> window = Window::get();
     VulkanFacade device{*window};
+    std::shared_ptr<AssetManager> asset_manager;
+    std::shared_ptr<InputManager> input_manager;
 
     void loadProject();
 
-    std::shared_ptr<AssetManager> asset_manager = std::make_shared<AssetManager>(&device);
-    std::shared_ptr<InputManager> input_manager = std::make_shared<GLFWInputManager>(window->getGFLWwindow());
     World world{};
 
     void createRenderer();

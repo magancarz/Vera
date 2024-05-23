@@ -8,12 +8,18 @@
 
 void Vera::run()
 {
+    initializeApplication();
     loadProject();
     createRenderer();
     runLoop();
     performCleanup();
 }
 
+void Vera::initializeApplication()
+{
+    asset_manager = std::make_shared<AssetManager>(&device);
+    input_manager = std::make_shared<GLFWInputManager>(window->getGFLWwindow());
+}
 void Vera::loadProject()
 {
     ProjectInfo project_info = ProjectUtils::loadProject("vera");
