@@ -1,8 +1,8 @@
-#include <glm/ext/matrix_clip_space.hpp>
 #include "gtest/gtest.h"
+
+#include <glm/ext/matrix_clip_space.hpp>
 #include "Objects/Components/CameraComponent.h"
 
-#include "World/World.h"
 #include "TestUtils.h"
 
 struct CameraComponentTests : public ::testing::Test

@@ -7,7 +7,7 @@
 class MeshComponent : public ObjectComponent
 {
 public:
-    MeshComponent(Object* owner);
+    explicit MeshComponent(Object* owner);
 
     void setModel(std::shared_ptr<Model> in_model);
     std::shared_ptr<Model> getModel() { return model; }
