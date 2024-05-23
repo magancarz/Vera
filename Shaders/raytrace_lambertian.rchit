@@ -30,6 +30,7 @@ struct ObjectDescription
 layout(binding = 0, set = 0) uniform accelerationStructureEXT topLevelAS;
 layout(binding = 3, set = 0) buffer ObjectDescriptions { ObjectDescription data[]; } object_descriptions;
 layout(binding = 4, set = 0) buffer LightIndices { uint l[]; } light_indices;
+layout(binding = 5, set = 0) uniform sampler2D common_image;
 
 struct Vertex
 {
@@ -122,6 +123,8 @@ void main()
     vec3 position = first_vertex.position * barycentric.x + second_vertex.position * barycentric.y + third_vertex.position * barycentric.z;
     position = vec3(gl_ObjectToWorldEXT * vec4(position, 1.0));
 
+    vec2 texture_uv = first_vertex.uv * barycentric.x + second_vertex.uv * barycentric.y + third_vertex.uv * barycentric.z;
+
     payload.origin = position;
 
     ObjectDescription random_light = object_descriptions.data[light_indices.l[uint(floor(rnd(payload.seed) * float(push_constant.number_of_lights)))]];
@@ -180,6 +183,7 @@ void main()
     float cosine = occluded ? 0 : max(dot(push_constant.sun_position, payload.direction), 0.0);
     float sun_contribution = 20 * cosine;
 
-    payload.color *= sun_contribution * material_color * scattering_pdf;
+    vec3 texture_color = texture(common_image, texture_uv).xyz;
+    payload.color *= sun_contribution * texture_color * scattering_pdf;
     payload.depth += 1;
 }

@@ -103,6 +103,10 @@ void RayTracedRenderer::createObjectDescriptionsBuffer()
     {
         object_descriptions.emplace_back(object->getObjectDescription());
     }
+
+    //TODO: temp
+    common_texture = rendered_objects[0]->findComponentByClass<MeshComponent>()->getMaterial()->getTexture();
+
     object_descriptions_buffer->writeWithStagingBuffer(object_descriptions.data());
 }
 
@@ -136,6 +140,7 @@ void RayTracedRenderer::createDescriptors()
             .addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1)
             .addPoolSize(VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 3)
             .addPoolSize(VK_DESCRIPTOR_TYPE_STORAGE_IMAGE, 1)
+            .addPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1)
             .build();
 
     descriptor_set_layout = DescriptorSetLayout::Builder(device)
@@ -144,6 +149,7 @@ void RayTracedRenderer::createDescriptors()
             .addBinding(2, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_RAYGEN_BIT_KHR | VK_SHADER_STAGE_CLOSEST_HIT_BIT_KHR)
             .addBinding(3, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, VK_SHADER_STAGE_CLOSEST_HIT_BIT_KHR)
             .addBinding(4, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, VK_SHADER_STAGE_CLOSEST_HIT_BIT_KHR)
+            .addBinding(5, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_CLOSEST_HIT_BIT_KHR)
             .build();
 
     VkWriteDescriptorSetAccelerationStructureKHR acceleration_structure_descriptor_info{};
@@ -160,12 +166,18 @@ void RayTracedRenderer::createDescriptors()
             .imageView = ray_traced_texture->getImageView(),
             .imageLayout = VK_IMAGE_LAYOUT_GENERAL};
 
+    VkDescriptorImageInfo common_texture_descriptor_info{};
+    common_texture_descriptor_info.sampler = common_texture->getSampler();
+    common_texture_descriptor_info.imageView = common_texture->getImageView();
+    common_texture_descriptor_info.imageLayout = common_texture->getImageLayout();
+
     DescriptorWriter(*descriptor_set_layout, *descriptor_pool)
             .writeAccelerationStructure(0, &acceleration_structure_descriptor_info)
             .writeImage(1, &rayTraceImageDescriptorInfo)
             .writeBuffer(2, &camera_buffer_descriptor_info)
             .writeBuffer(3, &object_descriptions_buffer_descriptor_info)
             .writeBuffer(4, &light_indices_descriptor_info)
+            .writeImage(5, &common_texture_descriptor_info)
             .build(descriptor_set_handle);
 }
 

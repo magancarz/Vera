@@ -8,6 +8,9 @@ MaterialDescription Material::getMaterialDescription()
     return
     {
             .material_hit_group_index = material_hit_group_index,
-            .material_info_buffer_device_address = material_info_buffer->getBufferDeviceAddress()
+            .material_info_buffer_device_address = material_info_buffer->getBufferDeviceAddress(),
+            .material_texture_layout = texture->getImageLayout(),
+            .material_texture_view = texture->getImageView(),
+            .material_texture_sampler = texture->getSampler()
     };
 }

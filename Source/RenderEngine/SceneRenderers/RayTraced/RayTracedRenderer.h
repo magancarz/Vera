@@ -49,6 +49,8 @@ private:
 
     void createObjectDescriptionsBuffer();
 
+    //TODO: temp
+    std::shared_ptr<Texture> common_texture;
     std::unique_ptr<Buffer> object_descriptions_buffer;
 
     void createLightIndicesBuffer();

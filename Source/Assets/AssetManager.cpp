@@ -32,7 +32,7 @@ std::shared_ptr<Model> AssetManager::fetchModel(const std::string& model_name)
     }
 
     printf("Model was not found in available models list. Loading from file...\n");
-    std::shared_ptr<Model> new_model = OBJModel::createModelFromFile(vulkan_facade, model_name);
+    std::shared_ptr<Model> new_model = OBJModel::createModelFromFile(vulkan_facade, this, model_name);
     available_models[model_name] = new_model;
     return new_model;
 }

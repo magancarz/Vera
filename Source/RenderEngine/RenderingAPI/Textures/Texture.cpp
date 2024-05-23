@@ -15,6 +15,7 @@ Texture::Texture(VulkanFacade& device, const std::string& filepath)
     createImage(VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT);
     copyDataToImage(texture_data);
     generateMipmaps();
+    transitionImageLayout(VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
     createImageSampler();
     createImageView();
 }
@@ -50,7 +51,6 @@ void Texture::copyDataToImage(const TextureData& texture_data)
     staging_buffer.map();
     staging_buffer.writeToBuffer(texture_data.data);
     device.copyBufferToImage(staging_buffer.getBuffer(), image, static_cast<unsigned int>(width), static_cast<unsigned int>(height), 1);
-    transitionImageLayout(VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 }
 
 void Texture::createImageView()

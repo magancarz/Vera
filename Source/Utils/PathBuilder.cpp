@@ -11,6 +11,12 @@ PathBuilder& PathBuilder::append(const std::string& path)
     return *this;
 }
 
+PathBuilder& PathBuilder::fileExtension(const std::string& extension)
+{
+    current_path += std::filesystem::path(extension);
+    return *this;
+}
+
 std::string PathBuilder::build()
 {
     return current_path.generic_string();

@@ -40,8 +40,10 @@ std::shared_ptr<VeraMaterial> VeraMaterial::fromAssetFile(VulkanFacade& vulkan_f
 
         file_stream.close();
 
+        auto texture = std::make_shared<Texture>(vulkan_facade, "Resources/Textures/nightFront.png");
+
         printf("Loading material from file ended in success\n");
-        return std::make_shared<VeraMaterial>(vulkan_facade, material_info, std::move(material_name));
+        return std::make_shared<VeraMaterial>(vulkan_facade, material_info, std::move(material_name), texture);
     }
 
     printf("Failed to load material\n");
@@ -52,9 +54,11 @@ std::shared_ptr<VeraMaterial> VeraMaterial::fromAssetFile(VulkanFacade& vulkan_f
 VeraMaterial::VeraMaterial(
         VulkanFacade& vulkan_facade,
         const MaterialInfo& material_info,
-        std::string material_name)
+        std::string material_name,
+        std::shared_ptr<Texture> texture)
     : Material(material_info, std::move(material_name))
 {
+    this->texture = std::move(texture);
     createMaterialInfoBuffer(vulkan_facade);
     assignMaterialHitGroupIndex();
 }
