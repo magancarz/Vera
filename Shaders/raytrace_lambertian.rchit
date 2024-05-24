@@ -23,6 +23,7 @@ struct ObjectDescription
     uint64_t index_address;
     uint64_t material_address;
     uint64_t num_of_triangles;
+    uint64_t texture_offset;
     mat4 object_to_world;
     float surface_area;
 };
@@ -30,7 +31,7 @@ struct ObjectDescription
 layout(binding = 0, set = 0) uniform accelerationStructureEXT topLevelAS;
 layout(binding = 3, set = 0) buffer ObjectDescriptions { ObjectDescription data[]; } object_descriptions;
 layout(binding = 4, set = 0) buffer LightIndices { uint l[]; } light_indices;
-layout(binding = 5, set = 0) uniform sampler2D common_image;
+layout(binding = 5, set = 0) uniform sampler2D textures[];
 
 struct Vertex
 {
@@ -183,7 +184,8 @@ void main()
     float cosine = occluded ? 0 : max(dot(push_constant.sun_position, payload.direction), 0.0);
     float sun_contribution = 20 * cosine;
 
-    vec3 texture_color = texture(common_image, texture_uv).xyz;
+    uint texture_offset = uint(object_description.texture_offset);
+    vec3 texture_color = texture(textures[nonuniformEXT(texture_offset)], texture_uv).xyz;
     payload.color *= sun_contribution * texture_color * scattering_pdf;
     payload.depth += 1;
 }

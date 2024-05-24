@@ -35,8 +35,8 @@ private:
 
     void createAccelerationStructure();
 
-    std::map<std::string, std::unique_ptr<Blas>> blas_objects;
-    std::map<int, std::shared_ptr<Object>> rendered_objects;
+    std::unordered_map<std::string, Blas> blas_objects;
+    std::unordered_map<int, std::shared_ptr<Object>> rendered_objects;
     AccelerationStructure tlas{};
 
     void createRayTracedImage();
@@ -49,8 +49,7 @@ private:
 
     void createObjectDescriptionsBuffer();
 
-    //TODO: temp
-    std::shared_ptr<Texture> common_texture;
+    std::vector<std::shared_ptr<Texture>> textures;
     std::unique_ptr<Buffer> object_descriptions_buffer;
 
     void createLightIndicesBuffer();

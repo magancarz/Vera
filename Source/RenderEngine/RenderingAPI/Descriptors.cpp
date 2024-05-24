@@ -154,21 +154,20 @@ DescriptorWriter& DescriptorWriter::writeBuffer(
 }
 
 DescriptorWriter& DescriptorWriter::writeImage(
-        uint32_t binding, VkDescriptorImageInfo* image_info)
+        uint32_t binding, VkDescriptorImageInfo* image_info, uint32_t count)
 {
     assert(set_layout.bindings.count(binding) == 1 && "Layout does not contain specified binding");
 
     auto& binding_description = set_layout.bindings[binding];
 
-    assert(binding_description.descriptorCount == 1 &&
-            "Binding single descriptor info, but binding expects multiple");
+    assert(binding_description.descriptorCount == count);
 
     VkWriteDescriptorSet write{};
     write.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
     write.descriptorType = binding_description.descriptorType;
     write.dstBinding = binding;
     write.pImageInfo = image_info;
-    write.descriptorCount = 1;
+    write.descriptorCount = count;
 
     writes.push_back(write);
     return *this;

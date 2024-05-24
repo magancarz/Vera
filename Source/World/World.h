@@ -22,11 +22,11 @@ public:
     void registerComponent(std::weak_ptr<ObjectComponent> component);
 
     [[nodiscard]] std::shared_ptr<Object> getViewerObject() const { return viewer_object; }
-    [[nodiscard]] std::map<int, std::shared_ptr<Object>> getRenderedObjects() const { return rendered_objects; }
+    [[nodiscard]] std::unordered_map<int, std::shared_ptr<Object>> getRenderedObjects() const { return rendered_objects; }
 
 protected:
     std::shared_ptr<Object> viewer_object;
-    std::map<int, std::shared_ptr<Object>> rendered_objects;
+    std::unordered_map<int, std::shared_ptr<Object>> rendered_objects;
 
     void removeUnusedRegisteredComponents();
     void updateRegisteredComponents(FrameInfo& frame_info);

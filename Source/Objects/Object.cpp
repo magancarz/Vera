@@ -43,7 +43,7 @@ void Object::addComponent(std::shared_ptr<ObjectComponent> component)
     components.emplace_back(std::move(component));
 }
 
-ObjectDescription Object::getObjectDescription()
+ObjectDescription Object::getDescription()
 {
     auto mesh_component = findComponentByClass<MeshComponent>();
     auto transform_component = findComponentByClass<TransformComponent>();

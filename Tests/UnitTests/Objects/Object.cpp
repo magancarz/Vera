@@ -81,5 +81,5 @@ TEST_F(ObjectTests, shouldThrowAssertIfUserWantedToObtainObjectDescriptionWhileP
     Object object{};
 
     // when & then
-    EXPECT_DEATH(object.getObjectDescription(), ".*");
+    EXPECT_DEATH(object.getDescription(), ".*");
 }

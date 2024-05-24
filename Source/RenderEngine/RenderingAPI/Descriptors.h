@@ -12,14 +12,14 @@ public:
     class Builder
     {
     public:
-        Builder(VulkanFacade& device) : device{device} {}
+        explicit Builder(VulkanFacade& device) : device{device} {}
 
         Builder& addBinding(
             uint32_t binding,
             VkDescriptorType descriptor_type,
             VkShaderStageFlags stage_flags,
             uint32_t count = 1);
-        std::unique_ptr<DescriptorSetLayout> build() const;
+        [[nodiscard]] std::unique_ptr<DescriptorSetLayout> build() const;
 
     private:
         VulkanFacade& device;
@@ -91,7 +91,7 @@ public:
     DescriptorWriter(DescriptorSetLayout& set_layout, DescriptorPool& pool);
 
     DescriptorWriter& writeBuffer(uint32_t binding, VkDescriptorBufferInfo* buffer_info);
-    DescriptorWriter& writeImage(uint32_t binding, VkDescriptorImageInfo* image_info);
+    DescriptorWriter& writeImage(uint32_t binding, VkDescriptorImageInfo* image_info, uint32_t count = 1);
     DescriptorWriter& writeAccelerationStructure(uint32_t binding, VkWriteDescriptorSetAccelerationStructureKHR* structure_info);
 
     bool build(VkDescriptorSet& set);

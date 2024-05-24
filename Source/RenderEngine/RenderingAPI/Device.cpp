@@ -37,6 +37,8 @@ void Device::createLogicalDevice(const Instance& instance, const PhysicalDevice&
     vulkan_12_features.bufferDeviceAddressCaptureReplay = VK_FALSE;
     vulkan_12_features.bufferDeviceAddressMultiDevice = VK_FALSE;
     vulkan_12_features.descriptorIndexing = VK_TRUE;
+    vulkan_12_features.runtimeDescriptorArray = VK_TRUE;
+    vulkan_12_features.shaderSampledImageArrayNonUniformIndexing = VK_TRUE;
 
     VkPhysicalDeviceAccelerationStructureFeaturesKHR physical_device_acceleration_structure_features{};
     physical_device_acceleration_structure_features.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ACCELERATION_STRUCTURE_FEATURES_KHR;
