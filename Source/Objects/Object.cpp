@@ -42,23 +42,3 @@ void Object::addComponent(std::shared_ptr<ObjectComponent> component)
     assert(component->getOwner() == this && "Component's owner should be the same as the object to which component tried to be added");
     components.emplace_back(std::move(component));
 }
-
-ObjectDescription Object::getDescription()
-{
-    auto mesh_component = findComponentByClass<MeshComponent>();
-    auto transform_component = findComponentByClass<TransformComponent>();
-    assert(mesh_component && transform_component && "To obtain object description mesh component and transform component must be present in object components list!");
-
-    ObjectDescription object_description{};
-    ModelDescription model_description = mesh_component->getModel()->getModelDescription();
-    object_description.vertex_address = model_description.vertex_address;
-    object_description.index_address = model_description.index_address;
-    object_description.num_of_triangles = model_description.num_of_triangles;
-
-    MaterialDescription material_description = mesh_component->getMaterial()->getMaterialDescription();
-    object_description.material_address = material_description.material_info_buffer_device_address;
-
-    object_description.surface_area *= transform_component->scale.x * transform_component->scale.x;
-    object_description.object_to_world = transform_component->transform();
-    return object_description;
-}

@@ -23,9 +23,15 @@ public:
     virtual std::shared_ptr<Model> fetchModel(const std::string& model_name);
     virtual std::shared_ptr<Material> fetchMaterial(const std::string& material_name);
 
+    //TODO: rethink
+    void addMaterial(std::shared_ptr<Material> material) { available_materials.emplace(material->getName(), std::move(material)); }
+    virtual std::vector<std::shared_ptr<Material>> fetchRequiredMaterials(const std::shared_ptr<Model>& model);
+    virtual std::shared_ptr<Texture> fetchTexture(const std::string& texture_name);
+
 protected:
     VulkanFacade& vulkan_facade;
 
     std::unordered_map<std::string, std::shared_ptr<Model>> available_models;
     std::unordered_map<std::string, std::shared_ptr<Material>> available_materials;
+    std::unordered_map<std::string, std::shared_ptr<Texture>> available_textures;
 };

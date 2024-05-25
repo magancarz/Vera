@@ -37,8 +37,8 @@ void main()
 
     MaterialBuffer material_buffer = MaterialBuffer(object_description.material_address);
     Material material = material_buffer.m;
-    vec3 material_color = material.color;
-
-    payload.color *= material.color * material.brightness;
+//    vec3 material_color = material.color;
+//
+//    payload.color *= material.color * material.brightness;
     payload.is_active = 0;
 }

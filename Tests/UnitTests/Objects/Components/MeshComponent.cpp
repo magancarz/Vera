@@ -39,8 +39,8 @@ TEST_F(MeshComponentTests, shouldSetMaterialToComponent)
     auto mock_material = std::make_shared<Material>(MaterialInfo{.color = {0.5, 0.6, 0.7}}, "dummy");
 
     // when
-    mesh_component.setMaterial(mock_material);
+    mesh_component.setMaterials(mock_material);
 
     // then
-    EXPECT_EQ(mesh_component.getMaterial()->getName(), mock_material->getName());
+    EXPECT_EQ(mesh_component.getMaterials()->getName(), mock_material->getName());
 }

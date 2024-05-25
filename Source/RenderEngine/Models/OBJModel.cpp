@@ -1,125 +1,34 @@
 #include "OBJModel.h"
 
-#define TINYOBJLOADER_IMPLEMENTATION
-#include "tiny_obj_loader.h"
-
-#define GLM_ENABLE_EXPERIMENTAL
-#include <glm/gtx/hash.hpp>
-
 #include <unordered_map>
 #include <iostream>
 
-#include "RenderEngine/RenderingAPI/VulkanDefines.h"
-#include "RenderEngine/RenderingAPI/VulkanHelper.h"
 #include "Utils/Algorithms.h"
-#include "RenderEngine/Models/RayTracingAccelerationStructureBuilder.h"
-#include "Utils/VeraDefines.h"
-#include "Utils/PathBuilder.h"
 
-namespace std
+OBJModel::OBJModel(VulkanFacade& device, const std::vector<OBJModelInfo>& obj_models_info, std::string name)
+    : Model(std::move(name)), device{device}
 {
-    template <>
-    struct hash<Vertex> {
-        size_t operator()(Vertex const &vertex) const
-        {
-            size_t seed = 0;
-            algorithms::hashCombine(seed, vertex.position, vertex.normal, vertex.uv);
-            return seed;
-        }
-    };
+    createManyModels(obj_models_info);
 }
 
-std::unique_ptr<Model> OBJModel::createModelFromFile(VulkanFacade& vulkan_facade, const AssetManager* asset_manager, const std::string& model_name)
+void OBJModel::createManyModels(const std::vector<OBJModelInfo>& obj_models_info)
 {
-    const std::string filepath = PathBuilder(paths::MODELS_DIRECTORY_PATH).append(model_name).fileExtension(".obj").build();
-
-    Builder builder{};
-    builder.loadModel(asset_manager, filepath);
-    return std::make_unique<OBJModel>(vulkan_facade, builder, model_name);
-}
-
-void OBJModel::Builder::loadModel(const AssetManager* asset_manager, const std::string& filepath)
-{
-    tinyobj::ObjReaderConfig reader_config;
-    tinyobj::ObjReader reader;
-
-    if (!reader.ParseFromFile(filepath, reader_config)) {
-        if (!reader.Error().empty()) {
-            std::cerr << "TinyObjReader: " << reader.Error();
-        }
-        exit(1);
-    }
-
-    if (!reader.Warning().empty()) {
-        std::cout << "TinyObjReader: " << reader.Warning();
-    }
-
-    tinyobj::attrib_t attrib = reader.GetAttrib();
-    std::vector<tinyobj::shape_t> shapes = reader.GetShapes();
-    std::vector<tinyobj::material_t> obj_materials = reader.GetMaterials();
-
-    vertices.clear();
-    indices.clear();
-
-    std::unordered_map<Vertex, uint32_t> unique_vertices{};
-    for (const auto& shape : shapes)
+    for (auto& obj_model_info : obj_models_info)
     {
-        for (int i = 0; i < shape.mesh.indices.size(); ++i)
-        {
-            const auto index = shape.mesh.indices[i];
-            Vertex vertex{};
-
-            if (index.vertex_index >= 0)
-            {
-                vertex.position =
-                {
-                        attrib.vertices[3 * index.vertex_index + 0],
-                        attrib.vertices[3 * index.vertex_index + 1],
-                        attrib.vertices[3 * index.vertex_index + 2],
-                };
-            }
-
-            if (index.normal_index >= 0)
-            {
-                vertex.normal =
-                {
-                        attrib.normals[3 * index.normal_index + 0],
-                        attrib.normals[3 * index.normal_index + 1],
-                        attrib.normals[3 * index.normal_index + 2],
-                };
-            }
-
-            if (index.texcoord_index >= 0)
-            {
-                vertex.uv =
-                {
-                        attrib.texcoords[2 * index.texcoord_index + 0],
-                        attrib.texcoords[2 * index.texcoord_index + 1],
-                };
-            }
-
-            if (unique_vertices.count(vertex) == 0)
-            {
-                unique_vertices[vertex] = static_cast<uint32_t>(vertices.size());
-                vertices.push_back(vertex);
-            }
-            indices.push_back(unique_vertices[vertex]);
-        }
-    }
-
-    for (size_t i = 0; i < indices.size(); i += 3)
-    {
-        Vertex first_vertex = vertices[indices[i + 0]];
-        Vertex second_vertex = vertices[indices[i + 1]];
-        Vertex third_vertex = vertices[indices[i + 2]];
+        models.emplace_back(std::make_shared<OBJModel>(device, obj_model_info));
     }
 }
 
-OBJModel::OBJModel(VulkanFacade& device, const OBJModel::Builder& builder, std::string model_name)
-    : Model(std::move(model_name)), device{device}
+OBJModel::OBJModel(VulkanFacade& device, const OBJModelInfo& obj_model_info)
+        : Model(obj_model_info.name, obj_model_info.required_material), device{device}
 {
-    createVertexBuffers(builder.vertices);
-    createIndexBuffers(builder.indices);
+    createModel(obj_model_info);
+}
+
+void OBJModel::createModel(const OBJModelInfo& model_info)
+{
+    createVertexBuffers(model_info.vertices);
+    createIndexBuffers(model_info.indices);
 }
 
 void OBJModel::createVertexBuffers(const std::vector<Vertex>& vertices)
@@ -187,4 +96,61 @@ void OBJModel::createIndexBuffers(const std::vector<uint32_t>& indices)
             VK_MEMORY_ALLOCATE_DEVICE_ADDRESS_BIT
     );
     device.copyBuffer(staging_buffer.getBuffer(), index_buffer->getBuffer(), buffer_size);
+}
+
+//TODO: allocate one buffer for each vertex buffer and index buffer
+void OBJModel::bind(VkCommandBuffer command_buffer)
+{
+    if (models.empty())
+    {
+        Model::bind(command_buffer);
+        return;
+    }
+
+    models[0]->bind(command_buffer);
+}
+
+void OBJModel::draw(VkCommandBuffer command_buffer) const
+{
+    if (models.empty())
+    {
+        Model::draw(command_buffer);
+        return;
+    }
+
+    models[0]->draw(command_buffer);
+}
+
+std::vector<std::string> OBJModel::getRequiredMaterials() const
+{
+    if (models.empty())
+    {
+        return {required_material};
+    }
+
+    std::vector<std::string> required_materials;
+    required_materials.reserve(models.size());
+    for (auto& model : models)
+    {
+        required_materials.append_range(model->getRequiredMaterials());
+    }
+
+    return required_materials;
+}
+
+std::vector<ModelDescription> OBJModel::getModelDescriptions() const
+{
+    if (models.empty())
+    {
+        return Model::getModelDescriptions();
+    }
+
+    std::vector<ModelDescription> model_descriptions;
+    model_descriptions.reserve(models.size());
+    for (auto& model : models)
+    {
+        model_descriptions.append_range(model->getModelDescriptions());
+    }
+
+    return model_descriptions;
 }

@@ -4,11 +4,12 @@
 
 #include "RenderEngine/Models/AccelerationStructure.h"
 #include "RenderEngine/Models/Model.h"
+#include "Objects/Components/MeshComponent.h"
 
 class Blas
 {
 public:
-    Blas(VulkanFacade& device, const std::shared_ptr<Model>& model);
+    Blas(VulkanFacade& device, const MeshComponent* mesh_component);
     ~Blas();
 
     Blas(const Blas&) = delete;
@@ -16,12 +17,12 @@ public:
     Blas(Blas&& other) = default;
     Blas& operator=(Blas&&) = delete;
 
-    BlasInstance createBlasInstance(const glm::mat4& transform, uint32_t id);
+    BlasInstance createBlasInstance(const glm::mat4& transform);
 
 private:
     VulkanFacade& device;
 
-    void createBlas(const std::shared_ptr<Model>& model);
+    void createBlas(const MeshComponent* mesh_component);
 
     AccelerationStructure blas{};
 };

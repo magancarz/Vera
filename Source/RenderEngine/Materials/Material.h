@@ -12,14 +12,10 @@
 class Material
 {
 public:
-    Material(MaterialInfo in_material_info, std::string material_name);
+    Material(MaterialInfo in_material_info, std::string material_name, std::shared_ptr<Texture> texture);
 
     [[nodiscard]] std::string getName() const { return name; }
-
-    MaterialDescription getMaterialDescription();
-    [[nodiscard]] bool isLightMaterial() const { return material_info.brightness > 0; }
-
-    //TODO: temp
+    [[nodiscard]] MaterialInfo getMaterialInfo() const { return material_info; }
     std::shared_ptr<Texture> getTexture() { return texture; }
 
 protected:

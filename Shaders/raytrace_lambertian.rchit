@@ -21,7 +21,7 @@ struct ObjectDescription
 {
     uint64_t vertex_address;
     uint64_t index_address;
-    uint64_t material_address;
+    uint64_t material_index;
     uint64_t num_of_triangles;
     uint64_t texture_offset;
     mat4 object_to_world;
@@ -31,7 +31,8 @@ struct ObjectDescription
 layout(binding = 0, set = 0) uniform accelerationStructureEXT topLevelAS;
 layout(binding = 3, set = 0) buffer ObjectDescriptions { ObjectDescription data[]; } object_descriptions;
 layout(binding = 4, set = 0) buffer LightIndices { uint l[]; } light_indices;
-layout(binding = 5, set = 0) uniform sampler2D textures[];
+layout(binding = 5, set = 0) buffer Materials { Material m[]; } materials;
+layout(binding = 6, set = 0) uniform sampler2D textures[];
 
 struct Vertex
 {
@@ -45,7 +46,6 @@ struct Vertex
 
 layout(buffer_reference, scalar) readonly buffer Vertices { Vertex v[]; };
 layout(buffer_reference, scalar) readonly buffer Indices { uint i[]; };
-layout(buffer_reference, scalar) readonly buffer MaterialBuffer { Material m; };
 
 layout(push_constant) uniform PushConstantRay
 {
@@ -99,11 +99,8 @@ void main()
         return;
     }
 
-    ObjectDescription object_description = object_descriptions.data[gl_InstanceCustomIndexEXT];
-
-    MaterialBuffer material_buffer = MaterialBuffer(object_description.material_address);
-    Material material = material_buffer.m;
-    vec3 material_color = material.color;
+    ObjectDescription object_description = object_descriptions.data[gl_InstanceCustomIndexEXT + gl_GeometryIndexEXT];
+    Material material = materials.m[uint(object_description.material_index)];
 
     Indices index_buffer = Indices(object_description.index_address);
     uvec3 indices = uvec3(index_buffer.i[3 * gl_PrimitiveID + 0],
@@ -128,34 +125,6 @@ void main()
 
     payload.origin = position;
 
-    ObjectDescription random_light = object_descriptions.data[light_indices.l[uint(floor(rnd(payload.seed) * float(push_constant.number_of_lights)))]];
-    Indices light_index_buffer = Indices(random_light.index_address);
-
-    uint light_random_primitive = uint(floor(rnd(payload.seed) * float(random_light.num_of_triangles)));
-
-    uvec3 light_indices = uvec3(light_index_buffer.i[3 * light_random_primitive + 0],
-                                light_index_buffer.i[3 * light_random_primitive + 1],
-                                light_index_buffer.i[3 * light_random_primitive + 2]);
-
-    Vertices light_vertices = Vertices(random_light.vertex_address);
-    Vertex light_first_vertex = light_vertices.v[light_indices.x];
-    Vertex light_second_vertex = light_vertices.v[light_indices.y];
-    Vertex light_third_vertex = light_vertices.v[light_indices.z];
-
-    vec2 uv = vec2(rnd(payload.seed), rnd(payload.seed));
-    if (uv.x + uv.y > 1.0f)
-    {
-        uv.x = 1.0f - uv.x;
-        uv.y = 1.0f - uv.y;
-    }
-
-    vec3 light_barycentric = vec3(1.0 - uv.x - uv.y, uv.x, uv.y);
-    vec3 light_normal = light_first_vertex.normal * light_barycentric.x + light_second_vertex.normal * light_barycentric.y + light_third_vertex.normal * light_barycentric.z;
-    light_normal = normalize(light_normal);
-
-    vec3 light_position = light_first_vertex.position * light_barycentric.x + light_second_vertex.position * light_barycentric.y + light_third_vertex.position * light_barycentric.z;
-    light_position = vec3(random_light.object_to_world * vec4(light_position, 1.0));
-
     vec3 positionToLightDirection = randomToSun(push_constant.weather * 10);
 
     vec3 u, v, w;
@@ -170,7 +139,7 @@ void main()
         topLevelAS, // acceleration structure
         rayFlags,       // rayFlags
         0xFF,           // cullMask
-        1,              // sbtRecordOffset
+        0,              // sbtRecordOffset
         0,              // sbtRecordStride
         1,              // missIndex
         payload.origin,     // ray origin
@@ -184,7 +153,7 @@ void main()
     float cosine = occluded ? 0 : max(dot(push_constant.sun_position, payload.direction), 0.0);
     float sun_contribution = 20 * cosine;
 
-    uint texture_offset = uint(object_description.texture_offset);
+    uint texture_offset = uint(material.texture_offset);
     vec3 texture_color = texture(textures[nonuniformEXT(texture_offset)], texture_uv).xyz;
     payload.color *= sun_contribution * texture_color * scattering_pdf;
     payload.depth += 1;

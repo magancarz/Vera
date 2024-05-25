@@ -2,7 +2,7 @@
 
 #include "Objects/Object.h"
 #include "World/World.h"
-#include "RenderEngine/RenderingAPI/Blas.h"
+#include "RenderEngine/Models/MeshDescription.h"
 
 class MeshComponent : public ObjectComponent
 {
@@ -12,11 +12,14 @@ public:
     void setModel(std::shared_ptr<Model> in_model);
     std::shared_ptr<Model> getModel() { return model; }
 
-    void setMaterial(std::shared_ptr<Material> in_material);
-    std::shared_ptr<Material> getMaterial() { return material; }
-    bool isLight() { return material->isLightMaterial(); };
+    void setMaterials(std::vector<std::shared_ptr<Material>> in_materials);
+    std::vector<std::shared_ptr<Material>> getMaterials() { return materials; }
+    std::shared_ptr<Material> findMaterial(const std::string& name);
+    [[nodiscard]] std::vector<std::string> getRequiredMaterials() const;
+
+    [[nodiscard]] MeshDescription getDescription() const;
 
 private:
     std::shared_ptr<Model> model;
-    std::shared_ptr<Material> material;
+    std::vector<std::shared_ptr<Material>> materials;
 };

@@ -18,7 +18,7 @@ PostProcessing::PostProcessing(
 
 void PostProcessing::loadSceneQuad(const std::shared_ptr<AssetManager>& asset_manager)
 {
-    scene_quad = asset_manager->fetchModel("scene_quad");
+    scene_quad = asset_manager->fetchModel("scene_quad.obj");
 }
 
 void PostProcessing::createPipelineLayout(VkDescriptorSetLayout input_texture)

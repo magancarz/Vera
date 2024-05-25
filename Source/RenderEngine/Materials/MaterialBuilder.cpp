@@ -14,9 +14,9 @@ MaterialBuilder& MaterialBuilder::lambertian()
     return *this;
 }
 
-MaterialBuilder& MaterialBuilder::color(const glm::vec3& color)
+MaterialBuilder& MaterialBuilder::texture(const std::shared_ptr<Texture>& texture)
 {
-    material_info.color = color;
+    current_texture = std::move(texture);
 
     return *this;
 }
@@ -64,7 +64,7 @@ MaterialBuilder& MaterialBuilder::name(std::string name)
 
 std::shared_ptr<Material> MaterialBuilder::build()
 {
-    auto material = std::make_shared<Material>(material_info, std::move(material_name));
+    auto material = std::make_shared<Material>(material_info, std::move(material_name), std::move(current_texture));
     material->material_info_buffer = std::make_unique<Buffer>
     (
             device,

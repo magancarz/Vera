@@ -4,12 +4,12 @@
 
 struct TextureData
 {
-    int width, height;
-    int number_of_channels;
+    int width{}, height{};
+    int number_of_channels{};
     int expected_number_of_channels{4};
     unsigned char* data;
 
-    TextureData(const std::string& filepath);
+    explicit TextureData(const std::string& texture_name);
 
     ~TextureData();
 

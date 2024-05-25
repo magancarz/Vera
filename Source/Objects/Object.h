@@ -41,8 +41,6 @@ public:
         return nullptr;
     }
 
-    ObjectDescription getDescription();
-
 private:
     explicit Object(id_t object_id) : id{object_id} {}
 

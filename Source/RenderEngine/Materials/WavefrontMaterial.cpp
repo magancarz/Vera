@@ -1,11 +1,6 @@
 #include "WavefrontMaterial.h"
 
-std::shared_ptr<WavefrontMaterial> WavefrontMaterial::fromAssetFile(VulkanFacade& vulkan_facade, const std::string& asset_name)
-{
-    MaterialInfo material_info{};
-
-    return std::make_shared<WavefrontMaterial>(vulkan_facade, material_info, asset_name, nullptr);
-}
+#include "Assets/AssetManager.h"
 
 WavefrontMaterial::WavefrontMaterial(
         VulkanFacade& vulkan_facade,

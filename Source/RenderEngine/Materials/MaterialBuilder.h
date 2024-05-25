@@ -8,7 +8,7 @@ public:
     explicit MaterialBuilder(VulkanFacade& device);
 
     MaterialBuilder& lambertian();
-    MaterialBuilder& color(const glm::vec3& color);
+    MaterialBuilder& texture(const std::shared_ptr<Texture>& texture);
 
     MaterialBuilder& specular();
     MaterialBuilder& fuzziness(float value);
@@ -24,6 +24,7 @@ private:
     VulkanFacade& device;
 
     MaterialInfo material_info{};
+    std::shared_ptr<Texture> current_texture;
     std::string material_name{"material"};
     uint32_t material_hit_group_index{0};
 };

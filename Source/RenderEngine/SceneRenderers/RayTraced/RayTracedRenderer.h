@@ -33,6 +33,13 @@ private:
 
     VkPhysicalDeviceRayTracingPipelinePropertiesKHR ray_tracing_properties;
 
+    void createObjectDescriptionsBuffer();
+
+    std::vector<std::shared_ptr<Texture>> textures;
+    std::unique_ptr<Buffer> object_descriptions_buffer;
+    std::unique_ptr<Buffer> material_descriptions_buffer;
+    std::vector<uint32_t> object_description_offsets;
+
     void createAccelerationStructure();
 
     std::unordered_map<std::string, Blas> blas_objects;
@@ -46,11 +53,6 @@ private:
     void createCameraUniformBuffer();
 
     std::unique_ptr<Buffer> camera_uniform_buffer;
-
-    void createObjectDescriptionsBuffer();
-
-    std::vector<std::shared_ptr<Texture>> textures;
-    std::unique_ptr<Buffer> object_descriptions_buffer;
 
     void createLightIndicesBuffer();
 

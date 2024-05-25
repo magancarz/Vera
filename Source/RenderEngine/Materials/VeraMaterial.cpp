@@ -3,7 +3,7 @@
 
 #include <fstream>
 
-std::shared_ptr<VeraMaterial> VeraMaterial::fromAssetFile(VulkanFacade& vulkan_facade, const std::string& asset_name)
+std::shared_ptr<VeraMaterial> VeraMaterial::fromAssetFile(VulkanFacade& vulkan_facade, AssetManager* const asset_manager, const std::string& asset_name)
 {
     printf("Trying to load material named %s...\n", asset_name.c_str());
 
@@ -25,8 +25,6 @@ std::shared_ptr<VeraMaterial> VeraMaterial::fromAssetFile(VulkanFacade& vulkan_f
         iss >> color_x;
         iss >> color_y;
         iss >> color_z;
-        glm::vec3 color{std::stof(color_x), std::stof(color_y), std::stof(color_z)};
-        material_info.color = color;
 
         std::string value;
         iss >> value;
@@ -38,14 +36,12 @@ std::shared_ptr<VeraMaterial> VeraMaterial::fromAssetFile(VulkanFacade& vulkan_f
         iss >> value;
         material_info.refractive_index = std::stof(value);
 
+        std::string texture_name;
+        iss >> texture_name;
+
         file_stream.close();
 
-        std::shared_ptr<Texture> texture;
-        if (material_info.brightness > 0) {
-            texture = std::make_shared<Texture>(vulkan_facade, "Resources/Textures/nightFront.png");
-        } else {
-            texture = std::make_shared<Texture>(vulkan_facade, "Resources/Textures/white.png");
-        }
+        std::shared_ptr<Texture> texture = asset_manager->fetchTexture(texture_name);
 
         printf("Loading material from file ended in success\n");
         return std::make_shared<VeraMaterial>(vulkan_facade, material_info, std::move(material_name), texture);
@@ -61,9 +57,8 @@ VeraMaterial::VeraMaterial(
         const MaterialInfo& material_info,
         std::string material_name,
         std::shared_ptr<Texture> texture)
-    : Material(material_info, std::move(material_name))
+    : Material(material_info, std::move(material_name), std::move(texture))
 {
-    this->texture = std::move(texture);
     createMaterialInfoBuffer(vulkan_facade);
     assignMaterialHitGroupIndex();
 }
@@ -83,12 +78,12 @@ void VeraMaterial::createMaterialInfoBuffer(VulkanFacade& vulkan_facade)
 
 void VeraMaterial::assignMaterialHitGroupIndex()
 {
-    if (material_info.brightness > 0)
-    {
-        material_hit_group_index = defines::material_indices::light_hit_group_index;
-    }
-    else if (material_info.fuzziness > 0)
-    {
-        material_hit_group_index = defines::material_indices::specular_hit_group_index;
-    }
+//    if (material_info.brightness > 0)
+//    {
+//        material_hit_group_index = defines::material_indices::light_hit_group_index;
+//    }
+//    else if (material_info.fuzziness > 0)
+//    {
+//        material_hit_group_index = defines::material_indices::specular_hit_group_index;
+//    }
 }

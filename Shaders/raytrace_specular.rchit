@@ -55,7 +55,6 @@ void main()
 
     MaterialBuffer material_buffer = MaterialBuffer(object_description.material_address);
     Material material = material_buffer.m;
-    vec3 material_color = material.color;
 
     Indices index_buffer = Indices(object_description.index_address);
     uvec3 indices = uvec3(index_buffer.i[3 * gl_PrimitiveID + 0],
@@ -79,5 +78,5 @@ void main()
     vec3 reflection = reflect(payload.direction.xyz, geometric_normal);
     vec3 random_direction = randomInUnitHemisphere(payload.seed, geometric_normal);
     payload.direction = normalize(reflection + random_direction * material.fuzziness);
-    payload.color *= material_color;
+//    payload.color *= material_color;
 }
