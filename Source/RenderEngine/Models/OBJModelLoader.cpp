@@ -55,7 +55,8 @@ std::shared_ptr<OBJModel> OBJModelLoader::createFromFile(VulkanFacade& vulkan_fa
 
         auto texture_name = material.diffuse_texname.empty() ? "white.png" : material.diffuse_texname;
         std::shared_ptr<Texture> texture = asset_manager->fetchTexture(texture_name);
-        asset_manager->addMaterial(std::make_shared<WavefrontMaterial>(vulkan_facade, material_info, material.name, std::move(texture)));
+        asset_manager->loadMaterial(
+                std::make_shared<WavefrontMaterial>(vulkan_facade, material_info, material.name, std::move(texture)));
     }
 
     std::vector<OBJModelInfo> obj_model_infos;

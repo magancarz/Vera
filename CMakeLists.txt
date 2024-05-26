@@ -15,12 +15,12 @@ link_libraries(${Vulkan_LIBRARIES})
 set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
 set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
 set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
-add_subdirectory(Libraries/GLFW)
+add_subdirectory(ThirdParty/GLFW)
 target_link_libraries(Vera-Lib PUBLIC glfw)
 
-add_subdirectory(Libraries/imgui)
-target_include_directories(Vera-Lib PUBLIC Libraries/imgui)
-target_include_directories(Vera-Lib PUBLIC Libraries)
+add_subdirectory(ThirdParty/imgui)
+target_include_directories(Vera-Lib PUBLIC ThirdParty/imgui)
+target_include_directories(Vera-Lib PUBLIC ThirdParty)
 
 add_executable(Vera main.cpp)
 target_link_libraries(Vera Vera-Lib)
@@ -57,7 +57,7 @@ add_dependencies(Vera SHADERS)
 
 include(CTest)
 enable_testing()
-add_subdirectory(Libraries/gtest)
+add_subdirectory(ThirdParty/gtest)
 
 if(BUILD_TESTING)
 	file(GLOB_RECURSE SOURCES

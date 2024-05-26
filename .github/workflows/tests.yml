@@ -8,6 +8,9 @@ jobs:
       - run: echo "Job is running on a ${{ runner.os }} runner"
       - name: Check out repository code
         uses: actions/checkout@v4
+      - name: Fetch git submodules
+        run: |
+          git submodule update --init --recursive
       - run: echo "The ${{ github.repository }} repository has been cloned to the runner."
       - name: Restore cached tests build files
         id: tests-build-files-restore

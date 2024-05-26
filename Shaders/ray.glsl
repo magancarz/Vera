@@ -6,5 +6,4 @@ struct Ray
     int is_active;
     uint seed;
     uint depth;
-    bool is_shadow_ray;
 };

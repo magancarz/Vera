@@ -8,6 +8,9 @@ jobs:
       - run: echo "Job is running on a ${{ runner.os }} runner"
       - name: Check out repository code
         uses: actions/checkout@v4
+      - name: Fetch git submodules
+        run: |
+          git submodule update --init --recursive
       - name: Restore cached coverage build files
         id: coverage-build-files-restore
         uses: actions/cache/restore@v4
