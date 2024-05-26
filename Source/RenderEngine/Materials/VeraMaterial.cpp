@@ -3,7 +3,7 @@
 
 #include <fstream>
 
-std::shared_ptr<VeraMaterial> VeraMaterial::fromAssetFile(VulkanFacade& vulkan_facade, AssetManager* const asset_manager, const std::string& asset_name)
+std::shared_ptr<VeraMaterial> VeraMaterial::fromAssetFile(const std::unique_ptr<MemoryAllocator>& memory_allocator, AssetManager* const asset_manager, const std::string& asset_name)
 {
     printf("Trying to load material named %s...\n", asset_name.c_str());
 
@@ -44,7 +44,7 @@ std::shared_ptr<VeraMaterial> VeraMaterial::fromAssetFile(VulkanFacade& vulkan_f
         std::shared_ptr<Texture> texture = asset_manager->fetchTexture(texture_name);
 
         printf("Loading material from file ended in success\n");
-        return std::make_shared<VeraMaterial>(vulkan_facade, material_info, std::move(material_name), texture);
+        return std::make_shared<VeraMaterial>(memory_allocator, material_info, std::move(material_name), texture);
     }
 
     printf("Failed to load material\n");
@@ -53,27 +53,27 @@ std::shared_ptr<VeraMaterial> VeraMaterial::fromAssetFile(VulkanFacade& vulkan_f
 }
 
 VeraMaterial::VeraMaterial(
-        VulkanFacade& vulkan_facade,
+        const std::unique_ptr<MemoryAllocator>& memory_allocator,
         const MaterialInfo& material_info,
         std::string material_name,
         std::shared_ptr<Texture> texture)
     : Material(material_info, std::move(material_name), std::move(texture))
 {
-    createMaterialInfoBuffer(vulkan_facade);
+    createMaterialInfoBuffer(memory_allocator);
     assignMaterialHitGroupIndex();
 }
 
-void VeraMaterial::createMaterialInfoBuffer(VulkanFacade& vulkan_facade)
+void VeraMaterial::createMaterialInfoBuffer(const std::unique_ptr<MemoryAllocator>& memory_allocator)
 {
-    material_info_buffer = std::make_unique<Buffer>
+    material_info_buffer = memory_allocator->createBuffer
     (
-            vulkan_facade,
             sizeof(MaterialInfo),
             1,
             VK_BUFFER_USAGE_STORAGE_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT,
             VK_MEMORY_ALLOCATE_DEVICE_ADDRESS_BIT
     );
-    material_info_buffer->writeWithStagingBuffer(&this->material_info);
+    auto staging_buffer = memory_allocator->createStagingBuffer(sizeof(MaterialInfo), 1, &material_info);
+    material_info_buffer->copyFromBuffer(staging_buffer);
 }
 
 void VeraMaterial::assignMaterialHitGroupIndex()

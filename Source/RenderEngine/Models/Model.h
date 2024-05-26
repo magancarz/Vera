@@ -2,7 +2,7 @@
 
 #include "RenderEngine/RenderingAPI/VulkanFacade.h"
 #include "RenderEngine/RenderingAPI/Vertex.h"
-#include "RenderEngine/RenderingAPI/Buffer.h"
+#include "RenderEngine/Memory/Buffer.h"
 #include "RenderEngine/Materials/Material.h"
 #include "RenderEngine/Models/AccelerationStructure.h"
 #include "RenderEngine/Models/BlasInstance.h"

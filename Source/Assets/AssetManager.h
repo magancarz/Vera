@@ -7,11 +7,12 @@
 #include "RenderEngine/RenderingAPI/VulkanFacade.h"
 #include "Project/Project.h"
 #include "RenderEngine/Models/Model.h"
+#include "RenderEngine/Memory/MemoryAllocator.h"
 
 class AssetManager
 {
 public:
-    explicit AssetManager(VulkanFacade& vulkan_facade);
+    AssetManager(VulkanFacade& vulkan_facade, std::unique_ptr<MemoryAllocator>& memory_allocator);
     virtual ~AssetManager() = default;
 
     AssetManager(const AssetManager&) = delete;
@@ -28,6 +29,7 @@ public:
 
 protected:
     VulkanFacade& vulkan_facade;
+    std::unique_ptr<MemoryAllocator>& memory_allocator;
 
     std::unordered_map<std::string, std::shared_ptr<Model>> available_models;
     std::unordered_map<std::string, std::shared_ptr<Material>> available_materials;

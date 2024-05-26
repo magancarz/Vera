@@ -3,8 +3,8 @@
 #include "VulkanHelper.h"
 #include "VulkanDefines.h"
 
-Blas::Blas(VulkanFacade& device, const MeshComponent* mesh_component)
-    : device{device}
+Blas::Blas(VulkanFacade& device, std::unique_ptr<MemoryAllocator>& memory_allocator, const MeshComponent* mesh_component)
+    : device{device}, memory_allocator{memory_allocator}
 {
     createBlas(mesh_component);
 }
@@ -47,7 +47,7 @@ void Blas::createBlas(const MeshComponent* mesh_component)
     }
     blas_input.flags = VK_BUILD_ACCELERATION_STRUCTURE_ALLOW_COMPACTION_BIT_KHR;
 
-    RayTracingAccelerationStructureBuilder builder{device};
+    RayTracingAccelerationStructureBuilder builder{device, memory_allocator};
     blas = std::move(builder.buildBottomLevelAccelerationStructures({blas_input}, VK_BUILD_ACCELERATION_STRUCTURE_PREFER_FAST_TRACE_BIT_KHR)[0]);
 }
 
@@ -65,13 +65,13 @@ BlasInstance Blas::createBlasInstance(const glm::mat4& transform)
     blas_instance.bottomLevelAccelerationStructureInstance.flags = VK_GEOMETRY_INSTANCE_TRIANGLE_FACING_CULL_DISABLE_BIT_KHR;
     blas_instance.bottomLevelAccelerationStructureInstance.accelerationStructureReference = blas.bottom_level_acceleration_structure_device_address;
 
-    blas_instance.bottom_level_geometry_instance_buffer = std::make_unique<Buffer>
+    blas_instance.bottom_level_geometry_instance_buffer = memory_allocator->createBuffer
     (
-            device,
             sizeof(VkAccelerationStructureInstanceKHR),
             1,
             VK_BUFFER_USAGE_ACCELERATION_STRUCTURE_BUILD_INPUT_READ_ONLY_BIT_KHR | VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT,
-            VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT
+            VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT,
+            VMA_ALLOCATION_CREATE_HOST_ACCESS_SEQUENTIAL_WRITE_BIT
     );
     blas_instance.bottom_level_geometry_instance_buffer->map();
     blas_instance.bottom_level_geometry_instance_buffer->writeToBuffer(&blas_instance.bottomLevelAccelerationStructureInstance);

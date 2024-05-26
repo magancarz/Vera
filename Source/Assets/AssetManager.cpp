@@ -1,12 +1,10 @@
 #include "AssetManager.h"
 
-#include "RenderEngine/Models/OBJModel.h"
-#include "RenderEngine/Materials/MaterialBuilder.h"
 #include "RenderEngine/Materials/VeraMaterial.h"
 #include "RenderEngine/Models/OBJModelLoader.h"
 
-AssetManager::AssetManager(VulkanFacade& vulkan_facade)
-    : vulkan_facade{vulkan_facade} {}
+AssetManager::AssetManager(VulkanFacade& vulkan_facade, std::unique_ptr<MemoryAllocator>& memory_allocator)
+    : vulkan_facade{vulkan_facade}, memory_allocator{memory_allocator} {}
 
 void AssetManager::loadNeededAssetsForProject(const ProjectInfo& project_info)
 {
@@ -33,7 +31,7 @@ std::shared_ptr<Model> AssetManager::fetchModel(const std::string& model_name)
     }
 
     printf("Model was not found in available models list. Loading from file...\n");
-    std::shared_ptr<Model> new_model = OBJModelLoader::createFromFile(vulkan_facade, this, model_name);
+    std::shared_ptr<Model> new_model = OBJModelLoader::createFromFile(memory_allocator, this, model_name);
     available_models[model_name] = new_model;
     return new_model;
 }
@@ -48,7 +46,7 @@ std::shared_ptr<Material> AssetManager::fetchMaterial(const std::string& materia
     }
 
     printf("Material was not found in available materials list. Loading from file...\n");
-    std::shared_ptr<Material> new_material = VeraMaterial::fromAssetFile(vulkan_facade, this, material_name);
+    std::shared_ptr<Material> new_material = VeraMaterial::fromAssetFile(memory_allocator, this, material_name);
     available_materials[material_name] = new_material;
     return new_material;
 }
@@ -75,7 +73,7 @@ std::shared_ptr<Texture> AssetManager::fetchTexture(const std::string& texture_n
     }
 
     printf("Texture was not found in available textures list. Loading from file...\n");
-    std::shared_ptr<Texture> new_texture = std::make_shared<Texture>(vulkan_facade, texture_name);
+    std::shared_ptr<Texture> new_texture = std::make_shared<Texture>(vulkan_facade, memory_allocator, texture_name);
     available_textures[texture_name] = new_texture;
     return new_texture;
 }

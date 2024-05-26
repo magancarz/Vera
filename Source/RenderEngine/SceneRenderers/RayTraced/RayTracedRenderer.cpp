@@ -9,8 +9,8 @@
 #include "RenderEngine/SceneRenderers/RayTraced/Pipeline/RayTracingPipelineBuilder.h"
 #include "Objects/Components/MeshComponent.h"
 
-RayTracedRenderer::RayTracedRenderer(VulkanFacade& device, World* world)
-    : device{device}, world{world}
+RayTracedRenderer::RayTracedRenderer(VulkanFacade& device, std::unique_ptr<MemoryAllocator>& memory_allocator, World* world)
+    : device{device}, memory_allocator{memory_allocator}, world{world}
 {
     queryRayTracingPipelineProperties();
     createObjectDescriptionsBuffer();
@@ -46,7 +46,7 @@ void RayTracedRenderer::createObjectDescriptionsBuffer()
     rendered_objects = world->getRenderedObjects();
     for (auto& [_, object] : rendered_objects)
     {
-        object_description_offsets.emplace_back(object_descriptions.size());
+        object_description_offsets.emplace_back(static_cast<uint32_t>(object_descriptions.size()));
         auto mesh_component = object->findComponentByClass<MeshComponent>();
         MeshDescription mesh_description = mesh_component->getDescription();
         for (size_t i = 0; i < mesh_description.model_descriptions.size(); ++i)
@@ -57,7 +57,7 @@ void RayTracedRenderer::createObjectDescriptionsBuffer()
             object_description.object_to_world = object->getTransform();
 
             auto required_material = mesh_description.required_materials[i];
-            uint32_t material_index{0};
+            uint32_t material_index;
             auto it = std::find_if(used_materials.begin(), used_materials.end(),
                    [&] (const std::shared_ptr<Material>& item)
                    {
@@ -92,30 +92,37 @@ void RayTracedRenderer::createObjectDescriptionsBuffer()
         }
     }
 
-    object_descriptions_buffer = std::make_unique<Buffer>
+    auto object_descriptions_staging_buffer = memory_allocator->createStagingBuffer(
+            sizeof(ObjectDescription),
+            object_descriptions.size(),
+            object_descriptions.data());
+
+    object_descriptions_buffer = memory_allocator->createBuffer
     (
-            device,
             sizeof(ObjectDescription),
             static_cast<uint32_t>(object_descriptions.size()),
             VK_BUFFER_USAGE_STORAGE_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT,
             VK_MEMORY_ALLOCATE_DEVICE_ADDRESS_BIT
     );
-    object_descriptions_buffer->writeWithStagingBuffer(object_descriptions.data());
+    object_descriptions_buffer->copyFromBuffer(object_descriptions_staging_buffer);
 
-    material_descriptions_buffer = std::make_unique<Buffer>
+    auto material_descriptions_staging_buffer = memory_allocator->createStagingBuffer(
+            sizeof(MaterialInfo),
+            material_infos.size(),
+            material_infos.data());
+    material_descriptions_buffer = memory_allocator->createBuffer
     (
-            device,
             sizeof(MaterialInfo),
             static_cast<uint32_t>(material_infos.size()),
             VK_BUFFER_USAGE_STORAGE_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT,
             VK_MEMORY_ALLOCATE_DEVICE_ADDRESS_BIT
     );
-    material_descriptions_buffer->writeWithStagingBuffer(material_infos.data());
+    material_descriptions_buffer->copyFromBuffer(material_descriptions_staging_buffer);
 }
 
 void RayTracedRenderer::createAccelerationStructure()
 {
-    RayTracingAccelerationStructureBuilder builder{device};
+    RayTracingAccelerationStructureBuilder builder{device, memory_allocator};
 
     std::vector<BlasInstance> blas_instances;
     blas_instances.reserve(rendered_objects.size());
@@ -126,7 +133,7 @@ void RayTracedRenderer::createAccelerationStructure()
 
         if (!blas_objects.contains(mesh_component->getModel()->getName()))
         {
-            blas_objects.emplace(std::piecewise_construct, std::forward_as_tuple(mesh_component->getModel()->getName()), std::forward_as_tuple(device, mesh_component));
+            blas_objects.emplace(std::piecewise_construct, std::forward_as_tuple(mesh_component->getModel()->getName()), std::forward_as_tuple(device, memory_allocator, mesh_component));
         }
         BlasInstance blas_instance = blas_objects.at(mesh_component->getModel()->getName()).createBlasInstance(object->getTransform());
         blas_instance.bottomLevelAccelerationStructureInstance.instanceCustomIndex = object_description_offsets[i++];
@@ -142,6 +149,7 @@ void RayTracedRenderer::createRayTracedImage()
     ray_traced_texture = std::make_unique<Texture>
     (
             device,
+            memory_allocator,
             surface_capabilities.currentExtent.width,
             surface_capabilities.currentExtent.height,
             VK_IMAGE_USAGE_STORAGE_BIT | VK_IMAGE_USAGE_SAMPLED_BIT,
@@ -151,13 +159,13 @@ void RayTracedRenderer::createRayTracedImage()
 
 void RayTracedRenderer::createCameraUniformBuffer()
 {
-    camera_uniform_buffer = std::make_unique<Buffer>
+    camera_uniform_buffer = memory_allocator->createBuffer
     (
-            device,
             sizeof(GlobalUBO),
             1,
             VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
-            VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT
+            VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+            VMA_ALLOCATION_CREATE_HOST_ACCESS_SEQUENTIAL_WRITE_BIT
     );
     camera_uniform_buffer->map();
 }
@@ -173,15 +181,16 @@ void RayTracedRenderer::createLightIndicesBuffer()
     }
     number_of_lights = light_indices.size();
     uint32_t instances = std::max(number_of_lights, 1u);
-    light_indices_buffer = std::make_unique<Buffer>
+
+    auto light_indices_staging_buffer = memory_allocator->createStagingBuffer(sizeof(uint32_t), instances, light_indices.data());
+    light_indices_buffer = memory_allocator->createBuffer
     (
-            device,
             sizeof(uint32_t),
             instances,
             VK_BUFFER_USAGE_STORAGE_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT,
             VK_MEMORY_ALLOCATE_DEVICE_ADDRESS_BIT
     );
-    light_indices_buffer->writeWithStagingBuffer(light_indices.data());
+    light_indices_buffer->copyFromBuffer(light_indices_staging_buffer);
 }
 
 void RayTracedRenderer::createDescriptors()
@@ -244,7 +253,7 @@ void RayTracedRenderer::createDescriptors()
 
 void RayTracedRenderer::createRayTracingPipeline()
 {
-    ray_tracing_pipeline = RayTracingPipelineBuilder(device, ray_tracing_properties)
+    ray_tracing_pipeline = RayTracingPipelineBuilder(device, memory_allocator, ray_tracing_properties)
             .addRayGenerationStage(std::make_unique<ShaderModule>(device, "raytrace", VK_SHADER_STAGE_RAYGEN_BIT_KHR))
             .addMissStage(std::make_unique<ShaderModule>(device, "raytrace", VK_SHADER_STAGE_MISS_BIT_KHR))
             .addMissStage(std::make_unique<ShaderModule>(device, "raytrace_shadow", VK_SHADER_STAGE_MISS_BIT_KHR))
@@ -286,7 +295,6 @@ void RayTracedRenderer::updateCameraUniformBuffer(FrameInfo& frame_info)
     camera_ubo.camera_view = frame_info.camera_view_matrix;
     camera_ubo.camera_proj = frame_info.camera_projection_matrix;
     camera_uniform_buffer->writeToBuffer(&camera_ubo);
-    camera_uniform_buffer->flush();
     ray_tracing_pipeline->bindDescriptorSets(frame_info.command_buffer, {descriptor_set_handle});
 }
 

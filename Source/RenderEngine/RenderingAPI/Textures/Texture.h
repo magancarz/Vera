@@ -4,12 +4,13 @@
 
 #include "RenderEngine/RenderingAPI/VulkanFacade.h"
 #include "TextureData.h"
+#include "RenderEngine/Memory/MemoryAllocator.h"
 
 class Texture
 {
 public:
-    Texture(VulkanFacade& device, const std::string& filepath);
-    Texture(VulkanFacade& device, uint32_t width, uint32_t height, VkImageUsageFlags usage_flags, VkFormat image_format = VK_FORMAT_R8G8B8A8_SRGB);
+    Texture(VulkanFacade& device, std::unique_ptr<MemoryAllocator>& memory_allocator, const std::string& filepath);
+    Texture(VulkanFacade& device, std::unique_ptr<MemoryAllocator>& memory_allocator, uint32_t width, uint32_t height, VkImageUsageFlags usage_flags, VkFormat image_format = VK_FORMAT_R8G8B8A8_SRGB);
     ~Texture();
 
     VkSampler getSampler() { return sampler; }
@@ -18,6 +19,7 @@ public:
 
 private:
     VulkanFacade& device;
+    std::unique_ptr<MemoryAllocator>& memory_allocator;
 
     void createImage(VkImageUsageFlags usage_flags);
     void createImageView();

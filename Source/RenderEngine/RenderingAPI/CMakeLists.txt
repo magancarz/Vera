@@ -3,7 +3,6 @@ target_sources(Vera-Lib PRIVATE
         VulkanFacade.cpp
         Pipeline.cpp
         SwapChain.cpp
-        Buffer.cpp
         CommandPool.cpp
         Descriptors.cpp
         Device.cpp

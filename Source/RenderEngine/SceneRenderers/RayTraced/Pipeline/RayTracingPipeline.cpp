@@ -1,13 +1,14 @@
 #include "RayTracingPipeline.h"
 #include "RenderEngine/RenderingAPI/VulkanHelper.h"
 #include "RenderEngine/SceneRenderers/RayTraced/PushConstantRay.h"
-#include "RenderEngine/RenderingAPI/Buffer.h"
+#include "RenderEngine/Memory/Buffer.h"
 #include "RenderEngine/RenderingAPI/VulkanDefines.h"
 
 #include <fstream>
 
 RayTracingPipeline::RayTracingPipeline(
         VulkanFacade& device,
+        std::unique_ptr<MemoryAllocator>& memory_allocator,
         const std::vector<VkPipelineShaderStageCreateInfo>& shader_stage_create_info_list,
         const std::vector<VkRayTracingShaderGroupCreateInfoKHR>& shader_group_create_info_list,
         const std::vector<VkDescriptorSetLayout>& descriptor_set_layouts,
@@ -15,7 +16,7 @@ RayTracingPipeline::RayTracingPipeline(
         uint32_t miss_count,
         uint32_t hit_group_count,
         const VkPhysicalDeviceRayTracingPipelinePropertiesKHR& ray_tracing_properties)
-    : device{device}, ray_tracing_properties{ray_tracing_properties}
+    : device{device}, memory_allocator{memory_allocator}, ray_tracing_properties{ray_tracing_properties}
 {
     createPipeline(shader_stage_create_info_list, shader_group_create_info_list, descriptor_set_layouts, max_recursion_depth);
     createShaderBindingTable(miss_count, hit_group_count);
@@ -88,13 +89,13 @@ void RayTracingPipeline::createShaderBindingTable(uint32_t miss_count, uint32_t 
     }
 
     VkDeviceSize sbt_size = ray_gen_shader_binding_table.size + miss_shader_binding_table.size + hit_shader_binding_table.size + callable_shader_binding_table.size;
-    shader_binding_table = std::make_unique<Buffer>
+    shader_binding_table = memory_allocator->createBuffer
     (
-            device,
             sbt_size,
             1,
             VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT | VK_BUFFER_USAGE_SHADER_BINDING_TABLE_BIT_KHR,
-            VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT
+            VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+            VMA_ALLOCATION_CREATE_HOST_ACCESS_SEQUENTIAL_WRITE_BIT
     );
 
     VkBufferDeviceAddressInfo info{VK_STRUCTURE_TYPE_BUFFER_DEVICE_ADDRESS_INFO, nullptr, shader_binding_table->getBuffer()};

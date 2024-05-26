@@ -1,6 +1,6 @@
 #pragma once
 
-#include "RenderEngine/RenderingAPI/Buffer.h"
+#include "RenderEngine/Memory/Buffer.h"
 
 struct BlasInstance
 {

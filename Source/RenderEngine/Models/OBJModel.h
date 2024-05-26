@@ -3,12 +3,13 @@
 #include "Model.h"
 #include "Assets/AssetManager.h"
 #include "OBJModelInfo.h"
+#include "RenderEngine/Memory/MemoryAllocator.h"
 
 class OBJModel : public Model
 {
 public:
-    OBJModel(VulkanFacade& device, const std::vector<OBJModelInfo>& obj_models_info, std::string name);
-    OBJModel(VulkanFacade& device, const OBJModelInfo& obj_model_info);
+    OBJModel(const std::unique_ptr<MemoryAllocator>& memory_allocator, const std::vector<OBJModelInfo>& obj_models_info, std::string name);
+    OBJModel(const std::unique_ptr<MemoryAllocator>& memory_allocator, const OBJModelInfo& obj_model_info);
 
     OBJModel(const OBJModel&) = delete;
     OBJModel& operator=(const OBJModel&) = delete;
@@ -20,12 +21,10 @@ public:
     [[nodiscard]] std::vector<ModelDescription> getModelDescriptions() const override;
 
 private:
-    VulkanFacade& device;
-
-    void createManyModels(const std::vector<OBJModelInfo>& obj_models_info);
-    void createModel(const OBJModelInfo& model_info);
-    void createVertexBuffers(const std::vector<Vertex>& vertices);
-    void createIndexBuffers(const std::vector<uint32_t>& indices);
+    void createManyModels(const std::unique_ptr<MemoryAllocator>& memory_allocator, const std::vector<OBJModelInfo>& obj_models_info);
+    void createModel(const std::unique_ptr<MemoryAllocator>& memory_allocator, const OBJModelInfo& model_info);
+    void createVertexBuffers(const std::unique_ptr<MemoryAllocator>& memory_allocator, const std::vector<Vertex>& vertices);
+    void createIndexBuffers(const std::unique_ptr<MemoryAllocator>& memory_allocator, const std::vector<uint32_t>& indices);
 
     std::vector<std::shared_ptr<Model>> models;
 };

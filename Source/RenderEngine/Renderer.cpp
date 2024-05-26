@@ -8,8 +8,8 @@
 #include "imgui.h"
 #include "imgui_impl_vulkan.h"
 
-Renderer::Renderer(Window& window, VulkanFacade& device, World& world, std::shared_ptr<AssetManager> asset_manager)
-    : window{window}, device{device}, world{world}, asset_manager(std::move(asset_manager))
+Renderer::Renderer(Window& window, VulkanFacade& device, std::unique_ptr<MemoryAllocator>& memory_allocator, World& world, std::shared_ptr<AssetManager> asset_manager)
+    : window{window}, device{device}, memory_allocator{memory_allocator}, world{world}, asset_manager(std::move(asset_manager))
 {
     createCommandBuffers();
     recreateSwapChain();
@@ -67,7 +67,7 @@ void Renderer::createGUI()
 
 void Renderer::createSceneRenderer()
 {
-    scene_renderer = std::make_unique<RayTracedRenderer>(device, &world);
+    scene_renderer = std::make_unique<RayTracedRenderer>(device, memory_allocator, &world);
 }
 
 void Renderer::createPostProcessingStage()

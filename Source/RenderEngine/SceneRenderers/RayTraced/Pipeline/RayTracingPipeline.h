@@ -2,8 +2,9 @@
 
 #include "RenderEngine/RenderingAPI/VulkanFacade.h"
 #include "RenderEngine/SceneRenderers/RayTraced/PushConstantRay.h"
-#include "RenderEngine/RenderingAPI/Buffer.h"
+#include "RenderEngine/Memory/Buffer.h"
 #include "RenderEngine/RenderingAPI/ShaderModule.h"
+#include "RenderEngine/Memory/MemoryAllocator.h"
 
 struct ShaderBindingTableValues
 {
@@ -18,6 +19,7 @@ class RayTracingPipeline
 public:
     RayTracingPipeline(
             VulkanFacade& device,
+            std::unique_ptr<MemoryAllocator>& memory_allocator,
             const std::vector<VkPipelineShaderStageCreateInfo>& shader_stage_create_info_list,
             const std::vector<VkRayTracingShaderGroupCreateInfoKHR>& shader_group_create_info_list,
             const std::vector<VkDescriptorSetLayout>& descriptor_set_layouts,
@@ -45,6 +47,7 @@ private:
     void createShaderBindingTable(uint32_t miss_count, uint32_t hit_group_count);
 
     VulkanFacade& device;
+    std::unique_ptr<MemoryAllocator>& memory_allocator;
     VkPhysicalDeviceRayTracingPipelinePropertiesKHR ray_tracing_properties;
 
     VkPipelineLayout pipeline_layout_handle{VK_NULL_HANDLE};

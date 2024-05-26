@@ -5,7 +5,7 @@
 class RayTracingPipelineBuilder
 {
 public:
-    RayTracingPipelineBuilder(VulkanFacade& device, VkPhysicalDeviceRayTracingPipelinePropertiesKHR ray_tracing_properties);
+    RayTracingPipelineBuilder(VulkanFacade& device, std::unique_ptr<MemoryAllocator>& memory_allocator, VkPhysicalDeviceRayTracingPipelinePropertiesKHR ray_tracing_properties);
 
     RayTracingPipelineBuilder& addRayGenerationStage(std::shared_ptr<ShaderModule> ray_gen);
     RayTracingPipelineBuilder& addMissStage(std::shared_ptr<ShaderModule> miss);
@@ -20,6 +20,7 @@ public:
 
 private:
     VulkanFacade& device;
+    std::unique_ptr<MemoryAllocator>& memory_allocator;
     VkPhysicalDeviceRayTracingPipelinePropertiesKHR ray_tracing_properties;
 
     uint32_t addShaderStage(

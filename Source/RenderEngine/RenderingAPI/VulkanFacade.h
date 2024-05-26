@@ -34,17 +34,10 @@ public:
 
     uint32_t findMemoryType(uint32_t type_filter, VkMemoryPropertyFlags properties);
 
-    void createBuffer(
-        VkDeviceSize size,
-        VkBufferUsageFlags usage,
-        VkMemoryPropertyFlags properties,
-        VkBuffer& buffer,
-        VkDeviceMemory& buffer_memory);
-
     VkCommandBuffer beginSingleTimeCommands();
     void endSingleTimeCommands(VkCommandBuffer command_buffer);
 
-    void copyBuffer(VkBuffer src_buffer, VkBuffer dst_buffer, VkDeviceSize size);
+
     void copyBufferToImage(VkBuffer buffer, VkImage image, uint32_t width, uint32_t height, uint32_t layer_count);
 
     void createImageWithInfo(

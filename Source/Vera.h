@@ -10,6 +10,7 @@
 #include "Assets/AssetManager.h"
 #include "Utils/VeraDefines.h"
 #include "Input/GLFWInputManager.h"
+#include "RenderEngine/Memory/MemoryAllocator.h"
 
 class Vera
 {
@@ -26,6 +27,8 @@ private:
 
     std::shared_ptr<Window> window = Window::get();
     VulkanFacade device{*window};
+    std::unique_ptr<MemoryAllocator> memory_allocator;
+
     std::shared_ptr<AssetManager> asset_manager;
     std::shared_ptr<InputManager> input_manager;
 

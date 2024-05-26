@@ -17,7 +17,7 @@ struct CameraUBO
 class RayTracedRenderer : public SceneRenderer
 {
 public:
-    RayTracedRenderer(VulkanFacade& device, World* world);
+    RayTracedRenderer(VulkanFacade& device, std::unique_ptr<MemoryAllocator>& memory_allocator, World* world);
     ~RayTracedRenderer() noexcept override;
 
     void renderScene(FrameInfo& frame_info) override;
@@ -27,6 +27,7 @@ public:
 
 private:
     VulkanFacade& device;
+    std::unique_ptr<MemoryAllocator>& memory_allocator;
     World* world;
 
     void queryRayTracingPipelineProperties();

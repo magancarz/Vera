@@ -2,7 +2,7 @@
 
 #include <glm/glm.hpp>
 
-#include "RenderEngine/RenderingAPI/Buffer.h"
+#include "RenderEngine/Memory/Buffer.h"
 #include "RenderEngine/Models/ObjectDescription.h"
 #include "RenderEngine/Models/BlasInstance.h"
 #include "MaterialInfo.h"

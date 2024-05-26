@@ -5,11 +5,12 @@
 #include "RenderEngine/Models/AccelerationStructure.h"
 #include "RenderEngine/Models/Model.h"
 #include "Objects/Components/MeshComponent.h"
+#include "RenderEngine/Memory/MemoryAllocator.h"
 
 class Blas
 {
 public:
-    Blas(VulkanFacade& device, const MeshComponent* mesh_component);
+    Blas(VulkanFacade& device, std::unique_ptr<MemoryAllocator>& memory_allocator, const MeshComponent* mesh_component);
     ~Blas();
 
     Blas(const Blas&) = delete;
@@ -21,6 +22,7 @@ public:
 
 private:
     VulkanFacade& device;
+    std::unique_ptr<MemoryAllocator>& memory_allocator;
 
     void createBlas(const MeshComponent* mesh_component);
 

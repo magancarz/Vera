@@ -2,8 +2,8 @@
 #include "RenderEngine/RenderingAPI/VulkanDefines.h"
 #include "RenderEngine/RenderingAPI/VulkanHelper.h"
 
-RayTracingPipelineBuilder::RayTracingPipelineBuilder(VulkanFacade& device, VkPhysicalDeviceRayTracingPipelinePropertiesKHR ray_tracing_properties)
-    : device{device}, ray_tracing_properties{ray_tracing_properties} {}
+RayTracingPipelineBuilder::RayTracingPipelineBuilder(VulkanFacade& device, std::unique_ptr<MemoryAllocator>& memory_allocator, VkPhysicalDeviceRayTracingPipelinePropertiesKHR ray_tracing_properties)
+    : device{device}, memory_allocator{memory_allocator}, ray_tracing_properties{ray_tracing_properties} {}
 
 RayTracingPipelineBuilder& RayTracingPipelineBuilder::addRayGenerationStage(std::shared_ptr<ShaderModule> ray_gen)
 {
@@ -152,6 +152,7 @@ std::unique_ptr<RayTracingPipeline> RayTracingPipelineBuilder::build()
 {
     return std::make_unique<RayTracingPipeline>(
             device,
+            memory_allocator,
             shader_stage_create_info_list,
             shader_group_create_info_list,
             descriptor_set_layouts,

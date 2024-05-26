@@ -5,6 +5,7 @@
 #include "RenderEngine/Materials/Material.h"
 #include "RenderEngine/SceneRenderers/RayTraced/RayTracedRenderer.h"
 #include "RenderEngine/RenderingAPI/VulkanHelper.h"
+#include "RenderEngine/Memory/Vulkan/VulkanMemoryAllocator.h"
 
 void Vera::run()
 {
@@ -17,7 +18,8 @@ void Vera::run()
 
 void Vera::initializeApplication()
 {
-    asset_manager = std::make_shared<AssetManager>(device);
+    memory_allocator = std::make_unique<VulkanMemoryAllocator>(device);
+    asset_manager = std::make_shared<AssetManager>(device, memory_allocator);
     input_manager = std::make_shared<GLFWInputManager>(window->getGFLWwindow());
 }
 void Vera::loadProject()
@@ -29,7 +31,7 @@ void Vera::loadProject()
 
 void Vera::createRenderer()
 {
-    renderer = std::make_unique<Renderer>(*window, device, world, asset_manager);
+    renderer = std::make_unique<Renderer>(*window, device, memory_allocator, world, asset_manager);
 }
 
 void Vera::runLoop()

@@ -25,7 +25,7 @@ namespace std
     };
 }
 
-std::shared_ptr<OBJModel> OBJModelLoader::createFromFile(VulkanFacade& vulkan_facade, AssetManager* asset_manager, const std::string& model_name)
+std::shared_ptr<OBJModel> OBJModelLoader::createFromFile(const std::unique_ptr<MemoryAllocator>& memory_allocator, AssetManager* asset_manager, const std::string& model_name)
 {
     const std::string filepath = PathBuilder(paths::MODELS_DIRECTORY_PATH).append(model_name).build();
 
@@ -56,7 +56,7 @@ std::shared_ptr<OBJModel> OBJModelLoader::createFromFile(VulkanFacade& vulkan_fa
         auto texture_name = material.diffuse_texname.empty() ? "white.png" : material.diffuse_texname;
         std::shared_ptr<Texture> texture = asset_manager->fetchTexture(texture_name);
         asset_manager->loadMaterial(
-                std::make_shared<WavefrontMaterial>(vulkan_facade, material_info, material.name, std::move(texture)));
+                std::make_shared<WavefrontMaterial>(memory_allocator, material_info, material.name, std::move(texture)));
     }
 
     std::vector<OBJModelInfo> obj_model_infos;
@@ -113,5 +113,5 @@ std::shared_ptr<OBJModel> OBJModelLoader::createFromFile(VulkanFacade& vulkan_fa
         obj_model_infos.emplace_back(obj_model_info);
     }
 
-    return std::make_shared<OBJModel>(vulkan_facade, obj_model_infos, model_name);
+    return std::make_shared<OBJModel>(memory_allocator, obj_model_infos, model_name);
 }

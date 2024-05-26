@@ -1,11 +1,11 @@
 #include "Texture.h"
 
 #include "TextureData.h"
-#include "RenderEngine/RenderingAPI/Buffer.h"
+#include "RenderEngine/Memory/Buffer.h"
 #include "RenderEngine/RenderingAPI/VulkanDefines.h"
 
-Texture::Texture(VulkanFacade& device, const std::string& filepath)
-    : device{device}, image_format{VK_FORMAT_R8G8B8A8_SRGB}
+Texture::Texture(VulkanFacade& device, std::unique_ptr<MemoryAllocator>& memory_allocator, const std::string& filepath)
+    : device{device}, memory_allocator{memory_allocator}, image_format{VK_FORMAT_R8G8B8A8_SRGB}
 {
     TextureData texture_data{filepath};
     width = texture_data.width;
@@ -40,17 +40,8 @@ void Texture::createImage(VkImageUsageFlags usage_flags)
 void Texture::copyDataToImage(const TextureData& texture_data)
 {
     transitionImageLayout(VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
-    Buffer staging_buffer
-    {
-            device,
-            4,
-            static_cast<uint32_t>(width * height),
-            VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
-            VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT
-    };
-    staging_buffer.map();
-    staging_buffer.writeToBuffer(texture_data.data);
-    device.copyBufferToImage(staging_buffer.getBuffer(), image, static_cast<unsigned int>(width), static_cast<unsigned int>(height), 1);
+    auto buffer = memory_allocator->createStagingBuffer(4, static_cast<uint32_t>(width * height), texture_data.data);
+    device.copyBufferToImage(buffer->getBuffer(), image, static_cast<unsigned int>(width), static_cast<unsigned int>(height), 1);
 }
 
 void Texture::createImageView()
@@ -97,8 +88,8 @@ void Texture::createImageSampler()
     }
 }
 
-Texture::Texture(VulkanFacade& device, uint32_t width, uint32_t height, VkImageUsageFlags usage_flags, VkFormat image_format)
-    : device{device}, width{width}, height{height}, image_format{image_format}
+Texture::Texture(VulkanFacade& device, std::unique_ptr<MemoryAllocator>& memory_allocator, uint32_t width, uint32_t height, VkImageUsageFlags usage_flags, VkFormat image_format)
+    : device{device}, memory_allocator{memory_allocator}, width{width}, height{height}, image_format{image_format}
 {
     createImage(usage_flags);
     createImageView();
