@@ -30,9 +30,8 @@ struct ObjectDescription
 
 layout(binding = 0, set = 0) uniform accelerationStructureEXT topLevelAS;
 layout(binding = 3, set = 0) buffer ObjectDescriptions { ObjectDescription data[]; } object_descriptions;
-layout(binding = 4, set = 0) buffer LightIndices { uint l[]; } light_indices;
-layout(binding = 5, set = 0) buffer Materials { Material m[]; } materials;
-layout(binding = 6, set = 0) uniform sampler2D textures[];
+layout(binding = 4, set = 0) buffer Materials { Material m[]; } materials;
+layout(binding = 5, set = 0) uniform sampler2D textures[];
 
 struct Vertex
 {

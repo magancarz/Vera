@@ -1,7 +1,6 @@
 #pragma once
 
 #include "Buffer.h"
-#include "BufferInfo.h"
 
 class MemoryAllocator
 {

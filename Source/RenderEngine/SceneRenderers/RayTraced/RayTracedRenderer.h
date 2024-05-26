@@ -55,11 +55,6 @@ private:
 
     std::unique_ptr<Buffer> camera_uniform_buffer;
 
-    void createLightIndicesBuffer();
-
-    std::unique_ptr<Buffer> light_indices_buffer;
-    uint32_t number_of_lights{0};
-
     void createDescriptors();
 
     std::unique_ptr<DescriptorPool> descriptor_pool;

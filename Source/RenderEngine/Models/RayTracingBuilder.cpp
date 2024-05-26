@@ -388,7 +388,7 @@ AccelerationStructure RayTracingAccelerationStructureBuilder::buildTopLevelAccel
 
     VkAccelerationStructureCreateInfoKHR top_level_acceleration_structure_create_info{};
     top_level_acceleration_structure_create_info.sType = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_CREATE_INFO_KHR;
-    top_level_acceleration_structure_create_info.createFlags = 0;
+    top_level_acceleration_structure_create_info.createFlags = VK_BUILD_ACCELERATION_STRUCTURE_PREFER_FAST_TRACE_BIT_KHR;
     top_level_acceleration_structure_create_info.buffer = tlas.acceleration_structure_buffer->getBuffer();
     top_level_acceleration_structure_create_info.offset = 0;
     top_level_acceleration_structure_create_info.size = top_level_acceleration_structure_build_sizes_info.accelerationStructureSize;

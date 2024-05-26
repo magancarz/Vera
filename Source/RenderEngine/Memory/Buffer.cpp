@@ -28,20 +28,10 @@ void Buffer::unmap()
     }
 }
 
-void Buffer::writeToBuffer(void* data, VkDeviceSize size, VkDeviceSize offset)
+void Buffer::writeToBuffer(void* data)
 {
     assert(mapped && "Cannot copy to unmapped buffer");
-
-    if (size == VK_WHOLE_SIZE)
-    {
-        memcpy(mapped, data, buffer_size);
-    }
-    else
-    {
-        char* mem_offset = (char*)mapped;
-        mem_offset += offset;
-        memcpy(mem_offset, data, size);
-    }
+    memcpy(mapped, data, buffer_size);
 }
 
 void Buffer::copyFromBuffer(const std::unique_ptr<Buffer>& src_buffer)
@@ -49,26 +39,24 @@ void Buffer::copyFromBuffer(const std::unique_ptr<Buffer>& src_buffer)
     VkCommandBuffer command_buffer = vulkan_facade.beginSingleTimeCommands();
 
     VkBufferCopy copy_region{};
-    copy_region.srcOffset = 0;  // Optional
-    copy_region.dstOffset = 0;  // Optional
     copy_region.size = src_buffer->buffer_size;
     vkCmdCopyBuffer(command_buffer, src_buffer->getBuffer(), buffer, 1, &copy_region);
 
     vulkan_facade.endSingleTimeCommands(command_buffer);
 }
 
-VkResult Buffer::flush(VkDeviceSize size, VkDeviceSize offset) const
+VkResult Buffer::flush() const
 {
-    return vmaFlushAllocation(allocator_info.vma_allocator, allocator_info.vma_allocation, offset, size);
+    return vmaFlushAllocation(allocator_info.vma_allocator, allocator_info.vma_allocation, 0, VK_WHOLE_SIZE);
 }
 
-VkDescriptorBufferInfo Buffer::descriptorInfo(VkDeviceSize size, VkDeviceSize offset)
+VkDescriptorBufferInfo Buffer::descriptorInfo()
 {
     return VkDescriptorBufferInfo
     {
         buffer,
-        offset,
-        size,
+        0,
+        VK_WHOLE_SIZE,
     };
 }
 

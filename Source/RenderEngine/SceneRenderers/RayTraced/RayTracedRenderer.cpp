@@ -17,7 +17,6 @@ RayTracedRenderer::RayTracedRenderer(VulkanFacade& device, std::unique_ptr<Memor
     createAccelerationStructure();
     createRayTracedImage();
     createCameraUniformBuffer();
-    createLightIndicesBuffer();
     createDescriptors();
     createRayTracingPipeline();
 }
@@ -170,29 +169,6 @@ void RayTracedRenderer::createCameraUniformBuffer()
     camera_uniform_buffer->map();
 }
 
-void RayTracedRenderer::createLightIndicesBuffer()
-{
-    std::vector<uint32_t> light_indices;
-    size_t i = 0;
-    for (auto& [_, object] : rendered_objects)
-    {
-        light_indices.push_back(i);
-        ++i;
-    }
-    number_of_lights = light_indices.size();
-    uint32_t instances = std::max(number_of_lights, 1u);
-
-    auto light_indices_staging_buffer = memory_allocator->createStagingBuffer(sizeof(uint32_t), instances, light_indices.data());
-    light_indices_buffer = memory_allocator->createBuffer
-    (
-            sizeof(uint32_t),
-            instances,
-            VK_BUFFER_USAGE_STORAGE_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT,
-            VK_MEMORY_ALLOCATE_DEVICE_ADDRESS_BIT
-    );
-    light_indices_buffer->copyFromBuffer(light_indices_staging_buffer);
-}
-
 void RayTracedRenderer::createDescriptors()
 {
     descriptor_pool = DescriptorPool::Builder(device)
@@ -210,8 +186,7 @@ void RayTracedRenderer::createDescriptors()
             .addBinding(2, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_RAYGEN_BIT_KHR | VK_SHADER_STAGE_CLOSEST_HIT_BIT_KHR)
             .addBinding(3, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, VK_SHADER_STAGE_CLOSEST_HIT_BIT_KHR)
             .addBinding(4, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, VK_SHADER_STAGE_CLOSEST_HIT_BIT_KHR)
-            .addBinding(5, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, VK_SHADER_STAGE_CLOSEST_HIT_BIT_KHR)
-            .addBinding(6, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_CLOSEST_HIT_BIT_KHR, textures.size())
+            .addBinding(5, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_CLOSEST_HIT_BIT_KHR, textures.size())
             .build();
 
     VkWriteDescriptorSetAccelerationStructureKHR acceleration_structure_descriptor_info{};
@@ -221,7 +196,6 @@ void RayTracedRenderer::createDescriptors()
 
     auto camera_buffer_descriptor_info = camera_uniform_buffer->descriptorInfo();
     auto object_descriptions_buffer_descriptor_info = object_descriptions_buffer->descriptorInfo();
-    auto light_indices_descriptor_info = light_indices_buffer->descriptorInfo();
     auto material_descriptions_descriptor_info = material_descriptions_buffer->descriptorInfo();
 
     VkDescriptorImageInfo rayTraceImageDescriptorInfo = {
@@ -245,9 +219,8 @@ void RayTracedRenderer::createDescriptors()
             .writeImage(1, &rayTraceImageDescriptorInfo)
             .writeBuffer(2, &camera_buffer_descriptor_info)
             .writeBuffer(3, &object_descriptions_buffer_descriptor_info)
-            .writeBuffer(4, &light_indices_descriptor_info)
-            .writeBuffer(5, &material_descriptions_descriptor_info)
-            .writeImage(6, texture_descriptor_infos.data(), texture_descriptor_infos.size())
+            .writeBuffer(4, &material_descriptions_descriptor_info)
+            .writeImage(5, texture_descriptor_infos.data(), texture_descriptor_infos.size())
             .build(descriptor_set_handle);
 }
 
@@ -304,7 +277,6 @@ void RayTracedRenderer::updateRayPushConstant(FrameInfo& frame_info)
     push_constant_ray.time = std::chrono::system_clock::now().time_since_epoch().count();
     current_number_of_frames = frame_info.need_to_refresh_generated_image ? 0 : current_number_of_frames;
     push_constant_ray.frames = current_number_of_frames;
-    push_constant_ray.number_of_lights = number_of_lights;
     push_constant_ray.weather = frame_info.weather;
     push_constant_ray.sun_position = frame_info.sun_position;
     ray_tracing_pipeline->pushConstants(frame_info.command_buffer, push_constant_ray);

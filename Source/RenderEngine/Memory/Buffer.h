@@ -1,7 +1,6 @@
 #pragma once
 
 #include "RenderEngine/RenderingAPI/VulkanFacade.h"
-#include "BufferInfo.h"
 #include "AllocatorInfo.h"
 
 class Buffer {
@@ -15,10 +14,10 @@ public:
     VkResult map();
     void unmap();
 
-    void writeToBuffer(void* data, VkDeviceSize size = VK_WHOLE_SIZE, VkDeviceSize offset = 0);
+    void writeToBuffer(void* data);
     void copyFromBuffer(const std::unique_ptr<Buffer>& src_buffer);
-    [[nodiscard]] VkResult flush(VkDeviceSize size = VK_WHOLE_SIZE, VkDeviceSize offset = 0) const;
-    VkDescriptorBufferInfo descriptorInfo(VkDeviceSize size = VK_WHOLE_SIZE, VkDeviceSize offset = 0);
+    [[nodiscard]] VkResult flush() const;
+    VkDescriptorBufferInfo descriptorInfo();
 
     [[nodiscard]] VkBuffer getBuffer() const { return buffer; }
     [[nodiscard]] uint32_t getSize() const { return buffer_size; }
