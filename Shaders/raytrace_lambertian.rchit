@@ -151,7 +151,7 @@ void main()
 
     float scattering_pdf = scatteringPDFFromLambertian(payload.direction, geometric_normal);
     float cosine = occluded ? 0 : max(dot(push_constant.sun_position, payload.direction), 0.0);
-    float sun_contribution = 20 * cosine;
+    float sun_contribution = 35 * cosine;
 
     uint texture_offset = uint(material.texture_offset);
     vec3 texture_color = texture(textures[nonuniformEXT(texture_offset)], texture_uv).xyz;
