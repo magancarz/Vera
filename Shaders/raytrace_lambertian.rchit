@@ -42,6 +42,10 @@ struct Vertex
     uint alignment2;
     vec2 uv;
     vec2 alignment3;
+    vec3 tangent;
+    uint alignment4;
+    vec3 bitangent;
+    uint alignment5;
 };
 
 layout(buffer_reference, scalar) readonly buffer Vertices { Vertex v[]; };
@@ -118,19 +122,45 @@ void main()
     position = vec3(gl_ObjectToWorldEXT * vec4(position, 1.0));
 
     vec2 texture_uv = first_vertex.uv * barycentric.x + second_vertex.uv * barycentric.y + third_vertex.uv * barycentric.z;
+
+    vec3 edge1 = second_vertex.position - first_vertex.position;
+    vec3 edge2 = third_vertex.position - first_vertex.position;
+    vec2 delta_UV1 = second_vertex.uv - first_vertex.uv;
+    vec2 delta_UV2 = third_vertex.uv - first_vertex.uv;
+
+    vec3 tangent, bitangent;
+    float f = 1.0f / (delta_UV1.x * delta_UV2.y - delta_UV2.x * delta_UV1.y);
+    tangent.x = f * (delta_UV2.y * edge1.x - delta_UV1.y * edge2.x);
+    tangent.y = f * (delta_UV2.y * edge1.y - delta_UV1.y * edge2.y);
+    tangent.z = f * (delta_UV2.y * edge1.z - delta_UV1.y * edge2.z);
+    tangent = normalize(tangent);
+
+    bitangent.x = f * (-delta_UV2.x * edge1.x + delta_UV1.x * edge2.x);
+    bitangent.y = f * (-delta_UV2.x * edge1.y + delta_UV1.x * edge2.y);
+    bitangent.z = f * (-delta_UV2.x * edge1.z + delta_UV1.x * edge2.z);
+    bitangent = normalize(bitangent);
+
+    mat3 normal_matrix = transpose(inverse(mat3(gl_ObjectToWorldEXT)));
+    vec3 geometric_normal = first_vertex.normal * barycentric.x + second_vertex.normal * barycentric.y + third_vertex.normal * barycentric.z;
+    geometric_normal = normalize(normal_matrix * geometric_normal);
+    geometric_normal = -sign(dot(payload.direction, geometric_normal)) * geometric_normal;
+
+    vec3 T = normalize(normal_matrix * tangent);
+    vec3 B = normalize(normal_matrix * bitangent);
+    vec3 N = geometric_normal;
+    mat3 TBN = mat3(T, B, N);
+
     uint normal_texture_offset = uint(material.normal_texture_offset);
-    vec3 geometric_normal = texture(normal_textures[nonuniformEXT(normal_texture_offset)], texture_uv).xyz;
-    geometric_normal = normalize(geometric_normal * 2.0 - 1.0);
-    //TODO: calculate TBN matrix
-//    geometric_normal = normalize(vec3(gl_ObjectToWorldEXT * vec4(geometric_normal, 0.0)));
-//    geometric_normal = sign(dot(payload.direction, geometric_normal)) > 0 ? -geometric_normal : geometric_normal;
+    vec3 texture_normal = texture(normal_textures[nonuniformEXT(normal_texture_offset)], texture_uv).xyz;
+    vec3 normal = texture_normal * 2.0 - 1.0;
+    normal = normalize(TBN * normal);
 
     payload.origin = position;
 
     vec3 positionToLightDirection = randomToSun(push_constant.weather * 10);
 
     vec3 u, v, w;
-    w = geometric_normal;
+    w = normal;
     generateOrthonormalBasis(u, v, w);
     vec3 random_cosine_direction = generateRandomDirectionWithCosinePDF(payload.seed, u, v, w);
     payload.direction = rnd(payload.seed) > 0.5 ? positionToLightDirection : random_cosine_direction;
@@ -141,7 +171,7 @@ void main()
         topLevelAS, // acceleration structure
         rayFlags,       // rayFlags
         0xFF,           // cullMask
-        0,              // sbtRecordOffset
+        1,              // sbtRecordOffset
         0,              // sbtRecordStride
         1,              // missIndex
         payload.origin,     // ray origin
@@ -151,7 +181,7 @@ void main()
         1               // payload (location = 0)
         );
 
-    float scattering_pdf = scatteringPDFFromLambertian(payload.direction, geometric_normal);
+    float scattering_pdf = scatteringPDFFromLambertian(payload.direction, normal);
     float cosine = occluded ? 0 : max(dot(push_constant.sun_position, payload.direction), 0.0);
     float sun_contribution = 35 * cosine;
 

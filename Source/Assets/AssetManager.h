@@ -25,7 +25,7 @@ public:
     virtual std::shared_ptr<Material> fetchMaterial(const std::string& material_name);
     void loadMaterial(std::shared_ptr<Material> material) { available_materials.emplace(material->getName(), std::move(material)); }
     virtual std::vector<std::shared_ptr<Material>> fetchRequiredMaterials(const std::shared_ptr<Model>& model);
-    virtual std::shared_ptr<Texture> fetchTexture(const std::string& texture_name);
+    virtual std::shared_ptr<Texture> fetchTexture(const std::string& texture_name, VkFormat image_format = VK_FORMAT_R8G8B8A8_SRGB);
 
 protected:
     VulkanFacade& vulkan_facade;

@@ -10,12 +10,11 @@
 
 struct Vertex
 {
-    glm::vec3 position{};
-    uint32_t alignment1;
-    glm::vec3 normal{};
-    uint32_t alignment2;
-    glm::vec2 uv{};
-    glm::vec2 alignment3{};
+    alignas(16) glm::vec3 position{};
+    alignas(16) glm::vec3 normal{};
+    alignas(16) glm::vec2 uv{};
+    alignas(16) glm::vec3 tangent{};
+    alignas(16) glm::vec3 bitangent{};
 
     static std::vector<VkVertexInputBindingDescription> getBindingDescriptions()
     {

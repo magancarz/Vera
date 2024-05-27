@@ -63,7 +63,7 @@ std::vector<std::shared_ptr<Material>> AssetManager::fetchRequiredMaterials(cons
     return materials;
 }
 
-std::shared_ptr<Texture> AssetManager::fetchTexture(const std::string& texture_name)
+std::shared_ptr<Texture> AssetManager::fetchTexture(const std::string& texture_name, VkFormat image_format)
 {
     printf("Fetching texture named %s\n", texture_name.c_str());
     if (available_textures.contains(texture_name))
@@ -73,7 +73,7 @@ std::shared_ptr<Texture> AssetManager::fetchTexture(const std::string& texture_n
     }
 
     printf("Texture was not found in available textures list. Loading from file...\n");
-    std::shared_ptr<Texture> new_texture = std::make_shared<Texture>(vulkan_facade, memory_allocator, texture_name);
+    std::shared_ptr<Texture> new_texture = std::make_shared<Texture>(vulkan_facade, memory_allocator, texture_name, image_format);
     available_textures[texture_name] = new_texture;
     return new_texture;
 }

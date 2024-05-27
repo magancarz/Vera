@@ -4,8 +4,8 @@
 #include "RenderEngine/Memory/Buffer.h"
 #include "RenderEngine/RenderingAPI/VulkanDefines.h"
 
-Texture::Texture(VulkanFacade& device, std::unique_ptr<MemoryAllocator>& memory_allocator, const std::string& filepath)
-    : device{device}, memory_allocator{memory_allocator}, image_format{VK_FORMAT_R8G8B8A8_SRGB}
+Texture::Texture(VulkanFacade& device, std::unique_ptr<MemoryAllocator>& memory_allocator, const std::string& filepath, VkFormat image_format)
+    : device{device}, memory_allocator{memory_allocator}, image_format{image_format}
 {
     TextureData texture_data{filepath};
     width = texture_data.width;

@@ -39,15 +39,10 @@ std::shared_ptr<VeraMaterial> VeraMaterial::fromAssetFile(const std::unique_ptr<
         std::string texture_name;
         iss >> texture_name;
 
-        std::string normal_texture_name;
-        iss >> normal_texture_name;
-
         file_stream.close();
 
         std::shared_ptr<Texture> diffuse_texture = asset_manager->fetchTexture(texture_name);
-        //TODO: uncomment
-//        std::shared_ptr<Texture> normal_texture = asset_manager->fetchTexture(normal_texture_name);
-        std::shared_ptr<Texture> normal_texture = asset_manager->fetchTexture("barrel_normal.png");
+        std::shared_ptr<Texture> normal_texture = asset_manager->fetchTexture("blue.png");
 
         printf("Loading material from file ended in success\n");
         return std::make_shared<VeraMaterial>(memory_allocator, material_info, std::move(material_name), std::move(diffuse_texture), std::move(normal_texture));

@@ -24,7 +24,7 @@ void Vera::initializeApplication()
 }
 void Vera::loadProject()
 {
-    ProjectInfo project_info = ProjectUtils::loadProject("normal_map_test");
+    ProjectInfo project_info = ProjectUtils::loadProject("vera");
     world.loadProject(project_info, asset_manager);
     world.createViewerObject(input_manager);
 }

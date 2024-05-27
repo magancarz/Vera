@@ -56,8 +56,8 @@ std::shared_ptr<OBJModel> OBJModelLoader::createFromFile(const std::unique_ptr<M
         auto diffuse_texture_name = material.diffuse_texname.empty() ? "white.png" : material.diffuse_texname;
         std::shared_ptr<Texture> diffuse_texture = asset_manager->fetchTexture(diffuse_texture_name);
 
-        auto normal_texture_name = material.normal_texname.empty() ? "blue.png" : material.normal_texname;
-        std::shared_ptr<Texture> normal_texture = asset_manager->fetchTexture(normal_texture_name);
+        auto normal_texture_name = material.displacement_texname.empty() ? "blue.png" : material.displacement_texname;
+        std::shared_ptr<Texture> normal_texture = asset_manager->fetchTexture(normal_texture_name, VK_FORMAT_R8G8B8A8_UNORM);
 
         asset_manager->loadMaterial(
                 std::make_shared<WavefrontMaterial>(
@@ -107,7 +107,7 @@ std::shared_ptr<OBJModel> OBJModelLoader::createFromFile(const std::unique_ptr<M
                 vertex.uv =
                 {
                         attrib.texcoords[2 * index.texcoord_index + 0],
-                        attrib.texcoords[2 * index.texcoord_index + 1],
+                        1.0 - attrib.texcoords[2 * index.texcoord_index + 1],
                 };
             }
 
