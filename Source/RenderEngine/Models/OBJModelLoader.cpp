@@ -53,10 +53,19 @@ std::shared_ptr<OBJModel> OBJModelLoader::createFromFile(const std::unique_ptr<M
         material_info.brightness = material.emission[0] > 0 || material.emission[1] > 0 || material.emission[2] > 0 ? 10 : -1;
         material_info.fuzziness = material.shininess > 0 ? 0.05 : -1;
 
-        auto texture_name = material.diffuse_texname.empty() ? "white.png" : material.diffuse_texname;
-        std::shared_ptr<Texture> texture = asset_manager->fetchTexture(texture_name);
+        auto diffuse_texture_name = material.diffuse_texname.empty() ? "white.png" : material.diffuse_texname;
+        std::shared_ptr<Texture> diffuse_texture = asset_manager->fetchTexture(diffuse_texture_name);
+
+        auto normal_texture_name = material.normal_texname.empty() ? "blue.png" : material.normal_texname;
+        std::shared_ptr<Texture> normal_texture = asset_manager->fetchTexture(normal_texture_name);
+
         asset_manager->loadMaterial(
-                std::make_shared<WavefrontMaterial>(memory_allocator, material_info, material.name, std::move(texture)));
+                std::make_shared<WavefrontMaterial>(
+                        memory_allocator,
+                        material_info,
+                        material.name,
+                        std::move(diffuse_texture),
+                        std::move(normal_texture)));
     }
 
     std::vector<OBJModelInfo> obj_model_infos;

@@ -27,6 +27,6 @@ void main()
     sky = sky + sun_color * min(pow(sun_amount, 10.0) * .6, 1.0);
 
     vec3 sky_color = clamp(sky + vec3(SUN.y - 1.0) * vec3(0.5 , .75, 1.0), 0.0, 10.0);
-    payload.color *= sky_color;
+    payload.color *= vec3(1);//sky_color;
     payload.is_active = 0;
 }

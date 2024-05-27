@@ -41,7 +41,7 @@ void RayTracedRenderer::createObjectDescriptionsBuffer()
     std::vector<ObjectDescription> object_descriptions;
     std::vector<std::shared_ptr<Material>> used_materials;
     std::vector<MaterialInfo> material_infos;
-    textures.clear();
+    diffuse_textures.clear();
     rendered_objects = world->getRenderedObjects();
     for (auto& [_, object] : rendered_objects)
     {
@@ -70,19 +70,33 @@ void RayTracedRenderer::createObjectDescriptionsBuffer()
             {
                 auto material = mesh_component->findMaterial(required_material);
                 material_index = used_materials.size();
-                auto texture = material->getTexture();
                 used_materials.emplace_back(material);
+
                 auto material_info = material->getMaterialInfo();
-                auto tit = std::find(textures.begin(), textures.end(), texture);
-                if (tit != textures.end())
+                auto texture = material->getDiffuseTexture();
+                auto tit = std::find(diffuse_textures.begin(), diffuse_textures.end(), texture);
+                if (tit != diffuse_textures.end())
                 {
-                    material_info.texture_offset = std::distance(textures.begin(), tit);
+                    material_info.diffuse_texture_offset = std::distance(diffuse_textures.begin(), tit);
                 }
                 else
                 {
-                    material_info.texture_offset = textures.size();
-                    textures.emplace_back(texture);
+                    material_info.diffuse_texture_offset = diffuse_textures.size();
+                    diffuse_textures.emplace_back(texture);
                 }
+
+                auto normal_texture = material->getNormalTexture();
+                auto nit = std::find(normal_textures.begin(), normal_textures.end(), normal_texture);
+                if (nit != normal_textures.end())
+                {
+                    material_info.normal_texture_offset = std::distance(normal_textures.begin(), nit);
+                }
+                else
+                {
+                    material_info.normal_texture_offset = normal_textures.size();
+                    normal_textures.emplace_back(normal_texture);
+                }
+
                 material_infos.emplace_back(material_info);
             }
 
@@ -177,7 +191,7 @@ void RayTracedRenderer::createDescriptors()
             .addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1)
             .addPoolSize(VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 4)
             .addPoolSize(VK_DESCRIPTOR_TYPE_STORAGE_IMAGE, 1)
-            .addPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, textures.size())
+            .addPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, diffuse_textures.size() + normal_textures.size())
             .build();
 
     descriptor_set_layout = DescriptorSetLayout::Builder(device)
@@ -186,7 +200,8 @@ void RayTracedRenderer::createDescriptors()
             .addBinding(2, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_RAYGEN_BIT_KHR | VK_SHADER_STAGE_CLOSEST_HIT_BIT_KHR)
             .addBinding(3, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, VK_SHADER_STAGE_CLOSEST_HIT_BIT_KHR)
             .addBinding(4, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, VK_SHADER_STAGE_CLOSEST_HIT_BIT_KHR)
-            .addBinding(5, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_CLOSEST_HIT_BIT_KHR, textures.size())
+            .addBinding(5, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_CLOSEST_HIT_BIT_KHR, diffuse_textures.size())
+            .addBinding(6, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_CLOSEST_HIT_BIT_KHR, normal_textures.size())
             .build();
 
     VkWriteDescriptorSetAccelerationStructureKHR acceleration_structure_descriptor_info{};
@@ -203,15 +218,26 @@ void RayTracedRenderer::createDescriptors()
             .imageView = ray_traced_texture->getImageView(),
             .imageLayout = VK_IMAGE_LAYOUT_GENERAL};
 
-    std::vector<VkDescriptorImageInfo> texture_descriptor_infos;
-    texture_descriptor_infos.reserve(textures.size());
-    for (auto& texture : textures)
+    std::vector<VkDescriptorImageInfo> diffuse_texture_descriptor_infos;
+    diffuse_texture_descriptor_infos.reserve(diffuse_textures.size());
+    for (auto& texture : diffuse_textures)
     {
         VkDescriptorImageInfo texture_descriptor_info{};
         texture_descriptor_info.sampler = texture->getSampler();
         texture_descriptor_info.imageView = texture->getImageView();
         texture_descriptor_info.imageLayout = texture->getImageLayout();
-        texture_descriptor_infos.emplace_back(texture_descriptor_info);
+        diffuse_texture_descriptor_infos.emplace_back(texture_descriptor_info);
+    }
+
+    std::vector<VkDescriptorImageInfo> normal_texture_descriptor_infos;
+    normal_texture_descriptor_infos.reserve(normal_textures.size());
+    for (auto& texture : normal_textures)
+    {
+        VkDescriptorImageInfo texture_descriptor_info{};
+        texture_descriptor_info.sampler = texture->getSampler();
+        texture_descriptor_info.imageView = texture->getImageView();
+        texture_descriptor_info.imageLayout = texture->getImageLayout();
+        normal_texture_descriptor_infos.emplace_back(texture_descriptor_info);
     }
 
     DescriptorWriter(*descriptor_set_layout, *descriptor_pool)
@@ -220,7 +246,8 @@ void RayTracedRenderer::createDescriptors()
             .writeBuffer(2, &camera_buffer_descriptor_info)
             .writeBuffer(3, &object_descriptions_buffer_descriptor_info)
             .writeBuffer(4, &material_descriptions_descriptor_info)
-            .writeImage(5, texture_descriptor_infos.data(), texture_descriptor_infos.size())
+            .writeImage(5, diffuse_texture_descriptor_infos.data(), diffuse_texture_descriptor_infos.size())
+            .writeImage(6, normal_texture_descriptor_infos.data(), normal_texture_descriptor_infos.size())
             .build(descriptor_set_handle);
 }
 

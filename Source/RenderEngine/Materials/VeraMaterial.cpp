@@ -39,12 +39,18 @@ std::shared_ptr<VeraMaterial> VeraMaterial::fromAssetFile(const std::unique_ptr<
         std::string texture_name;
         iss >> texture_name;
 
+        std::string normal_texture_name;
+        iss >> normal_texture_name;
+
         file_stream.close();
 
-        std::shared_ptr<Texture> texture = asset_manager->fetchTexture(texture_name);
+        std::shared_ptr<Texture> diffuse_texture = asset_manager->fetchTexture(texture_name);
+        //TODO: uncomment
+//        std::shared_ptr<Texture> normal_texture = asset_manager->fetchTexture(normal_texture_name);
+        std::shared_ptr<Texture> normal_texture = asset_manager->fetchTexture("barrel_normal.png");
 
         printf("Loading material from file ended in success\n");
-        return std::make_shared<VeraMaterial>(memory_allocator, material_info, std::move(material_name), texture);
+        return std::make_shared<VeraMaterial>(memory_allocator, material_info, std::move(material_name), std::move(diffuse_texture), std::move(normal_texture));
     }
 
     printf("Failed to load material\n");
@@ -56,8 +62,9 @@ VeraMaterial::VeraMaterial(
         const std::unique_ptr<MemoryAllocator>& memory_allocator,
         const MaterialInfo& material_info,
         std::string material_name,
-        std::shared_ptr<Texture> texture)
-    : Material(material_info, std::move(material_name), std::move(texture))
+        std::shared_ptr<Texture> diffuse_texture,
+        std::shared_ptr<Texture> normal_texture)
+    : Material(material_info, std::move(material_name), std::move(diffuse_texture), std::move(normal_texture))
 {
     createMaterialInfoBuffer(memory_allocator);
     assignMaterialHitGroupIndex();

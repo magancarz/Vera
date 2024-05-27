@@ -36,7 +36,8 @@ private:
 
     void createObjectDescriptionsBuffer();
 
-    std::vector<std::shared_ptr<Texture>> textures;
+    std::vector<std::shared_ptr<Texture>> diffuse_textures;
+    std::vector<std::shared_ptr<Texture>> normal_textures;
     std::unique_ptr<Buffer> object_descriptions_buffer;
     std::unique_ptr<Buffer> material_descriptions_buffer;
     std::vector<uint32_t> object_description_offsets;

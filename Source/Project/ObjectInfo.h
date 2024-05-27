@@ -30,7 +30,7 @@ struct ObjectInfo
         iss >> rotation_x;
         iss >> rotation_y;
         iss >> rotation_z;
-        glm::vec3 rotation{std::stof(rotation_x), std::stof(rotation_y), std::stof(rotation_z)};
+        glm::vec3 rotation{glm::radians(std::stof(rotation_x)), glm::radians(std::stof(rotation_y)), glm::radians(std::stof(rotation_z))};
         iss >> scale;
         const float fscale = std::stof(scale);
         return {object_name, model_name, material_name, position, rotation, fscale};

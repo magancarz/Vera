@@ -31,7 +31,8 @@ struct ObjectDescription
 layout(binding = 0, set = 0) uniform accelerationStructureEXT topLevelAS;
 layout(binding = 3, set = 0) buffer ObjectDescriptions { ObjectDescription data[]; } object_descriptions;
 layout(binding = 4, set = 0) buffer Materials { Material m[]; } materials;
-layout(binding = 5, set = 0) uniform sampler2D textures[];
+layout(binding = 5, set = 0) uniform sampler2D diffuse_textures[];
+layout(binding = 6, set = 0) uniform sampler2D normal_textures[];
 
 struct Vertex
 {
@@ -113,14 +114,16 @@ void main()
 
     vec3 barycentric = vec3(1.0 - attribs.x - attribs.y, attribs.x, attribs.y);
 
-    vec3 geometric_normal = first_vertex.normal * barycentric.x + second_vertex.normal * barycentric.y + third_vertex.normal * barycentric.z;
-    geometric_normal = normalize(vec3(gl_ObjectToWorldEXT * vec4(geometric_normal, 0.0)));
-    geometric_normal = sign(dot(payload.direction, geometric_normal)) > 0 ? -geometric_normal : geometric_normal;
-
     vec3 position = first_vertex.position * barycentric.x + second_vertex.position * barycentric.y + third_vertex.position * barycentric.z;
     position = vec3(gl_ObjectToWorldEXT * vec4(position, 1.0));
 
     vec2 texture_uv = first_vertex.uv * barycentric.x + second_vertex.uv * barycentric.y + third_vertex.uv * barycentric.z;
+    uint normal_texture_offset = uint(material.normal_texture_offset);
+    vec3 geometric_normal = texture(normal_textures[nonuniformEXT(normal_texture_offset)], texture_uv).xyz;
+    geometric_normal = normalize(geometric_normal * 2.0 - 1.0);
+    //TODO: calculate TBN matrix
+//    geometric_normal = normalize(vec3(gl_ObjectToWorldEXT * vec4(geometric_normal, 0.0)));
+//    geometric_normal = sign(dot(payload.direction, geometric_normal)) > 0 ? -geometric_normal : geometric_normal;
 
     payload.origin = position;
 
@@ -152,8 +155,8 @@ void main()
     float cosine = occluded ? 0 : max(dot(push_constant.sun_position, payload.direction), 0.0);
     float sun_contribution = 35 * cosine;
 
-    uint texture_offset = uint(material.texture_offset);
-    vec3 texture_color = texture(textures[nonuniformEXT(texture_offset)], texture_uv).xyz;
+    uint texture_offset = uint(material.diffuse_texture_offset);
+    vec3 texture_color = texture(diffuse_textures[nonuniformEXT(texture_offset)], texture_uv).xyz;
     payload.color *= sun_contribution * texture_color * scattering_pdf;
     payload.depth += 1;
 }
