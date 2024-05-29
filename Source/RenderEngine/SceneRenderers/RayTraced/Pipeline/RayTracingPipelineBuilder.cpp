@@ -104,7 +104,6 @@ RayTracingPipelineBuilder& RayTracingPipelineBuilder::addMaterialShader(
 
     uint32_t closest_hit_stage_index = addClosestHitStage(std::move(hit));
     uint32_t any_hit_stage_index = addAnyHitStage(std::move(any_hit));
-    uint32_t occlusion_stage_index = addAnyHitStage(std::move(any_hit));
     material_shaders[material_name] = MaterialShader
     {
         .closest_hit_shader_stage_index = closest_hit_stage_index,
