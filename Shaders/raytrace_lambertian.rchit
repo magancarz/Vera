@@ -14,19 +14,10 @@
 #include "material.glsl"
 #include "defines.glsl"
 
+#include "Commons/Common.h"
+
 layout(location = 0) rayPayloadInEXT Ray payload;
 layout(location = 1) rayPayloadEXT bool occluded;
-
-struct ObjectDescription
-{
-    uint64_t vertex_address;
-    uint64_t index_address;
-    uint64_t material_index;
-    uint64_t num_of_triangles;
-    uint64_t texture_offset;
-    mat4 object_to_world;
-    float surface_area;
-};
 
 layout(binding = 0, set = 0) uniform accelerationStructureEXT topLevelAS;
 layout(binding = 3, set = 0) buffer ObjectDescriptions { ObjectDescription data[]; } object_descriptions;
@@ -34,31 +25,10 @@ layout(binding = 4, set = 0) buffer Materials { Material m[]; } materials;
 layout(binding = 5, set = 0) uniform sampler2D diffuse_textures[];
 layout(binding = 6, set = 0) uniform sampler2D normal_textures[];
 
-struct Vertex
-{
-    vec3 position;
-    uint alignment1;
-    vec3 normal;
-    uint alignment2;
-    vec2 uv;
-    vec2 alignment3;
-    vec3 tangent;
-    uint alignment4;
-    vec3 bitangent;
-    uint alignment5;
-};
-
 layout(buffer_reference, scalar) readonly buffer Vertices { Vertex v[]; };
 layout(buffer_reference, scalar) readonly buffer Indices { uint i[]; };
 
-layout(push_constant) uniform PushConstantRay
-{
-    uint time;
-    uint frames;
-    uint number_of_lights;
-    float weather;
-    vec3 sun_position;
-} push_constant;
+layout(push_constant) uniform _PushConstantRay { PushConstantRay push_constant; };
 
 hitAttributeEXT vec3 attribs;
 

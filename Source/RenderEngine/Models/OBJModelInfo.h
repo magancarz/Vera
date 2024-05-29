@@ -1,5 +1,7 @@
 #pragma once
 
+#include "RenderEngine/RenderingAPI/Vertex.h"
+
 struct OBJModelInfo
 {
     std::string name;

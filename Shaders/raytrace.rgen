@@ -7,22 +7,13 @@
 #include "random.glsl"
 #include "defines.glsl"
 
+#include "Commons/Common.h"
+
 layout(binding = 0, set = 0) uniform accelerationStructureEXT topLevelAS;
 layout(binding = 1, set = 0, rgba32f) uniform image2D image;
-layout(binding = 2, set = 0) uniform Camera
-{
-    mat4 view;
-    mat4 proj;
-} camera;
+layout(binding = 2, set = 0) uniform Camera { CameraUniformBuffer camera; };
 
-layout(push_constant) uniform PushConstantRay
-{
-    uint time;
-    uint frames;
-    uint number_of_lights;
-    float weather;
-    vec3 sun_position;
-} push_constant;
+layout(push_constant) uniform _PushConstantRay { PushConstantRay push_constant; };
 
 layout(location = 0) rayPayloadEXT Ray payload;
 
@@ -41,8 +32,6 @@ void main()
     vec4 target = inverse(camera.proj) * vec4(d.x, d.y, 1, 1);
     vec4 direction = inverse(camera.view) * vec4(normalize(target.xyz), 0);
 
-    uint rayFlags = gl_RayFlagsOpaqueEXT;
-
     payload.origin = origin.xyz;
     payload.direction = direction.xyz;
     payload.color = vec3(1.0, 1.0, 1.0);
@@ -50,6 +39,7 @@ void main()
     payload.seed = seed;
     payload.depth = 0;
 
+    uint rayFlags = gl_RayFlagsOpaqueEXT;
     for (uint current_depth = 0; current_depth < MAX_CALCULATIONS_DEPTH; ++current_depth)
     {
         traceRayEXT(

@@ -14,29 +14,11 @@
 #include "material.glsl"
 #include "defines.glsl"
 
+#include "Commons/Common.h"
+
 layout(location = 0) rayPayloadInEXT Ray payload;
 
-struct ObjectDescription
-{
-    uint64_t vertex_address;
-    uint64_t index_address;
-    uint64_t material_address;
-    uint64_t num_of_triangles;
-    mat4 object_to_world;
-    float surface_area;
-};
-
 layout(binding = 3, set = 0) buffer ObjectDescriptions { ObjectDescription data[]; } object_descriptions;
-
-struct Vertex
-{
-    vec3 position;
-    uint alignment1;
-    vec3 normal;
-    uint alignment2;
-    vec2 uv;
-    vec2 alignment3;
-};
 
 layout(buffer_reference, scalar) readonly buffer Vertices { Vertex v[]; };
 layout(buffer_reference, scalar) readonly buffer Indices { uint i[]; };
@@ -53,7 +35,7 @@ void main()
 
     ObjectDescription object_description = object_descriptions.data[gl_InstanceCustomIndexEXT];
 
-    MaterialBuffer material_buffer = MaterialBuffer(object_description.material_address);
+    MaterialBuffer material_buffer;// = MaterialBuffer(object_description.material_address);
     Material material = material_buffer.m;
 
     Indices index_buffer = Indices(object_description.index_address);

@@ -1,7 +1,6 @@
 #pragma once
 
 #include "RenderEngine/RenderingAPI/VulkanFacade.h"
-#include "RenderEngine/RenderingAPI/Vertex.h"
 #include "RenderEngine/Memory/Buffer.h"
 #include "RenderEngine/Materials/Material.h"
 #include "RenderEngine/Models/AccelerationStructure.h"

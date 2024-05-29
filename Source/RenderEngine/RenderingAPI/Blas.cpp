@@ -2,6 +2,7 @@
 #include "RenderEngine/Models/RayTracingAccelerationStructureBuilder.h"
 #include "VulkanHelper.h"
 #include "VulkanDefines.h"
+#include "Vertex.h"
 
 Blas::Blas(VulkanFacade& device, std::unique_ptr<MemoryAllocator>& memory_allocator, const MeshComponent* mesh_component)
     : device{device}, memory_allocator{memory_allocator}

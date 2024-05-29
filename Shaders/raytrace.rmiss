@@ -5,16 +5,11 @@
 
 #include "ray.glsl"
 
+#include "Commons/Common.h"
+
 layout(location = 0) rayPayloadInEXT Ray payload;
 
-layout(push_constant) uniform PushConstantRay
-{
-    uint time;
-    uint frames;
-    uint number_of_lights;
-    float weather;
-    vec3 sun_position;
-} push_constant;
+layout(push_constant) uniform _PushConstantRay { PushConstantRay push_constant; };
 
 void main()
 {
@@ -26,7 +21,7 @@ void main()
     sky = sky + sun_color * min(pow(sun_amount, 1500.0) * 5.0, 1.0);
     sky = sky + sun_color * min(pow(sun_amount, 10.0) * .6, 1.0);
 
-    vec3 sky_color = clamp(sky + vec3(SUN.y - 1.0) * vec3(0.5 , .75, 1.0), 0.0, 10.0);
+    vec3 sky_color = clamp(sky + vec3(SUN.y - 1.0) * vec3(0.5, .75, 1.0), 0.0, 10.0);
     payload.color *= sky_color;
     payload.is_active = 0;
 }
