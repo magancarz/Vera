@@ -17,10 +17,13 @@ public:
     VkImageView getImageView() { return image_view; }
     VkImageLayout getImageLayout() { return image_layout; }
 
+    [[nodiscard]] bool isOpaque() const { return is_opaque; }
+
 private:
     VulkanFacade& device;
     std::unique_ptr<MemoryAllocator>& memory_allocator;
 
+    void checkIfTextureIsOpaque(const TextureData& texture_data);
     void createImage(VkImageUsageFlags usage_flags);
     void createImageView();
     void createImageSampler();
@@ -32,6 +35,7 @@ private:
     uint32_t width, height;
     VkFormat image_format;
     uint32_t mip_levels{1};
+    bool is_opaque{true};
 
     VkImage image{VK_NULL_HANDLE};
     VkImageView image_view{VK_NULL_HANDLE};

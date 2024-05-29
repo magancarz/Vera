@@ -1,0 +1,65 @@
+#version 460
+
+#extension GL_EXT_ray_tracing : require
+#extension GL_EXT_nonuniform_qualifier : enable
+#extension GL_EXT_scalar_block_layout : enable
+#extension GL_GOOGLE_include_directive : enable
+#extension GL_EXT_shader_explicit_arithmetic_types_int64 : require
+#extension GL_EXT_buffer_reference2 : require
+
+#include "ray.glsl"
+#include "random.glsl"
+#include "cosine_pdf.glsl"
+#include "lambertian.glsl"
+#include "material.glsl"
+#include "defines.glsl"
+
+#include "Commons/Common.h"
+
+layout(location = 1) rayPayloadInEXT bool occluded;
+
+layout(binding = 3, set = 0) buffer ObjectDescriptions { ObjectDescription data[]; } object_descriptions;
+layout(binding = 4, set = 0) buffer Materials { Material m[]; } materials;
+layout(binding = 5, set = 0) uniform sampler2D diffuse_textures[];
+
+layout(buffer_reference, scalar) readonly buffer Vertices { Vertex v[]; };
+layout(buffer_reference, scalar) readonly buffer Indices { uint i[]; };
+
+layout(push_constant) uniform _PushConstantRay { PushConstantRay push_constant; };
+
+hitAttributeEXT vec3 attribs;
+
+void main()
+{
+    if (payload.is_active == 0)
+    {
+        return;
+    }
+
+    ObjectDescription object_description = object_descriptions.data[gl_InstanceCustomIndexEXT + gl_GeometryIndexEXT];
+    Material material = materials.m[uint(object_description.material_index)];
+
+    Indices index_buffer = Indices(object_description.index_address);
+    uvec3 indices = uvec3(index_buffer.i[3 * gl_PrimitiveID + 0],
+                          index_buffer.i[3 * gl_PrimitiveID + 1],
+                          index_buffer.i[3 * gl_PrimitiveID + 2]);
+
+    Vertices vertex_buffer = Vertices(object_description.vertex_address);
+    Vertex first_vertex = vertex_buffer.v[indices.x];
+    Vertex second_vertex = vertex_buffer.v[indices.y];
+    Vertex third_vertex = vertex_buffer.v[indices.z];
+
+    vec3 barycentric = vec3(1.0 - attribs.x - attribs.y, attribs.x, attribs.y);
+    vec2 texture_uv = first_vertex.uv * barycentric.x + second_vertex.uv * barycentric.y + third_vertex.uv * barycentric.z;
+    uint texture_offset = uint(material.diffuse_texture_offset);
+    float texture_alpha = texture(diffuse_textures[nonuniformEXT(texture_offset)], texture_uv).a;
+
+    if (texture_alpha < 0.5)
+    {
+        ignoreIntersectionEXT;
+    }
+    else
+    {
+        occluded = true;
+    }
+}

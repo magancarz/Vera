@@ -4,8 +4,12 @@
 #include "VulkanDefines.h"
 #include "Vertex.h"
 
-Blas::Blas(VulkanFacade& device, std::unique_ptr<MemoryAllocator>& memory_allocator, const MeshComponent* mesh_component)
-    : device{device}, memory_allocator{memory_allocator}
+Blas::Blas(
+        VulkanFacade& device,
+        std::unique_ptr<MemoryAllocator>& memory_allocator,
+        std::shared_ptr<AssetManager>& asset_manager,
+        const MeshComponent* mesh_component)
+    : device{device}, memory_allocator{memory_allocator}, asset_manager{asset_manager}
 {
     createBlas(mesh_component);
 }
@@ -15,8 +19,10 @@ void Blas::createBlas(const MeshComponent* mesh_component)
     MeshDescription mesh_description = mesh_component->getDescription();
 
     RayTracingAccelerationStructureBuilder::BlasInput blas_input;
-    for (auto& model_description : mesh_description.model_descriptions)
+    for (size_t i = 0; i < mesh_description.model_descriptions.size(); ++i)
     {
+        ModelDescription& model_description = mesh_description.model_descriptions[i];
+
         VkDeviceAddress vertex_address = model_description.vertex_address;
         VkDeviceAddress index_address = model_description.index_address;
 
@@ -34,7 +40,9 @@ void Blas::createBlas(const MeshComponent* mesh_component)
 
         VkAccelerationStructureGeometryKHR acceleration_structure_geometry{VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_GEOMETRY_KHR};
         acceleration_structure_geometry.geometryType = VK_GEOMETRY_TYPE_TRIANGLES_KHR;
-        acceleration_structure_geometry.flags = VK_GEOMETRY_OPAQUE_BIT_KHR;
+
+        auto material = asset_manager->fetchMaterial(mesh_description.required_materials[i]);
+        acceleration_structure_geometry.flags = material->isOpaque() ? VK_GEOMETRY_OPAQUE_BIT_KHR : 0;
         acceleration_structure_geometry.geometry.triangles = triangles;
 
         VkAccelerationStructureBuildRangeInfoKHR offset{};

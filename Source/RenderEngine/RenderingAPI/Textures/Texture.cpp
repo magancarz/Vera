@@ -12,12 +12,18 @@ Texture::Texture(VulkanFacade& device, std::unique_ptr<MemoryAllocator>& memory_
     height = texture_data.height;
     mip_levels = static_cast<uint32_t>(std::floor(std::log2(std::max(width, height)))) + 1;
 
+    checkIfTextureIsOpaque(texture_data);
     createImage(VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT);
     copyDataToImage(texture_data);
     generateMipmaps();
     transitionImageLayout(VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
     createImageSampler();
     createImageView();
+}
+
+void Texture::checkIfTextureIsOpaque(const TextureData& texture_data)
+{
+    is_opaque = texture_data.number_of_channels == 3 || texture_data.data[3] > 0.5;
 }
 
 void Texture::createImage(VkImageUsageFlags usage_flags)

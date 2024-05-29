@@ -10,7 +10,11 @@
 class Blas
 {
 public:
-    Blas(VulkanFacade& device, std::unique_ptr<MemoryAllocator>& memory_allocator, const MeshComponent* mesh_component);
+    Blas(
+            VulkanFacade& device,
+            std::unique_ptr<MemoryAllocator>& memory_allocator,
+            std::shared_ptr<AssetManager>& asset_manager,
+            const MeshComponent* mesh_component);
     ~Blas();
 
     Blas(const Blas&) = delete;
@@ -23,6 +27,7 @@ public:
 private:
     VulkanFacade& device;
     std::unique_ptr<MemoryAllocator>& memory_allocator;
+    std::shared_ptr<AssetManager> asset_manager;
 
     void createBlas(const MeshComponent* mesh_component);
 

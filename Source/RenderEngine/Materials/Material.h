@@ -19,6 +19,8 @@ public:
     std::shared_ptr<Texture> getDiffuseTexture() { return diffuse_texture; }
     std::shared_ptr<Texture> getNormalTexture() { return normal_texture; }
 
+    [[nodiscard]] bool isOpaque() const { return diffuse_texture->isOpaque(); }
+
 protected:
     MaterialInfo material_info;
     std::string name;
@@ -26,5 +28,4 @@ protected:
     std::shared_ptr<Texture> diffuse_texture;
     std::shared_ptr<Texture> normal_texture;
     std::unique_ptr<Buffer> material_info_buffer;
-    uint32_t material_hit_group_index{0};
 };

@@ -84,7 +84,8 @@ void RayTracingPipeline::createShaderBindingTable(uint32_t miss_count, uint32_t 
 
     uint32_t dataSize = handle_count * handle_size;
     std::vector<uint8_t> handles(dataSize);
-    if (pvkGetRayTracingShaderGroupHandlesKHR(device.getDevice(), pipeline_handle, 0, handle_count, dataSize, handles.data()) != VK_SUCCESS) {
+    if (pvkGetRayTracingShaderGroupHandlesKHR(device.getDevice(), pipeline_handle, 0, handle_count, dataSize, handles.data()) != VK_SUCCESS)
+    {
         throw std::runtime_error("Cannot create ray tracing shader group handles!");
     }
 
@@ -107,7 +108,7 @@ void RayTracingPipeline::createShaderBindingTable(uint32_t miss_count, uint32_t 
     auto get_handle = [&] (uint32_t i) { return handles.data() + i * handle_size; };
     shader_binding_table->map();
     auto sbt_buffer = reinterpret_cast<uint8_t*>(shader_binding_table->getMappedMemory());
-    uint8_t* data{nullptr};
+    uint8_t* data;
     uint32_t handle_idx{0};
 
     data = sbt_buffer;

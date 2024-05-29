@@ -93,30 +93,13 @@ void main()
 
     vec2 texture_uv = first_vertex.uv * barycentric.x + second_vertex.uv * barycentric.y + third_vertex.uv * barycentric.z;
 
-    vec3 edge1 = second_vertex.position - first_vertex.position;
-    vec3 edge2 = third_vertex.position - first_vertex.position;
-    vec2 delta_UV1 = second_vertex.uv - first_vertex.uv;
-    vec2 delta_UV2 = third_vertex.uv - first_vertex.uv;
-
-    vec3 tangent, bitangent;
-    float f = 1.0f / (delta_UV1.x * delta_UV2.y - delta_UV2.x * delta_UV1.y);
-    tangent.x = f * (delta_UV2.y * edge1.x - delta_UV1.y * edge2.x);
-    tangent.y = f * (delta_UV2.y * edge1.y - delta_UV1.y * edge2.y);
-    tangent.z = f * (delta_UV2.y * edge1.z - delta_UV1.y * edge2.z);
-    tangent = normalize(tangent);
-
-    bitangent.x = f * (-delta_UV2.x * edge1.x + delta_UV1.x * edge2.x);
-    bitangent.y = f * (-delta_UV2.x * edge1.y + delta_UV1.x * edge2.y);
-    bitangent.z = f * (-delta_UV2.x * edge1.z + delta_UV1.x * edge2.z);
-    bitangent = normalize(bitangent);
-
     mat3 normal_matrix = transpose(inverse(mat3(gl_ObjectToWorldEXT)));
     vec3 geometric_normal = first_vertex.normal * barycentric.x + second_vertex.normal * barycentric.y + third_vertex.normal * barycentric.z;
     geometric_normal = normalize(normal_matrix * geometric_normal);
     geometric_normal = -sign(dot(payload.direction, geometric_normal)) * geometric_normal;
 
-    vec3 T = normalize(normal_matrix * tangent);
-    vec3 B = normalize(normal_matrix * bitangent);
+    vec3 T = normalize(normal_matrix * first_vertex.tangent);
+    vec3 B = normalize(normal_matrix * first_vertex.bitangent);
     vec3 N = geometric_normal;
     mat3 TBN = mat3(T, B, N);
 

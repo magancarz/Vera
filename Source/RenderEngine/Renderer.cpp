@@ -67,7 +67,7 @@ void Renderer::createGUI()
 
 void Renderer::createSceneRenderer()
 {
-    scene_renderer = std::make_unique<RayTracedRenderer>(device, memory_allocator, &world);
+    scene_renderer = std::make_unique<RayTracedRenderer>(device, memory_allocator, asset_manager, &world);
 }
 
 void Renderer::createPostProcessingStage()

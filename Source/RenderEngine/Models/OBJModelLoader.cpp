@@ -78,49 +78,86 @@ std::shared_ptr<OBJModel> OBJModelLoader::createFromFile(const std::unique_ptr<M
         obj_model_info.required_material = material_id >= 0 && !obj_materials.empty() ? obj_materials[material_id].name : "white";
 
         std::unordered_map<Vertex, uint32_t> unique_vertices{};
-        for (auto index : shape.mesh.indices)
+        for (size_t i = 0; i < shape.mesh.indices.size(); i += 3)
         {
-            Vertex vertex{};
+            Vertex first_vertex = extractVertex(shape.mesh.indices[i + 0], attrib);
+            Vertex second_vertex = extractVertex(shape.mesh.indices[i + 1], attrib);
+            Vertex third_vertex = extractVertex(shape.mesh.indices[i + 2], attrib);
 
-            if (index.vertex_index >= 0)
-            {
-                vertex.position =
-                {
-                        attrib.vertices[3 * index.vertex_index + 0],
-                        attrib.vertices[3 * index.vertex_index + 1],
-                        attrib.vertices[3 * index.vertex_index + 2],
-                };
-            }
+            calculateTangentSpaceVectors(first_vertex, second_vertex, third_vertex);
 
-            if (index.normal_index >= 0)
-            {
-                vertex.normal =
-                {
-                        attrib.normals[3 * index.normal_index + 0],
-                        attrib.normals[3 * index.normal_index + 1],
-                        attrib.normals[3 * index.normal_index + 2],
-                };
-            }
-
-            if (index.texcoord_index >= 0)
-            {
-                vertex.uv =
-                {
-                        attrib.texcoords[2 * index.texcoord_index + 0],
-                        1.0 - attrib.texcoords[2 * index.texcoord_index + 1],
-                };
-            }
-
-            if (unique_vertices.count(vertex) == 0)
-            {
-                unique_vertices[vertex] = static_cast<uint32_t>(obj_model_info.vertices.size());
-                obj_model_info.vertices.push_back(vertex);
-            }
-            obj_model_info.indices.push_back(unique_vertices[vertex]);
+            addVertexToModelInfo(obj_model_info, unique_vertices, first_vertex);
+            addVertexToModelInfo(obj_model_info, unique_vertices, second_vertex);
+            addVertexToModelInfo(obj_model_info, unique_vertices, third_vertex);
         }
 
         obj_model_infos.emplace_back(obj_model_info);
     }
 
     return std::make_shared<OBJModel>(memory_allocator, obj_model_infos, model_name);
+}
+
+Vertex OBJModelLoader::extractVertex(const tinyobj::index_t& index, const tinyobj::attrib_t& attrib)
+{
+    Vertex vertex{};
+    if (index.vertex_index >= 0)
+    {
+        vertex.position =
+        {
+                attrib.vertices[3 * index.vertex_index + 0],
+                attrib.vertices[3 * index.vertex_index + 1],
+                attrib.vertices[3 * index.vertex_index + 2],
+        };
+    }
+
+    if (index.normal_index >= 0)
+    {
+        vertex.normal =
+        {
+                attrib.normals[3 * index.normal_index + 0],
+                attrib.normals[3 * index.normal_index + 1],
+                attrib.normals[3 * index.normal_index + 2],
+        };
+    }
+
+    if (index.texcoord_index >= 0)
+    {
+        vertex.uv =
+        {
+                attrib.texcoords[2 * index.texcoord_index + 0],
+                1.0 - attrib.texcoords[2 * index.texcoord_index + 1],
+        };
+    }
+
+    return vertex;
+}
+
+void OBJModelLoader::calculateTangentSpaceVectors(Vertex& first_vertex, Vertex& second_vertex, Vertex& third_vertex)
+{
+    glm::vec3 edge1 = second_vertex.position - first_vertex.position;
+    glm::vec3 edge2 = third_vertex.position - first_vertex.position;
+    glm::vec2 delta_UV1 = second_vertex.uv - first_vertex.uv;
+    glm::vec2 delta_UV2 = third_vertex.uv - first_vertex.uv;
+
+    glm::vec3 tangent, bitangent;
+    float f = 1.0f / (delta_UV1.x * delta_UV2.y - delta_UV2.x * delta_UV1.y);
+    tangent.x = f * (delta_UV2.y * edge1.x - delta_UV1.y * edge2.x);
+    tangent.y = f * (delta_UV2.y * edge1.y - delta_UV1.y * edge2.y);
+    tangent.z = f * (delta_UV2.y * edge1.z - delta_UV1.y * edge2.z);
+    first_vertex.tangent = second_vertex.tangent = third_vertex.tangent = normalize(tangent);
+
+    bitangent.x = f * (-delta_UV2.x * edge1.x + delta_UV1.x * edge2.x);
+    bitangent.y = f * (-delta_UV2.x * edge1.y + delta_UV1.x * edge2.y);
+    bitangent.z = f * (-delta_UV2.x * edge1.z + delta_UV1.x * edge2.z);
+    first_vertex.bitangent = second_vertex.bitangent = third_vertex.bitangent = normalize(bitangent);
+}
+
+void OBJModelLoader::addVertexToModelInfo(OBJModelInfo& obj_model_info, std::unordered_map<Vertex, uint32_t>& unique_vertices, const Vertex& vertex)
+{
+    if (unique_vertices.count(vertex) == 0)
+    {
+        unique_vertices[vertex] = static_cast<uint32_t>(obj_model_info.vertices.size());
+        obj_model_info.vertices.push_back(vertex);
+    }
+    obj_model_info.indices.push_back(unique_vertices[vertex]);
 }

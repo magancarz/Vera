@@ -39,7 +39,7 @@ void main()
     payload.seed = seed;
     payload.depth = 0;
 
-    uint rayFlags = gl_RayFlagsOpaqueEXT;
+    uint rayFlags = gl_RayFlagsNoneEXT;
     for (uint current_depth = 0; current_depth < MAX_CALCULATIONS_DEPTH; ++current_depth)
     {
         traceRayEXT(

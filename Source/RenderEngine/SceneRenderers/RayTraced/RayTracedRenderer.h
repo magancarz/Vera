@@ -7,6 +7,7 @@
 #include "RenderEngine/Models/RayTracingAccelerationStructureBuilder.h"
 #include "RenderEngine/RenderingAPI/Textures/Texture.h"
 #include "RenderEngine/RenderingAPI/Blas.h"
+#include "RenderEngine/SceneRenderers/RayTraced/Pipeline/RayTracingPipelineBuilder.h"
 
 struct CameraUBO
 {
@@ -17,7 +18,7 @@ struct CameraUBO
 class RayTracedRenderer : public SceneRenderer
 {
 public:
-    RayTracedRenderer(VulkanFacade& device, std::unique_ptr<MemoryAllocator>& memory_allocator, World* world);
+    RayTracedRenderer(VulkanFacade& device, std::unique_ptr<MemoryAllocator>& memory_allocator, std::shared_ptr<AssetManager> asset_manager, World* world);
     ~RayTracedRenderer() noexcept override;
 
     void renderScene(FrameInfo& frame_info) override;
@@ -28,6 +29,7 @@ public:
 private:
     VulkanFacade& device;
     std::unique_ptr<MemoryAllocator>& memory_allocator;
+    std::shared_ptr<AssetManager> asset_manager;
     World* world;
 
     void queryRayTracingPipelineProperties();
@@ -62,8 +64,10 @@ private:
     std::unique_ptr<DescriptorSetLayout> descriptor_set_layout;
     VkDescriptorSet descriptor_set_handle;
 
-    void createRayTracingPipeline();
+    void buildRayTracingPipeline();
 
+    std::vector<ObjectDescription> object_descriptions;
+    std::vector<std::shared_ptr<Material>> used_materials;
     std::unique_ptr<RayTracingPipeline> ray_tracing_pipeline;
 
     void updatePipelineUniformVariables(FrameInfo& frame_info);
