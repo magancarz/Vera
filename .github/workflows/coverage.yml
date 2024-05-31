@@ -11,8 +11,8 @@ jobs:
       - name: Fetch git submodules
         run: |
           git submodule update --init --recursive
-      - name: Restore cached coverage build files
-        id: coverage-build-files-restore
+      - name: Restore cached tests build files
+        id: tests-build-files-restore
         uses: actions/cache/restore@v4
         with:
           path: build
@@ -32,10 +32,10 @@ jobs:
         with:
           name: coverage-results
           path: coverage
-      - name: Save coverage build files
-        id: coverage-build-files-save
+      - name: Save tests build files
+        id: tests-build-files-save
         uses: actions/cache/save@v4
         with:
           path: |
             build
-          key: coverage-build-${{ hashFiles('build') }}
+          key: tests-build-${{ hashFiles('build') }}
