@@ -19,7 +19,7 @@ void Vera::run()
 void Vera::initializeApplication()
 {
     memory_allocator = std::make_unique<VulkanMemoryAllocator>(device);
-    asset_manager = std::make_shared<AssetManager>(device, memory_allocator);
+    asset_manager = std::make_shared<AssetManager>(&device, memory_allocator);
     input_manager = std::make_shared<GLFWInputManager>(window->getGFLWwindow());
 }
 void Vera::loadProject()

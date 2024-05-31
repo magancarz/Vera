@@ -31,16 +31,20 @@ TEST_F(MeshComponentTests, shouldSetModelToComponent)
     EXPECT_EQ(mesh_component.getModel()->getName(), mock_model->getName());
 }
 
-TEST_F(MeshComponentTests, shouldSetMaterialToComponent)
+TEST_F(MeshComponentTests, shouldSetMaterialsToComponent)
 {
     // given
     MeshComponent mesh_component{&owner};
 
-    auto mock_material = std::make_shared<Material>(MaterialInfo{.color = {0.5, 0.6, 0.7}}, "dummy");
+    auto first_mock_material = std::make_shared<Material>(MaterialInfo{}, "dummy1", nullptr);
+    auto second_mock_material = std::make_shared<Material>(MaterialInfo{}, "dummy2", nullptr);
+    std::vector<std::shared_ptr<Material>> materials = {first_mock_material, second_mock_material};
 
     // when
-    mesh_component.setMaterials(mock_material);
+    mesh_component.setMaterials(materials);
 
     // then
-    EXPECT_EQ(mesh_component.getMaterials()->getName(), mock_material->getName());
+    std::vector<std::shared_ptr<Material>> result_materials = mesh_component.getMaterials();
+    EXPECT_EQ(result_materials[0]->getName(), first_mock_material->getName());
+    EXPECT_EQ(result_materials[1]->getName(), second_mock_material->getName());
 }

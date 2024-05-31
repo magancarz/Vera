@@ -12,7 +12,7 @@
 class AssetManager
 {
 public:
-    AssetManager(VulkanFacade& vulkan_facade, std::unique_ptr<MemoryAllocator>& memory_allocator);
+    AssetManager(VulkanFacade* vulkan_facade, std::unique_ptr<MemoryAllocator>& memory_allocator);
     virtual ~AssetManager() = default;
 
     AssetManager(const AssetManager&) = delete;
@@ -28,7 +28,7 @@ public:
     virtual std::shared_ptr<Texture> fetchTexture(const std::string& texture_name, VkFormat image_format = VK_FORMAT_R8G8B8A8_SRGB);
 
 protected:
-    VulkanFacade& vulkan_facade;
+    VulkanFacade* vulkan_facade;
     std::unique_ptr<MemoryAllocator>& memory_allocator;
 
     std::unordered_map<std::string, std::shared_ptr<Model>> available_models;

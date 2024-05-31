@@ -1,8 +1,9 @@
 #include "MockAssetManager.h"
 #include "MockModel.h"
+#include "MockMemoryAllocator.h"
 
-MockAssetManager::MockAssetManager()
-    : AssetManager(nullptr) {}
+MockAssetManager::MockAssetManager(std::unique_ptr<MemoryAllocator>& memory_allocator)
+    : AssetManager(nullptr, memory_allocator) {}
 
 std::shared_ptr<Model> MockAssetManager::fetchModel(const std::string& model_name)
 {
@@ -16,11 +17,10 @@ std::shared_ptr<Model> MockAssetManager::fetchModel(const std::string& model_nam
 
 std::shared_ptr<Material> MockAssetManager::fetchMaterial(const std::string& material_name)
 {
-    static MaterialInfo simple_info{.color = {0.5, 0.6, 0.7}};
-
+    constexpr static MaterialInfo simple_info{};
     if (!available_materials.contains(material_name))
     {
-        available_materials.emplace(material_name, std::make_shared<Material>(simple_info, material_name));
+        available_materials.emplace(material_name, std::make_shared<Material>(simple_info, material_name, nullptr));
     }
 
     return available_materials.at(material_name);

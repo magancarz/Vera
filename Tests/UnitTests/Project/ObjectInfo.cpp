@@ -38,7 +38,7 @@ TEST_F(ObjectInfoTests, shouldExtractObjectInfoFromGivenString)
     expected_object_info.model_name = "stanford_dragon";
     expected_object_info.material_name = "white";
     expected_object_info.position = glm::vec3{2, 1, 37};
-    expected_object_info.rotation = glm::vec3{0, 1, 0};
+    expected_object_info.rotation = glm::vec3{0, glm::radians(47.f), 0};
     expected_object_info.scale = 0.707;
 
     // when

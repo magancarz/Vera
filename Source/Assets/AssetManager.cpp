@@ -3,7 +3,7 @@
 #include "RenderEngine/Materials/VeraMaterial.h"
 #include "RenderEngine/Models/OBJModelLoader.h"
 
-AssetManager::AssetManager(VulkanFacade& vulkan_facade, std::unique_ptr<MemoryAllocator>& memory_allocator)
+AssetManager::AssetManager(VulkanFacade* vulkan_facade, std::unique_ptr<MemoryAllocator>& memory_allocator)
     : vulkan_facade{vulkan_facade}, memory_allocator{memory_allocator} {}
 
 void AssetManager::loadNeededAssetsForProject(const ProjectInfo& project_info)
@@ -73,7 +73,7 @@ std::shared_ptr<Texture> AssetManager::fetchTexture(const std::string& texture_n
     }
 
     printf("Texture was not found in available textures list. Loading from file...\n");
-    std::shared_ptr<Texture> new_texture = std::make_shared<Texture>(vulkan_facade, memory_allocator, texture_name, image_format);
+    std::shared_ptr<Texture> new_texture = std::make_shared<Texture>(*vulkan_facade, memory_allocator, texture_name, image_format);
     available_textures[texture_name] = new_texture;
     return new_texture;
 }

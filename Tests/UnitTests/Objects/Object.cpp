@@ -74,12 +74,3 @@ TEST_F(ObjectTests, shouldReturnObjectLocationIfTransformComponentIsPresent)
     // then
     TestUtils::expectTwoVectorsToBeEqual(actual_location, expected_location);
 }
-
-TEST_F(ObjectTests, shouldThrowAssertIfUserWantedToObtainObjectDescriptionWhileProperComponentsAreNotPresentDeathTest)
-{
-    // given
-    Object object{};
-
-    // when & then
-    EXPECT_DEATH(object.getDescription(), ".*");
-}

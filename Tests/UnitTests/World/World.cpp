@@ -8,12 +8,14 @@
 #include "UnitTests/Mocks/MockAssetManager.h"
 #include "UnitTests/Mocks/MockInputManager.h"
 #include "Objects/Components/CameraComponent.h"
+#include "UnitTests/Mocks/MockMemoryAllocator.h"
 
 using ::testing::_;
 
 struct WorldTests : public ::testing::Test
 {
     Object object;
+    std::unique_ptr<MemoryAllocator> memory_allocator = std::make_unique<MockMemoryAllocator>();
 
     void SetUp() override
     {
@@ -90,7 +92,7 @@ TEST_F(WorldTests, shouldLoadObjectsFromProjectInfo)
     project_info.objects_infos.emplace_back(TestUtils::createDummyObjectInfo("dummy1"));
     project_info.objects_infos.emplace_back(TestUtils::createDummyObjectInfo("dummy2"));
 
-    auto mock_asset_manager = std::make_shared<MockAssetManager>();
+    auto mock_asset_manager = std::make_shared<MockAssetManager>(memory_allocator);
 
     // when
     world.loadProject(project_info, mock_asset_manager);
