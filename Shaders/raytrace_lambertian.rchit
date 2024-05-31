@@ -99,7 +99,7 @@ void main()
     geometric_normal = -sign(dot(payload.direction, geometric_normal)) * geometric_normal;
 
     vec3 T = normalize(normal_matrix * first_vertex.tangent);
-    vec3 B = normalize(normal_matrix * first_vertex.bitangent);
+    vec3 B = normalize(cross(T, geometric_normal));
     vec3 N = geometric_normal;
     mat3 TBN = mat3(T, B, N);
 
@@ -136,7 +136,7 @@ void main()
 
     float scattering_pdf = scatteringPDFFromLambertian(payload.direction, normal);
     float cosine = occluded ? 0 : max(dot(push_constant.sun_position, payload.direction), 0.0);
-    float sun_contribution = 35 * cosine;
+    float sun_contribution = 25 * cosine;
 
     uint texture_offset = uint(material.diffuse_texture_offset);
     vec3 texture_color = texture(diffuse_textures[nonuniformEXT(texture_offset)], texture_uv).xyz;

@@ -40,7 +40,7 @@ void main()
     payload.depth = 0;
 
     uint rayFlags = gl_RayFlagsNoneEXT;
-    for (uint current_depth = 0; current_depth < MAX_CALCULATIONS_DEPTH; ++current_depth)
+    for (uint current_depth = 0; current_depth <= MAX_CALCULATIONS_DEPTH; ++current_depth)
     {
         traceRayEXT(
             topLevelAS, // acceleration structure

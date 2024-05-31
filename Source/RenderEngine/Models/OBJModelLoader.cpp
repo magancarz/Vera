@@ -139,17 +139,12 @@ void OBJModelLoader::calculateTangentSpaceVectors(Vertex& first_vertex, Vertex& 
     glm::vec2 delta_UV1 = second_vertex.uv - first_vertex.uv;
     glm::vec2 delta_UV2 = third_vertex.uv - first_vertex.uv;
 
-    glm::vec3 tangent, bitangent;
+    glm::vec3 tangent;
     float f = 1.0f / (delta_UV1.x * delta_UV2.y - delta_UV2.x * delta_UV1.y);
     tangent.x = f * (delta_UV2.y * edge1.x - delta_UV1.y * edge2.x);
     tangent.y = f * (delta_UV2.y * edge1.y - delta_UV1.y * edge2.y);
     tangent.z = f * (delta_UV2.y * edge1.z - delta_UV1.y * edge2.z);
     first_vertex.tangent = second_vertex.tangent = third_vertex.tangent = normalize(tangent);
-
-    bitangent.x = f * (-delta_UV2.x * edge1.x + delta_UV1.x * edge2.x);
-    bitangent.y = f * (-delta_UV2.x * edge1.y + delta_UV1.x * edge2.y);
-    bitangent.z = f * (-delta_UV2.x * edge1.z + delta_UV1.x * edge2.z);
-    first_vertex.bitangent = second_vertex.bitangent = third_vertex.bitangent = normalize(bitangent);
 }
 
 void OBJModelLoader::addVertexToModelInfo(OBJModelInfo& obj_model_info, std::unordered_map<Vertex, uint32_t>& unique_vertices, const Vertex& vertex)
