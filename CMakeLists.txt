@@ -79,9 +79,6 @@ if(BUILD_TESTING)
 	target_include_directories(Vera-Tests PRIVATE Tests)
 	add_test(NAME Vera-Tests COMMAND Vera-Tests)
 	add_subdirectory(Tests)
-
-	include(CodeCoverage.cmake)
-	append_coverage_compiler_flags()
 endif()
 
 set_target_properties(Vera PROPERTIES VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}")
