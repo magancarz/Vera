@@ -1,4 +1,4 @@
-target_sources(Tests PRIVATE
+target_sources(Vera-Tests PRIVATE
         Object.cpp)
 
 add_subdirectory(Components)

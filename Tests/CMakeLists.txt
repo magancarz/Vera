@@ -1,4 +1,4 @@
-target_sources(Tests PRIVATE
+target_sources(Vera-Tests PRIVATE
         main.cpp
         TestUtils.cpp)
 

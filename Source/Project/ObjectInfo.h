@@ -5,6 +5,8 @@
 #include <string>
 #include <sstream>
 
+#include "glm/ext/quaternion_trigonometric.hpp"
+
 struct ObjectInfo
 {
     std::string object_name;
@@ -44,9 +46,9 @@ struct ObjectInfo
                 + std::to_string(position.x) + " "
                 + std::to_string(position.y) + " "
                 + std::to_string(position.z) + " "
-                + std::to_string(rotation.x) + " "
-                + std::to_string(rotation.y) + " "
-                + std::to_string(rotation.z) + " "
+                + std::to_string(glm::degrees(rotation.x)) + " "
+                + std::to_string(glm::degrees(rotation.y)) + " "
+                + std::to_string(glm::degrees(rotation.z)) + " "
                 + std::to_string(scale);
     }
 };

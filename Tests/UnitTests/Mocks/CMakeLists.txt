@@ -1,4 +1,4 @@
-target_sources(Tests PRIVATE
+target_sources(Vera-Tests PRIVATE
         MockAssetManager.cpp
         MockMemoryAllocator.cpp
         MockModel.cpp)

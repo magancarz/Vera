@@ -16,13 +16,13 @@ TEST_F(ObjectInfoTests, shouldGenerateCorrectStringWithGivenObjectInfo)
     object_info.model_name = "stanford_dragon";
     object_info.material_name = "white";
     object_info.position = glm::vec3{2, 1, 37};
-    object_info.rotation = glm::vec3{0, 1, 0};
+    object_info.rotation = glm::vec3{0, 0.71558499f, 0};
     object_info.scale = 0.707;
 
-    const std::string expected_string{"player stanford_dragon white 2.000000 1.000000 37.000000 0.000000 1.000000 0.000000 0.707000"};
+    const std::string expected_string{"player stanford_dragon white 2.000000 1.000000 37.000000 0.000000 41.000000 0.000000 0.707000"};
 
     // when
-    std::string object_info_as_string = object_info.toString();
+    const std::string object_info_as_string = object_info.toString();
 
     // then
     EXPECT_EQ(object_info_as_string, expected_string);
@@ -31,14 +31,14 @@ TEST_F(ObjectInfoTests, shouldGenerateCorrectStringWithGivenObjectInfo)
 TEST_F(ObjectInfoTests, shouldExtractObjectInfoFromGivenString)
 {
     // given
-    const std::string object_info_as_string{"player stanford_dragon white 2.000000 1.000000 37.000000 0.000000 1.000000 0.000000 0.707000"};
+    const std::string object_info_as_string{"player stanford_dragon white 2.000000 1.000000 37.000000 0.000000 41.000000 0.000000 0.707000"};
 
     ObjectInfo expected_object_info{};
     expected_object_info.object_name = "player";
     expected_object_info.model_name = "stanford_dragon";
     expected_object_info.material_name = "white";
     expected_object_info.position = glm::vec3{2, 1, 37};
-    expected_object_info.rotation = glm::vec3{0, glm::radians(47.f), 0};
+    expected_object_info.rotation = glm::vec3{0, glm::radians(41.0f), 0};
     expected_object_info.scale = 0.707;
 
     // when

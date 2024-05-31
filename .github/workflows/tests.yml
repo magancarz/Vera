@@ -24,7 +24,7 @@ jobs:
       - name: Build CMake project
         run: |
           cmake -B build -S . -DBUILD_TESTING=ON
-          cmake --build build -j $([Environment]::ProcessorCount)
+          cmake --build build -j $(nproc --all)
       - name: Run tests
         run: |
           cd build

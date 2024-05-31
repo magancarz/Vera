@@ -10,7 +10,6 @@ void TestUtils::deleteFileIfExists(const std::string& location)
     {
         std::filesystem::remove(location);
         std::cout << "File at location " << location << " removed successfully\n";
-        return;
     }
 }
 
