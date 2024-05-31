@@ -22,6 +22,12 @@ add_subdirectory(ThirdParty/imgui)
 target_include_directories(Vera-Lib PUBLIC ThirdParty/imgui)
 target_include_directories(Vera-Lib PUBLIC ThirdParty)
 
+add_subdirectory(ThirdParty/GLM)
+target_link_libraries(Vera-Lib PUBLIC glm::glm)
+
+add_subdirectory(ThirdParty/VMA)
+target_link_libraries(Vera-Lib PUBLIC GPUOpen::VulkanMemoryAllocator)
+
 add_executable(Vera main.cpp)
 target_link_libraries(Vera Vera-Lib)
 
@@ -67,6 +73,7 @@ if(BUILD_TESTING)
 	set_target_properties(Tests PROPERTIES VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}")
 	target_link_libraries(Tests PRIVATE GTest::gtest_main)
 	target_link_libraries(Tests PRIVATE GTest::gmock)
+	target_link_libraries(Tests PRIVATE glm::glm)
 	target_link_libraries(Tests PRIVATE Vera-Lib)
 	include(GoogleTest)
 	target_include_directories(Tests PRIVATE Tests)

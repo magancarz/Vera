@@ -1,3 +1,4 @@
+#include <cmath>
 #include "Texture.h"
 
 #include "TextureData.h"

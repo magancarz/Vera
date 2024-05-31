@@ -99,7 +99,8 @@ std::vector<std::string> OBJModel::getRequiredMaterials() const
     required_materials.reserve(models.size());
     for (auto& model : models)
     {
-        required_materials.append_range(model->getRequiredMaterials());
+        auto new_required_materials = model->getRequiredMaterials();
+        required_materials.insert(required_materials.end(), new_required_materials.begin(), new_required_materials.end());
     }
 
     return required_materials;
@@ -116,7 +117,8 @@ std::vector<ModelDescription> OBJModel::getModelDescriptions() const
     model_descriptions.reserve(models.size());
     for (auto& model : models)
     {
-        model_descriptions.append_range(model->getModelDescriptions());
+        auto new_model_descriptions = model->getModelDescriptions();
+        model_descriptions.insert(model_descriptions.end(), new_model_descriptions.begin(), new_model_descriptions.end());
     }
 
     return model_descriptions;

@@ -2,6 +2,7 @@
 
 #include <array>
 #include <iostream>
+#include <climits>
 #include <stdexcept>
 
 SwapChain::SwapChain(VulkanFacade& device_ref, VkExtent2D window_extent)

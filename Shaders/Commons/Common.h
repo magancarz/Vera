@@ -26,8 +26,6 @@ struct Vertex
     vec2 padding3;
     vec3 tangent;
     uint padding4;
-    vec3 bitangent;
-    uint padding5;
 };
 
 struct ObjectDescription
