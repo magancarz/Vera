@@ -52,7 +52,7 @@ jobs:
           ls ${{ github.workspace }}
       - name: Build CMake project
         run: |
-          cmake -S . -B build -DBUILD_TESTING=ON -Dcoverage=ON
+          cmake -S . -B build -DBUILD_TESTING=ON -Dcoverage=ON -DCMAKE_BUILD_TYPE=Debug
           cmake --build build -j $(nproc --all)
       - name: Run coverage
         run: |
