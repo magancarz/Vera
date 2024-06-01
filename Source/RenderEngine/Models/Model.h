@@ -2,16 +2,13 @@
 
 #include "RenderEngine/RenderingAPI/VulkanFacade.h"
 #include "RenderEngine/Memory/Buffer.h"
-#include "RenderEngine/Materials/Material.h"
-#include "RenderEngine/Models/AccelerationStructure.h"
-#include "RenderEngine/Models/BlasInstance.h"
-#include "RenderEngine/Models/ObjectDescription.h"
 #include "ModelDescription.h"
 
 class Model
 {
 public:
     explicit Model(std::string model_name, std::string required_material = "");
+    virtual ~Model() = default;
 
     Model(const Model&) = delete;
     Model& operator=(const Model&) = delete;

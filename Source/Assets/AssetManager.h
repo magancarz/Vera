@@ -2,12 +2,14 @@
 
 #include <memory>
 #include <unordered_map>
-#include <mutex>
 
 #include "RenderEngine/RenderingAPI/VulkanFacade.h"
 #include "Project/Project.h"
+#include "RenderEngine/Materials/Material.h"
 #include "RenderEngine/Models/Model.h"
 #include "RenderEngine/Memory/MemoryAllocator.h"
+
+class Texture;
 
 class AssetManager
 {

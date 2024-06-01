@@ -15,7 +15,7 @@ void MeshComponent::setMaterials(std::vector<std::shared_ptr<Material>> in_mater
 
 std::shared_ptr<Material> MeshComponent::findMaterial(const std::string& name)
 {
-    auto found_material = std::find_if(materials.begin(), materials.end(),
+    const auto found_material = std::ranges::find_if(materials.begin(), materials.end(),
            [&] (const std::shared_ptr<Material>& material)
     {
         return material->getName() == name;
@@ -26,14 +26,7 @@ std::shared_ptr<Material> MeshComponent::findMaterial(const std::string& name)
 
 std::vector<std::string> MeshComponent::getRequiredMaterials() const
 {
-    std::vector<std::string> required_materials;
-    std::transform(materials.begin(), materials.end(), std::back_inserter(required_materials),
-            [] (const std::shared_ptr<Material>& material)
-            {
-                return material->getName();
-            });
-
-    return required_materials;
+    return model->getRequiredMaterials();
 }
 
 MeshDescription MeshComponent::getDescription() const
