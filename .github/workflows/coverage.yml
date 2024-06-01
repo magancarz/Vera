@@ -59,13 +59,12 @@ jobs:
           cd build
           make -j $(nproc --all) Vera-Tests-Coverage
           cd ..
-          gcovr -r . -f Source/ -e Tests/ -e ThirdParty/
           gcovr -r . -f Source/ -e Tests/ -e ThirdParty/ --exclude-throw-branches --exclude-unreachable-branches --xml -o coverage.xml
       - name: Uploading coverage results
         uses: actions/upload-artifact@v4.3.3
         with:
           name: coverage-results
-          path: coverage
+          path: coverage.xml
       - name: Save tests build files
         id: tests-build-files-save
         uses: actions/cache/save@v4
