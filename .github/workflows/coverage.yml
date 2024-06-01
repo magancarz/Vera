@@ -59,8 +59,7 @@ jobs:
           cd build
           make -j $(nproc --all) Vera-Tests-Coverage
           cd ..
-          gcovr -r . -f Source/ -e Tests/ -e ThirdParty/
-          gcovr -r . -f Source/ -e Tests/ -e ThirdParty/ --exclude-throw-branches --exclude-unreachable-branches --html -o coverage.html
+          gcovr -r . -f Source/ -e Tests/ -e ThirdParty/ --exclude-throw-branches --exclude-unreachable-branches -print-summary --html -o coverage.html
       - name: Uploading coverage results
         uses: actions/upload-artifact@v4.3.3
         with:
