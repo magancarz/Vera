@@ -1,12 +1,17 @@
 #pragma once
 
+#include <memory>
+
+#include <glm/glm.hpp>
+
 #include "ObjectComponent.h"
-#include "TransformComponent.h"
+
+class TransformComponent;
 
 class CameraComponent : public ObjectComponent
 {
 public:
-    explicit CameraComponent(Object* owner, std::shared_ptr<TransformComponent> transform_component);
+    CameraComponent(Object* owner, std::shared_ptr<TransformComponent> transform_component);
 
     void update(FrameInfo& frame_info) override;
 

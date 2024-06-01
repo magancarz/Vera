@@ -1,8 +1,9 @@
-#include <iostream>
 #include "World.h"
+
 #include "Project/Project.h"
 #include "Objects/Components/CameraComponent.h"
 #include "Objects/Components/MeshComponent.h"
+#include "Objects/Components/TransformComponent.h"
 
 void World::loadProject(const ProjectInfo& project_info, const std::shared_ptr<AssetManager>& asset_manager)
 {

@@ -2,10 +2,14 @@
 
 #include <memory>
 
+#include <glm/glm.hpp>
+
 #include "RenderEngine/Models/AccelerationStructure.h"
-#include "RenderEngine/Models/Model.h"
-#include "Objects/Components/MeshComponent.h"
-#include "RenderEngine/Memory/MemoryAllocator.h"
+#include "RenderEngine/Models/BlasInstance.h"
+
+class MeshComponent;
+class MemoryAllocator;
+class AssetManager;
 
 class Blas
 {

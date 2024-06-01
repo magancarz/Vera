@@ -1,5 +1,10 @@
 #include "CameraComponent.h"
 
+#include <cmath>
+
+#include "RenderEngine/FrameInfo.h"
+#include "TransformComponent.h"
+
 CameraComponent::CameraComponent(Object* owner, std::shared_ptr<TransformComponent> transform_component)
     : ObjectComponent(owner, TickGroup::PRE_RENDER), transform_component{std::move(transform_component)} {}
 
@@ -13,7 +18,7 @@ void CameraComponent::update(FrameInfo& frame_info)
 void CameraComponent::setPerspectiveProjection(float fovy, float aspect, float near, float far)
 {
     assert(glm::abs(aspect - std::numeric_limits<float>::epsilon()) > 0.0f);
-    const float tan_half_fov_y = tan(fovy / 2.f);
+    const float tan_half_fov_y = glm::tan(fovy / 2.f);
     projection = glm::mat4{0.0f};
     projection[0][0] = 1.f / (aspect * tan_half_fov_y);
     projection[1][1] = -1.f / (tan_half_fov_y);

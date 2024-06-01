@@ -1,5 +1,8 @@
 #include "MeshComponent.h"
 
+#include "RenderEngine/Models/Model.h"
+#include "RenderEngine/Materials/Material.h"
+
 MeshComponent::MeshComponent(Object* owner)
     : ObjectComponent(owner) {}
 

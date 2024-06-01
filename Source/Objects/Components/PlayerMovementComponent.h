@@ -1,16 +1,18 @@
 #pragma once
 
-#include "Objects/Object.h"
 #include "RenderEngine/Window.h"
-#include "Input/InputManager.h"
+
 #include "ObjectComponent.h"
-#include "TransformComponent.h"
+
+class TransformComponent;
+class InputManager;
 
 class PlayerMovementComponent : public ObjectComponent
 {
 public:
     struct KeyMappings
     {
+        //TODO: abstract key mappings
         int move_left = GLFW_KEY_A;
         int move_right = GLFW_KEY_D;
         int move_forward = GLFW_KEY_W;
@@ -23,7 +25,7 @@ public:
         int look_down = GLFW_KEY_DOWN;
     };
 
-    explicit PlayerMovementComponent(Object* owner, std::shared_ptr<InputManager> input_manager, std::shared_ptr<TransformComponent> transform_component);
+    PlayerMovementComponent(Object* owner, std::shared_ptr<InputManager> input_manager, std::shared_ptr<TransformComponent> transform_component);
 
     void update(FrameInfo& frame_info) override;
 

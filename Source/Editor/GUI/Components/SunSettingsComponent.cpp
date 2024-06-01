@@ -2,6 +2,9 @@
 
 #include "imgui.h"
 
+#define GLM_ENABLE_EXPERIMENTAL
+#include "glm/gtx/transform.hpp"
+
 SunSettingsComponent::SunSettingsComponent()
     : Component(DISPLAY_NAME) {}
 

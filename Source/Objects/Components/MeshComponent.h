@@ -1,8 +1,13 @@
 #pragma once
 
-#include "Objects/Object.h"
-#include "World/World.h"
+#include <vector>
+#include <memory>
+
+#include "ObjectComponent.h"
 #include "RenderEngine/Models/MeshDescription.h"
+
+class Model;
+class Material;
 
 class MeshComponent : public ObjectComponent
 {
@@ -20,6 +25,6 @@ public:
     [[nodiscard]] MeshDescription getDescription() const;
 
 private:
-    std::shared_ptr<Model> model;
-    std::vector<std::shared_ptr<Material>> materials;
+    std::shared_ptr<Model> model{nullptr};
+    std::vector<std::shared_ptr<Material>> materials{};
 };

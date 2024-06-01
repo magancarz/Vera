@@ -1,9 +1,8 @@
 #pragma once
 
-#include <glm/ext/matrix_transform.hpp>
-#include "RenderEngine/Models/Model.h"
-#include "RenderEngine/Materials/Material.h"
-#include "RenderEngine/Models/BlasInstance.h"
+#include <memory>
+
+#include <glm/glm.hpp>
 
 class ObjectComponent;
 class TransformComponent;

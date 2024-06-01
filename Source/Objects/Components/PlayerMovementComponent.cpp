@@ -1,5 +1,9 @@
 #include "PlayerMovementComponent.h"
 
+#include "RenderEngine/FrameInfo.h"
+#include "Input/InputManager.h"
+#include "TransformComponent.h"
+
 PlayerMovementComponent::PlayerMovementComponent(Object* owner, std::shared_ptr<InputManager> input_manager, std::shared_ptr<TransformComponent> transform_component)
     : ObjectComponent(owner), input_manager{std::move(input_manager)}, transform_component{std::move(transform_component)} {}
 
