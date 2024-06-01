@@ -89,7 +89,7 @@ if(BUILD_TESTING)
 		include(cmake/CodeCoverage.cmake)
 		append_coverage_compiler_flags()
 		setup_target_for_coverage_gcovr_html(NAME Vera-Tests-Coverage
-				EXECUTABLE cd build && ctest --verbose -C Debug && cd ..
+				EXECUTABLE ctest --verbose -C Debug
 				EXCLUDE ${CMAKE_SOURCE_DIR}/Tests/** ${CMAKE_SOURCE_DIR}/ThirdParty/**)
 	else ()
 		message("Coverage report disabled")

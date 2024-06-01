@@ -56,7 +56,9 @@ jobs:
           cmake --build build -j $(nproc --all)
       - name: Run coverage
         run: |
+          cd build
           make -j $(nproc --all) Vera-Tests-Coverage
+          cd ..
           gcovr -r . -f Source/ -e Tests/ -e ThirdParty/
           gcovr -r . -f Source/ -e Tests/ -e ThirdParty/ --exclude-throw-branches --exclude-unreachable-branches --xml -o coverage.xml
       - name: Uploading coverage results
