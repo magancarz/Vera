@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.25)
 set(CMAKE_CXX_STANDARD 23)
-project(Vera LANGUAGES CXX)
+project(Vera LANGUAGES C CXX)
 
 add_library(Vera-Lib STATIC Source/Vera.cpp)
 
@@ -70,7 +70,7 @@ if(BUILD_TESTING)
 			Source/*.cpp
 			Source/*.h)
 	add_executable(Vera-Tests ${SOURCES})
-	set_target_properties(Vera-Tests PROPERTIES VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}")
+	set_target_properties(Vera-Tests PROPERTIES VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}")
 	target_link_libraries(Vera-Tests PRIVATE GTest::gtest_main)
 	target_link_libraries(Vera-Tests PRIVATE GTest::gmock)
 	target_link_libraries(Vera-Tests PRIVATE glm::glm)
@@ -79,6 +79,21 @@ if(BUILD_TESTING)
 	target_include_directories(Vera-Tests PRIVATE Tests)
 	add_test(NAME Vera-Tests COMMAND Vera-Tests)
 	add_subdirectory(Tests)
+
+	option(coverage "Build for coverage report." OFF)
+	set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
+	if (CMAKE_COMPILER_IS_GNUCXX AND coverage)
+		message("Coverage report ENABLED")
+
+		include(cmake/CodeCoverage.cmake)
+		append_coverage_compiler_flags()
+		setup_target_for_coverage_gcovr_html(NAME Vera-Tests-Coverage
+				EXECUTABLE cd build && ctest --verbose -C Debug && cd ..
+				EXCLUDE ${CMAKE_SOURCE_DIR}/Tests/** ${CMAKE_SOURCE_DIR}/ThirdParty/**)
+	else ()
+		message("Coverage report disabled")
+	endif ()
 endif()
 
-set_target_properties(Vera PROPERTIES VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}")
+set_target_properties(Vera PROPERTIES VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}")
