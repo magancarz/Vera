@@ -65,7 +65,7 @@ jobs:
         uses: actions/upload-artifact@v4.3.3
         with:
           name: coverage-results
-          path: coverage.xml
+          path: coverage.html
       - name: Save tests build files
         id: tests-build-files-save
         uses: actions/cache/save@v4
