@@ -2,6 +2,8 @@
 #include "gmock/gmock-matchers.h"
 
 #include "Objects/Components/MeshComponent.h"
+#include "RenderEngine/Materials/Material.h"
+#include "Objects/Object.h"
 
 #include "UnitTests/Mocks/MockModel.h"
 

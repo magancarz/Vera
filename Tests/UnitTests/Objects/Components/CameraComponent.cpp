@@ -1,7 +1,11 @@
 #include "gtest/gtest.h"
 
 #include <glm/ext/matrix_clip_space.hpp>
+
 #include "Objects/Components/CameraComponent.h"
+#include "Objects/Components/TransformComponent.h"
+#include "Objects/Object.h"
+#include "RenderEngine/FrameInfo.h"
 
 #include "TestUtils.h"
 

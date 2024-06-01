@@ -2,6 +2,9 @@
 #include "gmock/gmock-matchers.h"
 
 #include "Objects/Components/PlayerMovementComponent.h"
+#include "Objects/Components/TransformComponent.h"
+#include "Objects/Object.h"
+#include "RenderEngine/FrameInfo.h"
 
 #include "UnitTests/Mocks/MockInputManager.h"
 #include "TestUtils.h"

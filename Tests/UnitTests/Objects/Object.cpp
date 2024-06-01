@@ -2,6 +2,8 @@
 
 #include "Objects/Object.h"
 #include "World/World.h"
+#include "Objects/Components/TransformComponent.h"
+
 #include "TestUtils.h"
 
 struct ObjectTests : public ::testing::Test

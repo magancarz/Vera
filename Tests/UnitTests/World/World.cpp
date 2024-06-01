@@ -2,13 +2,15 @@
 #include "gmock/gmock-matchers.h"
 
 #include "World/World.h"
+#include "Objects/Components/TransformComponent.h"
+
+#include "Objects/Components/CameraComponent.h"
 #include "UnitTests/Mocks/MockObjectComponent.h"
 #include "UnitTests/Mocks/MockWorld.h"
-#include "TestUtils.h"
 #include "UnitTests/Mocks/MockAssetManager.h"
 #include "UnitTests/Mocks/MockInputManager.h"
-#include "Objects/Components/CameraComponent.h"
 #include "UnitTests/Mocks/MockMemoryAllocator.h"
+#include "TestUtils.h"
 
 using ::testing::_;
 
