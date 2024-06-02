@@ -1,5 +1,6 @@
 add_subdirectory(Assets)
 add_subdirectory(Input)
+add_subdirectory(Logs)
 add_subdirectory(Mocks)
 add_subdirectory(Objects)
 add_subdirectory(Project)
