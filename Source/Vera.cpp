@@ -2,9 +2,9 @@
 
 #include <chrono>
 
-#include "RenderEngine/Materials/Material.h"
+#include "Logs/BasicLogger.h"
+#include "Logs/LogSystem.h"
 #include "RenderEngine/SceneRenderers/RayTraced/RayTracedRenderer.h"
-#include "RenderEngine/RenderingAPI/VulkanHelper.h"
 #include "RenderEngine/Memory/Vulkan/VulkanMemoryAllocator.h"
 
 void Vera::run()
@@ -18,8 +18,11 @@ void Vera::run()
 
 void Vera::initializeApplication()
 {
+    LogSystem::initialize(std::make_unique<BasicLogger>());
+
     memory_allocator = std::make_unique<VulkanMemoryAllocator>(device);
     asset_manager = std::make_shared<AssetManager>(&device, memory_allocator);
+
     input_manager = std::make_shared<GLFWInputManager>(window->getGFLWwindow());
 }
 void Vera::loadProject()
