@@ -1,33 +1,3 @@
-#unit_test_coverage:
-#  stage: tests
-#  needs: [ ]
-#  coverage: '/(?m)^TOTAL.*\s+(\d+\%)$/'
-#  tags:
-#    - docker
-#  script:
-#    - echo "running unit tests"
-#    - pip3 install --upgrade conan==1.59.0
-#    - mkdir build && cd build
-#    - cmake -DCMAKE_BUILD_TYPE=Debug -Dcoverage=ON ..
-#    - cmake --build . -- -j $(nproc --all)
-#    - make -j $(nproc --all) unit_and_integration_tests_coverage
-#    - cd ..
-#    - gcovr -r . -f src/ -f include/ -e src/main.cpp -e include/mocks/
-#    - gcovr -r . -f src/ -f include/ -e include/mocks/ -e tests/ --exclude-throw-branches --exclude-unreachable-branches --xml -o coverage.xml
-#    - cppcheck -v --enable=all --force -I include/ src/ --xml-version=2 . 2> cppcheck.xml
-#    - run-clang-tidy -p ./build/ -checks='*' ./include/ ./src/ > clang-tidy.txt || true
-#    - mkdir valgrind_reports
-#    - valgrind_flags='--leak-check=yes --max-threads=1500'
-#    - for test_binary in 'build/bin'/*; do timeout --kill-after=5 60 valgrind $valgrind_flags --xml=yes --xml-file=${test_binary}_valgrind.xml $test_binary || true; done
-#    - mv build/bin/*valgrind.xml valgrind_reports/
-#  artifacts:
-#    paths:
-#      - cppcheck.xml
-#      - coverage.xml
-#      - clang-tidy.txt
-#      - valgrind_reports
-
-
 name: Coverage
 run-name: Coverage
 on: [push]
