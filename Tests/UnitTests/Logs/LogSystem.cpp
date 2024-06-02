@@ -3,12 +3,13 @@
 #include "UnitTests/Mocks/MockLogger.h"
 #include "Logs/LogSystem.h"
 
-using ::testing::_;
-
 struct LogSystemTests : public ::testing::Test
 {
     void SetUp() override {}
-    void TearDown() override {}
+    void TearDown() override
+    {
+        LogSystem::initialize(nullptr);
+    }
 };
 
 TEST_F(LogSystemTests, shouldInitializeApplicationLogger)
