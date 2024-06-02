@@ -8,7 +8,7 @@ struct LogSystemTests : public ::testing::Test
     void SetUp() override {}
     void TearDown() override
     {
-        LogSystem::initialize(nullptr);
+        LogSystem::initialize(std::make_unique<MockLogger>());
     }
 };
 
