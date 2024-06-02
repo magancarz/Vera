@@ -8,6 +8,7 @@
 
 #include <iostream>
 
+#include "Logs/LogSystem.h"
 #include "Utils/PathBuilder.h"
 #include "Utils/Algorithms.h"
 #include "RenderEngine/Materials/WavefrontMaterial.h"
@@ -34,13 +35,13 @@ std::shared_ptr<OBJModel> OBJModelLoader::createFromFile(const std::unique_ptr<M
 
     if (!reader.ParseFromFile(filepath, reader_config))
     {
-        std::cerr << "TinyObjReader: " << reader.Error();
-        exit(1);
+        LogSystem::log(LogSeverity::FATAL, "TinyObjReader: ", reader.Error());
+        throw std::runtime_error("TinyObjReader: " + reader.Error());
     }
 
     if (!reader.Warning().empty())
     {
-        std::cout << "TinyObjReader: " << reader.Warning();
+        LogSystem::log(LogSeverity::WARNING, "TinyObjReader: ", reader.Warning());
     }
 
     tinyobj::attrib_t attrib = reader.GetAttrib();

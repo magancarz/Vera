@@ -7,21 +7,22 @@
 #include "RenderEngine/SceneRenderers/RayTraced/RayTracedRenderer.h"
 #include "RenderEngine/Memory/Vulkan/VulkanMemoryAllocator.h"
 
-void Vera::run()
+Vera::Vera()
 {
     initializeApplication();
     loadProject();
     createRenderer();
-    runLoop();
-    performCleanup();
 }
 
 void Vera::initializeApplication()
 {
     LogSystem::initialize(std::make_unique<BasicLogger>());
 
-    memory_allocator = std::make_unique<VulkanMemoryAllocator>(device);
-    asset_manager = std::make_shared<AssetManager>(&device, memory_allocator);
+    window = Window::get();
+    device = std::make_unique<VulkanFacade>(*window);
+
+    memory_allocator = std::make_unique<VulkanMemoryAllocator>(*device);
+    asset_manager = std::make_shared<AssetManager>(device.get(), memory_allocator);
 
     input_manager = std::make_shared<GLFWInputManager>(window->getGFLWwindow());
 }
@@ -34,10 +35,21 @@ void Vera::loadProject()
 
 void Vera::createRenderer()
 {
-    renderer = std::make_unique<Renderer>(*window, device, memory_allocator, world, asset_manager);
+    renderer = std::make_unique<Renderer>(*window, *device, memory_allocator, world, asset_manager);
 }
 
-void Vera::runLoop()
+Vera::~Vera()
+{
+    performCleanup();
+}
+
+void Vera::performCleanup()
+{
+    asset_manager->clearResources();
+    vkDeviceWaitIdle(device->getDevice());
+}
+
+void Vera::run()
 {
     auto last_time = std::chrono::high_resolution_clock::now();
     while (!window->shouldClose())
@@ -53,10 +65,4 @@ void Vera::runLoop()
         world.update(frame_info);
         renderer->render(frame_info);
     }
-}
-
-void Vera::performCleanup()
-{
-    asset_manager->clearResources();
-    vkDeviceWaitIdle(device.getDevice());
 }

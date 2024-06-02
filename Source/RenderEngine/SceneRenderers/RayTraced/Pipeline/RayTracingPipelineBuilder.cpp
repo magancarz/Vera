@@ -1,4 +1,6 @@
 #include "RayTracingPipelineBuilder.h"
+
+#include "Logs/LogSystem.h"
 #include "RenderEngine/RenderingAPI/VulkanDefines.h"
 #include "RenderEngine/RenderingAPI/VulkanHelper.h"
 
@@ -23,8 +25,6 @@ RayTracingPipelineBuilder& RayTracingPipelineBuilder::addRayGenerationStage(std:
     ray_generate_shader_group_create_info.anyHitShader = VK_SHADER_UNUSED_KHR;
     ray_generate_shader_group_create_info.intersectionShader = VK_SHADER_UNUSED_KHR;
     shader_group_create_info_list.push_back(ray_generate_shader_group_create_info);
-
-    printf("Placing ray gen shader at %zu index\n", shader_group_create_info_list.size() - 1);
 
     return *this;
 }
@@ -64,8 +64,6 @@ RayTracingPipelineBuilder& RayTracingPipelineBuilder::addMissStage(std::shared_p
     miss_shader_group_create_info.anyHitShader = VK_SHADER_UNUSED_KHR;
     miss_shader_group_create_info.intersectionShader = VK_SHADER_UNUSED_KHR;
     shader_group_create_info_list.push_back(miss_shader_group_create_info);
-
-    printf("Placing miss shader at %zu index\n", shader_group_create_info_list.size() - 1);
 
     return *this;
 }
@@ -215,8 +213,6 @@ RayTracingPipelineBuilder& RayTracingPipelineBuilder::setMaxRecursionDepth(uint3
 {
     assert(max_recursion_depth >= 1 && "Max recursion depth must be at least greater or equal to 1!");
     max_recursion = max_recursion_depth;
-
-    printf("Setting ray tracing pipeline max recursion depth to %d\n", max_recursion_depth);
 
     return *this;
 }

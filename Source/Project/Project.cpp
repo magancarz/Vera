@@ -6,6 +6,8 @@
 #include <sstream>
 #include <filesystem>
 
+#include "Logs/LogSystem.h"
+
 void ProjectUtils::saveProject(const ProjectInfo& project_info, const std::string& location)
 {
     std::string file_location = PathBuilder(location).append(project_info.project_name + PROJECT_FILE_EXTENSION).build();
@@ -17,11 +19,11 @@ void ProjectUtils::saveProject(const ProjectInfo& project_info, const std::strin
 
 		file_stream.close();
 
-        std::cout << "Project named " << project_info.project_name << " saved successfully at location " << file_location << "\n";
+		LogSystem::log(LogSeverity::LOG, "Project named ", project_info.project_name, " saved successfully at location ", file_location);
         return;
 	}
 
-    std::cout << "Couldn't save project named " << project_info.project_name << " at location " << file_location << "!\n";
+	LogSystem::log(LogSeverity::ERROR, "Couldn't save project named ", project_info.project_name, " at location ", file_location, "!");
 }
 
 void ProjectUtils::saveProjectMetadata(std::ofstream& file_stream, const ProjectInfo& project_info)

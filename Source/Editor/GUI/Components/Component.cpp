@@ -1,7 +1,9 @@
 #include "Component.h"
 
+#include "Logs/LogSystem.h"
+
 Component::Component(std::string name)
     : component_name{std::move(name)}
 {
-    printf("Creating component %s\n", component_name.c_str());
+    LogSystem::log(LogSeverity::LOG, "Creating component ", component_name.c_str());
 }

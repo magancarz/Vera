@@ -18,5 +18,4 @@ public:
 
 private:
     void createMaterialInfoBuffer(const std::unique_ptr<MemoryAllocator>& memory_allocator);
-    void assignMaterialHitGroupIndex();
 };

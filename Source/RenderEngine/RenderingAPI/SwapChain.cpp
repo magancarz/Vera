@@ -5,6 +5,8 @@
 #include <climits>
 #include <stdexcept>
 
+#include "Logs/LogSystem.h"
+
 SwapChain::SwapChain(VulkanFacade& device_ref, VkExtent2D window_extent)
         : device{device_ref}, window_extent{window_extent}
 {
@@ -336,19 +338,19 @@ VkPresentModeKHR SwapChain::chooseSwapPresentMode(const std::vector<VkPresentMod
     {
         if (available_present_mode == VK_PRESENT_MODE_MAILBOX_KHR)
         {
-            std::cout << "Present mode: Mailbox" << std::endl;
+            LogSystem::log(LogSeverity::LOG, "Present mode: Mailbox");
             return available_present_mode;
         }
     }
 
 //     for (const auto &availablePresentMode : available_present_modes) {
 //       if (availablePresentMode == VK_PRESENT_MODE_IMMEDIATE_KHR) {
-//         std::cout << "Present mode: Immediate" << std::endl;
+//         LogSystem::log(LogSeverity::LOG, "Present mode: Immediate");
 //         return availablePresentMode;
 //       }
 //     }
 
-    std::cout << "Present mode: V-Sync" << std::endl;
+    LogSystem::log(LogSeverity::LOG, "Present mode: V-Sync");
     return VK_PRESENT_MODE_FIFO_KHR;
 }
 

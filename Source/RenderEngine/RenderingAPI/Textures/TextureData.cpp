@@ -7,6 +7,8 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
 
+#include "Logs/LogSystem.h"
+
 TextureData::TextureData(const std::string& texture_name)
 {
     const std::string location = PathBuilder(paths::TEXTURES_DIRECTORY_PATH).append(texture_name).build();
@@ -25,7 +27,7 @@ TextureData::TextureData(const std::string& texture_name)
 
     if (number_of_channels != expected_number_of_channels)
     {
-        std::cerr << "Encountered different number of channels than expected with texture " << texture_name << "!\n";
+        LogSystem::log(LogSeverity::WARNING, "Encountered different number of channels than expected with texture ", texture_name, "!");
     }
 }
 

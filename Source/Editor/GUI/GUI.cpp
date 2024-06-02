@@ -9,6 +9,7 @@
 #include "RenderEngine/FrameInfo.h"
 #include "Editor/GUI/Components/Container.h"
 #include "Editor/GUI/Components/SceneSettingsWindow.h"
+#include "Logs/LogSystem.h"
 
 GUI::GUI(VulkanFacade& device, Window& window, std::shared_ptr<SwapChain> swap_chain)
     : device{device}, window{window}, swap_chain{std::move(swap_chain)}
@@ -122,7 +123,7 @@ namespace callbacks
             return;
         }
 
-        fprintf(stderr, "[vulkan] Error: VkResult = %d\n", result);
+        LogSystem::log(LogSeverity::ERROR, "[vulkan] Error: VkResult = ", result);
         if (result < 0)
         {
             abort();

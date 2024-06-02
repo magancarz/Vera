@@ -3,13 +3,15 @@
 #include <iostream>
 #include <unordered_set>
 
+#include "Logs/LogSystem.h"
+
 static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(
         VkDebugUtilsMessageSeverityFlagBitsEXT message_severity,
         VkDebugUtilsMessageTypeFlagsEXT message_type,
         const VkDebugUtilsMessengerCallbackDataEXT* callback_data,
         void* user_data)
 {
-    std::cerr << "validation layer: " << callback_data->pMessage << std::endl;
+    LogSystem::log(LogSeverity::ERROR, "Vulkan validation layers: ", callback_data->pMessage);
 
     return VK_FALSE;
 }
@@ -20,17 +22,16 @@ VkResult createDebugUtilsMessengerExt(
         const VkAllocationCallbacks* allocator,
         VkDebugUtilsMessengerEXT* debug_messenger)
 {
-    auto func = (PFN_vkCreateDebugUtilsMessengerEXT) vkGetInstanceProcAddr(
+    auto func = reinterpret_cast<PFN_vkCreateDebugUtilsMessengerEXT>(
+        vkGetInstanceProcAddr(
             instance,
-            "vkCreateDebugUtilsMessengerEXT");
+            "vkCreateDebugUtilsMessengerEXT"));
     if (func != nullptr)
     {
         return func(instance, create_info, allocator, debug_messenger);
     }
-    else
-    {
-        return VK_ERROR_EXTENSION_NOT_PRESENT;
-    }
+
+    return VK_ERROR_EXTENSION_NOT_PRESENT;
 }
 
 void destroyDebugUtilsMessengerExt(
@@ -173,21 +174,22 @@ void Instance::checkIfInstanceHasGlfwRequiredInstanceExtensions()
     std::vector<VkExtensionProperties> extensions(extension_count);
     vkEnumerateInstanceExtensionProperties(nullptr, &extension_count, extensions.data());
 
-    std::cout << "Available extensions:" << std::endl;
+    LogSystem::log(LogSeverity::LOG, "Available extensions:");
     std::unordered_set<std::string> available;
     for (const auto& extension: extensions)
     {
-        std::cout << "\t" << extension.extensionName << std::endl;
+        LogSystem::log(LogSeverity::LOG, "\t", extension.extensionName);
         available.insert(extension.extensionName);
     }
 
-    std::cout << "Required extensions:" << std::endl;
+    LogSystem::log(LogSeverity::LOG, "Required extensions:");
     auto required_extensions = getRequiredExtensions();
     for (const auto& required: required_extensions)
     {
-        std::cout << "\t" << required << std::endl;
-        if (available.find(required) == available.end())
+        LogSystem::log(LogSeverity::LOG, "\t", required);
+        if (!available.contains(required))
         {
+            LogSystem::log(LogSeverity::FATAL, "Required extensions:");
             throw std::runtime_error("Missing required glfw extension");
         }
     }

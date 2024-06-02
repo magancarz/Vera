@@ -5,6 +5,7 @@
 
 #include "VulkanFacade.h"
 #include "SwapChainSupportDetails.h"
+#include "Logs/LogSystem.h"
 
 PhysicalDevice::PhysicalDevice(Instance& instance, Surface& surface)
     : instance{instance}, surface{surface}
@@ -18,9 +19,11 @@ void PhysicalDevice::pickPhysicalDevice()
     vkEnumeratePhysicalDevices(instance.getInstance(), &device_count, nullptr);
     if (device_count == 0)
     {
+        LogSystem::log(LogSeverity::FATAL, "Failed to find GPUs with Vulkan support!");
         throw std::runtime_error("Failed to find GPUs with Vulkan support!");
     }
-    std::cout << "Device count: " << device_count << std::endl;
+
+    LogSystem::log(LogSeverity::LOG, "Device count: ", device_count);
     std::vector<VkPhysicalDevice> available_physical_devices(device_count);
     vkEnumeratePhysicalDevices(instance.getInstance(), &device_count, available_physical_devices.data());
 
@@ -40,7 +43,7 @@ void PhysicalDevice::pickPhysicalDevice()
 
     vkGetPhysicalDeviceProperties(used_physical_device, &properties);
     queue_family_indices = findQueueFamilies(used_physical_device);
-    std::cout << "Physical device: " << properties.deviceName << std::endl;
+    LogSystem::log(LogSeverity::LOG, "Physical device: ", properties.deviceName);
 }
 
 bool PhysicalDevice::isDeviceSuitable(VkPhysicalDevice device)

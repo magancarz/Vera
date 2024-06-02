@@ -9,7 +9,8 @@
 class Vera
 {
 public:
-    Vera() = default;
+    Vera();
+    ~Vera();
 
     void run();
 
@@ -19,8 +20,8 @@ public:
 private:
     void initializeApplication();
 
-    std::shared_ptr<Window> window = Window::get();
-    VulkanFacade device{*window};
+    std::shared_ptr<Window> window;
+    std::unique_ptr<VulkanFacade> device;
     std::unique_ptr<MemoryAllocator> memory_allocator;
 
     std::shared_ptr<AssetManager> asset_manager;

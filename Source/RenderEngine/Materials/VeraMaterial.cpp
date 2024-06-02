@@ -3,9 +3,11 @@
 
 #include <fstream>
 
+#include "Logs/LogSystem.h"
+
 std::shared_ptr<VeraMaterial> VeraMaterial::fromAssetFile(const std::unique_ptr<MemoryAllocator>& memory_allocator, AssetManager* const asset_manager, const std::string& asset_name)
 {
-    printf("Trying to load material named %s...\n", asset_name.c_str());
+    LogSystem::log(LogSeverity::LOG, "Trying to load material named ", asset_name.c_str(), "...");
 
     const std::string filepath = (paths::MATERIALS_DIRECTORY_PATH / asset_name).generic_string() + ".mat";
     std::ifstream file_stream(filepath);
@@ -44,11 +46,11 @@ std::shared_ptr<VeraMaterial> VeraMaterial::fromAssetFile(const std::unique_ptr<
         std::shared_ptr<Texture> diffuse_texture = asset_manager->fetchTexture(texture_name);
         std::shared_ptr<Texture> normal_texture = asset_manager->fetchTexture("blue.png");
 
-        printf("Loading material from file ended in success\n");
+        LogSystem::log(LogSeverity::LOG, "Loading material from file ended in success");
         return std::make_shared<VeraMaterial>(memory_allocator, material_info, std::move(material_name), std::move(diffuse_texture), std::move(normal_texture));
     }
 
-    printf("Failed to load material\n");
+    LogSystem::log(LogSeverity::ERROR, "Failed to load material");
 
     return nullptr;
 }
@@ -62,7 +64,6 @@ VeraMaterial::VeraMaterial(
     : Material(material_info, std::move(material_name), std::move(diffuse_texture), std::move(normal_texture))
 {
     createMaterialInfoBuffer(memory_allocator);
-    assignMaterialHitGroupIndex();
 }
 
 void VeraMaterial::createMaterialInfoBuffer(const std::unique_ptr<MemoryAllocator>& memory_allocator)
@@ -76,16 +77,4 @@ void VeraMaterial::createMaterialInfoBuffer(const std::unique_ptr<MemoryAllocato
     );
     auto staging_buffer = memory_allocator->createStagingBuffer(sizeof(MaterialInfo), 1, &material_info);
     material_info_buffer->copyFromBuffer(staging_buffer);
-}
-
-void VeraMaterial::assignMaterialHitGroupIndex()
-{
-//    if (material_info.brightness > 0)
-//    {
-//        material_hit_group_index = defines::material_indices::light_hit_group_index;
-//    }
-//    else if (material_info.fuzziness > 0)
-//    {
-//        material_hit_group_index = defines::material_indices::specular_hit_group_index;
-//    }
 }
