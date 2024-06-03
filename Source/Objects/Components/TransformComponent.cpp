@@ -1,6 +1,6 @@
 #include "TransformComponent.h"
 
-TransformComponent::TransformComponent(Object* owner)
+TransformComponent::TransformComponent(Object& owner)
     : ObjectComponent(owner) {}
 
 void TransformComponent::update(FrameInfo& frame_info) {}
@@ -37,7 +37,8 @@ glm::mat4 TransformComponent::transform() const
     };
 }
 
-glm::mat3 TransformComponent::normalMatrix() const {
+glm::mat3 TransformComponent::normalMatrix() const
+{
     const float c3 = glm::cos(rotation.z);
     const float s3 = glm::sin(rotation.z);
     const float c2 = glm::cos(rotation.x);

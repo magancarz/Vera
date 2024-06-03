@@ -10,7 +10,7 @@
 class GUI
 {
 public:
-    GUI(VulkanFacade& device, Window& window, std::shared_ptr<SwapChain> swap_chain);
+    GUI(VulkanFacade& device, Window& window, SwapChain* swap_chain);
     ~GUI();
 
     GUI(const GUI&) = delete;
@@ -22,11 +22,11 @@ public:
 private:
     VulkanFacade& device;
     Window& window;
-    std::shared_ptr<SwapChain> swap_chain;
+    SwapChain* swap_chain;
 
     void initializeGUIComponents();
 
-    std::shared_ptr<Container> root_component;
+    std::unique_ptr<Container> root_component;
 
     void initializeImGui();
     void createContext();

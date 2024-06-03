@@ -1,10 +1,10 @@
 #pragma once
 
+#include "RenderEngine/Models/ObjectDescription.h"
 #include "RenderEngine/SceneRenderers/SceneRenderer.h"
 #include "World/World.h"
 #include "RenderEngine/SceneRenderers/RayTraced/Pipeline/RayTracingPipeline.h"
 #include "RenderEngine/RenderingAPI/Descriptors.h"
-#include "RenderEngine/Models/RayTracingAccelerationStructureBuilder.h"
 #include "RenderEngine/RenderingAPI/Textures/Texture.h"
 #include "RenderEngine/RenderingAPI/Blas.h"
 #include "RenderEngine/SceneRenderers/RayTraced/Pipeline/RayTracingPipelineBuilder.h"
@@ -18,19 +18,19 @@ struct CameraUBO
 class RayTracedRenderer : public SceneRenderer
 {
 public:
-    RayTracedRenderer(VulkanFacade& device, std::unique_ptr<MemoryAllocator>& memory_allocator, std::shared_ptr<AssetManager> asset_manager, World* world);
+    RayTracedRenderer(VulkanFacade& device, MemoryAllocator& memory_allocator, AssetManager& asset_manager, World& world);
     ~RayTracedRenderer() noexcept override;
 
     void renderScene(FrameInfo& frame_info) override;
 
-    VkImageView getRayTracedImageViewHandle() { return ray_traced_texture->getImageView(); }
-    VkSampler getRayTracedImageSampler() { return ray_traced_texture->getSampler(); }
+    [[nodiscard]] VkImageView getRayTracedImageViewHandle() const { return ray_traced_texture->getImageView(); }
+    [[nodiscard]] VkSampler getRayTracedImageSampler() const { return ray_traced_texture->getSampler(); }
 
 private:
     VulkanFacade& device;
-    std::unique_ptr<MemoryAllocator>& memory_allocator;
-    std::shared_ptr<AssetManager> asset_manager;
-    World* world;
+    MemoryAllocator& memory_allocator;
+    AssetManager& asset_manager;
+    World& world;
 
     void queryRayTracingPipelineProperties();
 
@@ -38,8 +38,8 @@ private:
 
     void createObjectDescriptionsBuffer();
 
-    std::vector<std::shared_ptr<Texture>> diffuse_textures;
-    std::vector<std::shared_ptr<Texture>> normal_textures;
+    std::vector<Texture*> diffuse_textures;
+    std::vector<Texture*> normal_textures;
     std::unique_ptr<Buffer> object_descriptions_buffer;
     std::unique_ptr<Buffer> material_descriptions_buffer;
     std::vector<uint32_t> object_description_offsets;
@@ -47,7 +47,6 @@ private:
     void createAccelerationStructure();
 
     std::unordered_map<std::string, Blas> blas_objects;
-    std::unordered_map<int, std::shared_ptr<Object>> rendered_objects;
     AccelerationStructure tlas{};
 
     void createRayTracedImage();
@@ -67,7 +66,7 @@ private:
     void buildRayTracingPipeline();
 
     std::vector<ObjectDescription> object_descriptions;
-    std::vector<std::shared_ptr<Material>> used_materials;
+    std::vector<Material*> used_materials;
     std::unique_ptr<RayTracingPipeline> ray_tracing_pipeline;
 
     void updatePipelineUniformVariables(FrameInfo& frame_info);

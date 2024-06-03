@@ -8,13 +8,14 @@
 #include "RenderEngine/RenderingAPI/VulkanDefines.h"
 #include "RenderEngine/SceneRenderers/RayTraced/Pipeline/RayTracingPipelineBuilder.h"
 #include "Objects/Components/MeshComponent.h"
+#include "RenderEngine/Models/RayTracingAccelerationStructureBuilder.h"
 
 RayTracedRenderer::RayTracedRenderer(
         VulkanFacade& device,
-        std::unique_ptr<MemoryAllocator>& memory_allocator,
-        std::shared_ptr<AssetManager> asset_manager,
-        World* world)
-    : device{device}, memory_allocator{memory_allocator}, asset_manager{std::move(asset_manager)}, world{world}
+        MemoryAllocator& memory_allocator,
+        AssetManager& asset_manager,
+        World& world)
+    : device{device}, memory_allocator{memory_allocator}, asset_manager{asset_manager}, world{world}
 {
     queryRayTracingPipelineProperties();
     createObjectDescriptionsBuffer();
@@ -44,8 +45,7 @@ void RayTracedRenderer::createObjectDescriptionsBuffer()
 {
     std::vector<MaterialInfo> material_infos;
     diffuse_textures.clear();
-    rendered_objects = world->getRenderedObjects();
-    for (auto& [_, object] : rendered_objects)
+    for (auto& [_, object] : world.getRenderedObjects())
     {
         object_description_offsets.emplace_back(static_cast<uint32_t>(object_descriptions.size()));
         auto mesh_component = object->findComponentByClass<MeshComponent>();
@@ -59,8 +59,8 @@ void RayTracedRenderer::createObjectDescriptionsBuffer()
 
             auto required_material = mesh_description.required_materials[i];
             uint32_t material_index;
-            auto it = std::find_if(used_materials.begin(), used_materials.end(),
-                   [&] (const std::shared_ptr<Material>& item)
+            auto it = std::ranges::find_if(used_materials.begin(), used_materials.end(),
+                   [&] (const Material* item)
                    {
                        return required_material == item->getName();
                    });
@@ -76,7 +76,7 @@ void RayTracedRenderer::createObjectDescriptionsBuffer()
 
                 auto material_info = material->getMaterialInfo();
                 auto texture = material->getDiffuseTexture();
-                auto tit = std::find(diffuse_textures.begin(), diffuse_textures.end(), texture);
+                auto tit = std::ranges::find(diffuse_textures.begin(), diffuse_textures.end(), texture);
                 if (tit != diffuse_textures.end())
                 {
                     material_info.diffuse_texture_offset = std::distance(diffuse_textures.begin(), tit);
@@ -88,7 +88,7 @@ void RayTracedRenderer::createObjectDescriptionsBuffer()
                 }
 
                 auto normal_texture = material->getNormalTexture();
-                auto nit = std::find(normal_textures.begin(), normal_textures.end(), normal_texture);
+                auto nit = std::ranges::find(normal_textures.begin(), normal_textures.end(), normal_texture);
                 if (nit != normal_textures.end())
                 {
                     material_info.normal_texture_offset = std::distance(normal_textures.begin(), nit);
@@ -107,11 +107,11 @@ void RayTracedRenderer::createObjectDescriptionsBuffer()
         }
     }
 
-    auto object_descriptions_staging_buffer = memory_allocator->createStagingBuffer(
+    auto object_descriptions_staging_buffer = memory_allocator.createStagingBuffer(
             sizeof(ObjectDescription),
             object_descriptions.size(),
             object_descriptions.data());
-    object_descriptions_buffer = memory_allocator->createBuffer
+    object_descriptions_buffer = memory_allocator.createBuffer
     (
             sizeof(ObjectDescription),
             static_cast<uint32_t>(object_descriptions.size()),
@@ -120,11 +120,11 @@ void RayTracedRenderer::createObjectDescriptionsBuffer()
     );
     object_descriptions_buffer->copyFromBuffer(object_descriptions_staging_buffer);
 
-    auto material_descriptions_staging_buffer = memory_allocator->createStagingBuffer(
+    auto material_descriptions_staging_buffer = memory_allocator.createStagingBuffer(
             sizeof(MaterialInfo),
             material_infos.size(),
             material_infos.data());
-    material_descriptions_buffer = memory_allocator->createBuffer
+    material_descriptions_buffer = memory_allocator.createBuffer
     (
             sizeof(MaterialInfo),
             static_cast<uint32_t>(material_infos.size()),
@@ -139,18 +139,19 @@ void RayTracedRenderer::createAccelerationStructure()
     RayTracingAccelerationStructureBuilder builder{device, memory_allocator};
 
     std::vector<BlasInstance> blas_instances;
-    blas_instances.reserve(rendered_objects.size());
+    blas_instances.reserve(world.getRenderedObjects().size());
     size_t i = 0;
-    for (auto [_, object] : rendered_objects)
+    for (auto& [_, object] : world.getRenderedObjects())
     {
         auto mesh_component = object->findComponentByClass<MeshComponent>();
+        assert(mesh_component && "Rendered object must have mesh component!");
 
         if (!blas_objects.contains(mesh_component->getModel()->getName()))
         {
             blas_objects.emplace(
                     std::piecewise_construct,
                     std::forward_as_tuple(mesh_component->getModel()->getName()),
-                    std::forward_as_tuple(device, memory_allocator, asset_manager, mesh_component));
+                    std::forward_as_tuple(device, memory_allocator, asset_manager, *mesh_component));
         }
         BlasInstance blas_instance = blas_objects.at(mesh_component->getModel()->getName()).createBlasInstance(object->getTransform());
         blas_instance.bottomLevelAccelerationStructureInstance.instanceCustomIndex = object_description_offsets[i++];
@@ -176,7 +177,7 @@ void RayTracedRenderer::createRayTracedImage()
 
 void RayTracedRenderer::createCameraUniformBuffer()
 {
-    camera_uniform_buffer = memory_allocator->createBuffer
+    camera_uniform_buffer = memory_allocator.createBuffer
     (
             sizeof(GlobalUBO),
             1,

@@ -4,10 +4,10 @@
 #include "RenderEngine/Materials/VeraMaterial.h"
 #include "RenderEngine/Models/OBJModelLoader.h"
 
-AssetManager::AssetManager(VulkanFacade* vulkan_facade, std::unique_ptr<MemoryAllocator>& memory_allocator)
+AssetManager::AssetManager(VulkanFacade& vulkan_facade, MemoryAllocator& memory_allocator)
     : vulkan_facade{vulkan_facade}, memory_allocator{memory_allocator} {}
 
-void AssetManager::loadNeededAssetsForProject(const ProjectInfo& project_info)
+void AssetManager::loadAssetsRequiredForProject(const ProjectInfo& project_info)
 {
     LogSystem::log(LogSeverity::LOG, "Loading needed assets for the project ", project_info.project_name.c_str(), "...");
     for (auto& object_info : project_info.objects_infos)
@@ -22,40 +22,51 @@ void AssetManager::loadNeededAssetsForProject(const ProjectInfo& project_info)
     LogSystem::log(LogSeverity::LOG, "Loading needed assets for project ", project_info.project_name.c_str(), " ended in success");
 }
 
-std::shared_ptr<Model> AssetManager::fetchModel(const std::string& model_name)
+Model* AssetManager::fetchModel(const std::string& model_name)
 {
     LogSystem::log(LogSeverity::LOG, "Fetching model named ", model_name.c_str());
     if (available_models.contains(model_name))
     {
         LogSystem::log(LogSeverity::LOG, "Model found in available models list. Returning...");
-        return available_models[model_name];
+        return available_models[model_name].get();
     }
 
     LogSystem::log(LogSeverity::LOG, "Model was not found in available models list. Loading from file...");
-    std::shared_ptr<Model> new_model = OBJModelLoader::createFromFile(memory_allocator, this, model_name);
-    available_models[model_name] = new_model;
-    return new_model;
+    return storeModel(OBJModelLoader::createFromFile(memory_allocator, *this, model_name));
 }
 
-std::shared_ptr<Material> AssetManager::fetchMaterial(const std::string& material_name)
+Model* AssetManager::storeModel(std::unique_ptr<Model> model)
+{
+    assert(model && "It is useless to store empty model");
+    auto model_name = model->getName();
+    available_models[model_name] = std::move(model);
+    return available_models[model_name].get();
+}
+
+Material* AssetManager::fetchMaterial(const std::string& material_name)
 {
     LogSystem::log(LogSeverity::LOG, "Fetching material named ", material_name.c_str());
     if (available_materials.contains(material_name))
     {
         LogSystem::log(LogSeverity::LOG, "Material found in available materials list. Returning...");
-        return available_materials[material_name];
+        return available_materials[material_name].get();
     }
 
     LogSystem::log(LogSeverity::LOG, "Material was not found in available materials list. Loading from file...");
-    std::shared_ptr<Material> new_material = VeraMaterial::fromAssetFile(memory_allocator, this, material_name);
-    available_materials[material_name] = new_material;
-    return new_material;
+    return storeMaterial(VeraMaterial::fromAssetFile(memory_allocator, *this, material_name));
 }
 
-std::vector<std::shared_ptr<Material>> AssetManager::fetchRequiredMaterials(const std::shared_ptr<Model>& model)
+Material* AssetManager::storeMaterial(std::unique_ptr<Material> material)
 {
-    std::vector<std::string> required_materials = model->getRequiredMaterials();
-    std::vector<std::shared_ptr<Material>> materials(required_materials.size());
+    assert(material && "It is useless to store empty material");
+    auto material_name = material->getName();
+    available_materials[material_name] = std::move(material);
+    return available_materials[material_name].get();
+}
+
+std::vector<Material*> AssetManager::fetchRequiredMaterials(const std::vector<std::string>& required_materials)
+{
+    std::vector<Material*> materials(required_materials.size());
     for (size_t i = 0; i < required_materials.size(); ++i)
     {
         materials[i] = fetchMaterial(required_materials[i]);
@@ -64,23 +75,32 @@ std::vector<std::shared_ptr<Material>> AssetManager::fetchRequiredMaterials(cons
     return materials;
 }
 
-std::shared_ptr<Texture> AssetManager::fetchTexture(const std::string& texture_name, VkFormat image_format)
+Texture* AssetManager::fetchTexture(const std::string& texture_name, VkFormat image_format)
 {
     LogSystem::log(LogSeverity::LOG, "Fetching texture named ", texture_name.c_str());
     if (available_textures.contains(texture_name))
     {
         LogSystem::log(LogSeverity::LOG, "Texture found in available textures list. Returning...");
-        return available_textures[texture_name];
+        return available_textures[texture_name].get();
     }
 
     LogSystem::log(LogSeverity::LOG, "Texture was not found in available textures list. Loading from file...");
-    std::shared_ptr<Texture> new_texture = std::make_shared<Texture>(*vulkan_facade, memory_allocator, texture_name, image_format);
-    available_textures[texture_name] = new_texture;
-    return new_texture;
+    auto new_texture = std::make_unique<Texture>(vulkan_facade, memory_allocator, texture_name, image_format);
+    available_textures[texture_name] = std::move(new_texture);
+    return available_textures[texture_name].get();
+}
+
+Texture* AssetManager::storeTexture(std::unique_ptr<Texture> texture)
+{
+    assert(texture && "It is useless to store empty texture");
+    auto texture_name = texture->getName();
+    available_textures[texture_name] = std::move(texture);
+    return available_textures[texture_name].get();
 }
 
 void AssetManager::clearResources()
 {
     available_models.clear();
     available_materials.clear();
+    available_textures.clear();
 }

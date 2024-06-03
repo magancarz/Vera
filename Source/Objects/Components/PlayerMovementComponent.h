@@ -25,7 +25,7 @@ public:
         int look_down = GLFW_KEY_DOWN;
     };
 
-    PlayerMovementComponent(Object* owner, std::shared_ptr<InputManager> input_manager, std::shared_ptr<TransformComponent> transform_component);
+    PlayerMovementComponent(Object& owner, InputManager& input_manager, std::shared_ptr<TransformComponent> transform_component);
 
     void update(FrameInfo& frame_info) override;
 
@@ -36,7 +36,7 @@ public:
 
 private:
     KeyMappings keys{};
-    std::shared_ptr<InputManager> input_manager;
+    InputManager& input_manager;
 
     std::shared_ptr<TransformComponent> transform_component;
 

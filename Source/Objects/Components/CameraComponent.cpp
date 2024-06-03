@@ -5,7 +5,7 @@
 #include "RenderEngine/FrameInfo.h"
 #include "TransformComponent.h"
 
-CameraComponent::CameraComponent(Object* owner, std::shared_ptr<TransformComponent> transform_component)
+CameraComponent::CameraComponent(Object& owner, std::shared_ptr<TransformComponent> transform_component)
     : ObjectComponent(owner, TickGroup::PRE_RENDER), transform_component{std::move(transform_component)} {}
 
 void CameraComponent::update(FrameInfo& frame_info)

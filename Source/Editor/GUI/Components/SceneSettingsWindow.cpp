@@ -11,6 +11,6 @@ SceneSettingsWindow::SceneSettingsWindow()
 
 void SceneSettingsWindow::createChildComponents()
 {
-    addComponent(std::make_shared<FramerateTextComponent>());
-    addComponent(std::make_shared<SunSettingsComponent>());
+    addComponent(std::make_unique<FramerateTextComponent>());
+    addComponent(std::make_unique<SunSettingsComponent>());
 }

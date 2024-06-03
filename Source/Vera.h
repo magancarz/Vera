@@ -20,12 +20,12 @@ public:
 private:
     void initializeApplication();
 
-    std::shared_ptr<Window> window;
-    std::unique_ptr<VulkanFacade> device;
+    std::shared_ptr<Window> window = Window::get();
+    VulkanFacade vulkan_facade{*window};
     std::unique_ptr<MemoryAllocator> memory_allocator;
 
-    std::shared_ptr<AssetManager> asset_manager;
-    std::shared_ptr<InputManager> input_manager;
+    std::unique_ptr<AssetManager> asset_manager;
+    std::unique_ptr<InputManager> input_manager;
 
     void loadProject();
 

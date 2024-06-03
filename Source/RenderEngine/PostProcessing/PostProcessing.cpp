@@ -6,7 +6,7 @@
 
 PostProcessing::PostProcessing(
         VulkanFacade& device,
-        const std::shared_ptr<AssetManager>& asset_manager,
+        AssetManager& asset_manager,
         VkRenderPass render_pass,
         VkDescriptorSetLayout input_texture)
         : device{device}
@@ -16,9 +16,9 @@ PostProcessing::PostProcessing(
     createPipeline(render_pass);
 }
 
-void PostProcessing::loadSceneQuad(const std::shared_ptr<AssetManager>& asset_manager)
+void PostProcessing::loadSceneQuad(AssetManager& asset_manager)
 {
-    scene_quad = asset_manager->fetchModel("scene_quad.obj");
+    scene_quad = asset_manager.fetchModel("scene_quad.obj");
 }
 
 void PostProcessing::createPipelineLayout(VkDescriptorSetLayout input_texture)

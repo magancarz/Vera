@@ -6,7 +6,7 @@
 
 RayTracingPipelineBuilder::RayTracingPipelineBuilder(
         VulkanFacade& device,
-        std::unique_ptr<MemoryAllocator>& memory_allocator,
+        MemoryAllocator& memory_allocator,
         VkPhysicalDeviceRayTracingPipelinePropertiesKHR ray_tracing_properties)
     : device{device}, memory_allocator{memory_allocator}, ray_tracing_properties{ray_tracing_properties} {}
 

@@ -17,7 +17,7 @@ namespace std
 {
     template <>
     struct hash<Vertex> {
-        size_t operator()(Vertex const &vertex) const
+        size_t operator()(Vertex const &vertex) const noexcept
         {
             size_t seed = 0;
             algorithms::hashCombine(seed, vertex.position, vertex.normal, vertex.uv);
@@ -26,7 +26,7 @@ namespace std
     };
 }
 
-std::shared_ptr<OBJModel> OBJModelLoader::createFromFile(const std::unique_ptr<MemoryAllocator>& memory_allocator, AssetManager* asset_manager, const std::string& model_name)
+std::unique_ptr<Model> OBJModelLoader::createFromFile(MemoryAllocator& memory_allocator, AssetManager& asset_manager, const std::string& model_name)
 {
     const std::string filepath = PathBuilder(paths::MODELS_DIRECTORY_PATH).append(model_name).build();
 
@@ -55,13 +55,13 @@ std::shared_ptr<OBJModel> OBJModelLoader::createFromFile(const std::unique_ptr<M
         material_info.fuzziness = material.shininess > 0 ? 0.05 : -1;
 
         auto diffuse_texture_name = material.diffuse_texname.empty() ? "white.png" : material.diffuse_texname;
-        std::shared_ptr<Texture> diffuse_texture = asset_manager->fetchTexture(diffuse_texture_name);
+        Texture* diffuse_texture = asset_manager.fetchTexture(diffuse_texture_name, VK_FORMAT_R8G8B8A8_SRGB);
 
         auto normal_texture_name = material.displacement_texname.empty() ? "blue.png" : material.displacement_texname;
-        std::shared_ptr<Texture> normal_texture = asset_manager->fetchTexture(normal_texture_name, VK_FORMAT_R8G8B8A8_UNORM);
+        Texture* normal_texture = asset_manager.fetchTexture(normal_texture_name, VK_FORMAT_R8G8B8A8_UNORM);
 
-        asset_manager->loadMaterial(
-                std::make_shared<WavefrontMaterial>(
+        asset_manager.storeMaterial(
+                std::make_unique<WavefrontMaterial>(
                         memory_allocator,
                         material_info,
                         material.name,
@@ -95,7 +95,7 @@ std::shared_ptr<OBJModel> OBJModelLoader::createFromFile(const std::unique_ptr<M
         obj_model_infos.emplace_back(obj_model_info);
     }
 
-    return std::make_shared<OBJModel>(memory_allocator, obj_model_infos, model_name);
+    return std::make_unique<OBJModel>(memory_allocator, obj_model_infos, model_name);
 }
 
 Vertex OBJModelLoader::extractVertex(const tinyobj::index_t& index, const tinyobj::attrib_t& attrib)
@@ -150,7 +150,7 @@ void OBJModelLoader::calculateTangentSpaceVectors(Vertex& first_vertex, Vertex& 
 
 void OBJModelLoader::addVertexToModelInfo(OBJModelInfo& obj_model_info, std::unordered_map<Vertex, uint32_t>& unique_vertices, const Vertex& vertex)
 {
-    if (unique_vertices.count(vertex) == 0)
+    if (!unique_vertices.contains(vertex))
     {
         unique_vertices[vertex] = static_cast<uint32_t>(obj_model_info.vertices.size());
         obj_model_info.vertices.push_back(vertex);

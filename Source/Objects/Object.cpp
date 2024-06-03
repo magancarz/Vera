@@ -9,14 +9,9 @@ Object::Object()
 
 glm::vec3 Object::getLocation()
 {
-    if (!transform_component_cache)
+    if (root_component)
     {
-        transform_component_cache = findComponentByClass<TransformComponent>();
-    }
-
-    if (transform_component_cache)
-    {
-        return transform_component_cache->translation;
+        return root_component->translation;
     }
 
     return glm::vec3{0};
@@ -24,14 +19,9 @@ glm::vec3 Object::getLocation()
 
 glm::mat4 Object::getTransform()
 {
-    if (!transform_component_cache)
+    if (root_component)
     {
-        transform_component_cache = findComponentByClass<TransformComponent>();
-    }
-
-    if (transform_component_cache)
-    {
-        return transform_component_cache->transform();
+        return root_component->transform();
     }
 
     return glm::mat4{1};
@@ -39,6 +29,13 @@ glm::mat4 Object::getTransform()
 
 void Object::addComponent(std::shared_ptr<ObjectComponent> component)
 {
-    assert(component->getOwner() == this && "Component's owner should be the same as the object to which component tried to be added");
+    assert(component->getOwner().getID() == this->getID() && "Component's owner should be the same as the object to which component tried to be added");
     components.emplace_back(std::move(component));
+}
+
+void Object::addRootComponent(std::shared_ptr<TransformComponent> transform_component)
+{
+    assert(transform_component && "It is useless to pass empty root component");
+    addComponent(std::move(transform_component));
+    root_component = findComponentByClass<TransformComponent>();
 }

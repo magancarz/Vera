@@ -2,13 +2,9 @@
 
 #include <vector>
 
-#include <vulkan/vulkan_core.h>
-#include <vulkan/vulkan.hpp>
-
 #include "RenderEngine/RenderingAPI/VulkanFacade.h"
 #include "World/World.h"
 #include "RenderEngine/Models/AccelerationStructure.h"
-#include "RenderEngine/Memory/MemoryAllocator.h"
 
 class RayTracingAccelerationStructureBuilder
 {
@@ -20,7 +16,7 @@ public:
         VkBuildAccelerationStructureFlagsKHR flags{0};
     };
 
-    RayTracingAccelerationStructureBuilder(VulkanFacade& device, std::unique_ptr<MemoryAllocator>& memory_allocator);
+    RayTracingAccelerationStructureBuilder(VulkanFacade& device, MemoryAllocator& memory_allocator);
 
     AccelerationStructure buildBottomLevelAccelerationStructure(const BlasInput& blas_input);
     std::vector<AccelerationStructure> buildBottomLevelAccelerationStructures(
@@ -54,5 +50,5 @@ private:
             std::vector<BuildAccelerationStructure>& build_as);
 
     VulkanFacade& device;
-    std::unique_ptr<MemoryAllocator>& memory_allocator;
+    MemoryAllocator& memory_allocator;
 };

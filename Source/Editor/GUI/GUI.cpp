@@ -11,8 +11,8 @@
 #include "Editor/GUI/Components/SceneSettingsWindow.h"
 #include "Logs/LogSystem.h"
 
-GUI::GUI(VulkanFacade& device, Window& window, std::shared_ptr<SwapChain> swap_chain)
-    : device{device}, window{window}, swap_chain{std::move(swap_chain)}
+GUI::GUI(VulkanFacade& device, Window& window, SwapChain* swap_chain)
+    : device{device}, window{window}, swap_chain{swap_chain}
 {
     initializeImGui();
     initializeGUIComponents();
@@ -152,8 +152,8 @@ void GUI::setupRendererBackends()
 
 void GUI::initializeGUIComponents()
 {
-    root_component = std::make_shared<Container>("Root Component");
-    root_component->addComponent(std::make_shared<SceneSettingsWindow>());
+    root_component = std::make_unique<Container>("Root Component");
+    root_component->addComponent(std::make_unique<SceneSettingsWindow>());
 }
 
 GUI::~GUI()

@@ -8,7 +8,7 @@
 
 RayTracingPipeline::RayTracingPipeline(
         VulkanFacade& device,
-        std::unique_ptr<MemoryAllocator>& memory_allocator,
+        MemoryAllocator& memory_allocator,
         const std::vector<VkPipelineShaderStageCreateInfo>& shader_stage_create_info_list,
         const std::vector<VkRayTracingShaderGroupCreateInfoKHR>& shader_group_create_info_list,
         const std::vector<VkDescriptorSetLayout>& descriptor_set_layouts,
@@ -90,7 +90,7 @@ void RayTracingPipeline::createShaderBindingTable(uint32_t miss_count, uint32_t 
     }
 
     VkDeviceSize sbt_size = ray_gen_shader_binding_table.size + miss_shader_binding_table.size + hit_shader_binding_table.size + callable_shader_binding_table.size;
-    shader_binding_table = memory_allocator->createBuffer
+    shader_binding_table = memory_allocator.createBuffer
     (
             sbt_size,
             1,

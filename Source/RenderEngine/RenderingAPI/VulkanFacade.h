@@ -1,9 +1,5 @@
 #pragma once
 
-#include <vulkan/vulkan.hpp>
-
-#include <string>
-#include <vector>
 #include "RenderEngine/Window.h"
 #include "Instance.h"
 #include "Surface.h"

@@ -1,11 +1,10 @@
 #include "VeraMaterial.h"
-#include "MaterialDefines.h"
 
 #include <fstream>
 
 #include "Logs/LogSystem.h"
 
-std::shared_ptr<VeraMaterial> VeraMaterial::fromAssetFile(const std::unique_ptr<MemoryAllocator>& memory_allocator, AssetManager* const asset_manager, const std::string& asset_name)
+std::unique_ptr<Material> VeraMaterial::fromAssetFile(MemoryAllocator& memory_allocator, AssetManager& asset_manager, const std::string& asset_name)
 {
     LogSystem::log(LogSeverity::LOG, "Trying to load material named ", asset_name.c_str(), "...");
 
@@ -43,11 +42,11 @@ std::shared_ptr<VeraMaterial> VeraMaterial::fromAssetFile(const std::unique_ptr<
 
         file_stream.close();
 
-        std::shared_ptr<Texture> diffuse_texture = asset_manager->fetchTexture(texture_name);
-        std::shared_ptr<Texture> normal_texture = asset_manager->fetchTexture("blue.png");
+        Texture* diffuse_texture = asset_manager.fetchTexture(texture_name, VK_FORMAT_R8G8B8A8_SRGB);
+        Texture* normal_texture = asset_manager.fetchTexture("blue.png", VK_FORMAT_R8G8B8A8_UNORM);
 
         LogSystem::log(LogSeverity::LOG, "Loading material from file ended in success");
-        return std::make_shared<VeraMaterial>(memory_allocator, material_info, std::move(material_name), std::move(diffuse_texture), std::move(normal_texture));
+        return std::make_unique<VeraMaterial>(memory_allocator, material_info, std::move(material_name), diffuse_texture, normal_texture);
     }
 
     LogSystem::log(LogSeverity::ERROR, "Failed to load material");
@@ -56,25 +55,25 @@ std::shared_ptr<VeraMaterial> VeraMaterial::fromAssetFile(const std::unique_ptr<
 }
 
 VeraMaterial::VeraMaterial(
-        const std::unique_ptr<MemoryAllocator>& memory_allocator,
+        MemoryAllocator& memory_allocator,
         const MaterialInfo& material_info,
         std::string material_name,
-        std::shared_ptr<Texture> diffuse_texture,
-        std::shared_ptr<Texture> normal_texture)
-    : Material(material_info, std::move(material_name), std::move(diffuse_texture), std::move(normal_texture))
+        Texture* diffuse_texture,
+        Texture* normal_texture)
+    : Material(material_info, std::move(material_name), diffuse_texture, normal_texture)
 {
     createMaterialInfoBuffer(memory_allocator);
 }
 
-void VeraMaterial::createMaterialInfoBuffer(const std::unique_ptr<MemoryAllocator>& memory_allocator)
+void VeraMaterial::createMaterialInfoBuffer(MemoryAllocator& memory_allocator)
 {
-    material_info_buffer = memory_allocator->createBuffer
+    material_info_buffer = memory_allocator.createBuffer
     (
             sizeof(MaterialInfo),
             1,
             VK_BUFFER_USAGE_STORAGE_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT,
             VK_MEMORY_ALLOCATE_DEVICE_ADDRESS_BIT
     );
-    auto staging_buffer = memory_allocator->createStagingBuffer(sizeof(MaterialInfo), 1, &material_info);
+    auto staging_buffer = memory_allocator.createStagingBuffer(sizeof(MaterialInfo), 1, &material_info);
     material_info_buffer->copyFromBuffer(staging_buffer);
 }

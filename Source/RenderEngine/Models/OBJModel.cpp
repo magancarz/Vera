@@ -1,43 +1,40 @@
 #include "OBJModel.h"
 
-#include <unordered_map>
-#include <iostream>
-
 #include "Utils/Algorithms.h"
 
-OBJModel::OBJModel(const std::unique_ptr<MemoryAllocator>& memory_allocator, const std::vector<OBJModelInfo>& obj_models_info, std::string name)
+OBJModel::OBJModel(MemoryAllocator& memory_allocator, const std::vector<OBJModelInfo>& obj_models_info, std::string name)
     : Model(std::move(name))
 {
     createManyModels(memory_allocator, obj_models_info);
 }
 
-void OBJModel::createManyModels(const std::unique_ptr<MemoryAllocator>& memory_allocator, const std::vector<OBJModelInfo>& obj_models_info)
+void OBJModel::createManyModels(MemoryAllocator& memory_allocator, const std::vector<OBJModelInfo>& obj_models_info)
 {
     for (auto& obj_model_info : obj_models_info)
     {
-        models.emplace_back(std::make_shared<OBJModel>(memory_allocator, obj_model_info));
+        models.emplace_back(std::make_unique<OBJModel>(memory_allocator, obj_model_info));
     }
 }
 
-OBJModel::OBJModel(const std::unique_ptr<MemoryAllocator>& memory_allocator, const OBJModelInfo& obj_model_info)
+OBJModel::OBJModel(MemoryAllocator& memory_allocator, const OBJModelInfo& obj_model_info)
         : Model(obj_model_info.name, obj_model_info.required_material)
 {
     createModel(memory_allocator, obj_model_info);
 }
 
-void OBJModel::createModel(const std::unique_ptr<MemoryAllocator>& memory_allocator, const OBJModelInfo& model_info)
+void OBJModel::createModel(MemoryAllocator& memory_allocator, const OBJModelInfo& model_info)
 {
     createVertexBuffers(memory_allocator, model_info.vertices);
     createIndexBuffers(memory_allocator, model_info.indices);
 }
 
-void OBJModel::createVertexBuffers(const std::unique_ptr<MemoryAllocator>& memory_allocator, const std::vector<Vertex>& vertices)
+void OBJModel::createVertexBuffers(MemoryAllocator& memory_allocator, const std::vector<Vertex>& vertices)
 {
     vertex_count = static_cast<uint32_t>(vertices.size());
-    assert(vertex_count >= 3 && "Vertex count must be at least 3.");
+    // assert(vertex_count >= 3 && "Vertex count must be at least 3.");
 
-    auto staging_buffer = memory_allocator->createStagingBuffer(sizeof(Vertex), vertices.size(),(void*)vertices.data());
-    vertex_buffer = memory_allocator->createBuffer(
+    auto staging_buffer = memory_allocator.createStagingBuffer(sizeof(Vertex), vertices.size(), (void*)vertices.data());
+    vertex_buffer = memory_allocator.createBuffer(
             sizeof(Vertex),
             vertices.size(),
             VK_BUFFER_USAGE_STORAGE_BUFFER_BIT |
@@ -49,12 +46,12 @@ void OBJModel::createVertexBuffers(const std::unique_ptr<MemoryAllocator>& memor
     vertex_buffer->copyFromBuffer(staging_buffer);
 }
 
-void OBJModel::createIndexBuffers(const std::unique_ptr<MemoryAllocator>& memory_allocator, const std::vector<uint32_t>& indices)
+void OBJModel::createIndexBuffers(MemoryAllocator& memory_allocator, const std::vector<uint32_t>& indices)
 {
     index_count = static_cast<uint32_t>(indices.size());
 
-    auto staging_buffer = memory_allocator->createStagingBuffer(sizeof(uint32_t), indices.size(), (void*)indices.data());
-    index_buffer = memory_allocator->createBuffer(
+    auto staging_buffer = memory_allocator.createStagingBuffer(sizeof(uint32_t), indices.size(), (void*)indices.data());
+    index_buffer = memory_allocator.createBuffer(
             sizeof(uint32_t),
             indices.size(),
             VK_BUFFER_USAGE_STORAGE_BUFFER_BIT |

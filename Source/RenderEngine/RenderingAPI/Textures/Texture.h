@@ -9,19 +9,23 @@
 class Texture
 {
 public:
-    Texture(VulkanFacade& device, std::unique_ptr<MemoryAllocator>& memory_allocator, const std::string& filepath, VkFormat image_format = VK_FORMAT_R8G8B8A8_SRGB);
-    Texture(VulkanFacade& device, std::unique_ptr<MemoryAllocator>& memory_allocator, uint32_t width, uint32_t height, VkImageUsageFlags usage_flags, VkFormat image_format = VK_FORMAT_R8G8B8A8_SRGB);
+    Texture(VulkanFacade& device, MemoryAllocator& memory_allocator, const std::string& texture_name, VkFormat image_format = VK_FORMAT_R8G8B8A8_SRGB);
+    Texture(VulkanFacade& device, MemoryAllocator& memory_allocator, uint32_t width, uint32_t height, VkImageUsageFlags usage_flags, VkFormat image_format = VK_FORMAT_R8G8B8A8_SRGB);
     ~Texture();
 
-    VkSampler getSampler() { return sampler; }
-    VkImageView getImageView() { return image_view; }
-    VkImageLayout getImageLayout() { return image_layout; }
+    std::string getName() const { return name; }
+
+    VkSampler getSampler() const { return sampler; }
+    VkImageView getImageView() const { return image_view; }
+    VkImageLayout getImageLayout() const { return image_layout; }
 
     [[nodiscard]] bool isOpaque() const { return is_opaque; }
 
 private:
     VulkanFacade& device;
-    std::unique_ptr<MemoryAllocator>& memory_allocator;
+    MemoryAllocator& memory_allocator;
+
+    std::string name;
 
     void checkIfTextureIsOpaque(const TextureData& texture_data);
     void createImage(VkImageUsageFlags usage_flags);

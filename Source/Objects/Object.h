@@ -25,6 +25,7 @@ public:
     glm::mat4 getTransform();
 
     void addComponent(std::shared_ptr<ObjectComponent> component);
+    void addRootComponent(std::shared_ptr<TransformComponent> transform_component);
 
     template <typename T>
     T* findComponentByClass()
@@ -47,5 +48,5 @@ private:
     id_t id;
 
     std::vector<std::shared_ptr<ObjectComponent>> components;
-    TransformComponent* transform_component_cache{nullptr};
+    TransformComponent* root_component{nullptr};
 };

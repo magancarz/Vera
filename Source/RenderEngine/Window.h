@@ -15,7 +15,7 @@ public:
     Window(const Window&) = delete;
     Window& operator=(const Window&) = delete;
 
-    bool shouldClose() { return glfwWindowShouldClose(window); }
+    bool shouldClose() const { return glfwWindowShouldClose(window); }
     [[nodiscard]] VkExtent2D getExtent() const { return {static_cast<uint32_t>(width), static_cast<uint32_t>(height)}; }
     [[nodiscard]] float getAspect() const { return static_cast<float>(width) / static_cast<float>(height); }
     [[nodiscard]] bool wasWindowResized() const { return framebuffer_resized; }

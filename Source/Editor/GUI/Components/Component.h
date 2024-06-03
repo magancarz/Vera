@@ -11,7 +11,7 @@ public:
 
     virtual void update(FrameInfo& frame_info) = 0;
 
-    std::string getName() { return component_name; }
+    std::string getName() const { return component_name; }
 
 protected:
     std::string component_name;

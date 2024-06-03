@@ -12,7 +12,7 @@
 class Renderer
 {
 public:
-    Renderer(Window& window, VulkanFacade& device, std::unique_ptr<MemoryAllocator>& memory_allocator, World& world, std::shared_ptr<AssetManager> asset_manager);
+    Renderer(Window& window, VulkanFacade& device, MemoryAllocator& memory_allocator, World& world, AssetManager& asset_manager);
     ~Renderer();
 
     Renderer(const Renderer&) = delete;
@@ -23,9 +23,9 @@ public:
 private:
     Window& window;
     VulkanFacade& device;
-    std::unique_ptr<MemoryAllocator>& memory_allocator;
+    MemoryAllocator& memory_allocator;
     World& world;
-    std::shared_ptr<AssetManager> asset_manager;
+    AssetManager& asset_manager;
 
     [[nodiscard]] VkCommandBuffer getCurrentCommandBuffer() const
     {
@@ -41,7 +41,7 @@ private:
 
     void recreateSwapChain();
 
-    std::shared_ptr<SwapChain> swap_chain;
+    std::unique_ptr<SwapChain> swap_chain;
 
     void createGUI();
 

@@ -5,10 +5,10 @@
 #include "RenderEngine/Memory/Buffer.h"
 #include "RenderEngine/RenderingAPI/VulkanDefines.h"
 
-Texture::Texture(VulkanFacade& device, std::unique_ptr<MemoryAllocator>& memory_allocator, const std::string& filepath, VkFormat image_format)
-    : device{device}, memory_allocator{memory_allocator}, image_format{image_format}
+Texture::Texture(VulkanFacade& device, MemoryAllocator& memory_allocator, const std::string& texture_name, VkFormat image_format)
+    : device{device}, memory_allocator{memory_allocator}, image_format{image_format}, name{texture_name}
 {
-    TextureData texture_data{filepath};
+    TextureData texture_data{texture_name};
     width = texture_data.width;
     height = texture_data.height;
     mip_levels = static_cast<uint32_t>(std::floor(std::log2(std::max(width, height)))) + 1;
@@ -47,7 +47,7 @@ void Texture::createImage(VkImageUsageFlags usage_flags)
 void Texture::copyDataToImage(const TextureData& texture_data)
 {
     transitionImageLayout(VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
-    auto buffer = memory_allocator->createStagingBuffer(4, static_cast<uint32_t>(width * height), texture_data.data);
+    auto buffer = memory_allocator.createStagingBuffer(4, static_cast<uint32_t>(width * height), texture_data.data);
     device.copyBufferToImage(buffer->getBuffer(), image, static_cast<unsigned int>(width), static_cast<unsigned int>(height), 1);
 }
 
@@ -95,7 +95,7 @@ void Texture::createImageSampler()
     }
 }
 
-Texture::Texture(VulkanFacade& device, std::unique_ptr<MemoryAllocator>& memory_allocator, uint32_t width, uint32_t height, VkImageUsageFlags usage_flags, VkFormat image_format)
+Texture::Texture(VulkanFacade& device, MemoryAllocator& memory_allocator, uint32_t width, uint32_t height, VkImageUsageFlags usage_flags, VkFormat image_format)
     : device{device}, memory_allocator{memory_allocator}, width{width}, height{height}, image_format{image_format}
 {
     createImage(usage_flags);

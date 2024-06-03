@@ -10,7 +10,7 @@ class PostProcessing
 public:
     PostProcessing(
             VulkanFacade& device,
-            const std::shared_ptr<AssetManager>& asset_manager,
+            AssetManager& asset_manager,
             VkRenderPass render_pass,
             VkDescriptorSetLayout input_texture);
     ~PostProcessing();
@@ -21,7 +21,7 @@ public:
     void apply(FrameInfo& frame_info);
 
 private:
-    void loadSceneQuad(const std::shared_ptr<AssetManager>& asset_manager);
+    void loadSceneQuad(AssetManager& asset_manager);
     void createPipelineLayout(VkDescriptorSetLayout input_texture);
     void createPipeline(VkRenderPass render_pass);
 
@@ -30,5 +30,5 @@ private:
     std::unique_ptr<Pipeline> simple_pipeline;
     VkPipelineLayout pipeline_layout;
 
-    std::shared_ptr<Model> scene_quad;
+    Model* scene_quad;
 };

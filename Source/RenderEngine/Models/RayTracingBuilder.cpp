@@ -1,9 +1,10 @@
+#include "BlasInstance.h"
 #include "RayTracingAccelerationStructureBuilder.h"
 
 #include "RenderEngine/RenderingAPI/VulkanDefines.h"
 #include "RenderEngine/RenderingAPI/VulkanHelper.h"
 
-RayTracingAccelerationStructureBuilder::RayTracingAccelerationStructureBuilder(VulkanFacade& device, std::unique_ptr<MemoryAllocator>& memory_allocator)
+RayTracingAccelerationStructureBuilder::RayTracingAccelerationStructureBuilder(VulkanFacade& device, MemoryAllocator& memory_allocator)
     : device{device}, memory_allocator{memory_allocator} {}
 
 AccelerationStructure RayTracingAccelerationStructureBuilder::buildBottomLevelAccelerationStructure(const BlasInput& blas_input)
@@ -34,7 +35,7 @@ AccelerationStructure RayTracingAccelerationStructureBuilder::buildBottomLevelAc
             bottom_level_max_primitive_count_list.data(),
             &bottom_level_acceleration_structure_build_sizes_info);
 
-    acceleration_structure.acceleration_structure_buffer = memory_allocator->createBuffer(
+    acceleration_structure.acceleration_structure_buffer = memory_allocator.createBuffer(
             bottom_level_acceleration_structure_build_sizes_info.accelerationStructureSize,
             1,
             VK_BUFFER_USAGE_ACCELERATION_STRUCTURE_STORAGE_BIT_KHR,
@@ -62,7 +63,7 @@ AccelerationStructure RayTracingAccelerationStructureBuilder::buildBottomLevelAc
 
     acceleration_structure.bottom_level_acceleration_structure_device_address = pvkGetAccelerationStructureDeviceAddressKHR(device.getDevice(), &bottom_level_acceleration_structure_device_address_info);
 
-    auto bottom_level_acceleration_structure_scratch_buffer = memory_allocator->createBuffer(
+    auto bottom_level_acceleration_structure_scratch_buffer = memory_allocator.createBuffer(
             bottom_level_acceleration_structure_build_sizes_info.accelerationStructureSize,
             1,
             VK_BUFFER_USAGE_STORAGE_BUFFER_BIT | VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT,
@@ -133,7 +134,7 @@ std::vector<AccelerationStructure> RayTracingAccelerationStructureBuilder::build
         number_of_compactions += build_as[idx].buildInfo.flags & VK_BUILD_ACCELERATION_STRUCTURE_ALLOW_COMPACTION_BIT_KHR ? 1 : 0;
     }
 
-    auto scratch_buffer = memory_allocator->createBuffer(
+    auto scratch_buffer = memory_allocator.createBuffer(
             max_scratch_buffer_size,
             1,
             VK_BUFFER_USAGE_STORAGE_BUFFER_BIT | VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT,
@@ -209,7 +210,7 @@ void RayTracingAccelerationStructureBuilder::cmdCreateBlas(
         create_info.type = VK_ACCELERATION_STRUCTURE_TYPE_BOTTOM_LEVEL_KHR;
         create_info.size = build_as[idx].sizeInfo.accelerationStructureSize;
 
-        build_as[idx].as.acceleration_structure_buffer = memory_allocator->createBuffer(
+        build_as[idx].as.acceleration_structure_buffer = memory_allocator.createBuffer(
                 create_info.size,
                 1,
                 VK_BUFFER_USAGE_ACCELERATION_STRUCTURE_STORAGE_BIT_KHR | VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT,
@@ -289,7 +290,7 @@ void RayTracingAccelerationStructureBuilder::cmdCompactBlas(
         create_info.size = build_as[idx].sizeInfo.accelerationStructureSize;
         create_info.type = VK_ACCELERATION_STRUCTURE_TYPE_BOTTOM_LEVEL_KHR;
 
-        build_as[idx].as.acceleration_structure_buffer = memory_allocator->createBuffer(
+        build_as[idx].as.acceleration_structure_buffer = memory_allocator.createBuffer(
                 create_info.size,
                 1,
                 VK_BUFFER_USAGE_ACCELERATION_STRUCTURE_STORAGE_BIT_KHR | VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT,
@@ -330,12 +331,12 @@ AccelerationStructure RayTracingAccelerationStructureBuilder::buildTopLevelAccel
 
     std::vector<VkAccelerationStructureInstanceKHR> instances_temp{};
     instances_temp.reserve(blas_instances.size());
-    std::transform(blas_instances.begin(), blas_instances.end(), std::back_inserter(instances_temp),
+    std::ranges::transform(blas_instances.begin(), blas_instances.end(), std::back_inserter(instances_temp),
                    [](const BlasInstance& blas_instance) { return blas_instance.bottomLevelAccelerationStructureInstance; });
 
-    auto instances_staging_buffer = memory_allocator->createStagingBuffer(
+    auto instances_staging_buffer = memory_allocator.createStagingBuffer(
             sizeof(VkAccelerationStructureInstanceKHR), instances_temp.size(), instances_temp.data());
-    auto instances_buffer = memory_allocator->createBuffer(
+    auto instances_buffer = memory_allocator.createBuffer(
             sizeof(VkAccelerationStructureInstanceKHR),
             instances_temp.size(),
             VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT | VK_BUFFER_USAGE_ACCELERATION_STRUCTURE_BUILD_INPUT_READ_ONLY_BIT_KHR | VK_BUFFER_USAGE_TRANSFER_DST_BIT,
@@ -380,7 +381,7 @@ AccelerationStructure RayTracingAccelerationStructureBuilder::buildTopLevelAccel
             top_level_max_primitive_count_list.data(),
             &top_level_acceleration_structure_build_sizes_info);
 
-    tlas.acceleration_structure_buffer = memory_allocator->createBuffer(
+    tlas.acceleration_structure_buffer = memory_allocator.createBuffer(
             top_level_acceleration_structure_build_sizes_info.accelerationStructureSize,
             1,
             VK_BUFFER_USAGE_ACCELERATION_STRUCTURE_STORAGE_BIT_KHR,
@@ -404,7 +405,7 @@ AccelerationStructure RayTracingAccelerationStructureBuilder::buildTopLevelAccel
         throw std::runtime_error("vkCreateAccelerationStructureKHR");
     }
 
-    auto top_level_acceleration_structure_scratch_buffer = memory_allocator->createBuffer(
+    auto top_level_acceleration_structure_scratch_buffer = memory_allocator.createBuffer(
             top_level_acceleration_structure_build_sizes_info.buildScratchSize,
             1,
             VK_BUFFER_USAGE_STORAGE_BUFFER_BIT | VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT,

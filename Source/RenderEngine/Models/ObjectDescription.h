@@ -1,5 +1,9 @@
 #pragma once
 
+#include <cstdint>
+
+#include "glm/glm.hpp"
+
 struct ObjectDescription
 {
     uint64_t vertex_address;

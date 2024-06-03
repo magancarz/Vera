@@ -2,8 +2,6 @@
 
 #include <chrono>
 
-#include "Logs/BasicLogger.h"
-#include "Logs/LogSystem.h"
 #include "RenderEngine/SceneRenderers/RayTraced/RayTracedRenderer.h"
 #include "RenderEngine/Memory/Vulkan/VulkanMemoryAllocator.h"
 
@@ -16,26 +14,22 @@ Vera::Vera()
 
 void Vera::initializeApplication()
 {
-    LogSystem::initialize(std::make_unique<BasicLogger>());
+    memory_allocator = std::make_unique<VulkanMemoryAllocator>(vulkan_facade);
+    asset_manager = std::make_unique<AssetManager>(vulkan_facade, *memory_allocator);
 
-    window = Window::get();
-    device = std::make_unique<VulkanFacade>(*window);
-
-    memory_allocator = std::make_unique<VulkanMemoryAllocator>(*device);
-    asset_manager = std::make_shared<AssetManager>(device.get(), memory_allocator);
-
-    input_manager = std::make_shared<GLFWInputManager>(window->getGFLWwindow());
+    input_manager = std::make_unique<GLFWInputManager>(window->getGFLWwindow());
 }
+
 void Vera::loadProject()
 {
     ProjectInfo project_info = ProjectUtils::loadProject("vera");
-    world.loadProject(project_info, asset_manager);
-    world.createViewerObject(input_manager);
+    world.loadProject(project_info, *asset_manager);
+    world.createViewerObject(*input_manager);
 }
 
 void Vera::createRenderer()
 {
-    renderer = std::make_unique<Renderer>(*window, *device, memory_allocator, world, asset_manager);
+    renderer = std::make_unique<Renderer>(*window, vulkan_facade, *memory_allocator, world, *asset_manager);
 }
 
 Vera::~Vera()
@@ -46,7 +40,7 @@ Vera::~Vera()
 void Vera::performCleanup()
 {
     asset_manager->clearResources();
-    vkDeviceWaitIdle(device->getDevice());
+    vkDeviceWaitIdle(vulkan_facade.getDevice());
 }
 
 void Vera::run()

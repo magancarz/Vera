@@ -7,9 +7,9 @@ class WavefrontMaterial : public VeraMaterial
 {
 public:
     WavefrontMaterial(
-            const std::unique_ptr<MemoryAllocator>& memory_allocator,
+            MemoryAllocator& memory_allocator,
             const MaterialInfo& material_info,
             std::string material_name,
-            std::shared_ptr<Texture> diffuse_texture,
-            std::shared_ptr<Texture> normal_texture);
+            Texture* diffuse_texture,
+            Texture* normal_texture);
 };

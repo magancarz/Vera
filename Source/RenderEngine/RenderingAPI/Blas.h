@@ -16,9 +16,9 @@ class Blas
 public:
     Blas(
             VulkanFacade& device,
-            std::unique_ptr<MemoryAllocator>& memory_allocator,
-            std::shared_ptr<AssetManager>& asset_manager,
-            const MeshComponent* mesh_component);
+            MemoryAllocator& memory_allocator,
+            AssetManager& asset_manager,
+            MeshComponent& mesh_component);
     ~Blas();
 
     Blas(const Blas&) = delete;
@@ -30,10 +30,10 @@ public:
 
 private:
     VulkanFacade& device;
-    std::unique_ptr<MemoryAllocator>& memory_allocator;
-    std::shared_ptr<AssetManager> asset_manager;
+    MemoryAllocator& memory_allocator;
+    AssetManager& asset_manager;
 
-    void createBlas(const MeshComponent* mesh_component);
+    void createBlas(MeshComponent& mesh_component);
 
     AccelerationStructure blas{};
 };

@@ -3,23 +3,23 @@
 #include "RenderEngine/Models/Model.h"
 #include "RenderEngine/Materials/Material.h"
 
-MeshComponent::MeshComponent(Object* owner)
+MeshComponent::MeshComponent(Object& owner)
     : ObjectComponent(owner) {}
 
-void MeshComponent::setModel(std::shared_ptr<Model> in_model)
+void MeshComponent::setModel(Model* in_model)
 {
-    model = std::move(in_model);
+    model = in_model;
 }
 
-void MeshComponent::setMaterials(std::vector<std::shared_ptr<Material>> in_materials)
+void MeshComponent::setMaterials(std::vector<Material*> in_materials)
 {
     materials = std::move(in_materials);
 }
 
-std::shared_ptr<Material> MeshComponent::findMaterial(const std::string& name)
+Material* MeshComponent::findMaterial(const std::string& name)
 {
     const auto found_material = std::ranges::find_if(materials.begin(), materials.end(),
-           [&] (const std::shared_ptr<Material>& material)
+           [&] (const Material* material)
     {
         return material->getName() == name;
     });
