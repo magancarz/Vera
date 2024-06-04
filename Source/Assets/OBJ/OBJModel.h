@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Model.h"
+#include "Assets/Model/Model.h"
 #include "Assets/AssetManager.h"
 #include "OBJModelInfo.h"
 #include "RenderEngine/Memory/MemoryAllocator.h"

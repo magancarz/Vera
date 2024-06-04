@@ -343,13 +343,6 @@ VkPresentModeKHR SwapChain::chooseSwapPresentMode(const std::vector<VkPresentMod
         }
     }
 
-//     for (const auto &availablePresentMode : available_present_modes) {
-//       if (availablePresentMode == VK_PRESENT_MODE_IMMEDIATE_KHR) {
-//         LogSystem::log(LogSeverity::LOG, "Present mode: Immediate");
-//         return availablePresentMode;
-//       }
-//     }
-
     LogSystem::log(LogSeverity::LOG, "Present mode: V-Sync");
     return VK_PRESENT_MODE_FIFO_KHR;
 }
@@ -360,16 +353,13 @@ VkExtent2D SwapChain::chooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilit
     {
         return capabilities.currentExtent;
     }
-    else
-    {
-        VkExtent2D actual_extent = window_extent;
-        actual_extent.width = std::max(
-                capabilities.minImageExtent.width,
-                std::min(capabilities.maxImageExtent.width, actual_extent.width));
-        actual_extent.height = std::max(
-                capabilities.minImageExtent.height,
-                std::min(capabilities.maxImageExtent.height, actual_extent.height));
+    VkExtent2D actual_extent = window_extent;
+    actual_extent.width = std::max(
+            capabilities.minImageExtent.width,
+            std::min(capabilities.maxImageExtent.width, actual_extent.width));
+    actual_extent.height = std::max(
+            capabilities.minImageExtent.height,
+            std::min(capabilities.maxImageExtent.height, actual_extent.height));
 
-        return actual_extent;
-    }
+    return actual_extent;
 }

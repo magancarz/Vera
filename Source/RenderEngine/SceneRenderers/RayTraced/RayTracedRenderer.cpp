@@ -53,8 +53,8 @@ void RayTracedRenderer::createObjectDescriptionsBuffer()
         for (size_t i = 0; i < mesh_description.model_descriptions.size(); ++i)
         {
             ObjectDescription object_description{};
-            object_description.vertex_address = mesh_description.model_descriptions[i].vertex_address;
-            object_description.index_address = mesh_description.model_descriptions[i].index_address;
+            object_description.vertex_address = mesh_description.model_descriptions[i].vertex_buffer_address;
+            object_description.index_address = mesh_description.model_descriptions[i].index_buffer_address;
             object_description.object_to_world = object->getTransform();
 
             auto required_material = mesh_description.required_materials[i];

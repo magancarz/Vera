@@ -1,8 +1,8 @@
 #include "AssetManager.h"
 
 #include "Logs/LogSystem.h"
+#include "OBJ/OBJLoader.h"
 #include "RenderEngine/Materials/VeraMaterial.h"
-#include "RenderEngine/Models/OBJModelLoader.h"
 
 AssetManager::AssetManager(VulkanFacade& vulkan_facade, MemoryAllocator& memory_allocator)
     : vulkan_facade{vulkan_facade}, memory_allocator{memory_allocator} {}
@@ -32,7 +32,8 @@ Model* AssetManager::fetchModel(const std::string& model_name)
     }
 
     LogSystem::log(LogSeverity::LOG, "Model was not found in available models list. Loading from file...");
-    return storeModel(OBJModelLoader::createFromFile(memory_allocator, *this, model_name));
+    OBJLoader::loadAssetsFromFile(memory_allocator, *this, model_name);
+    return available_models[model_name].get();
 }
 
 Model* AssetManager::storeModel(std::unique_ptr<Model> model)

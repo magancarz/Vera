@@ -1,4 +1,4 @@
-#include "OBJModelLoader.h"
+#include "OBJLoader.h"
 
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/hash.hpp>
@@ -26,14 +26,27 @@ namespace std
     };
 }
 
-std::unique_ptr<Model> OBJModelLoader::createFromFile(MemoryAllocator& memory_allocator, AssetManager& asset_manager, const std::string& model_name)
+void OBJLoader::loadAssetsFromFile(
+            MemoryAllocator& memory_allocator,
+            AssetManager& asset_manager,
+            const std::string& file_name)
 {
-    const std::string filepath = PathBuilder(paths::MODELS_DIRECTORY_PATH).append(model_name).build();
+    const std::string filepath = PathBuilder(paths::MODELS_DIRECTORY_PATH).append(file_name).build();
 
-    tinyobj::ObjReaderConfig reader_config;
     tinyobj::ObjReader reader;
+    tinyobj::ObjReaderConfig reader_config;
 
-    if (!reader.ParseFromFile(filepath, reader_config))
+    reader.ParseFromFile(filepath, reader_config);
+    handleErrorsAndWarnings(reader);
+
+    std::vector<tinyobj::material_t> materials = reader.GetMaterials();
+    loadMaterials(memory_allocator, asset_manager, materials);
+    loadModel(memory_allocator, asset_manager, reader, materials, file_name);
+}
+
+void OBJLoader::handleErrorsAndWarnings(const tinyobj::ObjReader& reader)
+{
+    if (!reader.Valid())
     {
         LogSystem::log(LogSeverity::FATAL, "TinyObjReader: ", reader.Error());
         throw std::runtime_error("TinyObjReader: " + reader.Error());
@@ -43,11 +56,13 @@ std::unique_ptr<Model> OBJModelLoader::createFromFile(MemoryAllocator& memory_al
     {
         LogSystem::log(LogSeverity::WARNING, "TinyObjReader: ", reader.Warning());
     }
+}
 
-    tinyobj::attrib_t attrib = reader.GetAttrib();
-    std::vector<tinyobj::shape_t> shapes = reader.GetShapes();
-    std::vector<tinyobj::material_t> obj_materials = reader.GetMaterials();
-
+void OBJLoader::loadMaterials(
+        MemoryAllocator& memory_allocator,
+        AssetManager& asset_manager,
+        const std::vector<tinyobj::material_t>& obj_materials)
+{
     for (auto& material : obj_materials)
     {
         MaterialInfo material_info{};
@@ -65,10 +80,20 @@ std::unique_ptr<Model> OBJModelLoader::createFromFile(MemoryAllocator& memory_al
                         memory_allocator,
                         material_info,
                         material.name,
-                        std::move(diffuse_texture),
-                        std::move(normal_texture)));
+                        diffuse_texture,
+                        normal_texture));
     }
+}
 
+void OBJLoader::loadModel(
+        MemoryAllocator& memory_allocator,
+        AssetManager& asset_manager,
+        const tinyobj::ObjReader& reader,
+        const std::vector<tinyobj::material_t>& materials,
+        const std::string& file_name)
+{
+    const tinyobj::attrib_t& attrib = reader.GetAttrib();
+    std::vector<tinyobj::shape_t> shapes = reader.GetShapes();
     std::vector<OBJModelInfo> obj_model_infos;
     obj_model_infos.reserve(shapes.size());
     for (const auto& shape : shapes)
@@ -76,7 +101,10 @@ std::unique_ptr<Model> OBJModelLoader::createFromFile(MemoryAllocator& memory_al
         OBJModelInfo obj_model_info{};
         obj_model_info.name = shape.name;
         int material_id = shape.mesh.material_ids[0];
-        obj_model_info.required_material = material_id >= 0 && !obj_materials.empty() ? obj_materials[material_id].name : "white";
+        if (material_id >= 0 && !materials.empty())
+        {
+            obj_model_info.required_material = materials[material_id].name;
+        }
 
         std::unordered_map<Vertex, uint32_t> unique_vertices{};
         for (size_t i = 0; i < shape.mesh.indices.size(); i += 3)
@@ -95,10 +123,10 @@ std::unique_ptr<Model> OBJModelLoader::createFromFile(MemoryAllocator& memory_al
         obj_model_infos.emplace_back(obj_model_info);
     }
 
-    return std::make_unique<OBJModel>(memory_allocator, obj_model_infos, model_name);
+    asset_manager.storeModel(std::make_unique<OBJModel>(memory_allocator, obj_model_infos, file_name));
 }
 
-Vertex OBJModelLoader::extractVertex(const tinyobj::index_t& index, const tinyobj::attrib_t& attrib)
+Vertex OBJLoader::extractVertex(const tinyobj::index_t& index, const tinyobj::attrib_t& attrib)
 {
     Vertex vertex{};
     if (index.vertex_index >= 0)
@@ -133,7 +161,7 @@ Vertex OBJModelLoader::extractVertex(const tinyobj::index_t& index, const tinyob
     return vertex;
 }
 
-void OBJModelLoader::calculateTangentSpaceVectors(Vertex& first_vertex, Vertex& second_vertex, Vertex& third_vertex)
+void OBJLoader::calculateTangentSpaceVectors(Vertex& first_vertex, Vertex& second_vertex, Vertex& third_vertex)
 {
     glm::vec3 edge1 = second_vertex.position - first_vertex.position;
     glm::vec3 edge2 = third_vertex.position - first_vertex.position;
@@ -148,7 +176,7 @@ void OBJModelLoader::calculateTangentSpaceVectors(Vertex& first_vertex, Vertex& 
     first_vertex.tangent = second_vertex.tangent = third_vertex.tangent = normalize(tangent);
 }
 
-void OBJModelLoader::addVertexToModelInfo(OBJModelInfo& obj_model_info, std::unordered_map<Vertex, uint32_t>& unique_vertices, const Vertex& vertex)
+void OBJLoader::addVertexToModelInfo(OBJModelInfo& obj_model_info, std::unordered_map<Vertex, uint32_t>& unique_vertices, const Vertex& vertex)
 {
     if (!unique_vertices.contains(vertex))
     {

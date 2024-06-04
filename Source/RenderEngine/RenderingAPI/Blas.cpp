@@ -25,8 +25,8 @@ void Blas::createBlas(MeshComponent& mesh_component)
     {
         ModelDescription& model_description = mesh_description.model_descriptions[i];
 
-        VkDeviceAddress vertex_address = model_description.vertex_address;
-        VkDeviceAddress index_address = model_description.index_address;
+        VkDeviceAddress vertex_address = model_description.vertex_buffer_address;
+        VkDeviceAddress index_address = model_description.index_buffer_address;
 
         uint32_t max_primitive_count = model_description.num_of_triangles;
 

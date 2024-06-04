@@ -1,11 +1,13 @@
 #pragma once
 
+#include <Assets/Defines.h>
+
 #include "RenderEngine/RenderingAPI/Vertex.h"
 
 struct OBJModelInfo
 {
-    std::string name;
-    std::string required_material;
+    std::string name{Assets::DEFAULT_MODEL_NAME};
+    std::string required_material{Assets::DEFAULT_MATERIAL_NAME};
     std::vector<Vertex> vertices{};
     std::vector<uint32_t> indices{};
 };

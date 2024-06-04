@@ -4,7 +4,7 @@
 #include <memory>
 
 #include "ObjectComponent.h"
-#include "RenderEngine/Models/MeshDescription.h"
+#include "Assets/Model/MeshDescription.h"
 
 class Model;
 class Material;
@@ -15,7 +15,7 @@ public:
     explicit MeshComponent(Object& owner);
 
     void setModel(Model* in_model);
-    Model* getModel() const { return model; }
+    [[nodiscard]] Model* getModel() const { return model; }
 
     void setMaterials(std::vector<Material*> in_materials);
     std::vector<Material*> getMaterials() { return materials; }
