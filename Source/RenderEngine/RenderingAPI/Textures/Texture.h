@@ -4,7 +4,7 @@
 
 #include "RenderEngine/RenderingAPI/VulkanFacade.h"
 #include "TextureData.h"
-#include "RenderEngine/Memory/MemoryAllocator.h"
+#include "Memory/MemoryAllocator.h"
 
 class Texture
 {

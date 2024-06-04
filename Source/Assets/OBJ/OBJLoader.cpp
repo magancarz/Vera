@@ -11,7 +11,6 @@
 #include "Logs/LogSystem.h"
 #include "Utils/PathBuilder.h"
 #include "Utils/Algorithms.h"
-#include "RenderEngine/Materials/WavefrontMaterial.h"
 #include "RenderEngine/RenderingAPI/Vertex.h"
 #include "Assets/Model/ModelInfo.h"
 
@@ -68,22 +67,15 @@ void OBJLoader::loadMaterials(
     for (auto& material : obj_materials)
     {
         MaterialInfo material_info{};
-        material_info.brightness = material.emission[0] > 0 || material.emission[1] > 0 || material.emission[2] > 0 ? 10 : -1;
-        material_info.fuzziness = material.shininess > 0 ? 0.05 : -1;
+        material_info.name = material.name;
 
         auto diffuse_texture_name = material.diffuse_texname.empty() ? "white.png" : material.diffuse_texname;
-        Texture* diffuse_texture = asset_manager.fetchTexture(diffuse_texture_name, VK_FORMAT_R8G8B8A8_SRGB);
+        material_info.diffuse_texture = asset_manager.fetchTexture(diffuse_texture_name, VK_FORMAT_R8G8B8A8_SRGB);
 
         auto normal_texture_name = material.displacement_texname.empty() ? "blue.png" : material.displacement_texname;
-        Texture* normal_texture = asset_manager.fetchTexture(normal_texture_name, VK_FORMAT_R8G8B8A8_UNORM);
+        material_info.normal_texture = asset_manager.fetchTexture(normal_texture_name, VK_FORMAT_R8G8B8A8_UNORM);
 
-        asset_manager.storeMaterial(
-                std::make_unique<WavefrontMaterial>(
-                        memory_allocator,
-                        material_info,
-                        material.name,
-                        diffuse_texture,
-                        normal_texture));
+        asset_manager.storeMaterial(std::make_unique<Material>(material_info));
     }
 }
 

@@ -1,7 +1,7 @@
 #include "Model.h"
 
 #include "RenderEngine/RenderingAPI/VulkanHelper.h"
-#include "RenderEngine/Memory/MemoryAllocator.h"
+#include "Memory/MemoryAllocator.h"
 #include "ModelInfo.h"
 
 Model::Model(

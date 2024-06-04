@@ -1,4 +1,0 @@
-target_sources(Vera-Lib PRIVATE
-        Material.cpp
-        VeraMaterial.cpp
-        WavefrontMaterial.cpp)

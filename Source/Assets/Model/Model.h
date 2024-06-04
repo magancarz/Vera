@@ -1,7 +1,7 @@
 #pragma once
 
 #include "RenderEngine/RenderingAPI/VulkanFacade.h"
-#include "RenderEngine/Memory/Buffer.h"
+#include "Memory/Buffer.h"
 #include "ModelDescription.h"
 
 struct ModelInfo;

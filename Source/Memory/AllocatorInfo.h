@@ -1,6 +1,6 @@
 #pragma once
 
-#include "RenderEngine/Memory/Vulkan/VmaUsage.h"
+#include "Vulkan/VmaUsage.h"
 
 struct VulkanMemoryAllocatorInfo
 {

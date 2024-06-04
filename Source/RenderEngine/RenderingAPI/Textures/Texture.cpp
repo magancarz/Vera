@@ -2,7 +2,7 @@
 #include "Texture.h"
 
 #include "TextureData.h"
-#include "RenderEngine/Memory/Buffer.h"
+#include "Memory/Buffer.h"
 #include "RenderEngine/RenderingAPI/VulkanDefines.h"
 
 Texture::Texture(VulkanFacade& device, MemoryAllocator& memory_allocator, const std::string& texture_name, VkFormat image_format)

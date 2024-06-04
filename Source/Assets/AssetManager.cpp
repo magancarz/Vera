@@ -2,7 +2,7 @@
 
 #include "Logs/LogSystem.h"
 #include "OBJ/OBJLoader.h"
-#include "RenderEngine/Materials/VeraMaterial.h"
+#include "Assets/Material/VeraMaterial.h"
 
 AssetManager::AssetManager(VulkanFacade& vulkan_facade, MemoryAllocator& memory_allocator)
     : vulkan_facade{vulkan_facade}, memory_allocator{memory_allocator} {}
@@ -73,7 +73,8 @@ Material* AssetManager::fetchMaterial(const std::string& material_name)
     }
 
     LogSystem::log(LogSeverity::LOG, "Material was not found in available materials list. Loading from file...");
-    return storeMaterial(VeraMaterial::fromAssetFile(memory_allocator, *this, material_name));
+    VeraMaterial::loadAssetFromFile(*this, material_name);
+    return available_materials[material_name].get();
 }
 
 Material* AssetManager::storeMaterial(std::unique_ptr<Material> material)

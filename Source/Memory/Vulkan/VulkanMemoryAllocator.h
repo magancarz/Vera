@@ -1,7 +1,7 @@
 #pragma once
 
-#include "RenderEngine/Memory/Vulkan/VmaUsage.h"
-#include "RenderEngine/Memory/MemoryAllocator.h"
+#include "Memory/Vulkan/VmaUsage.h"
+#include "Memory/MemoryAllocator.h"
 
 class VulkanMemoryAllocator : public MemoryAllocator
 {

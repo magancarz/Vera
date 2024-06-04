@@ -2,9 +2,9 @@
 
 #include "RenderEngine/RenderingAPI/VulkanFacade.h"
 #include "RenderEngine/SceneRenderers/RayTraced/PushConstantRay.h"
-#include "RenderEngine/Memory/Buffer.h"
+#include "Memory/Buffer.h"
 #include "RenderEngine/RenderingAPI/ShaderModule.h"
-#include "RenderEngine/Memory/MemoryAllocator.h"
+#include "Memory/MemoryAllocator.h"
 
 struct ShaderBindingTableValues
 {

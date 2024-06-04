@@ -9,6 +9,7 @@
 #include "RenderEngine/SceneRenderers/RayTraced/Pipeline/RayTracingPipelineBuilder.h"
 #include "Objects/Components/MeshComponent.h"
 #include "RenderEngine/Models/RayTracingAccelerationStructureBuilder.h"
+#include "RenderEngine/Materials/DeviceMaterialInfo.h"
 
 RayTracedRenderer::RayTracedRenderer(
         VulkanFacade& device,
@@ -43,7 +44,7 @@ void RayTracedRenderer::queryRayTracingPipelineProperties()
 
 void RayTracedRenderer::createObjectDescriptionsBuffer()
 {
-    std::vector<MaterialInfo> material_infos;
+    std::vector<DeviceMaterialInfo> device_material_infos;
     diffuse_textures.clear();
     for (auto& [_, object] : world.getRenderedObjects())
     {
@@ -74,16 +75,16 @@ void RayTracedRenderer::createObjectDescriptionsBuffer()
                 material_index = used_materials.size();
                 used_materials.emplace_back(material);
 
-                auto material_info = material->getMaterialInfo();
+                DeviceMaterialInfo device_material_info{};
                 auto texture = material->getDiffuseTexture();
                 auto tit = std::ranges::find(diffuse_textures.begin(), diffuse_textures.end(), texture);
                 if (tit != diffuse_textures.end())
                 {
-                    material_info.diffuse_texture_offset = std::distance(diffuse_textures.begin(), tit);
+                    device_material_info.diffuse_texture_offset = std::distance(diffuse_textures.begin(), tit);
                 }
                 else
                 {
-                    material_info.diffuse_texture_offset = diffuse_textures.size();
+                    device_material_info.diffuse_texture_offset = diffuse_textures.size();
                     diffuse_textures.emplace_back(texture);
                 }
 
@@ -91,15 +92,15 @@ void RayTracedRenderer::createObjectDescriptionsBuffer()
                 auto nit = std::ranges::find(normal_textures.begin(), normal_textures.end(), normal_texture);
                 if (nit != normal_textures.end())
                 {
-                    material_info.normal_texture_offset = std::distance(normal_textures.begin(), nit);
+                    device_material_info.normal_texture_offset = std::distance(normal_textures.begin(), nit);
                 }
                 else
                 {
-                    material_info.normal_texture_offset = normal_textures.size();
+                    device_material_info.normal_texture_offset = normal_textures.size();
                     normal_textures.emplace_back(normal_texture);
                 }
 
-                material_infos.emplace_back(material_info);
+                device_material_infos.emplace_back(device_material_info);
             }
 
             object_description.material_index = material_index;
@@ -121,13 +122,13 @@ void RayTracedRenderer::createObjectDescriptionsBuffer()
     object_descriptions_buffer->copyFromBuffer(object_descriptions_staging_buffer);
 
     auto material_descriptions_staging_buffer = memory_allocator.createStagingBuffer(
-            sizeof(MaterialInfo),
-            material_infos.size(),
-            material_infos.data());
+            sizeof(DeviceMaterialInfo),
+            device_material_infos.size(),
+            device_material_infos.data());
     material_descriptions_buffer = memory_allocator.createBuffer
     (
-            sizeof(MaterialInfo),
-            static_cast<uint32_t>(material_infos.size()),
+            sizeof(DeviceMaterialInfo),
+            static_cast<uint32_t>(device_material_infos.size()),
             VK_BUFFER_USAGE_STORAGE_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT,
             VK_MEMORY_ALLOCATE_DEVICE_ADDRESS_BIT
     );

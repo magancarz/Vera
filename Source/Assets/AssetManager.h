@@ -5,9 +5,9 @@
 
 #include "RenderEngine/RenderingAPI/VulkanFacade.h"
 #include "Project/Project.h"
-#include "RenderEngine/Materials/Material.h"
+#include "Assets/Material/Material.h"
 #include "Model/Model.h"
-#include "RenderEngine/Memory/MemoryAllocator.h"
+#include "Memory/MemoryAllocator.h"
 #include "Mesh.h"
 
 class Texture;

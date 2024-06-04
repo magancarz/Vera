@@ -3,7 +3,7 @@
 #include <chrono>
 
 #include "Editor/Window/WindowSystem.h"
-#include "RenderEngine/Memory/Vulkan/VulkanMemoryAllocator.h"
+#include "Memory/Vulkan/VulkanMemoryAllocator.h"
 
 Vera::Vera()
     : window{WindowSystem::get()}, vulkan_facade{window},

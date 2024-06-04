@@ -1,7 +1,7 @@
 #include "MeshComponent.h"
 
 #include "Assets/Model/Model.h"
-#include "RenderEngine/Materials/Material.h"
+#include "Assets/Material/Material.h"
 #include "Assets/Mesh.h"
 
 MeshComponent::MeshComponent(Object& owner)

@@ -1,7 +1,7 @@
 #pragma once
 
 #include "RayTracingPipeline.h"
-#include "RenderEngine/Materials/Material.h"
+#include "Assets/Material/Material.h"
 #include "MaterialShader.h"
 
 class RayTracingPipelineBuilder

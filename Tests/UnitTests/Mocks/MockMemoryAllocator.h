@@ -1,6 +1,6 @@
 #pragma once
 
-#include "RenderEngine/Memory/MemoryAllocator.h"
+#include "Memory/MemoryAllocator.h"
 
 class MockMemoryAllocator : public MemoryAllocator
 {
