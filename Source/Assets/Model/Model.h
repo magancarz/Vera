@@ -4,10 +4,16 @@
 #include "RenderEngine/Memory/Buffer.h"
 #include "ModelDescription.h"
 
+struct ModelInfo;
+struct Vertex;
+class MemoryAllocator;
+
 class Model
 {
 public:
-    explicit Model(std::string model_name, std::string required_material = "");
+    Model(
+        MemoryAllocator& memory_allocator,
+        const ModelInfo& model_info);
     virtual ~Model() = default;
 
     Model(const Model&) = delete;
@@ -22,6 +28,9 @@ public:
 protected:
     std::string name{};
     std::string required_material{};
+
+    void createVertexBuffer(MemoryAllocator& memory_allocator, const std::vector<Vertex>& vertices);
+    void createIndexBuffer(MemoryAllocator& memory_allocator, const std::vector<uint32_t>& indices);
 
     std::unique_ptr<Buffer> vertex_buffer;
     uint32_t vertex_count{0};

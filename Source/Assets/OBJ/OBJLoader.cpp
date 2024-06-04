@@ -12,6 +12,8 @@
 #include "Utils/PathBuilder.h"
 #include "Utils/Algorithms.h"
 #include "RenderEngine/Materials/WavefrontMaterial.h"
+#include "RenderEngine/RenderingAPI/Vertex.h"
+#include "Assets/Model/ModelInfo.h"
 
 namespace std
 {
@@ -100,14 +102,14 @@ void OBJLoader::loadMesh(
     mesh_materials.reserve(shapes.size());
     for (const auto& shape : shapes)
     {
-        OBJModelInfo obj_model_info{};
-        obj_model_info.name = shape.name;
+        ModelInfo model_info{};
+        model_info.name = shape.name;
         int material_id = shape.mesh.material_ids[0];
         if (material_id >= 0 && !obj_materials.empty())
         {
-            obj_model_info.required_material = obj_materials[material_id].name;
+            model_info.required_material = obj_materials[material_id].name;
         }
-        mesh_materials.emplace_back(asset_manager.fetchMaterial(obj_model_info.required_material));
+        mesh_materials.emplace_back(asset_manager.fetchMaterial(model_info.required_material));
 
         std::unordered_map<Vertex, uint32_t> unique_vertices{};
         for (size_t i = 0; i < shape.mesh.indices.size(); i += 3)
@@ -118,12 +120,12 @@ void OBJLoader::loadMesh(
 
             calculateTangentSpaceVectors(first_vertex, second_vertex, third_vertex);
 
-            addVertexToModelInfo(obj_model_info, unique_vertices, first_vertex);
-            addVertexToModelInfo(obj_model_info, unique_vertices, second_vertex);
-            addVertexToModelInfo(obj_model_info, unique_vertices, third_vertex);
+            addVertexToModelInfo(model_info, unique_vertices, first_vertex);
+            addVertexToModelInfo(model_info, unique_vertices, second_vertex);
+            addVertexToModelInfo(model_info, unique_vertices, third_vertex);
         }
 
-        models.emplace_back(asset_manager.storeModel(std::make_unique<OBJModel>(memory_allocator, obj_model_info)));
+        models.emplace_back(asset_manager.storeModel(std::make_unique<Model>(memory_allocator, model_info)));
     }
 
     asset_manager.storeMesh(std::make_unique<Mesh>(mesh_name, models, mesh_materials));
@@ -179,12 +181,12 @@ void OBJLoader::calculateTangentSpaceVectors(Vertex& first_vertex, Vertex& secon
     first_vertex.tangent = second_vertex.tangent = third_vertex.tangent = normalize(tangent);
 }
 
-void OBJLoader::addVertexToModelInfo(OBJModelInfo& obj_model_info, std::unordered_map<Vertex, uint32_t>& unique_vertices, const Vertex& vertex)
+void OBJLoader::addVertexToModelInfo(ModelInfo& model_info, std::unordered_map<Vertex, uint32_t>& unique_vertices, const Vertex& vertex)
 {
     if (!unique_vertices.contains(vertex))
     {
-        unique_vertices[vertex] = static_cast<uint32_t>(obj_model_info.vertices.size());
-        obj_model_info.vertices.push_back(vertex);
+        unique_vertices[vertex] = static_cast<uint32_t>(model_info.vertices.size());
+        model_info.vertices.push_back(vertex);
     }
-    obj_model_info.indices.push_back(unique_vertices[vertex]);
+    model_info.indices.push_back(unique_vertices[vertex]);
 }

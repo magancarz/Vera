@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Assets/AssetManager.h"
-#include "OBJModel.h"
+#include "Assets/Model/Model.h"
 #include "tiny_obj_loader.h"
 
 class OBJLoader
@@ -28,5 +28,5 @@ private:
             const std::string& mesh_name);
     static Vertex extractVertex(const tinyobj::index_t& index, const tinyobj::attrib_t& attrib);
     static void calculateTangentSpaceVectors(Vertex& first_vertex, Vertex& second_vertex, Vertex& third_vertex);
-    static void addVertexToModelInfo(OBJModelInfo& obj_model_info, std::unordered_map<Vertex, uint32_t>& unique_vertices, const Vertex& vertex);
+    static void addVertexToModelInfo(ModelInfo& model_info, std::unordered_map<Vertex, uint32_t>& unique_vertices, const Vertex& vertex);
 };
