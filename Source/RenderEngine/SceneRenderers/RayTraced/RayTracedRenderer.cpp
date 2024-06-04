@@ -8,7 +8,7 @@
 #include "RenderEngine/RenderingAPI/VulkanDefines.h"
 #include "RenderEngine/SceneRenderers/RayTraced/Pipeline/RayTracingPipelineBuilder.h"
 #include "Objects/Components/MeshComponent.h"
-#include "RenderEngine/Models/RayTracingAccelerationStructureBuilder.h"
+#include "RenderEngine/AccelerationStructures/RayTracingAccelerationStructureBuilder.h"
 #include "RenderEngine/Materials/DeviceMaterialInfo.h"
 
 RayTracedRenderer::RayTracedRenderer(

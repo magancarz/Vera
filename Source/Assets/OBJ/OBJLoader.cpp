@@ -11,7 +11,7 @@
 #include "Logs/LogSystem.h"
 #include "Utils/PathBuilder.h"
 #include "Utils/Algorithms.h"
-#include "RenderEngine/RenderingAPI/Vertex.h"
+#include "../Model/Vertex.h"
 #include "Assets/Model/ModelInfo.h"
 
 namespace std

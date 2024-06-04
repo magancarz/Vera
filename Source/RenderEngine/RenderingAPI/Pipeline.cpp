@@ -3,7 +3,8 @@
 #include <fstream>
 
 #include "VulkanDefines.h"
-#include "Vertex.h"
+#include "../../Assets/Model/Vertex.h"
+#include "VulkanUtils.h"
 
 Pipeline::Pipeline(
         VulkanFacade& device,
@@ -190,6 +191,6 @@ void Pipeline::defaultPipelineConfigInfo(PipelineConfigInfo& config_info)
     config_info.dynamic_state_info.dynamicStateCount = static_cast<uint32_t>(config_info.dynamic_state_enables.size());
     config_info.depth_stencil_info.flags = 0;
 
-    config_info.binding_descriptions = Vertex::getBindingDescriptions();
-    config_info.attribute_descriptions = Vertex::getAttributeDescriptions();
+    config_info.binding_descriptions = VulkanUtils::getVertexBindingDescriptions();
+    config_info.attribute_descriptions = VulkanUtils::getVertexAttributeDescriptions();
 }

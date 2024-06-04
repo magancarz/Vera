@@ -82,7 +82,7 @@ std::unique_ptr<Buffer> VulkanMemoryAllocator::createStagingBuffer(uint32_t inst
             VMA_ALLOCATION_CREATE_HOST_ACCESS_SEQUENTIAL_WRITE_BIT);
 }
 
-std::unique_ptr<Buffer> VulkanMemoryAllocator::createStagingBuffer(uint32_t instance_size, uint32_t instance_count, void* data)
+std::unique_ptr<Buffer> VulkanMemoryAllocator::createStagingBuffer(uint32_t instance_size, uint32_t instance_count, const void* data)
 {
     auto buffer = createBuffer(
             instance_size,

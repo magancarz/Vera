@@ -28,7 +28,7 @@ void Buffer::unmap()
     }
 }
 
-void Buffer::writeToBuffer(void* data)
+void Buffer::writeToBuffer(const void* data)
 {
     assert(mapped && "Cannot copy to unmapped buffer");
     memcpy(mapped, data, buffer_size);

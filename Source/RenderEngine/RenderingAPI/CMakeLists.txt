@@ -1,5 +1,4 @@
 target_sources(Vera-Lib PRIVATE
-        Blas.cpp
         VulkanFacade.cpp
         Pipeline.cpp
         SwapChain.cpp
@@ -10,6 +9,7 @@ target_sources(Vera-Lib PRIVATE
         PhysicalDevice.cpp
         VulkanHelper.cpp
         ShaderModule.cpp
-        Surface.cpp)
+        Surface.cpp
+        VulkanUtils.cpp)
 
 add_subdirectory(Textures)

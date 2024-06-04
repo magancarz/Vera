@@ -6,6 +6,7 @@
 
 #include "Editor/Window/GLFWWindow.h"
 #include "Editor/Window/WindowSystem.h"
+#include "Source/Assets/Model/Vertex.h"
 
 int main()
 {

@@ -23,7 +23,7 @@ public:
             uint32_t preferred_memory_flags = 0,
             uint32_t min_offset_alignment = 0) override;
     std::unique_ptr<Buffer> createStagingBuffer(uint32_t instance_size, uint32_t instance_count) override;
-    std::unique_ptr<Buffer> createStagingBuffer(uint32_t instance_size, uint32_t instance_count, void *data) override;
+    std::unique_ptr<Buffer> createStagingBuffer(uint32_t instance_size, uint32_t instance_count, const void *data) override;
 
 private:
     VulkanFacade& vulkan_facade;

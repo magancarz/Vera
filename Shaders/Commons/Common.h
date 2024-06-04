@@ -19,13 +19,9 @@ using uint = unsigned int;
 struct Vertex
 {
     vec3 position;
-    uint padding1;
     vec3 normal;
-    uint padding2;
     vec2 uv;
-    vec2 padding3;
     vec3 tangent;
-    uint padding4;
 };
 
 struct ObjectDescription

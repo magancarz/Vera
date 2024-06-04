@@ -2,10 +2,10 @@
 
 #include <memory>
 
-#include <glm/glm.hpp>
+#include <../../../ThirdParty/GLM/glm/glm.hpp>
 
-#include "RenderEngine/Models/AccelerationStructure.h"
-#include "RenderEngine/Models/BlasInstance.h"
+#include "AccelerationStructure.h"
+#include "BlasInstance.h"
 
 class MeshComponent;
 class MemoryAllocator;

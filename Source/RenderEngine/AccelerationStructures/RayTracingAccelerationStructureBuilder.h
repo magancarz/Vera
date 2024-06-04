@@ -4,7 +4,7 @@
 
 #include "RenderEngine/RenderingAPI/VulkanFacade.h"
 #include "World/World.h"
-#include "RenderEngine/Models/AccelerationStructure.h"
+#include "RenderEngine/AccelerationStructures/AccelerationStructure.h"
 
 class RayTracingAccelerationStructureBuilder
 {

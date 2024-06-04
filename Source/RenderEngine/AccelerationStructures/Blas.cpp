@@ -1,10 +1,10 @@
 #include "Blas.h"
 
-#include "RenderEngine/Models/RayTracingAccelerationStructureBuilder.h"
-#include "VulkanHelper.h"
-#include "VulkanDefines.h"
-#include "Vertex.h"
-#include "Objects/Components/MeshComponent.h"
+#include "RayTracingAccelerationStructureBuilder.h"
+#include "../RenderingAPI/VulkanHelper.h"
+#include "../RenderingAPI/VulkanDefines.h"
+#include "../../Assets/Model/Vertex.h"
+#include "../../Objects/Components/MeshComponent.h"
 
 Blas::Blas(
         VulkanFacade& device,

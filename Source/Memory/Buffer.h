@@ -14,7 +14,7 @@ public:
     VkResult map();
     void unmap();
 
-    void writeToBuffer(void* data);
+    void writeToBuffer(const void* data);
     void copyFromBuffer(const std::unique_ptr<Buffer>& src_buffer);
     [[nodiscard]] VkResult flush() const;
     VkDescriptorBufferInfo descriptorInfo();

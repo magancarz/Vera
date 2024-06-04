@@ -16,5 +16,5 @@ public:
             uint32_t preferred_memory_flags = 0,
             uint32_t min_offset_alignment = 0) = 0;
     virtual std::unique_ptr<Buffer> createStagingBuffer(uint32_t instance_size, uint32_t instance_count) = 0;
-    virtual std::unique_ptr<Buffer> createStagingBuffer(uint32_t instance_size, uint32_t instance_count, void* data) = 0;
+    virtual std::unique_ptr<Buffer> createStagingBuffer(uint32_t instance_size, uint32_t instance_count, const void* data) = 0;
 };

@@ -1,12 +1,12 @@
 #pragma once
 
-#include "RenderEngine/Models/ObjectDescription.h"
+#include "RenderEngine/AccelerationStructures/ObjectDescription.h"
 #include "RenderEngine/SceneRenderers/SceneRenderer.h"
 #include "World/World.h"
 #include "RenderEngine/SceneRenderers/RayTraced/Pipeline/RayTracingPipeline.h"
 #include "RenderEngine/RenderingAPI/Descriptors.h"
 #include "RenderEngine/RenderingAPI/Textures/Texture.h"
-#include "RenderEngine/RenderingAPI/Blas.h"
+#include "../../AccelerationStructures/Blas.h"
 #include "RenderEngine/SceneRenderers/RayTraced/Pipeline/RayTracingPipelineBuilder.h"
 
 struct CameraUBO

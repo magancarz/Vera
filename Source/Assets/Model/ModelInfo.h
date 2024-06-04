@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Assets/Defines.h"
-#include "RenderEngine/RenderingAPI/Vertex.h"
+#include "Vertex.h"
 
 struct ModelInfo
 {
