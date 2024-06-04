@@ -37,8 +37,8 @@ void PlayerMovementComponent::update(FrameInfo& frame_info)
     if (input_manager.isKeyPressed(MOVE_BACKWARD)) move_dir -= forward_dir;
     if (input_manager.isKeyPressed(MOVE_RIGHT)) move_dir += right_dir;
     if (input_manager.isKeyPressed(MOVE_LEFT)) move_dir -= right_dir;
-    if (input_manager.isKeyPressed(MOVE_DOWN)) move_dir += up_dir;
-    if (input_manager.isKeyPressed(MOVE_UP)) move_dir -= up_dir;
+    if (input_manager.isKeyPressed(MOVE_UP)) move_dir += up_dir;
+    if (input_manager.isKeyPressed(MOVE_DOWN)) move_dir -= up_dir;
 
     player_moved |= move_dir != glm::vec3{0};
 
