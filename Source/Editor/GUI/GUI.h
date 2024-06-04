@@ -1,7 +1,6 @@
 #pragma once
 
 #include "RenderEngine/RenderingAPI/VulkanFacade.h"
-#include "RenderEngine/Window.h"
 #include "RenderEngine/RenderingAPI/Descriptors.h"
 #include "RenderEngine/RenderingAPI/SwapChain.h"
 #include "RenderEngine/FrameInfo.h"

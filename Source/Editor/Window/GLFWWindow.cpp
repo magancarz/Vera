@@ -1,30 +1,19 @@
-#include "Window.h"
+#include "GLFWWindow.h"
 
 #include <stdexcept>
 
-std::shared_ptr<Window> Window::get(uint32_t width, uint32_t height, std::string name)
-{
-    std::lock_guard<std::mutex> lock(mutex);
-    if (!instance)
-    {
-        instance = std::shared_ptr<Window>(new Window(width, height, std::move(name)));
-    }
-
-    return instance;
-}
-
-Window::Window(uint32_t width, uint32_t height, std::string name)
-    : width{width}, height{height}, window_name{std::move(name)}
+GLFWWindow::GLFWWindow(uint32_t width, uint32_t height, std::string name)
+    : Window{width, height, std::move(name)}
 {
     createWindow();
 }
 
-Window::~Window()
+GLFWWindow::~GLFWWindow()
 {
     glfwTerminate();
 }
 
-void Window::createWindow()
+void GLFWWindow::createWindow()
 {
     if (!glfwInit())
     {
@@ -46,7 +35,7 @@ void Window::createWindow()
     glfwSetFramebufferSizeCallback(window, framebufferResizeCallback);
 }
 
-void Window::createWindowSurface(VkInstance instance, VkSurfaceKHR* surface)
+void GLFWWindow::createWindowSurface(VkInstance instance, VkSurfaceKHR* surface)
 {
     if (glfwCreateWindowSurface(instance, window, nullptr, surface) != VK_SUCCESS)
     {
@@ -54,10 +43,10 @@ void Window::createWindowSurface(VkInstance instance, VkSurfaceKHR* surface)
     }
 }
 
-void Window::framebufferResizeCallback(GLFWwindow* window, int width, int height)
+void GLFWWindow::framebufferResizeCallback(GLFWwindow* window, int width, int height)
 {
-    auto window_ptr = reinterpret_cast<Window*>(glfwGetWindowUserPointer(window));
-    window_ptr->framebuffer_resized = true;
+    auto window_ptr = reinterpret_cast<GLFWWindow*>(glfwGetWindowUserPointer(window));
+    window_ptr->window_resized = true;
     window_ptr->width = width;
     window_ptr->height = height;
 }

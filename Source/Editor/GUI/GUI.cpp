@@ -9,6 +9,8 @@
 #include "RenderEngine/FrameInfo.h"
 #include "Editor/GUI/Components/Container.h"
 #include "Editor/GUI/Components/SceneSettingsWindow.h"
+#include "Editor/Window/GLFWWindow.h"
+#include "Editor/Window/WindowSystem.h"
 #include "Logs/LogSystem.h"
 
 GUI::GUI(VulkanFacade& device, Window& window, SwapChain* swap_chain)
@@ -133,7 +135,10 @@ namespace callbacks
 
 void GUI::setupRendererBackends()
 {
-    ImGui_ImplGlfw_InitForVulkan(window.getGFLWwindow(), true);
+    if (auto as_glfw_window = dynamic_cast<GLFWWindow*>(&WindowSystem::get()))
+    {
+        ImGui_ImplGlfw_InitForVulkan(as_glfw_window->getGFLWwindow(), true);
+    }
     ImGui_ImplVulkan_InitInfo init_info{};
     init_info.Instance = device.getInstance();
     init_info.PhysicalDevice = device.getPhysicalDevice();

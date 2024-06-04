@@ -1,6 +1,5 @@
 target_sources(Vera-Lib PRIVATE
-        Renderer.cpp
-        Window.cpp)
+        Renderer.cpp)
 
 add_subdirectory(Materials)
 add_subdirectory(Memory)

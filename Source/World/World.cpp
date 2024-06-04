@@ -1,5 +1,6 @@
 #include "World.h"
 
+#include "Editor/Window/WindowSystem.h"
 #include "Project/Project.h"
 #include "Objects/Components/CameraComponent.h"
 #include "Objects/Components/MeshComponent.h"
@@ -39,7 +40,7 @@ void World::createViewerObject(InputManager& input_manager)
     viewer_object->addComponent(std::move(player_movement_component));
     auto player_camera_component = std::make_shared<CameraComponent>(*viewer_object, transform_component);
     registerComponent(player_camera_component);
-    player_camera_component->setPerspectiveProjection(glm::radians(70.0f), Window::get()->getAspect(), 0.1f, 100.f);
+    player_camera_component->setPerspectiveProjection(glm::radians(70.0f), WindowSystem::get().getAspect(), 0.1f, 100.f);
     viewer_object->addComponent(std::move(player_camera_component));
     viewer_object->addRootComponent(std::move(transform_component));
 }

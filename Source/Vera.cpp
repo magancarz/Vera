@@ -2,22 +2,17 @@
 
 #include <chrono>
 
-#include "RenderEngine/SceneRenderers/RayTraced/RayTracedRenderer.h"
+#include "Editor/Window/WindowSystem.h"
 #include "RenderEngine/Memory/Vulkan/VulkanMemoryAllocator.h"
 
 Vera::Vera()
+    : window{WindowSystem::get()}, vulkan_facade{window},
+    memory_allocator{std::make_unique<VulkanMemoryAllocator>(vulkan_facade)},
+    asset_manager{std::make_unique<AssetManager>(vulkan_facade, *memory_allocator)},
+    input_manager{std::make_unique<GLFWInputManager>()}
 {
-    initializeApplication();
     loadProject();
     createRenderer();
-}
-
-void Vera::initializeApplication()
-{
-    memory_allocator = std::make_unique<VulkanMemoryAllocator>(vulkan_facade);
-    asset_manager = std::make_unique<AssetManager>(vulkan_facade, *memory_allocator);
-
-    input_manager = std::make_unique<GLFWInputManager>(window->getGFLWwindow());
 }
 
 void Vera::loadProject()
@@ -29,7 +24,7 @@ void Vera::loadProject()
 
 void Vera::createRenderer()
 {
-    renderer = std::make_unique<Renderer>(*window, vulkan_facade, *memory_allocator, world, *asset_manager);
+    renderer = std::make_unique<Renderer>(window, vulkan_facade, *memory_allocator, world, *asset_manager);
 }
 
 Vera::~Vera()
@@ -46,7 +41,7 @@ void Vera::performCleanup()
 void Vera::run()
 {
     auto last_time = std::chrono::high_resolution_clock::now();
-    while (!window->shouldClose())
+    while (!window.shouldClose())
     {
         glfwPollEvents();
 

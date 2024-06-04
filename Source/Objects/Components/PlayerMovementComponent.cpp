@@ -3,6 +3,7 @@
 #include "RenderEngine/FrameInfo.h"
 #include "Input/InputManager.h"
 #include "TransformComponent.h"
+#include "Input/KeyCodes.h"
 
 PlayerMovementComponent::PlayerMovementComponent(Object& owner, InputManager& input_manager, std::shared_ptr<TransformComponent> transform_component)
     : ObjectComponent(owner), input_manager{input_manager}, transform_component{std::move(transform_component)} {}
@@ -10,10 +11,10 @@ PlayerMovementComponent::PlayerMovementComponent(Object& owner, InputManager& in
 void PlayerMovementComponent::update(FrameInfo& frame_info)
 {
     glm::vec3 rotate{0.f};
-    if (input_manager.isKeyPressed(keys.look_right)) rotate.y += 1.f;
-    if (input_manager.isKeyPressed(keys.look_left)) rotate.y -= 1.f;
-    if (input_manager.isKeyPressed(keys.look_up)) rotate.x -= 1.f;
-    if (input_manager.isKeyPressed(keys.look_down)) rotate.x += 1.f;
+    if (input_manager.isKeyPressed(LOOK_RIGHT)) rotate.y += 1.f;
+    if (input_manager.isKeyPressed(LOOK_LEFT)) rotate.y -= 1.f;
+    if (input_manager.isKeyPressed(LOOK_UP)) rotate.x -= 1.f;
+    if (input_manager.isKeyPressed(LOOK_DOWN)) rotate.x += 1.f;
 
     if (glm::dot(rotate, rotate) > std::numeric_limits<float>::epsilon())
     {
@@ -27,17 +28,17 @@ void PlayerMovementComponent::update(FrameInfo& frame_info)
     transform_component->rotation.y = glm::mod(transform_component->rotation.y, glm::two_pi<float>());
 
     float yaw = transform_component->rotation.y;
-    const glm::vec3 forward_dir{sin(yaw), 0.f, cos(yaw)};
+    const glm::vec3 forward_dir{glm::sin(yaw), 0.f, glm::cos(yaw)};
     const glm::vec3 right_dir{forward_dir.z, 0.f, -forward_dir.x};
     const glm::vec3 up_dir{0.f, -1.f, 0.f};
 
     glm::vec3 move_dir{0.f};
-    if (input_manager.isKeyPressed(keys.move_forward)) move_dir += forward_dir;
-    if (input_manager.isKeyPressed(keys.move_backward)) move_dir -= forward_dir;
-    if (input_manager.isKeyPressed(keys.move_right)) move_dir += right_dir;
-    if (input_manager.isKeyPressed(keys.move_left)) move_dir -= right_dir;
-    if (input_manager.isKeyPressed(keys.move_up)) move_dir += up_dir;
-    if (input_manager.isKeyPressed(keys.move_down)) move_dir -= up_dir;
+    if (input_manager.isKeyPressed(MOVE_FORWARD)) move_dir += forward_dir;
+    if (input_manager.isKeyPressed(MOVE_BACKWARD)) move_dir -= forward_dir;
+    if (input_manager.isKeyPressed(MOVE_RIGHT)) move_dir += right_dir;
+    if (input_manager.isKeyPressed(MOVE_LEFT)) move_dir -= right_dir;
+    if (input_manager.isKeyPressed(MOVE_DOWN)) move_dir += up_dir;
+    if (input_manager.isKeyPressed(MOVE_UP)) move_dir -= up_dir;
 
     player_moved |= move_dir != glm::vec3{0};
 

@@ -1,6 +1,8 @@
 #include "Surface.h"
-#include "RenderEngine/Window.h"
+#include "Editor/Window/WindowSystem.h"
 #include "VulkanDefines.h"
+#include "Editor/Window/GLFWWindow.h"
+#include "Logs/LogSystem.h"
 
 Surface::Surface(Instance& instance)
     : instance{instance}
@@ -15,6 +17,12 @@ Surface::~Surface()
 
 void Surface::createSurface()
 {
-    auto window = Window::get();
-    window->createWindowSurface(instance.getInstance(), &surface);
+    if (auto as_glfw_window = dynamic_cast<GLFWWindow*>(&WindowSystem::get()))
+    {
+        as_glfw_window->createWindowSurface(instance.getInstance(), &surface);
+    }
+    else
+    {
+        LogSystem::log(LogSeverity::FATAL, "Couldn't create surface from glfw window!");
+    }
 }
