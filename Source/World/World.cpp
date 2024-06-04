@@ -20,8 +20,7 @@ void World::loadProject(const ProjectInfo& project_info, AssetManager& asset_man
         new_object->addRootComponent(std::move(transform_component));
         auto mesh_component = std::make_shared<MeshComponent>(*new_object);
         registerComponent(mesh_component);
-        mesh_component->setModel(asset_manager.fetchModel(object_info.model_name));
-        mesh_component->setMaterials(asset_manager.fetchRequiredMaterials(mesh_component->getRequiredMaterials()));
+        mesh_component->setMesh(asset_manager.fetchMesh(object_info.mesh_name));
         new_object->addComponent(std::move(mesh_component));
         rendered_objects.emplace(new_object->getID(), std::move(new_object));
     }

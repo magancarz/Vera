@@ -31,4 +31,5 @@ private:
     VkPipelineLayout pipeline_layout;
 
     Model* scene_quad;
+    ModelDescription scene_quad_model_description;
 };

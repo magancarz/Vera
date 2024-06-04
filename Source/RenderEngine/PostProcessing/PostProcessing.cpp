@@ -18,7 +18,8 @@ PostProcessing::PostProcessing(
 
 void PostProcessing::loadSceneQuad(AssetManager& asset_manager)
 {
-    scene_quad = asset_manager.fetchModel("scene_quad.obj");
+    scene_quad = asset_manager.fetchModel("scene_quad");
+    scene_quad_model_description = scene_quad->getModelDescription();
 }
 
 void PostProcessing::createPipelineLayout(VkDescriptorSetLayout input_texture)
@@ -73,6 +74,10 @@ void PostProcessing::apply(FrameInfo& frame_info)
             0,
             nullptr);
 
-    scene_quad->bind(frame_info.command_buffer);
-    scene_quad->draw(frame_info.command_buffer);
+    VkBuffer buffers[] = {scene_quad_model_description.vertex_buffer->getBuffer()};
+    VkDeviceSize offsets[] = {0};
+    vkCmdBindVertexBuffers(frame_info.command_buffer, 0, 1, buffers, offsets);
+    vkCmdBindIndexBuffer(frame_info.command_buffer, scene_quad_model_description.index_buffer->getBuffer(), 0, VK_INDEX_TYPE_UINT32);
+
+    vkCmdDrawIndexed(frame_info.command_buffer, scene_quad_model_description.num_of_indices, 1, 0, 0, 0);
 }

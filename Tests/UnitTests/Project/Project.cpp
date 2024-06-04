@@ -45,7 +45,7 @@ TEST_F(ProjectUtilsTests, shouldGenerateProjectFileWithProvidedInformation)
 
     ObjectInfo object_info{};
     object_info.object_name = "player";
-    object_info.model_name = "stanford_dragon";
+    object_info.mesh_name = "stanford_dragon";
     object_info.material_name = "white";
     object_info.position = glm::vec3{2, 1, 37};
     object_info.rotation = glm::vec3{0, 1, 0};

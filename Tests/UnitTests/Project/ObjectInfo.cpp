@@ -13,7 +13,7 @@ TEST_F(ObjectInfoTests, shouldGenerateCorrectStringWithGivenObjectInfo)
     // given
     ObjectInfo object_info{};
     object_info.object_name = "player";
-    object_info.model_name = "stanford_dragon";
+    object_info.mesh_name = "stanford_dragon";
     object_info.material_name = "white";
     object_info.position = glm::vec3{2, 1, 37};
     object_info.rotation = glm::vec3{0, 0.71558499f, 0};
@@ -35,7 +35,7 @@ TEST_F(ObjectInfoTests, shouldExtractObjectInfoFromGivenString)
 
     ObjectInfo expected_object_info{};
     expected_object_info.object_name = "player";
-    expected_object_info.model_name = "stanford_dragon";
+    expected_object_info.mesh_name = "stanford_dragon";
     expected_object_info.material_name = "white";
     expected_object_info.position = glm::vec3{2, 1, 37};
     expected_object_info.rotation = glm::vec3{0, glm::radians(41.0f), 0};
@@ -46,7 +46,7 @@ TEST_F(ObjectInfoTests, shouldExtractObjectInfoFromGivenString)
 
     // then
     EXPECT_EQ(extracted_object_info.object_name, expected_object_info.object_name);
-    EXPECT_EQ(extracted_object_info.model_name, expected_object_info.model_name);
+    EXPECT_EQ(extracted_object_info.mesh_name, expected_object_info.mesh_name);
     EXPECT_EQ(extracted_object_info.material_name, expected_object_info.material_name);
     EXPECT_EQ(extracted_object_info.position, expected_object_info.position);
     EXPECT_EQ(extracted_object_info.rotation, expected_object_info.rotation);

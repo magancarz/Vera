@@ -1,7 +1,7 @@
 # Blender 3.5.1
 # www.blender.org
 mtllib plane.mtl
-o Plane
+o scene_quad
 v -1.000000 -1.000000 0.000000
 v -1.000000 1.000000 0.000000
 v 1.000000 -1.000000 0.000000

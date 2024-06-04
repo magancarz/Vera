@@ -53,8 +53,8 @@ void RayTracedRenderer::createObjectDescriptionsBuffer()
         for (size_t i = 0; i < mesh_description.model_descriptions.size(); ++i)
         {
             ObjectDescription object_description{};
-            object_description.vertex_address = mesh_description.model_descriptions[i].vertex_buffer_address;
-            object_description.index_address = mesh_description.model_descriptions[i].index_buffer_address;
+            object_description.vertex_address = mesh_description.model_descriptions[i].vertex_buffer->getBufferDeviceAddress();
+            object_description.index_address = mesh_description.model_descriptions[i].index_buffer->getBufferDeviceAddress();
             object_description.object_to_world = object->getTransform();
 
             auto required_material = mesh_description.required_materials[i];
@@ -146,14 +146,14 @@ void RayTracedRenderer::createAccelerationStructure()
         auto mesh_component = object->findComponentByClass<MeshComponent>();
         assert(mesh_component && "Rendered object must have mesh component!");
 
-        if (!blas_objects.contains(mesh_component->getModel()->getName()))
+        if (!blas_objects.contains(mesh_component->getMeshName()))
         {
             blas_objects.emplace(
                     std::piecewise_construct,
-                    std::forward_as_tuple(mesh_component->getModel()->getName()),
+                    std::forward_as_tuple(mesh_component->getMeshName()),
                     std::forward_as_tuple(device, memory_allocator, asset_manager, *mesh_component));
         }
-        BlasInstance blas_instance = blas_objects.at(mesh_component->getModel()->getName()).createBlasInstance(object->getTransform());
+        BlasInstance blas_instance = blas_objects.at(mesh_component->getMeshName()).createBlasInstance(object->getTransform());
         blas_instance.bottomLevelAccelerationStructureInstance.instanceCustomIndex = object_description_offsets[i++];
         blas_instances.push_back(std::move(blas_instance));
     }

@@ -10,7 +10,7 @@
 struct ObjectInfo
 {
     std::string object_name;
-    std::string model_name;
+    std::string mesh_name;
     std::string material_name;
     glm::vec3 position;
     glm::vec3 rotation;
@@ -41,7 +41,7 @@ struct ObjectInfo
     [[nodiscard]] std::string toString() const
     {
         return object_name + " "
-                + model_name + " "
+                + mesh_name + " "
                 + material_name + " "
                 + std::to_string(position.x) + " "
                 + std::to_string(position.y) + " "

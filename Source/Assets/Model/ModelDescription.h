@@ -1,8 +1,12 @@
 #pragma once
 
+#include "RenderEngine/Memory/Buffer.h"
+
 struct ModelDescription
 {
-    uint64_t vertex_buffer_address;
-    uint64_t index_buffer_address;
+    Buffer* vertex_buffer;
+    Buffer* index_buffer;
     uint64_t num_of_triangles;
+    uint64_t num_of_vertices;
+    uint64_t num_of_indices;
 };

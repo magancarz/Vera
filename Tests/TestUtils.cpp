@@ -91,7 +91,7 @@ ObjectInfo TestUtils::createDummyObjectInfo(
     return ObjectInfo
     {
         .object_name = std::move(object_name),
-        .model_name = "cube",
+        .mesh_name = "cube",
         .material_name = "white",
         .position = position,
         .rotation = rotation,

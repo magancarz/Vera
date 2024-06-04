@@ -31,7 +31,7 @@ void OBJLoader::loadAssetsFromFile(
             AssetManager& asset_manager,
             const std::string& file_name)
 {
-    const std::string filepath = PathBuilder(paths::MODELS_DIRECTORY_PATH).append(file_name).build();
+    const std::string filepath = PathBuilder(paths::MODELS_DIRECTORY_PATH).append(file_name).fileExtension(OBJ_FILE_EXTENSION).build();
 
     tinyobj::ObjReader reader;
     tinyobj::ObjReaderConfig reader_config;
@@ -41,7 +41,7 @@ void OBJLoader::loadAssetsFromFile(
 
     std::vector<tinyobj::material_t> materials = reader.GetMaterials();
     loadMaterials(memory_allocator, asset_manager, materials);
-    loadModel(memory_allocator, asset_manager, reader, materials, file_name);
+    loadMesh(memory_allocator, asset_manager, reader, materials, file_name);
 }
 
 void OBJLoader::handleErrorsAndWarnings(const tinyobj::ObjReader& reader)
@@ -85,26 +85,29 @@ void OBJLoader::loadMaterials(
     }
 }
 
-void OBJLoader::loadModel(
+void OBJLoader::loadMesh(
         MemoryAllocator& memory_allocator,
         AssetManager& asset_manager,
         const tinyobj::ObjReader& reader,
-        const std::vector<tinyobj::material_t>& materials,
-        const std::string& file_name)
+        const std::vector<tinyobj::material_t>& obj_materials,
+        const std::string& mesh_name)
 {
     const tinyobj::attrib_t& attrib = reader.GetAttrib();
     std::vector<tinyobj::shape_t> shapes = reader.GetShapes();
-    std::vector<OBJModelInfo> obj_model_infos;
-    obj_model_infos.reserve(shapes.size());
+    std::vector<Model*> models;
+    models.reserve(shapes.size());
+    std::vector<Material*> mesh_materials;
+    mesh_materials.reserve(shapes.size());
     for (const auto& shape : shapes)
     {
         OBJModelInfo obj_model_info{};
         obj_model_info.name = shape.name;
         int material_id = shape.mesh.material_ids[0];
-        if (material_id >= 0 && !materials.empty())
+        if (material_id >= 0 && !obj_materials.empty())
         {
-            obj_model_info.required_material = materials[material_id].name;
+            obj_model_info.required_material = obj_materials[material_id].name;
         }
+        mesh_materials.emplace_back(asset_manager.fetchMaterial(obj_model_info.required_material));
 
         std::unordered_map<Vertex, uint32_t> unique_vertices{};
         for (size_t i = 0; i < shape.mesh.indices.size(); i += 3)
@@ -120,10 +123,10 @@ void OBJLoader::loadModel(
             addVertexToModelInfo(obj_model_info, unique_vertices, third_vertex);
         }
 
-        obj_model_infos.emplace_back(obj_model_info);
+        models.emplace_back(asset_manager.storeModel(std::make_unique<OBJModel>(memory_allocator, obj_model_info)));
     }
 
-    asset_manager.storeModel(std::make_unique<OBJModel>(memory_allocator, obj_model_infos, file_name));
+    asset_manager.storeMesh(std::make_unique<Mesh>(mesh_name, models, mesh_materials));
 }
 
 Vertex OBJLoader::extractVertex(const tinyobj::index_t& index, const tinyobj::attrib_t& attrib)

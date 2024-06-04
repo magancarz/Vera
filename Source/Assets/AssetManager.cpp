@@ -12,7 +12,7 @@ void AssetManager::loadAssetsRequiredForProject(const ProjectInfo& project_info)
     LogSystem::log(LogSeverity::LOG, "Loading needed assets for the project ", project_info.project_name.c_str(), "...");
     for (auto& object_info : project_info.objects_infos)
     {
-        if (!fetchModel(object_info.model_name) || !fetchMaterial(object_info.material_name))
+        if (!fetchModel(object_info.mesh_name) || !fetchMaterial(object_info.material_name))
         {
             LogSystem::log(LogSeverity::FATAL, "Loading needed assets for project ", project_info.project_name.c_str(), " ended in failure");
             return;
@@ -20,6 +20,25 @@ void AssetManager::loadAssetsRequiredForProject(const ProjectInfo& project_info)
     }
 
     LogSystem::log(LogSeverity::LOG, "Loading needed assets for project ", project_info.project_name.c_str(), " ended in success");
+}
+
+Mesh* AssetManager::fetchMesh(const std::string& mesh_name)
+{
+    if (available_meshes.contains(mesh_name))
+    {
+        return available_meshes.at(mesh_name).get();
+    }
+
+    LogSystem::log(LogSeverity::FATAL, "Mesh ", mesh_name.c_str(), " not found in available meshes!");
+    return nullptr;
+}
+
+Mesh* AssetManager::storeMesh(std::unique_ptr<Mesh> mesh)
+{
+    assert(mesh && "It is useless to store empty mesh");
+    auto mesh_name = mesh->name;
+    available_meshes[mesh_name] = std::move(mesh);
+    return available_meshes[mesh_name].get();
 }
 
 Model* AssetManager::fetchModel(const std::string& model_name)

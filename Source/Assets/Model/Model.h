@@ -13,13 +13,11 @@ public:
     Model(const Model&) = delete;
     Model& operator=(const Model&) = delete;
 
-    virtual void bind(VkCommandBuffer command_buffer);
-    virtual void draw(VkCommandBuffer command_buffer) const;
-
     [[nodiscard]] std::string getName() const { return name; }
     [[nodiscard]] bool isMaterialRequired() const { return !required_material.empty(); }
-    [[nodiscard]] virtual std::vector<std::string> getRequiredMaterials() const { return {required_material}; }
-    [[nodiscard]] virtual std::vector<ModelDescription> getModelDescriptions() const;
+    [[nodiscard]] std::string getRequiredMaterial() const { return required_material; }
+
+    [[nodiscard]] ModelDescription getModelDescription() const;
 
 protected:
     std::string name{};
