@@ -4,12 +4,21 @@
 #include "Input/InputManager.h"
 #include "TransformComponent.h"
 #include "Input/KeyCodes.h"
+#include "Logs/LogSystem.h"
+#include "Objects/Object.h"
 
-PlayerMovementComponent::PlayerMovementComponent(Object& owner, InputManager& input_manager, std::shared_ptr<TransformComponent> transform_component)
-    : ObjectComponent(owner), input_manager{input_manager}, transform_component{std::move(transform_component)} {}
+PlayerMovementComponent::PlayerMovementComponent(Object& owner, InputManager& input_manager, TransformComponent* transform_component)
+    : ObjectComponent(owner), input_manager{input_manager}, transform_component{transform_component} {}
 
 void PlayerMovementComponent::update(FrameInfo& frame_info)
 {
+    if (!transform_component)
+    {
+        LogSystem::log(LogSeverity::ERROR, "Missing transform component. Skipping frame and trying to fetch it from owner components...");
+        transform_component = owner.findComponentByClass<TransformComponent>();
+        return;
+    }
+
     glm::vec3 rotate{0.f};
     if (input_manager.isKeyPressed(LOOK_RIGHT)) rotate.y += 1.f;
     if (input_manager.isKeyPressed(LOOK_LEFT)) rotate.y -= 1.f;

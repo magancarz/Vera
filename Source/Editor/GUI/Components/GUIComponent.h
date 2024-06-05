@@ -2,12 +2,12 @@
 
 #include "RenderEngine/FrameInfo.h"
 
-class Component
+class GUIComponent
 {
 public:
-    explicit Component(std::string name);
+    explicit GUIComponent(std::string name);
 
-    virtual ~Component() = default;
+    virtual ~GUIComponent() = default;
 
     virtual void update(FrameInfo& frame_info) = 0;
 

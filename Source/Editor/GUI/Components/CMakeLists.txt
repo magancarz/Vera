@@ -1,6 +1,6 @@
 target_sources(Vera-Lib PRIVATE
-        Component.cpp
-        Container.cpp
+        GUIComponent.cpp
+        GUIContainer.cpp
         WindowComponent.cpp
         SceneSettingsWindow.cpp
         SunSettingsComponent.cpp

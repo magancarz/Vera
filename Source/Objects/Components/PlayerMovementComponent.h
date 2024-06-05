@@ -10,7 +10,7 @@ class InputManager;
 class PlayerMovementComponent : public ObjectComponent
 {
 public:
-    PlayerMovementComponent(Object& owner, InputManager& input_manager, std::shared_ptr<TransformComponent> transform_component);
+    PlayerMovementComponent(Object& owner, InputManager& input_manager, TransformComponent* transform_component);
 
     void update(FrameInfo& frame_info) override;
 
@@ -20,7 +20,7 @@ public:
 private:
     InputManager& input_manager;
 
-    std::shared_ptr<TransformComponent> transform_component;
+    TransformComponent* transform_component;
 
     float move_speed{12.f};
     float look_speed{2.f};

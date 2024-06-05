@@ -4,12 +4,21 @@
 
 #include "RenderEngine/FrameInfo.h"
 #include "TransformComponent.h"
+#include "Logs/LogSystem.h"
+#include "Objects/Object.h"
 
-CameraComponent::CameraComponent(Object& owner, std::shared_ptr<TransformComponent> transform_component)
-    : ObjectComponent(owner, TickGroup::PRE_RENDER), transform_component{std::move(transform_component)} {}
+CameraComponent::CameraComponent(Object& owner, TransformComponent* transform_component)
+    : ObjectComponent(owner, TickGroup::PRE_RENDER), transform_component{transform_component} {}
 
 void CameraComponent::update(FrameInfo& frame_info)
 {
+    if (!transform_component)
+    {
+        LogSystem::log(LogSeverity::ERROR, "Missing transform component. Skipping frame and trying to fetch it from owner components...");
+        transform_component = owner.findComponentByClass<TransformComponent>();
+        return;
+    }
+
     setViewYXZ(transform_component->translation, transform_component->rotation);
     frame_info.camera_view_matrix = view;
     frame_info.camera_projection_matrix = projection;

@@ -100,7 +100,7 @@ TEST_F(WorldTests, shouldLoadObjectsFromProjectInfo)
     world.loadProject(project_info, mock_asset_manager);
 
     // then
-    EXPECT_EQ(world.getRenderedObjects().size(), project_info.objects_infos.size());
+    EXPECT_EQ(world.getObjects().size(), project_info.objects_infos.size());
 }
 
 TEST_F(WorldTests, shouldCreateViewerObject)

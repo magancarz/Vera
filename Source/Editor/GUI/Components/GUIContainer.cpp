@@ -1,13 +1,13 @@
-#include "Container.h"
+#include "GUIContainer.h"
 
 #include <iostream>
 
 #include "Logs/LogSystem.h"
 
-Container::Container(std::string component_name)
-    : Component(std::move(component_name)) {}
+GUIContainer::GUIContainer(std::string component_name)
+    : GUIComponent(std::move(component_name)) {}
 
-void Container::update(FrameInfo& frame_info)
+void GUIContainer::update(FrameInfo& frame_info)
 {
     for (const auto& component : components)
     {
@@ -15,16 +15,16 @@ void Container::update(FrameInfo& frame_info)
     }
 }
 
-void Container::addComponent(std::unique_ptr<Component> component)
+void GUIContainer::addComponent(std::unique_ptr<GUIComponent> component)
 {
     LogSystem::log(LogSeverity::LOG, "Adding component ", component->getName().c_str(), " to container ", component_name.c_str());
     components.emplace_back(std::move(component));
 }
 
-void Container::removeComponent(const Component& component)
+void GUIContainer::removeComponent(const GUIComponent& component)
 {
     auto found = std::ranges::find_if(components.begin(), components.end(),
-            [&] (const std::unique_ptr<Component>& item) { return item->getName() == component.getName(); });
+            [&] (const std::unique_ptr<GUIComponent>& item) { return item->getName() == component.getName(); });
     if (found != components.end())
     {
         LogSystem::log(LogSeverity::LOG, "Component ", component.getName().c_str(), " found! Removing from container ", component_name.c_str());

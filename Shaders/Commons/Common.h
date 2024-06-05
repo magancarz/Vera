@@ -36,8 +36,8 @@ struct ObjectDescription
 
 struct CameraUniformBuffer
 {
-    mat4 view;
     mat4 proj;
+    mat4 view;
 };
 
 struct PushConstantRay

@@ -10,6 +10,7 @@
 #include "Objects/Components/MeshComponent.h"
 #include "RenderEngine/AccelerationStructures/RayTracingAccelerationStructureBuilder.h"
 #include "RenderEngine/Materials/DeviceMaterialInfo.h"
+#include "Objects/Object.h"
 
 RayTracedRenderer::RayTracedRenderer(
         VulkanFacade& device,
@@ -19,6 +20,7 @@ RayTracedRenderer::RayTracedRenderer(
     : device{device}, memory_allocator{memory_allocator}, asset_manager{asset_manager}, world{world}
 {
     queryRayTracingPipelineProperties();
+    obtainRenderedObjectsFromWorld();
     createObjectDescriptionsBuffer();
     createAccelerationStructure();
     createRayTracedImage();
@@ -42,11 +44,23 @@ void RayTracedRenderer::queryRayTracingPipelineProperties()
     vkGetPhysicalDeviceProperties2(physical_device, &physical_device_properties_2);
 }
 
+void RayTracedRenderer::obtainRenderedObjectsFromWorld()
+{
+    rendered_objects.clear();
+    for (auto& [id, object] : world.getObjects())
+    {
+        if (object->findComponentByClass<MeshComponent>())
+        {
+            rendered_objects.emplace_back(object.get());
+        }
+    }
+}
+
 void RayTracedRenderer::createObjectDescriptionsBuffer()
 {
     std::vector<DeviceMaterialInfo> device_material_infos;
     diffuse_textures.clear();
-    for (auto& [_, object] : world.getRenderedObjects())
+    for (auto& object : rendered_objects)
     {
         object_description_offsets.emplace_back(static_cast<uint32_t>(object_descriptions.size()));
         auto mesh_component = object->findComponentByClass<MeshComponent>();
@@ -140,9 +154,9 @@ void RayTracedRenderer::createAccelerationStructure()
     RayTracingAccelerationStructureBuilder builder{device, memory_allocator};
 
     std::vector<BlasInstance> blas_instances;
-    blas_instances.reserve(world.getRenderedObjects().size());
+    blas_instances.reserve(rendered_objects.size());
     size_t i = 0;
-    for (auto& [_, object] : world.getRenderedObjects())
+    for (auto& object : rendered_objects)
     {
         auto mesh_component = object->findComponentByClass<MeshComponent>();
         assert(mesh_component && "Rendered object must have mesh component!");
@@ -219,7 +233,7 @@ void RayTracedRenderer::createDescriptors()
     auto object_descriptions_buffer_descriptor_info = object_descriptions_buffer->descriptorInfo();
     auto material_descriptions_descriptor_info = material_descriptions_buffer->descriptorInfo();
 
-    VkDescriptorImageInfo rayTraceImageDescriptorInfo = {
+    VkDescriptorImageInfo ray_trace_image_descriptor_info = {
             .sampler = VK_NULL_HANDLE,
             .imageView = ray_traced_texture->getImageView(),
             .imageLayout = VK_IMAGE_LAYOUT_GENERAL};
@@ -248,7 +262,7 @@ void RayTracedRenderer::createDescriptors()
 
     DescriptorWriter(*descriptor_set_layout, *descriptor_pool)
             .writeAccelerationStructure(0, &acceleration_structure_descriptor_info)
-            .writeImage(1, &rayTraceImageDescriptorInfo)
+            .writeImage(1, &ray_trace_image_descriptor_info)
             .writeBuffer(2, &camera_buffer_descriptor_info)
             .writeBuffer(3, &object_descriptions_buffer_descriptor_info)
             .writeBuffer(4, &material_descriptions_descriptor_info)
@@ -300,9 +314,9 @@ void RayTracedRenderer::updatePipelineUniformVariables(FrameInfo& frame_info)
 
 void RayTracedRenderer::updateCameraUniformBuffer(FrameInfo& frame_info)
 {
-    CameraUBO camera_ubo{};
-    camera_ubo.camera_view = frame_info.camera_view_matrix;
-    camera_ubo.camera_proj = frame_info.camera_projection_matrix;
+    GlobalUBO camera_ubo{};
+    camera_ubo.view = frame_info.camera_view_matrix;
+    camera_ubo.projection = frame_info.camera_projection_matrix;
     camera_uniform_buffer->writeToBuffer(&camera_ubo);
     ray_tracing_pipeline->bindDescriptorSets(frame_info.command_buffer, {descriptor_set_handle});
 }

@@ -2,9 +2,9 @@
 
 #include "imgui.h"
 
-#include "Component.h"
+#include "GUIComponent.h"
 
-class FramerateTextComponent : public Component
+class FramerateTextComponent : public GUIComponent
 {
 public:
     FramerateTextComponent();

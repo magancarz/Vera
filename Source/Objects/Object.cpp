@@ -27,13 +27,21 @@ glm::mat4 Object::getTransform()
     return glm::mat4{1};
 }
 
-void Object::addComponent(std::shared_ptr<ObjectComponent> component)
+void Object::update(FrameInfo& frame_info)
+{
+    for (auto& component : components)
+    {
+        component->update(frame_info);
+    }
+}
+
+void Object::addComponent(std::unique_ptr<ObjectComponent> component)
 {
     assert(component->getOwner().getID() == this->getID() && "Component's owner should be the same as the object to which component tried to be added");
     components.emplace_back(std::move(component));
 }
 
-void Object::addRootComponent(std::shared_ptr<TransformComponent> transform_component)
+void Object::addRootComponent(std::unique_ptr<TransformComponent> transform_component)
 {
     assert(transform_component && "It is useless to pass empty root component");
     addComponent(std::move(transform_component));

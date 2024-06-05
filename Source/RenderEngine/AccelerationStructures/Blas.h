@@ -1,8 +1,6 @@
 #pragma once
 
-#include <memory>
-
-#include <../../../ThirdParty/GLM/glm/glm.hpp>
+#include <glm/glm.hpp>
 
 #include "AccelerationStructure.h"
 #include "BlasInstance.h"

@@ -7,7 +7,7 @@
 #include "RenderEngine/RenderingAPI/Descriptors.h"
 #include "RenderEngine/RenderingAPI/VulkanDefines.h"
 #include "RenderEngine/FrameInfo.h"
-#include "Editor/GUI/Components/Container.h"
+#include "Editor/GUI/Components/GUIContainer.h"
 #include "Editor/GUI/Components/SceneSettingsWindow.h"
 #include "Editor/Window/GLFWWindow.h"
 #include "Editor/Window/WindowSystem.h"
@@ -157,7 +157,7 @@ void GUI::setupRendererBackends()
 
 void GUI::initializeGUIComponents()
 {
-    root_component = std::make_unique<Container>("Root Component");
+    root_component = std::make_unique<GUIContainer>("Root Component");
     root_component->addComponent(std::make_unique<SceneSettingsWindow>());
 }
 

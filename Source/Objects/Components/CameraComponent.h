@@ -11,7 +11,7 @@ class TransformComponent;
 class CameraComponent : public ObjectComponent
 {
 public:
-    CameraComponent(Object& owner, std::shared_ptr<TransformComponent> transform_component);
+    CameraComponent(Object& owner, TransformComponent* transform_component);
 
     void update(FrameInfo& frame_info) override;
 
@@ -23,7 +23,7 @@ public:
     [[nodiscard]] const glm::mat4& getInverseView() const { return inverse_view; }
 
 private:
-    std::shared_ptr<TransformComponent> transform_component;
+    TransformComponent* transform_component;
 
     glm::mat4 projection{1.f};
     glm::mat4 view{1.f};

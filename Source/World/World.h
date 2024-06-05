@@ -1,13 +1,9 @@
 #pragma once
 
-#include <map>
-
 #include "Objects/Components/PlayerMovementComponent.h"
-#include "RenderEngine/FrameInfo.h"
 #include "Assets/AssetManager.h"
 #include "Project/Project.h"
-
-class Object;
+#include "Objects/Object.h"
 
 class World
 {
@@ -17,17 +13,12 @@ public:
 
     void update(FrameInfo& frame_info);
 
-    void registerComponent(std::weak_ptr<ObjectComponent> component);
-
-    [[nodiscard]] std::unique_ptr<Object>& getViewerObject() { return viewer_object; }
-    [[nodiscard]] std::unordered_map<int, std::unique_ptr<Object>>& getRenderedObjects() { return rendered_objects; }
+    [[nodiscard]] Object* getViewerObject() const { return viewer_object; }
+    [[nodiscard]] std::unordered_map<uint32_t, std::unique_ptr<Object>>& getObjects() { return objects; }
 
 protected:
-    std::unique_ptr<Object> viewer_object{nullptr};
-    std::unordered_map<int, std::unique_ptr<Object>> rendered_objects{};
+    Object* storeObject(std::unique_ptr<Object> object);
 
-    void removeUnusedRegisteredComponents();
-    void updateRegisteredComponents(FrameInfo& frame_info);
-
-    std::map<TickGroup, std::vector<std::weak_ptr<ObjectComponent>>> registered_components{};
+    std::unordered_map<uint32_t, std::unique_ptr<Object>> objects{};
+    Object* viewer_object{nullptr};
 };

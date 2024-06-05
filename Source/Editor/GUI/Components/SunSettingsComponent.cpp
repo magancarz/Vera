@@ -6,7 +6,7 @@
 #include "glm/gtx/transform.hpp"
 
 SunSettingsComponent::SunSettingsComponent()
-    : Component(DISPLAY_NAME) {}
+    : GUIComponent(DISPLAY_NAME) {}
 
 void SunSettingsComponent::update(FrameInfo& frame_info)
 {

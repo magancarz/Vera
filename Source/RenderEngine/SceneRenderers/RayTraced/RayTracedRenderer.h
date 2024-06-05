@@ -6,14 +6,8 @@
 #include "RenderEngine/SceneRenderers/RayTraced/Pipeline/RayTracingPipeline.h"
 #include "RenderEngine/RenderingAPI/Descriptors.h"
 #include "RenderEngine/RenderingAPI/Textures/Texture.h"
-#include "../../AccelerationStructures/Blas.h"
+#include "RenderEngine/AccelerationStructures/Blas.h"
 #include "RenderEngine/SceneRenderers/RayTraced/Pipeline/RayTracingPipelineBuilder.h"
-
-struct CameraUBO
-{
-    glm::mat4 camera_view{};
-    glm::mat4 camera_proj{};
-};
 
 class RayTracedRenderer : public SceneRenderer
 {
@@ -35,6 +29,10 @@ private:
     void queryRayTracingPipelineProperties();
 
     VkPhysicalDeviceRayTracingPipelinePropertiesKHR ray_tracing_properties;
+
+    void obtainRenderedObjectsFromWorld();
+
+    std::vector<Object*> rendered_objects;
 
     void createObjectDescriptionsBuffer();
 

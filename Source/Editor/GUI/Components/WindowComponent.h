@@ -1,8 +1,8 @@
 #pragma once
 
-#include "Container.h"
+#include "GUIContainer.h"
 
-class WindowComponent : public Container
+class WindowComponent : public GUIContainer
 {
 public:
     WindowComponent(std::string window_name);

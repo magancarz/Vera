@@ -4,7 +4,7 @@
 #include "RenderEngine/RenderingAPI/Descriptors.h"
 #include "RenderEngine/RenderingAPI/SwapChain.h"
 #include "RenderEngine/FrameInfo.h"
-#include "Editor/GUI/Components/Container.h"
+#include "Editor/GUI/Components/GUIContainer.h"
 
 class GUI
 {
@@ -25,7 +25,7 @@ private:
 
     void initializeGUIComponents();
 
-    std::unique_ptr<Container> root_component;
+    std::unique_ptr<GUIContainer> root_component;
 
     void initializeImGui();
     void createContext();

@@ -1,8 +1,8 @@
 #pragma once
 
-#include "Component.h"
+#include "GUIComponent.h"
 
-class SunSettingsComponent : public Component
+class SunSettingsComponent : public GUIComponent
 {
 public:
     SunSettingsComponent();

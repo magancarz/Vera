@@ -1,7 +1,7 @@
 #include "FramerateTextComponent.h"
 
 FramerateTextComponent::FramerateTextComponent()
-    : Component(DISPLAY_NAME), io{ImGui::GetIO()} {}
+    : GUIComponent(DISPLAY_NAME), io{ImGui::GetIO()} {}
 
 void FramerateTextComponent::update(FrameInfo& frame_info)
 {

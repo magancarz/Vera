@@ -4,6 +4,7 @@
 
 #include <glm/glm.hpp>
 
+struct FrameInfo;
 class ObjectComponent;
 class TransformComponent;
 
@@ -13,6 +14,7 @@ public:
     using id_t = uint32_t;
 
     Object();
+    virtual ~Object() = default;
 
     Object(const Object&) = delete;
     Object& operator=(const Object&) = delete;
@@ -24,8 +26,10 @@ public:
     glm::vec3 getLocation();
     glm::mat4 getTransform();
 
-    void addComponent(std::shared_ptr<ObjectComponent> component);
-    void addRootComponent(std::shared_ptr<TransformComponent> transform_component);
+    virtual void update(FrameInfo& frame_info);
+
+    void addComponent(std::unique_ptr<ObjectComponent> component);
+    void addRootComponent(std::unique_ptr<TransformComponent> transform_component);
 
     template <typename T>
     T* findComponentByClass()
@@ -47,6 +51,6 @@ private:
     inline static id_t available_id = 0;
     id_t id;
 
-    std::vector<std::shared_ptr<ObjectComponent>> components;
+    std::vector<std::unique_ptr<ObjectComponent>> components;
     TransformComponent* root_component{nullptr};
 };
