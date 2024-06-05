@@ -1,5 +1,7 @@
 #pragma once
 
+#include <memory>
+
 #include "RenderEngine/RenderingAPI/VulkanFacade.h"
 #include "AllocatorInfo.h"
 

@@ -6,7 +6,8 @@
 #include "Memory/Vulkan/VulkanMemoryAllocator.h"
 
 Vera::Vera()
-    : window{WindowSystem::get()}, vulkan_facade{window},
+    : window{WindowSystem::get()},
+    vulkan_facade{window},
     memory_allocator{std::make_unique<VulkanMemoryAllocator>(vulkan_facade)},
     asset_manager{std::make_unique<AssetManager>(vulkan_facade, *memory_allocator)},
     input_manager{std::make_unique<GLFWInputManager>()}

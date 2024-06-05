@@ -1,11 +1,9 @@
 #pragma once
 
-#include "VulkanFacade.h"
-
-#include <vulkan/vulkan.h>
-
-#include <string>
+#include <memory>
 #include <vector>
+
+#include "VulkanFacade.h"
 
 class SwapChain
 {

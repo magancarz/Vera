@@ -1,5 +1,5 @@
 #include "ShaderModule.h"
-#include "Utils/VeraDefines.h"
+#include "RenderEngine/Defines.h"
 #include "VulkanDefines.h"
 
 #include <fstream>
@@ -18,7 +18,7 @@ std::string ShaderModule::getPathToShaderCodeFile(const std::string& shader_code
         throw std::runtime_error("Unsupported shader stage extension while creating shader module!");
     }
     std::filesystem::path file_name_with_extension{shader_code_file + SHADER_CODE_EXTENSIONS.at(shader_stage)};
-    std::filesystem::path full_file_path{paths::SHADERS_DIRECTORY_PATH / file_name_with_extension};
+    std::filesystem::path full_file_path{RenderEngine::SHADERS_DIRECTORY_PATH / file_name_with_extension};
     return full_file_path.generic_string();
 }
 

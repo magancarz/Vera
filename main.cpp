@@ -12,6 +12,7 @@ int main()
 {
     LogSystem::initialize(std::make_unique<BasicLogger>());
     WindowSystem::initialize(std::make_unique<GLFWWindow>());
+
     Vera app{};
 
     try

@@ -2,6 +2,7 @@
 
 #include <fstream>
 
+#include "Assets/Defines.h"
 #include "Logs/LogSystem.h"
 #include "Utils/PathBuilder.h"
 
@@ -9,7 +10,7 @@ void VeraMaterial::loadAssetFromFile(AssetManager& asset_manager, const std::str
 {
     LogSystem::log(LogSeverity::LOG, "Trying to load material named ", asset_name.c_str(), "...");
 
-    const std::string filepath = PathBuilder(paths::MATERIALS_DIRECTORY_PATH).append(asset_name).fileExtension(VERA_MATERIAL_FILE_EXTENSION).build();
+    const std::string filepath = PathBuilder(Assets::MATERIALS_DIRECTORY_PATH).append(asset_name).fileExtension(VERA_MATERIAL_FILE_EXTENSION).build();
     std::ifstream file_stream(filepath);
     std::string input;
 

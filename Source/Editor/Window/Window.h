@@ -1,16 +1,18 @@
 #pragma once
 
+#include <string>
+
 #include <vulkan/vulkan_core.h>
 
-#include "Utils/VeraDefines.h"
+#include "Editor/Defines.h"
 
 class Window
 {
 public:
     explicit Window(
-            uint32_t width = constants::DEFAULT_WINDOW_WIDTH,
-            uint32_t height = constants::DEFAULT_WINDOW_HEIGHT,
-            std::string name = constants::DEFAULT_WINDOW_TITLE);
+            uint32_t width = Editor::DEFAULT_WINDOW_WIDTH,
+            uint32_t height = Editor::DEFAULT_WINDOW_HEIGHT,
+            std::string name = Editor::DEFAULT_WINDOW_TITLE);
     virtual ~Window() = default;
 
     Window(const Window&) = delete;

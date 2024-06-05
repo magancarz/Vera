@@ -3,16 +3,16 @@
 #include <vulkan/vulkan_core.h>
 #include "GLFW/glfw3.h"
 
-#include "Utils/VeraDefines.h"
+#include "Editor/Defines.h"
 #include "Window.h"
 
 class GLFWWindow : public Window
 {
 public:
     explicit GLFWWindow(
-            uint32_t width = constants::DEFAULT_WINDOW_WIDTH,
-            uint32_t height = constants::DEFAULT_WINDOW_HEIGHT,
-            std::string name = constants::DEFAULT_WINDOW_TITLE);
+            uint32_t width = Editor::DEFAULT_WINDOW_WIDTH,
+            uint32_t height = Editor::DEFAULT_WINDOW_HEIGHT,
+            std::string name = Editor::DEFAULT_WINDOW_TITLE);
     ~GLFWWindow() override;
 
     GLFWWindow(const GLFWWindow&) = delete;

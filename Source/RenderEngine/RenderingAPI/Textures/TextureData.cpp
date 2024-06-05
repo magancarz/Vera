@@ -1,6 +1,6 @@
 #include "TextureData.h"
 #include "Utils/PathBuilder.h"
-#include "Utils/VeraDefines.h"
+#include "Assets/Defines.h"
 
 #include <iostream>
 
@@ -11,7 +11,7 @@
 
 TextureData::TextureData(const std::string& texture_name)
 {
-    const std::string location = PathBuilder(paths::TEXTURES_DIRECTORY_PATH).append(texture_name).build();
+    const std::string location = PathBuilder(Assets::TEXTURES_DIRECTORY_PATH).append(texture_name).build();
 
     data = stbi_load(
             location.c_str(),

@@ -32,7 +32,7 @@ void OBJLoader::loadAssetsFromFile(
             AssetManager& asset_manager,
             const std::string& file_name)
 {
-    const std::string filepath = PathBuilder(paths::MODELS_DIRECTORY_PATH).append(file_name).fileExtension(OBJ_FILE_EXTENSION).build();
+    const std::string filepath = PathBuilder(Assets::MODELS_DIRECTORY_PATH).append(file_name).fileExtension(OBJ_FILE_EXTENSION).build();
 
     tinyobj::ObjReader reader;
     tinyobj::ObjReaderConfig reader_config;
