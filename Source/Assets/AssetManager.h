@@ -10,7 +10,7 @@
 #include "Memory/MemoryAllocator.h"
 #include "Mesh.h"
 
-class Texture;
+class DeviceTexture;
 
 class AssetManager
 {
@@ -34,8 +34,9 @@ public:
     virtual std::vector<Material*> fetchRequiredMaterials(const std::vector<std::string>& required_materials);
     Material* storeMaterial(std::unique_ptr<Material> material);
 
-    virtual Texture* fetchTexture(const std::string& texture_name, VkFormat image_format);
-    Texture* storeTexture(std::unique_ptr<Texture> texture);
+    DeviceTexture* fetchDiffuseTexture(const std::string& texture_name);
+    DeviceTexture* fetchNormalMap(const std::string& texture_name);
+    DeviceTexture* storeTexture(std::unique_ptr<DeviceTexture> texture);
 
 protected:
     VulkanFacade& vulkan_facade;
@@ -44,5 +45,8 @@ protected:
     std::unordered_map<std::string, std::unique_ptr<Mesh>> available_meshes;
     std::unordered_map<std::string, std::unique_ptr<Model>> available_models;
     std::unordered_map<std::string, std::unique_ptr<Material>> available_materials;
-    std::unordered_map<std::string, std::unique_ptr<Texture>> available_textures;
+
+    virtual DeviceTexture* fetchTexture(const std::string& texture_name, VkFormat format);
+
+    std::unordered_map<std::string, std::unique_ptr<DeviceTexture>> available_textures;
 };

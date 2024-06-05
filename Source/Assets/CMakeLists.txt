@@ -4,3 +4,4 @@ target_sources(Vera-Lib PRIVATE
 add_subdirectory(Material)
 add_subdirectory(Model)
 add_subdirectory(OBJ)
+add_subdirectory(Texture)

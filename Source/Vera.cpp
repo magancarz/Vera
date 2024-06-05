@@ -35,8 +35,8 @@ Vera::~Vera()
 
 void Vera::performCleanup()
 {
-    asset_manager->clearResources();
     vkDeviceWaitIdle(vulkan_facade.getDevice());
+    asset_manager->clearResources();
 }
 
 void Vera::run()

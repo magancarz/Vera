@@ -11,5 +11,3 @@ target_sources(Vera-Lib PRIVATE
         ShaderModule.cpp
         Surface.cpp
         VulkanUtils.cpp)
-
-add_subdirectory(Textures)

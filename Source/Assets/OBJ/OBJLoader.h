@@ -17,7 +17,6 @@ private:
 
     static void handleErrorsAndWarnings(const tinyobj::ObjReader& reader);
     static void loadMaterials(
-            MemoryAllocator& memory_allocator,
             AssetManager& asset_manager,
             const std::vector<tinyobj::material_t>& obj_materials);
     static void loadMesh(

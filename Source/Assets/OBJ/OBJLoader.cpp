@@ -21,7 +21,7 @@ namespace std
         size_t operator()(Vertex const &vertex) const noexcept
         {
             size_t seed = 0;
-            algorithms::hashCombine(seed, vertex.position, vertex.normal, vertex.uv);
+            Algorithms::hashCombine(seed, vertex.position, vertex.normal, vertex.uv);
             return seed;
         }
     };
@@ -41,7 +41,7 @@ void OBJLoader::loadAssetsFromFile(
     handleErrorsAndWarnings(reader);
 
     std::vector<tinyobj::material_t> materials = reader.GetMaterials();
-    loadMaterials(memory_allocator, asset_manager, materials);
+    loadMaterials(asset_manager, materials);
     loadMesh(memory_allocator, asset_manager, reader, materials, file_name);
 }
 
@@ -60,7 +60,6 @@ void OBJLoader::handleErrorsAndWarnings(const tinyobj::ObjReader& reader)
 }
 
 void OBJLoader::loadMaterials(
-        MemoryAllocator& memory_allocator,
         AssetManager& asset_manager,
         const std::vector<tinyobj::material_t>& obj_materials)
 {
@@ -69,11 +68,11 @@ void OBJLoader::loadMaterials(
         MaterialInfo material_info{};
         material_info.name = material.name;
 
-        auto diffuse_texture_name = material.diffuse_texname.empty() ? "white.png" : material.diffuse_texname;
-        material_info.diffuse_texture = asset_manager.fetchTexture(diffuse_texture_name, VK_FORMAT_R8G8B8A8_SRGB);
+        auto diffuse_texture_name = material.diffuse_texname.empty() ? Assets::DEFAULT_DIFFUSE_TEXTURE : material.diffuse_texname;
+        material_info.diffuse_texture = asset_manager.fetchDiffuseTexture(diffuse_texture_name);
 
-        auto normal_texture_name = material.displacement_texname.empty() ? "blue.png" : material.displacement_texname;
-        material_info.normal_texture = asset_manager.fetchTexture(normal_texture_name, VK_FORMAT_R8G8B8A8_UNORM);
+        auto normal_texture_name = material.displacement_texname.empty() ? Assets::DEFAULT_NORMAL_MAP : material.displacement_texname;
+        material_info.normal_texture = asset_manager.fetchNormalMap(normal_texture_name);
 
         asset_manager.storeMaterial(std::make_unique<Material>(material_info));
     }

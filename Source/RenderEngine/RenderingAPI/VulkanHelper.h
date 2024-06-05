@@ -18,9 +18,6 @@ inline PFN_vkCmdCopyAccelerationStructureKHR pvkCmdCopyAccelerationStructureKHR;
 class VulkanHelper
 {
 public:
-    static bool checkResult(VkResult result, const char* message = nullptr);
-    static bool checkResult(VkResult result, const char* file, int32_t line);
-    static const char* getResultString(VkResult result);
     static void loadExtensionsFunctions(VkDevice device);
     static VkTransformMatrixKHR mat4ToVkTransformMatrixKHR(glm::mat4 mat);
 

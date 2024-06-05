@@ -2,11 +2,11 @@
 
 #include <string>
 
-class Texture;
+class DeviceTexture;
 
 struct MaterialInfo
 {
     std::string name;
-    Texture* diffuse_texture;
-    Texture* normal_texture;
+    DeviceTexture* diffuse_texture;
+    DeviceTexture* normal_texture;
 };

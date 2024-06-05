@@ -1,57 +1,85 @@
 #include <cmath>
-#include "Texture.h"
+#include "DeviceTexture.h"
 
-#include "TextureData.h"
 #include "Memory/Buffer.h"
 #include "RenderEngine/RenderingAPI/VulkanDefines.h"
+#include "Memory/Image.h"
 
-Texture::Texture(VulkanFacade& device, MemoryAllocator& memory_allocator, const std::string& texture_name, VkFormat image_format)
-    : device{device}, memory_allocator{memory_allocator}, image_format{image_format}, name{texture_name}
+DeviceTexture::DeviceTexture(
+        VulkanFacade& vulkan_facade,
+        MemoryAllocator& memory_allocator,
+        const TextureData& texture_data,
+        const VkImageCreateInfo& image_info,
+        std::unique_ptr<Image> image)
+    : vulkan_facade{vulkan_facade}, name{texture_data.name}, channels{texture_data.number_of_channels}, image_info{image_info}, image_buffer{std::move(image)}
 {
-    TextureData texture_data{texture_name};
-    width = texture_data.width;
-    height = texture_data.height;
-    mip_levels = static_cast<uint32_t>(std::floor(std::log2(std::max(width, height)))) + 1;
-
-    checkIfTextureIsOpaque(texture_data);
-    createImage(VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT);
-    copyDataToImage(texture_data);
+    checkIfTextureIsOpaque(texture_data.data);
+    copyDataToImage(memory_allocator, texture_data.data);
     generateMipmaps();
-    transitionImageLayout(VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
     createImageSampler();
     createImageView();
 }
 
-void Texture::checkIfTextureIsOpaque(const TextureData& texture_data)
+void DeviceTexture::checkIfTextureIsOpaque(const std::vector<unsigned char>& texture_data)
 {
-    is_opaque = texture_data.number_of_channels == 3 || texture_data.data[3] > 0.5;
+    is_opaque = channels == 3 || texture_data[3] > 0.5;
 }
 
-void Texture::createImage(VkImageUsageFlags usage_flags)
-{
-    VkImageCreateInfo image_create_info{};
-    image_create_info.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
-    image_create_info.imageType = VK_IMAGE_TYPE_2D;
-    image_create_info.format = image_format;
-    image_create_info.mipLevels = mip_levels;
-    image_create_info.arrayLayers = 1;
-    image_create_info.samples = VK_SAMPLE_COUNT_1_BIT;
-    image_create_info.tiling = VK_IMAGE_TILING_OPTIMAL;
-    image_create_info.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
-    image_create_info.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-    image_create_info.extent = {static_cast<uint32_t>(width), static_cast<uint32_t>(height), 1};
-    image_create_info.usage = usage_flags;
-    device.createImageWithInfo(image_create_info, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, image, image_memory);
-}
-
-void Texture::copyDataToImage(const TextureData& texture_data)
+void DeviceTexture::copyDataToImage(MemoryAllocator& memory_allocator, const std::vector<unsigned char>& texture_data)
 {
     transitionImageLayout(VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
-    auto buffer = memory_allocator.createStagingBuffer(4, static_cast<uint32_t>(width * height), texture_data.data);
-    device.copyBufferToImage(buffer->getBuffer(), image, static_cast<unsigned int>(width), static_cast<unsigned int>(height), 1);
+    auto buffer = memory_allocator.createStagingBuffer(4, image_info.extent.width * image_info.extent.height, texture_data.data());
+    copyBufferToImage(buffer->getBuffer());
 }
 
-void Texture::createImageView()
+void DeviceTexture::copyBufferToImage(VkBuffer src_buffer)
+{
+    VkCommandBuffer command_buffer = vulkan_facade.beginSingleTimeCommands();
+
+    VkBufferImageCopy region{};
+    region.bufferOffset = 0;
+    region.bufferRowLength = 0;
+    region.bufferImageHeight = 0;
+
+    region.imageSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+    region.imageSubresource.mipLevel = 0;
+    region.imageSubresource.baseArrayLayer = 0;
+    region.imageSubresource.layerCount = 1;
+
+    region.imageOffset = {0, 0, 0};
+    region.imageExtent = {image_info.extent.width, image_info.extent.height, 1};
+
+    vkCmdCopyBufferToImage(
+            command_buffer,
+            src_buffer,
+            image_buffer->getImage(),
+            VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+            1,
+            &region);
+    vulkan_facade.endSingleTimeCommands(command_buffer);
+}
+
+void DeviceTexture::createImageView()
+{
+    VkImageViewCreateInfo image_view_create_info{};
+    image_view_create_info.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
+    image_view_create_info.viewType = VK_IMAGE_VIEW_TYPE_2D;
+    image_view_create_info.format = image_info.format;
+    image_view_create_info.components = {VK_COMPONENT_SWIZZLE_R, VK_COMPONENT_SWIZZLE_G, VK_COMPONENT_SWIZZLE_B, VK_COMPONENT_SWIZZLE_A };
+    image_view_create_info.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+    image_view_create_info.subresourceRange.baseMipLevel = 0;
+    image_view_create_info.subresourceRange.baseArrayLayer = 0;
+    image_view_create_info.subresourceRange.layerCount = 1;
+    image_view_create_info.subresourceRange.levelCount = image_info.mipLevels;
+    image_view_create_info.image = image_buffer->getImage();
+
+    if (vkCreateImageView(vulkan_facade.getDevice(), &image_view_create_info, VulkanDefines::NO_CALLBACK, &image_view) != VK_SUCCESS)
+    {
+        throw std::runtime_error("Failed to create image view!");
+    }
+}
+
+void DeviceTexture::createImageSampler()
 {
     VkSamplerCreateInfo sampler_create_info{};
     sampler_create_info.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
@@ -64,57 +92,34 @@ void Texture::createImageView()
     sampler_create_info.mipLodBias = 0.0f;
     sampler_create_info.compareOp = VK_COMPARE_OP_NEVER;
     sampler_create_info.minLod = 0.0f;
-    sampler_create_info.maxLod = static_cast<float>(mip_levels);
+    sampler_create_info.maxLod = static_cast<float>(image_info.mipLevels);
     sampler_create_info.maxAnisotropy = 4.0;
     sampler_create_info.anisotropyEnable = VK_TRUE;
     sampler_create_info.borderColor = VK_BORDER_COLOR_FLOAT_OPAQUE_WHITE;
 
-    if (vkCreateSampler(device.getDevice(), &sampler_create_info, VulkanDefines::NO_CALLBACK, &sampler) != VK_SUCCESS)
+    if (vkCreateSampler(vulkan_facade.getDevice(), &sampler_create_info, VulkanDefines::NO_CALLBACK, &sampler) != VK_SUCCESS)
     {
         throw std::runtime_error("Failed to create image sampler!");
     }
 }
 
-void Texture::createImageSampler()
+DeviceTexture::DeviceTexture(VulkanFacade& vulkan_facade, std::unique_ptr<Image> image, const VkImageCreateInfo& image_info)
+    : vulkan_facade{vulkan_facade}, image_info{image_info}, image_buffer{std::move(image)}
 {
-    VkImageViewCreateInfo image_view_create_info{};
-    image_view_create_info.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
-    image_view_create_info.viewType = VK_IMAGE_VIEW_TYPE_2D;
-    image_view_create_info.format = image_format;
-    image_view_create_info.components = {VK_COMPONENT_SWIZZLE_R, VK_COMPONENT_SWIZZLE_G, VK_COMPONENT_SWIZZLE_B, VK_COMPONENT_SWIZZLE_A };
-    image_view_create_info.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-    image_view_create_info.subresourceRange.baseMipLevel = 0;
-    image_view_create_info.subresourceRange.baseArrayLayer = 0;
-    image_view_create_info.subresourceRange.layerCount = 1;
-    image_view_create_info.subresourceRange.levelCount = mip_levels;
-    image_view_create_info.image = image;
-
-    if (vkCreateImageView(device.getDevice(), &image_view_create_info, VulkanDefines::NO_CALLBACK, &image_view) != VK_SUCCESS)
-    {
-        throw std::runtime_error("Failed to create image view!");
-    }
-}
-
-Texture::Texture(VulkanFacade& device, MemoryAllocator& memory_allocator, uint32_t width, uint32_t height, VkImageUsageFlags usage_flags, VkFormat image_format)
-    : device{device}, memory_allocator{memory_allocator}, width{width}, height{height}, image_format{image_format}
-{
-    createImage(usage_flags);
     createImageView();
     createImageSampler();
     transitionImageLayout(VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_GENERAL);
 }
 
-Texture::~Texture()
+DeviceTexture::~DeviceTexture()
 {
-    vkDestroyImage(device.getDevice(), image, VulkanDefines::NO_CALLBACK);
-    vkFreeMemory(device.getDevice(), image_memory, VulkanDefines::NO_CALLBACK);
-    vkDestroyImageView(device.getDevice(), image_view, VulkanDefines::NO_CALLBACK);
-    vkDestroySampler(device.getDevice(), sampler, VulkanDefines::NO_CALLBACK);
+    vkDestroyImageView(vulkan_facade.getDevice(), image_view, VulkanDefines::NO_CALLBACK);
+    vkDestroySampler(vulkan_facade.getDevice(), sampler, VulkanDefines::NO_CALLBACK);
 }
 
-void Texture::transitionImageLayout(VkImageLayout old_layout, VkImageLayout new_layout)
+void DeviceTexture::transitionImageLayout(VkImageLayout old_layout, VkImageLayout new_layout)
 {
-    VkCommandBuffer command_buffer = device.beginSingleTimeCommands();
+    VkCommandBuffer command_buffer = vulkan_facade.beginSingleTimeCommands();
 
     VkImageMemoryBarrier barrier{};
     barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
@@ -122,10 +127,10 @@ void Texture::transitionImageLayout(VkImageLayout old_layout, VkImageLayout new_
     barrier.newLayout = new_layout;
     barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
     barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-    barrier.image = image;
+    barrier.image = image_buffer->getImage();
     barrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
     barrier.subresourceRange.baseMipLevel = 0;
-    barrier.subresourceRange.levelCount = mip_levels;
+    barrier.subresourceRange.levelCount = image_info.mipLevels;
     barrier.subresourceRange.baseArrayLayer = 0;
     barrier.subresourceRange.layerCount = 1;
 
@@ -172,26 +177,26 @@ void Texture::transitionImageLayout(VkImageLayout old_layout, VkImageLayout new_
             1,
             &barrier);
 
-    device.endSingleTimeCommands(command_buffer);
+    vulkan_facade.endSingleTimeCommands(command_buffer);
 
     image_layout = new_layout;
 }
 
-void Texture::generateMipmaps()
+void DeviceTexture::generateMipmaps()
 {
     VkFormatProperties format_properties;
-    vkGetPhysicalDeviceFormatProperties(device.getPhysicalDevice(), image_format, &format_properties);
+    vkGetPhysicalDeviceFormatProperties(vulkan_facade.getPhysicalDevice(), image_info.format, &format_properties);
 
     if (!(format_properties.optimalTilingFeatures & VK_FORMAT_FEATURE_SAMPLED_IMAGE_FILTER_LINEAR_BIT))
     {
         throw std::runtime_error("Texture image format does not support linear blitting!");
     }
 
-    VkCommandBuffer command_buffer = device.beginSingleTimeCommands();
+    VkCommandBuffer command_buffer = vulkan_facade.beginSingleTimeCommands();
 
     VkImageMemoryBarrier barrier{};
     barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
-    barrier.image = image;
+    barrier.image = image_buffer->getImage();
     barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
     barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
     barrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
@@ -199,10 +204,10 @@ void Texture::generateMipmaps()
     barrier.subresourceRange.layerCount = 1;
     barrier.subresourceRange.levelCount = 1;
 
-    int32_t mip_width = width;
-    int32_t mip_height = height;
+    int32_t mip_width = image_info.extent.width;
+    int32_t mip_height = image_info.extent.height;
 
-    for (uint32_t i = 1; i < mip_levels; i++)
+    for (uint32_t i = 1; i < image_info.mipLevels; ++i)
     {
         barrier.subresourceRange.baseMipLevel = i - 1;
         barrier.oldLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
@@ -238,9 +243,9 @@ void Texture::generateMipmaps()
 
         vkCmdBlitImage(
                 command_buffer,
-                image,
+                image_buffer->getImage(),
                 VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
-                image,
+                image_buffer->getImage(),
                 VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
                 1,
                 &blit,
@@ -267,7 +272,7 @@ void Texture::generateMipmaps()
         if (mip_height > 1) mip_height /= 2;
     }
 
-    barrier.subresourceRange.baseMipLevel = mip_levels - 1;
+    barrier.subresourceRange.baseMipLevel = image_info.mipLevels - 1;
     barrier.oldLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
     barrier.newLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
     barrier.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
@@ -285,5 +290,7 @@ void Texture::generateMipmaps()
             1,
             &barrier);
 
-    device.endSingleTimeCommands(command_buffer);
+    vulkan_facade.endSingleTimeCommands(command_buffer);
+
+    image_layout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
 }

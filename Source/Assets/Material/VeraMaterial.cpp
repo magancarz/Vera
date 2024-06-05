@@ -39,8 +39,8 @@ void VeraMaterial::loadAssetFromFile(AssetManager& asset_manager, const std::str
 
         file_stream.close();
 
-        material_info.diffuse_texture = asset_manager.fetchTexture(texture_name, VK_FORMAT_R8G8B8A8_SRGB);
-        material_info.normal_texture = asset_manager.fetchTexture("blue.png", VK_FORMAT_R8G8B8A8_UNORM);
+        material_info.diffuse_texture = asset_manager.fetchDiffuseTexture(texture_name);
+        material_info.normal_texture = asset_manager.fetchNormalMap("blue.png");
 
         LogSystem::log(LogSeverity::LOG, "Loading material from file ended in success");
         asset_manager.storeMaterial(std::make_unique<Material>(material_info));

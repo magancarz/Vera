@@ -1,8 +1,10 @@
 #include "AssetManager.h"
 
+#include "Defines.h"
 #include "Logs/LogSystem.h"
 #include "OBJ/OBJLoader.h"
 #include "Assets/Material/VeraMaterial.h"
+#include "Texture/TextureLoader.h"
 
 AssetManager::AssetManager(VulkanFacade& vulkan_facade, MemoryAllocator& memory_allocator)
     : vulkan_facade{vulkan_facade}, memory_allocator{memory_allocator} {}
@@ -96,7 +98,17 @@ std::vector<Material*> AssetManager::fetchRequiredMaterials(const std::vector<st
     return materials;
 }
 
-Texture* AssetManager::fetchTexture(const std::string& texture_name, VkFormat image_format)
+DeviceTexture* AssetManager::fetchDiffuseTexture(const std::string& texture_name)
+{
+    return fetchTexture(texture_name, Assets::DIFFUSE_TEXTURE_FORMAT);
+}
+
+DeviceTexture* AssetManager::fetchNormalMap(const std::string& texture_name)
+{
+    return fetchTexture(texture_name, Assets::NORMAL_MAP_FORMAT);
+}
+
+DeviceTexture* AssetManager::fetchTexture(const std::string& texture_name, VkFormat format)
 {
     LogSystem::log(LogSeverity::LOG, "Fetching texture named ", texture_name.c_str());
     if (available_textures.contains(texture_name))
@@ -106,12 +118,10 @@ Texture* AssetManager::fetchTexture(const std::string& texture_name, VkFormat im
     }
 
     LogSystem::log(LogSeverity::LOG, "Texture was not found in available textures list. Loading from file...");
-    auto new_texture = std::make_unique<Texture>(vulkan_facade, memory_allocator, texture_name, image_format);
-    available_textures[texture_name] = std::move(new_texture);
-    return available_textures[texture_name].get();
+    return storeTexture(TextureLoader::loadFromAssetFile(vulkan_facade, memory_allocator, texture_name, format));
 }
 
-Texture* AssetManager::storeTexture(std::unique_ptr<Texture> texture)
+DeviceTexture* AssetManager::storeTexture(std::unique_ptr<DeviceTexture> texture)
 {
     assert(texture && "It is useless to store empty texture");
     auto texture_name = texture->getName();
@@ -121,6 +131,7 @@ Texture* AssetManager::storeTexture(std::unique_ptr<Texture> texture)
 
 void AssetManager::clearResources()
 {
+    available_meshes.clear();
     available_models.clear();
     available_materials.clear();
     available_textures.clear();

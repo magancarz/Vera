@@ -95,3 +95,22 @@ std::unique_ptr<Buffer> VulkanMemoryAllocator::createStagingBuffer(uint32_t inst
 
     return buffer;
 }
+
+std::unique_ptr<Image> VulkanMemoryAllocator::createImage(VkImageCreateInfo image_create_info)
+{
+    VmaAllocationCreateInfo alloc_create_info{};
+    alloc_create_info.usage = VMA_MEMORY_USAGE_AUTO;
+    alloc_create_info.flags = VMA_ALLOCATION_CREATE_DEDICATED_MEMORY_BIT;
+    alloc_create_info.priority = 1.0f;
+
+    VkImage image;
+    VmaAllocation allocation;
+    VmaAllocationInfo allocation_info;
+    vmaCreateImage(allocator, &image_create_info, &alloc_create_info, &image, &allocation, &allocation_info);
+
+    VulkanMemoryAllocatorInfo allocator_info{};
+    allocator_info.vma_allocation = allocation;
+    allocator_info.vma_allocation_info = allocation_info;
+    allocator_info.vma_allocator = allocator;
+    return std::make_unique<Image>(image, allocator_info);
+}

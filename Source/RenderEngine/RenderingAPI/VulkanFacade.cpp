@@ -63,33 +63,6 @@ void VulkanFacade::endSingleTimeCommands(VkCommandBuffer command_buffer)
     vkFreeCommandBuffers(device.getDevice(), command_pool.getCommandPool(), 1, &command_buffer);
 }
 
-void VulkanFacade::copyBufferToImage(VkBuffer buffer, VkImage image, uint32_t width, uint32_t height, uint32_t layer_count)
-{
-    VkCommandBuffer command_buffer = beginSingleTimeCommands();
-
-    VkBufferImageCopy region{};
-    region.bufferOffset = 0;
-    region.bufferRowLength = 0;
-    region.bufferImageHeight = 0;
-
-    region.imageSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-    region.imageSubresource.mipLevel = 0;
-    region.imageSubresource.baseArrayLayer = 0;
-    region.imageSubresource.layerCount = layer_count;
-
-    region.imageOffset = {0, 0, 0};
-    region.imageExtent = {width, height, 1};
-
-    vkCmdCopyBufferToImage(
-            command_buffer,
-            buffer,
-            image,
-            VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-            1,
-            &region);
-    endSingleTimeCommands(command_buffer);
-}
-
 void VulkanFacade::createImageWithInfo(
         const VkImageCreateInfo& image_info,
         VkMemoryPropertyFlags properties,

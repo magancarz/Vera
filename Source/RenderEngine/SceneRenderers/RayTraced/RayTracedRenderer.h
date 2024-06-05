@@ -5,7 +5,7 @@
 #include "World/World.h"
 #include "RenderEngine/SceneRenderers/RayTraced/Pipeline/RayTracingPipeline.h"
 #include "RenderEngine/RenderingAPI/Descriptors.h"
-#include "RenderEngine/RenderingAPI/Textures/Texture.h"
+#include "RenderEngine/Textures/DeviceTexture.h"
 #include "RenderEngine/AccelerationStructures/Blas.h"
 #include "RenderEngine/SceneRenderers/RayTraced/Pipeline/RayTracingPipelineBuilder.h"
 
@@ -36,8 +36,8 @@ private:
 
     void createObjectDescriptionsBuffer();
 
-    std::vector<Texture*> diffuse_textures;
-    std::vector<Texture*> normal_textures;
+    std::vector<DeviceTexture*> diffuse_textures;
+    std::vector<DeviceTexture*> normal_textures;
     std::unique_ptr<Buffer> object_descriptions_buffer;
     std::unique_ptr<Buffer> material_descriptions_buffer;
     std::vector<uint32_t> object_description_offsets;
@@ -49,7 +49,7 @@ private:
 
     void createRayTracedImage();
 
-    std::unique_ptr<Texture> ray_traced_texture;
+    std::unique_ptr<DeviceTexture> ray_traced_texture;
 
     void createCameraUniformBuffer();
 

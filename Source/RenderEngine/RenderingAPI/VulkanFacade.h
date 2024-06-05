@@ -33,9 +33,6 @@ public:
     VkCommandBuffer beginSingleTimeCommands();
     void endSingleTimeCommands(VkCommandBuffer command_buffer);
 
-
-    void copyBufferToImage(VkBuffer buffer, VkImage image, uint32_t width, uint32_t height, uint32_t layer_count);
-
     void createImageWithInfo(
             const VkImageCreateInfo& image_info,
             VkMemoryPropertyFlags properties,
