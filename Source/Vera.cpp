@@ -60,12 +60,12 @@ void Vera::run()
     {
         glfwPollEvents();
 
+        FrameInfo frame_info{};
+
         auto current_time = std::chrono::high_resolution_clock::now();
-        float frame_time = std::chrono::duration<float, std::chrono::seconds::period>(current_time - last_time).count();
+        frame_info.delta_time = std::chrono::duration<float, std::chrono::seconds::period>(current_time - last_time).count();
         last_time = current_time;
 
-        FrameInfo frame_info{};
-        frame_info.frame_time = frame_time;
         world.update(frame_info);
         renderer->render(frame_info);
     }

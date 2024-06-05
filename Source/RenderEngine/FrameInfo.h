@@ -7,7 +7,7 @@ struct FrameInfo
 {
     VkCommandBuffer command_buffer;
     VkExtent2D window_size;
-    float frame_time;
+    float delta_time;
 
     glm::mat4 camera_view_matrix;
     glm::mat4 camera_projection_matrix;

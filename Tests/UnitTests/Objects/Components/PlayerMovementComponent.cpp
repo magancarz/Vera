@@ -51,7 +51,7 @@ TEST_F(PlayerMovementComponentTests, shouldCheckMovementOnEveryAxis)
 
     FrameInfo frame_info{};
     float delta_time = 1.f;
-    frame_info.frame_time = delta_time;
+    frame_info.delta_time = delta_time;
 
     // when
     player_movement_component.update(frame_info);
@@ -66,7 +66,7 @@ TEST_F(PlayerMovementComponentTests, shouldApplyCorrectTranslationWithSomeKeysPr
 
     FrameInfo frame_info{};
     float delta_time = 1.f;
-    frame_info.frame_time = delta_time;
+    frame_info.delta_time = delta_time;
 
     glm::vec3 expected_move_dir{-1, 0, -1};
     glm::vec3 expected_translation
@@ -97,7 +97,7 @@ TEST_F(PlayerMovementComponentTests, shouldApplyCorrectRotationWithSomeKeysPress
 
     FrameInfo frame_info{};
     float delta_time = .1f;
-    frame_info.frame_time = delta_time;
+    frame_info.delta_time = delta_time;
 
     glm::vec3 expected_look_dir{1, 1, 0};
     glm::vec3 expected_rotation
@@ -130,7 +130,7 @@ TEST_F(PlayerMovementComponentTests, shouldClampRotationWhenValuesAreTooLarge)
 
     FrameInfo frame_info{};
     float delta_time = 5.f;
-    frame_info.frame_time = delta_time;
+    frame_info.delta_time = delta_time;
 
     constexpr float RADIANS_85_DEGREES = glm::radians(85.f);
     glm::vec3 expected_look_dir{1, 1, 0};

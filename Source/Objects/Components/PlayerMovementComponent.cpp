@@ -27,7 +27,7 @@ void PlayerMovementComponent::update(FrameInfo& frame_info)
 
     if (glm::dot(rotate, rotate) > std::numeric_limits<float>::epsilon())
     {
-        transform_component->rotation += look_speed * frame_info.frame_time * glm::normalize(rotate);
+        transform_component->rotation += look_speed * frame_info.delta_time * glm::normalize(rotate);
     }
 
     player_moved = rotate != glm::vec3{0};
@@ -53,7 +53,7 @@ void PlayerMovementComponent::update(FrameInfo& frame_info)
 
     if (glm::dot(move_dir, move_dir) > std::numeric_limits<float>::epsilon())
     {
-        transform_component->translation += move_speed * frame_info.frame_time * glm::normalize(move_dir);
+        transform_component->translation += move_speed * frame_info.delta_time * glm::normalize(move_dir);
     }
 
     frame_info.need_to_refresh_generated_image |= player_moved;
