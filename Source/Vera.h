@@ -18,8 +18,11 @@ public:
     Vera& operator=(const Vera&) = delete;
 
 private:
-    Window& window;
-    VulkanFacade vulkan_facade;
+    void initializeAppComponents();
+    void initializeLogSystem();
+
+    Window* window{nullptr};
+    std::unique_ptr<VulkanFacade> vulkan_facade;
     std::unique_ptr<MemoryAllocator> memory_allocator;
 
     std::unique_ptr<AssetManager> asset_manager;
@@ -32,6 +35,4 @@ private:
     void createRenderer();
 
     std::unique_ptr<Renderer> renderer;
-
-    void performCleanup();
 };

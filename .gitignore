@@ -6,3 +6,4 @@ out/
 Results/
 *.spv
 Testing/
+Logs/*.txt

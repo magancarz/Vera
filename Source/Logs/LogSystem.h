@@ -3,6 +3,7 @@
 #include <cassert>
 #include <memory>
 #include <sstream>
+#include <unordered_map>
 
 #include "Logger.h"
 #include "LogSeverity.h"
@@ -16,13 +17,29 @@ public:
     static void log(LogSeverity severity, Args... args)
     {
         assert(app_logger && "Cannot log if application logger is not properly initialized!");
+        std::lock_guard<std::mutex> lock_guard(log_mutex);
+
         std::ostringstream oss;
+        oss << getCurrentTimestamp();
+        oss << LOG_SEVERITY_PREFIXES.at(severity);
         format(oss, args...);
-        std::string message = oss.str();
+        oss << '\n';
+
+        const std::string message = oss.str();
         app_logger->log(severity, message.c_str());
     }
 
+    inline static std::unordered_map<LogSeverity, std::string> LOG_SEVERITY_PREFIXES
+    {
+            {LogSeverity::LOG, "Log: "},
+            {LogSeverity::WARNING, "Warning: "},
+            {LogSeverity::ERROR, "Error: "},
+            {LogSeverity::FATAL, "Fatal: "}
+    };
+
 private:
+    static std::string getCurrentTimestamp();
+
     template<typename T>
     static void format(std::ostringstream& oss, T t)
     {
@@ -37,4 +54,5 @@ private:
     }
 
     inline static std::unique_ptr<Logger> app_logger;
+    inline static std::mutex log_mutex;
 };

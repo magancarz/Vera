@@ -7,7 +7,7 @@
 class WindowSystem
 {
 public:
-    static void initialize(std::unique_ptr<Window> window);
+    static Window* initialize(std::unique_ptr<Window> window);
 
     [[nodiscard]] static Window& get() { return *window_impl; }
 

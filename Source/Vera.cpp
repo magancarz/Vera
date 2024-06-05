@@ -2,18 +2,38 @@
 
 #include <chrono>
 
+#include "Editor/Window/GLFWWindow.h"
 #include "Editor/Window/WindowSystem.h"
+#include "Logs/BasicLogger.h"
+#include "Logs/FileLogger.h"
+#include "Logs/LogSystem.h"
 #include "Memory/Vulkan/VulkanMemoryAllocator.h"
+#include "Logs/Defines.h"
+#include "Utils/PathBuilder.h"
 
 Vera::Vera()
-    : window{WindowSystem::get()},
-    vulkan_facade{window},
-    memory_allocator{std::make_unique<VulkanMemoryAllocator>(vulkan_facade)},
-    asset_manager{std::make_unique<AssetManager>(vulkan_facade, *memory_allocator)},
-    input_manager{std::make_unique<GLFWInputManager>()}
 {
+    initializeAppComponents();
     loadProject();
     createRenderer();
+}
+
+void Vera::initializeAppComponents()
+{
+    initializeLogSystem();
+    window = WindowSystem::initialize(std::make_unique<GLFWWindow>());
+    vulkan_facade = std::make_unique<VulkanFacade>(*window);
+    memory_allocator = std::make_unique<VulkanMemoryAllocator>(*vulkan_facade);
+    asset_manager = std::make_unique<AssetManager>(*vulkan_facade, *memory_allocator);
+    input_manager = std::make_unique<GLFWInputManager>();
+}
+
+void Vera::initializeLogSystem()
+{
+    auto basic_logger = std::make_unique<BasicLogger>();
+    std::string log_file_location = PathBuilder().append(Logs::LOG_FOLDER_LOCATION).append(Logs::DEFAULT_LOG_FILE_NAME).build();
+    auto file_logger_decorator = std::make_unique<FileLogger>(std::move(basic_logger), log_file_location);
+    LogSystem::initialize(std::move(file_logger_decorator));
 }
 
 void Vera::loadProject()
@@ -25,24 +45,18 @@ void Vera::loadProject()
 
 void Vera::createRenderer()
 {
-    renderer = std::make_unique<Renderer>(window, vulkan_facade, *memory_allocator, world, *asset_manager);
+    renderer = std::make_unique<Renderer>(*window, *vulkan_facade, *memory_allocator, world, *asset_manager);
 }
 
 Vera::~Vera()
 {
-    performCleanup();
-}
-
-void Vera::performCleanup()
-{
-    vkDeviceWaitIdle(vulkan_facade.getDevice());
-    asset_manager->clearResources();
+    vkDeviceWaitIdle(vulkan_facade->getDevice());
 }
 
 void Vera::run()
 {
     auto last_time = std::chrono::high_resolution_clock::now();
-    while (!window.shouldClose())
+    while (!window->shouldClose())
     {
         glfwPollEvents();
 

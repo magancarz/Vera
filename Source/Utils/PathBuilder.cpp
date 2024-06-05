@@ -2,7 +2,7 @@
 
 #include <utility>
 
-PathBuilder::PathBuilder(std::filesystem::path  starting_path)
+PathBuilder::PathBuilder(std::filesystem::path starting_path)
     : current_path{std::move(starting_path)} {}
 
 PathBuilder& PathBuilder::append(const std::string& path)
