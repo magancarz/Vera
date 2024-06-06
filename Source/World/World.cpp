@@ -35,7 +35,7 @@ void World::createViewerObject(InputManager& input_manager)
 {
     auto new_viewer_object = std::make_unique<Object>();
     auto transform_component = std::make_unique<TransformComponent>(*new_viewer_object);
-    transform_component->translation.y = 5.f;
+    transform_component->translation.y = 5.5f;
     transform_component->translation.z = 10.f;
     transform_component->rotation.y = glm::radians(180.f);
     auto player_movement_component = std::make_unique<PlayerMovementComponent>(*new_viewer_object, input_manager, transform_component.get());
