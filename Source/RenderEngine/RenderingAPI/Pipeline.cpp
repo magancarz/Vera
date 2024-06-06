@@ -7,7 +7,7 @@
 #include "VulkanUtils.h"
 
 Pipeline::Pipeline(
-        VulkanFacade& device,
+        VulkanHandler& device,
         const std::string& vertex_file_path,
         const std::string& fragment_file_path,
         const PipelineConfigInfo& config_info)
@@ -18,9 +18,9 @@ Pipeline::Pipeline(
 
 Pipeline::~Pipeline()
 {
-    vkDestroyShaderModule(device.getDevice(), vertex_shader_module, VulkanDefines::NO_CALLBACK);
-    vkDestroyShaderModule(device.getDevice(), fragment_shader_module, VulkanDefines::NO_CALLBACK);
-    vkDestroyPipeline(device.getDevice(), graphics_pipeline, VulkanDefines::NO_CALLBACK);
+    vkDestroyShaderModule(device.getDeviceHandle(), vertex_shader_module, VulkanDefines::NO_CALLBACK);
+    vkDestroyShaderModule(device.getDeviceHandle(), fragment_shader_module, VulkanDefines::NO_CALLBACK);
+    vkDestroyPipeline(device.getDeviceHandle(), graphics_pipeline, VulkanDefines::NO_CALLBACK);
 }
 
 void Pipeline::bind(VkCommandBuffer command_buffer)
@@ -85,7 +85,7 @@ void Pipeline::createGraphicsPipeline(const std::string& vertex_file_path, const
     pipeline_create_info.basePipelineIndex = -1;
     pipeline_create_info.basePipelineHandle = VK_NULL_HANDLE;
 
-    if (vkCreateGraphicsPipelines(device.getDevice(), VK_NULL_HANDLE, 1, &pipeline_create_info, nullptr, &graphics_pipeline) != VK_SUCCESS)
+    if (vkCreateGraphicsPipelines(device.getDeviceHandle(), VK_NULL_HANDLE, 1, &pipeline_create_info, nullptr, &graphics_pipeline) != VK_SUCCESS)
     {
         throw std::runtime_error("Failed to create graphics pipeline!");
     }
@@ -115,7 +115,7 @@ void Pipeline::createShaderModule(const std::vector<char>& code, VkShaderModule*
     create_info.codeSize = code.size();
     create_info.pCode = reinterpret_cast<const uint32_t*>(code.data());
 
-    if (vkCreateShaderModule(device.getDevice(), &create_info, VulkanDefines::NO_CALLBACK, shader_module) != VK_SUCCESS)
+    if (vkCreateShaderModule(device.getDeviceHandle(), &create_info, VulkanDefines::NO_CALLBACK, shader_module) != VK_SUCCESS)
     {
         throw std::runtime_error("Failed to create shader module!");
     }

@@ -8,7 +8,7 @@ class MemoryAllocator;
 class Material
 {
 public:
-    Material(const MaterialInfo& in_material_info);
+    explicit Material(const MaterialInfo& in_material_info);
 
     [[nodiscard]] std::string getName() const { return name; }
     [[nodiscard]] DeviceTexture* getDiffuseTexture() const { return diffuse_texture; }

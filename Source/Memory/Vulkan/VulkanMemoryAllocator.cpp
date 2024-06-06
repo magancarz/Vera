@@ -1,7 +1,7 @@
 #include "VulkanMemoryAllocator.h"
 
-VulkanMemoryAllocator::VulkanMemoryAllocator(VulkanFacade& vulkan_facade)
-    : vulkan_facade{vulkan_facade}
+VulkanMemoryAllocator::VulkanMemoryAllocator(VulkanHandler& vulkan_handler)
+    : vulkan_handler{vulkan_handler}
 {
     initializeVMA();
 }
@@ -15,9 +15,9 @@ void VulkanMemoryAllocator::initializeVMA()
     VmaAllocatorCreateInfo allocator_create_info{};
     allocator_create_info.flags = VMA_ALLOCATOR_CREATE_EXT_MEMORY_BUDGET_BIT | VMA_ALLOCATOR_CREATE_BUFFER_DEVICE_ADDRESS_BIT;
     allocator_create_info.vulkanApiVersion = VK_API_VERSION_1_3;
-    allocator_create_info.physicalDevice = vulkan_facade.getPhysicalDevice();
-    allocator_create_info.device = vulkan_facade.getDevice();
-    allocator_create_info.instance = vulkan_facade.getInstance();
+    allocator_create_info.instance = vulkan_handler.getInstanceHandle();
+    allocator_create_info.physicalDevice = vulkan_handler.getPhysicalDeviceHandle();
+    allocator_create_info.device = vulkan_handler.getDeviceHandle();
     allocator_create_info.pVulkanFunctions = &vulkan_functions;
 
     vmaCreateAllocator(&allocator_create_info, &allocator);
@@ -46,7 +46,7 @@ std::unique_ptr<Buffer> VulkanMemoryAllocator::createBuffer(
         uint32_t preferred_memory_flags,
         uint32_t min_offset_alignment)
 {
-    uint32_t alignment_size = getAlignment(instance_size, min_offset_alignment);
+    VkDeviceSize alignment_size = getAlignment(instance_size, min_offset_alignment);
     uint32_t buffer_size = alignment_size * instance_count;
 
     VkBufferCreateInfo buffer_create_info{.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO};
@@ -69,7 +69,7 @@ std::unique_ptr<Buffer> VulkanMemoryAllocator::createBuffer(
     memory_allocator_info.vma_allocation = allocation;
     memory_allocator_info.vma_allocation_info = allocation_info;
 
-    return std::make_unique<Buffer>(vulkan_facade, memory_allocator_info, buffer, buffer_size);
+    return std::make_unique<Buffer>(vulkan_handler.getLogicalDevice(), vulkan_handler.getCommandPool(), memory_allocator_info, buffer, buffer_size);
 }
 
 std::unique_ptr<Buffer> VulkanMemoryAllocator::createStagingBuffer(uint32_t instance_size, uint32_t instance_count)
@@ -96,7 +96,7 @@ std::unique_ptr<Buffer> VulkanMemoryAllocator::createStagingBuffer(uint32_t inst
     return buffer;
 }
 
-std::unique_ptr<Image> VulkanMemoryAllocator::createImage(VkImageCreateInfo image_create_info)
+std::unique_ptr<Image> VulkanMemoryAllocator::createImage(const VkImageCreateInfo& image_create_info)
 {
     VmaAllocationCreateInfo alloc_create_info{};
     alloc_create_info.usage = VMA_MEMORY_USAGE_AUTO;

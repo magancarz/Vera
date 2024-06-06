@@ -9,7 +9,6 @@
 
 void World::loadProject(const ProjectInfo& project_info, AssetManager& asset_manager)
 {
-    asset_manager.loadAssetsRequiredForProject(project_info);
     for (auto& object_info : project_info.objects_infos)
     {
         auto new_object = std::make_unique<Object>();

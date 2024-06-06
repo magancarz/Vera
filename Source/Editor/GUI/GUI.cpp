@@ -13,7 +13,7 @@
 #include "Editor/Window/WindowSystem.h"
 #include "Logs/LogSystem.h"
 
-GUI::GUI(VulkanFacade& device, Window& window, SwapChain* swap_chain)
+GUI::GUI(VulkanHandler& device, Window& window, SwapChain* swap_chain)
     : device{device}, window{window}, swap_chain{swap_chain}
 {
     initializeImGui();
@@ -86,7 +86,7 @@ void GUI::createRenderPass()
     info.pSubpasses = &subpass;
     info.dependencyCount = 1;
     info.pDependencies = &dependency;
-    if (vkCreateRenderPass(device.getDevice(), &info, VulkanDefines::NO_CALLBACK, &render_pass) != VK_SUCCESS)
+    if (vkCreateRenderPass(device.getDeviceHandle(), &info, VulkanDefines::NO_CALLBACK, &render_pass) != VK_SUCCESS)
     {
         throw std::runtime_error("Could not create Dear ImGui's updateElements pass");
     }
@@ -94,12 +94,12 @@ void GUI::createRenderPass()
 
 void GUI::createFramebuffers()
 {
-    VkImageView attachment[1];
+    std::array<VkImageView, 1> attachment{};
     VkFramebufferCreateInfo info{};
     info.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
     info.renderPass = render_pass;
     info.attachmentCount = 1;
-    info.pAttachments = attachment;
+    info.pAttachments = attachment.data();
     info.width = swap_chain->width();
     info.height = swap_chain->height();
     info.layers = 1;
@@ -109,7 +109,7 @@ void GUI::createFramebuffers()
     {
         VkImageView backbuffer_view = swap_chain->getImageView(i);
         attachment[0] = backbuffer_view;
-        if (vkCreateFramebuffer(device.getDevice(), &info, VulkanDefines::NO_CALLBACK, &framebuffers[i]) != VK_SUCCESS)
+        if (vkCreateFramebuffer(device.getDeviceHandle(), &info, VulkanDefines::NO_CALLBACK, &framebuffers[i]) != VK_SUCCESS)
         {
             throw std::runtime_error("Couldn't create framebuffer!");
         }
@@ -139,12 +139,17 @@ void GUI::setupRendererBackends()
     {
         ImGui_ImplGlfw_InitForVulkan(as_glfw_window->getGFLWwindow(), true);
     }
+    else
+    {
+        LogSystem::log(LogSeverity::FATAL, "Unable to fetch glfw window while initializing imgui!");
+    }
+
     ImGui_ImplVulkan_InitInfo init_info{};
-    init_info.Instance = device.getInstance();
-    init_info.PhysicalDevice = device.getPhysicalDevice();
-    init_info.Device = device.getDevice();
-    init_info.QueueFamily = device.findPhysicalQueueFamilies().graphicsFamily;
-    init_info.Queue = device.graphicsQueue();
+    init_info.Instance = device.getInstanceHandle();
+    init_info.PhysicalDevice = device.getPhysicalDeviceHandle();
+    init_info.Device = device.getDeviceHandle();
+    init_info.QueueFamily = device.getPhysicalDevice().getQueueFamilyIndices().graphicsFamily;
+    init_info.Queue = device.getLogicalDevice().getGraphicsQueue();
     init_info.PipelineCache = VK_NULL_HANDLE;
     init_info.DescriptorPool = descriptor_pool->descriptorPool();
     init_info.Subpass = 0;
@@ -169,9 +174,9 @@ GUI::~GUI()
 
     for (auto& framebuffer : framebuffers)
     {
-        vkDestroyFramebuffer(device.getDevice(), framebuffer, VulkanDefines::NO_CALLBACK);
+        vkDestroyFramebuffer(device.getDeviceHandle(), framebuffer, VulkanDefines::NO_CALLBACK);
     }
-    vkDestroyRenderPass(device.getDevice(), render_pass, VulkanDefines::NO_CALLBACK);
+    vkDestroyRenderPass(device.getDeviceHandle(), render_pass, VulkanDefines::NO_CALLBACK);
 }
 
 void GUI::updateGUIElements(FrameInfo& frame_info)

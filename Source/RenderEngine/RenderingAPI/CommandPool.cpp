@@ -8,7 +8,7 @@ CommandPool::CommandPool(Device& device, PhysicalDevice& physical_device)
 
 void CommandPool::createCommandPool()
 {
-    QueueFamilyIndices queue_family_indices = physical_device.getQueueFamilyIndices();
+    const QueueFamilyIndices queue_family_indices = physical_device.getQueueFamilyIndices();
 
     VkCommandPoolCreateInfo pool_info{};
     pool_info.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
@@ -21,20 +21,41 @@ void CommandPool::createCommandPool()
     }
 }
 
-void CommandPool::createCommandPool(VkCommandPool* new_command_pool, VkCommandPoolCreateFlags flags)
-{
-    VkCommandPoolCreateInfo commandPoolCreateInfo{};
-    commandPoolCreateInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
-    commandPoolCreateInfo.queueFamilyIndex = physical_device.getQueueFamilyIndices().graphicsFamily;
-    commandPoolCreateInfo.flags = flags;
-
-    if (vkCreateCommandPool(device.getDevice(), &commandPoolCreateInfo, nullptr, new_command_pool) != VK_SUCCESS)
-    {
-        throw std::runtime_error("Could not create graphics command pool");
-    }
-}
-
 CommandPool::~CommandPool()
 {
     vkDestroyCommandPool(device.getDevice(), command_pool, nullptr);
+}
+
+VkCommandBuffer CommandPool::beginSingleTimeCommands() const
+{
+    VkCommandBufferAllocateInfo allocate_info{};
+    allocate_info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+    allocate_info.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+    allocate_info.commandPool = command_pool;
+    allocate_info.commandBufferCount = 1;
+
+    VkCommandBuffer command_buffer;
+    vkAllocateCommandBuffers(device.getDevice(), &allocate_info, &command_buffer);
+
+    VkCommandBufferBeginInfo begin_info{};
+    begin_info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+    begin_info.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
+
+    vkBeginCommandBuffer(command_buffer, &begin_info);
+    return command_buffer;
+}
+
+void CommandPool::endSingleTimeCommands(VkCommandBuffer command_buffer)
+{
+    vkEndCommandBuffer(command_buffer);
+
+    VkSubmitInfo submit_info{};
+    submit_info.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+    submit_info.commandBufferCount = 1;
+    submit_info.pCommandBuffers = &command_buffer;
+
+    vkQueueSubmit(device.getGraphicsQueue(), 1, &submit_info, VK_NULL_HANDLE);
+    vkQueueWaitIdle(device.getGraphicsQueue());
+
+    vkFreeCommandBuffers(device.getDevice(), command_pool, 1, &command_buffer);
 }

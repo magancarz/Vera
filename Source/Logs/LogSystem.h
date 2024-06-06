@@ -17,10 +17,9 @@ public:
     static void log(LogSeverity severity, Args... args)
     {
         assert(app_logger && "Cannot log if application logger is not properly initialized!");
-        std::lock_guard<std::mutex> lock_guard(log_mutex);
+        std::lock_guard lock_guard(log_mutex);
 
         std::ostringstream oss;
-        oss << getCurrentTimestamp();
         oss << LOG_SEVERITY_PREFIXES.at(severity);
         format(oss, args...);
         oss << '\n';
@@ -38,8 +37,6 @@ public:
     };
 
 private:
-    static std::string getCurrentTimestamp();
-
     template<typename T>
     static void format(std::ostringstream& oss, T t)
     {

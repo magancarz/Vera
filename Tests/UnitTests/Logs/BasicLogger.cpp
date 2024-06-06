@@ -1,6 +1,6 @@
-#include <Logs/BasicLogger.h>
-
 #include "gtest/gtest.h"
+
+#include <Logs/BasicLogger.h>
 
 struct BasicLoggerTests : public ::testing::Test
 {

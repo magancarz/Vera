@@ -13,7 +13,7 @@
 #include "Objects/Object.h"
 
 RayTracedRenderer::RayTracedRenderer(
-        VulkanFacade& device,
+        VulkanHandler& device,
         MemoryAllocator& memory_allocator,
         AssetManager& asset_manager,
         World& world)
@@ -31,7 +31,7 @@ RayTracedRenderer::RayTracedRenderer(
 
 void RayTracedRenderer::queryRayTracingPipelineProperties()
 {
-    VkPhysicalDevice physical_device = device.getPhysicalDevice();
+    VkPhysicalDevice physical_device = device.getPhysicalDeviceHandle();
 
     VkPhysicalDeviceProperties physical_device_properties;
     vkGetPhysicalDeviceProperties(physical_device,
@@ -133,7 +133,7 @@ void RayTracedRenderer::createObjectDescriptionsBuffer()
             VK_BUFFER_USAGE_STORAGE_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT,
             VK_MEMORY_ALLOCATE_DEVICE_ADDRESS_BIT
     );
-    object_descriptions_buffer->copyFromBuffer(object_descriptions_staging_buffer);
+    object_descriptions_buffer->copyFromBuffer(*object_descriptions_staging_buffer);
 
     auto material_descriptions_staging_buffer = memory_allocator.createStagingBuffer(
             sizeof(DeviceMaterialInfo),
@@ -146,7 +146,7 @@ void RayTracedRenderer::createObjectDescriptionsBuffer()
             VK_BUFFER_USAGE_STORAGE_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT,
             VK_MEMORY_ALLOCATE_DEVICE_ADDRESS_BIT
     );
-    material_descriptions_buffer->copyFromBuffer(material_descriptions_staging_buffer);
+    material_descriptions_buffer->copyFromBuffer(*material_descriptions_staging_buffer);
 }
 
 void RayTracedRenderer::createAccelerationStructure()
@@ -178,7 +178,7 @@ void RayTracedRenderer::createAccelerationStructure()
 void RayTracedRenderer::createRayTracedImage()
 {
     VkSurfaceCapabilitiesKHR surface_capabilities;
-    vkGetPhysicalDeviceSurfaceCapabilitiesKHR(device.getPhysicalDevice(), device.getSurface(), &surface_capabilities);
+    vkGetPhysicalDeviceSurfaceCapabilitiesKHR(device.getPhysicalDeviceHandle(), device.getSurfaceKHRHandle(), &surface_capabilities);
     VkImageCreateInfo image_create_info{};
     image_create_info.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
     image_create_info.imageType = VK_IMAGE_TYPE_2D;
@@ -303,7 +303,7 @@ void RayTracedRenderer::buildRayTracingPipeline()
 
 RayTracedRenderer::~RayTracedRenderer() noexcept
 {
-    pvkDestroyAccelerationStructureKHR(device.getDevice(), tlas.acceleration_structure, VulkanDefines::NO_CALLBACK);
+    pvkDestroyAccelerationStructureKHR(device.getDeviceHandle(), tlas.acceleration_structure, VulkanDefines::NO_CALLBACK);
 }
 
 void RayTracedRenderer::renderScene(FrameInfo& frame_info)

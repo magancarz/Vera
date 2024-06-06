@@ -13,7 +13,7 @@ class Blas
 {
 public:
     Blas(
-            VulkanFacade& device,
+            VulkanHandler& device,
             MemoryAllocator& memory_allocator,
             AssetManager& asset_manager,
             MeshComponent& mesh_component);
@@ -27,7 +27,7 @@ public:
     BlasInstance createBlasInstance(const glm::mat4& transform);
 
 private:
-    VulkanFacade& device;
+    VulkanHandler& device;
     MemoryAllocator& memory_allocator;
     AssetManager& asset_manager;
 

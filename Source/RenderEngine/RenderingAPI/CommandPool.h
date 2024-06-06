@@ -5,12 +5,13 @@
 class CommandPool
 {
 public:
-    explicit CommandPool(Device& device, PhysicalDevice& physical_device);
+    CommandPool(Device& device, PhysicalDevice& physical_device);
     ~CommandPool();
 
     [[nodiscard]] VkCommandPool getCommandPool() const { return command_pool; }
 
-    void createCommandPool(VkCommandPool* new_command_pool, VkCommandPoolCreateFlags flags);
+    [[nodiscard]] VkCommandBuffer beginSingleTimeCommands() const;
+    void endSingleTimeCommands(VkCommandBuffer command_buffer);
 
 private:
     Device& device;

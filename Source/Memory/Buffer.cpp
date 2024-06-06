@@ -5,8 +5,13 @@
 
 #include <vulkan/vulkan_core.h>
 
-Buffer::Buffer(VulkanFacade& vulkan_facade, const VulkanMemoryAllocatorInfo& allocator_info, VkBuffer buffer, uint32_t buffer_size)
-    : vulkan_facade{vulkan_facade}, allocator_info{allocator_info}, buffer{buffer}, buffer_size{buffer_size} {}
+Buffer::Buffer(
+        Device& logical_device,
+        CommandPool& command_pool,
+        const VulkanMemoryAllocatorInfo& allocator_info,
+        VkBuffer buffer,
+        uint32_t buffer_size)
+    : logical_device{logical_device}, command_pool{command_pool}, allocator_info{allocator_info}, buffer{buffer}, buffer_size{buffer_size} {}
 
 Buffer::~Buffer()
 {
@@ -28,21 +33,21 @@ void Buffer::unmap()
     }
 }
 
-void Buffer::writeToBuffer(const void* data)
+void Buffer::writeToBuffer(const void* data) const
 {
     assert(mapped && "Cannot copy to unmapped buffer");
     memcpy(mapped, data, buffer_size);
 }
 
-void Buffer::copyFromBuffer(const std::unique_ptr<Buffer>& src_buffer)
+void Buffer::copyFromBuffer(const Buffer& src_buffer) const
 {
-    VkCommandBuffer command_buffer = vulkan_facade.beginSingleTimeCommands();
+    VkCommandBuffer command_buffer = command_pool.beginSingleTimeCommands();
 
     VkBufferCopy copy_region{};
-    copy_region.size = src_buffer->buffer_size;
-    vkCmdCopyBuffer(command_buffer, src_buffer->getBuffer(), buffer, 1, &copy_region);
+    copy_region.size = src_buffer.buffer_size;
+    vkCmdCopyBuffer(command_buffer, src_buffer.getBuffer(), buffer, 1, &copy_region);
 
-    vulkan_facade.endSingleTimeCommands(command_buffer);
+    command_pool.endSingleTimeCommands(command_buffer);
 }
 
 VkResult Buffer::flush() const
@@ -50,7 +55,7 @@ VkResult Buffer::flush() const
     return vmaFlushAllocation(allocator_info.vma_allocator, allocator_info.vma_allocation, 0, VK_WHOLE_SIZE);
 }
 
-VkDescriptorBufferInfo Buffer::descriptorInfo()
+VkDescriptorBufferInfo Buffer::descriptorInfo() const
 {
     return VkDescriptorBufferInfo
     {
@@ -60,16 +65,16 @@ VkDescriptorBufferInfo Buffer::descriptorInfo()
     };
 }
 
-VkDeviceAddress Buffer::getBufferDeviceAddress()
+VkDeviceAddress Buffer::getBufferDeviceAddress() const
 {
-    if(buffer == VK_NULL_HANDLE)
+    if (buffer == VK_NULL_HANDLE)
     {
-        return 0ULL;
+        return 0;
     }
 
-    VkBufferDeviceAddressInfo info = {
-            .sType = VK_STRUCTURE_TYPE_BUFFER_DEVICE_ADDRESS_INFO,
-            .buffer = buffer};
+    VkBufferDeviceAddressInfo info{};
+    info.sType = VK_STRUCTURE_TYPE_BUFFER_DEVICE_ADDRESS_INFO;
+    info.buffer = buffer;
 
-    return vkGetBufferDeviceAddress(vulkan_facade.getDevice(), &info);
+    return vkGetBufferDeviceAddress(logical_device.getDevice(), &info);
 }

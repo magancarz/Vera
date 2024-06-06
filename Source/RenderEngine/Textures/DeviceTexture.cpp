@@ -6,7 +6,7 @@
 #include "Memory/Image.h"
 
 DeviceTexture::DeviceTexture(
-        VulkanFacade& vulkan_facade,
+        VulkanHandler& vulkan_facade,
         MemoryAllocator& memory_allocator,
         const TextureData& texture_data,
         const VkImageCreateInfo& image_info,
@@ -34,7 +34,7 @@ void DeviceTexture::copyDataToImage(MemoryAllocator& memory_allocator, const std
 
 void DeviceTexture::copyBufferToImage(VkBuffer src_buffer)
 {
-    VkCommandBuffer command_buffer = vulkan_facade.beginSingleTimeCommands();
+    VkCommandBuffer command_buffer = vulkan_facade.getCommandPool().beginSingleTimeCommands();
 
     VkBufferImageCopy region{};
     region.bufferOffset = 0;
@@ -56,7 +56,7 @@ void DeviceTexture::copyBufferToImage(VkBuffer src_buffer)
             VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
             1,
             &region);
-    vulkan_facade.endSingleTimeCommands(command_buffer);
+    vulkan_facade.getCommandPool().endSingleTimeCommands(command_buffer);
 }
 
 void DeviceTexture::createImageView()
@@ -73,7 +73,7 @@ void DeviceTexture::createImageView()
     image_view_create_info.subresourceRange.levelCount = image_info.mipLevels;
     image_view_create_info.image = image_buffer->getImage();
 
-    if (vkCreateImageView(vulkan_facade.getDevice(), &image_view_create_info, VulkanDefines::NO_CALLBACK, &image_view) != VK_SUCCESS)
+    if (vkCreateImageView(vulkan_facade.getDeviceHandle(), &image_view_create_info, VulkanDefines::NO_CALLBACK, &image_view) != VK_SUCCESS)
     {
         throw std::runtime_error("Failed to create image view!");
     }
@@ -97,13 +97,13 @@ void DeviceTexture::createImageSampler()
     sampler_create_info.anisotropyEnable = VK_TRUE;
     sampler_create_info.borderColor = VK_BORDER_COLOR_FLOAT_OPAQUE_WHITE;
 
-    if (vkCreateSampler(vulkan_facade.getDevice(), &sampler_create_info, VulkanDefines::NO_CALLBACK, &sampler) != VK_SUCCESS)
+    if (vkCreateSampler(vulkan_facade.getDeviceHandle(), &sampler_create_info, VulkanDefines::NO_CALLBACK, &sampler) != VK_SUCCESS)
     {
         throw std::runtime_error("Failed to create image sampler!");
     }
 }
 
-DeviceTexture::DeviceTexture(VulkanFacade& vulkan_facade, std::unique_ptr<Image> image, const VkImageCreateInfo& image_info)
+DeviceTexture::DeviceTexture(VulkanHandler& vulkan_facade, std::unique_ptr<Image> image, const VkImageCreateInfo& image_info)
     : vulkan_facade{vulkan_facade}, image_info{image_info}, image_buffer{std::move(image)}
 {
     createImageView();
@@ -113,13 +113,13 @@ DeviceTexture::DeviceTexture(VulkanFacade& vulkan_facade, std::unique_ptr<Image>
 
 DeviceTexture::~DeviceTexture()
 {
-    vkDestroyImageView(vulkan_facade.getDevice(), image_view, VulkanDefines::NO_CALLBACK);
-    vkDestroySampler(vulkan_facade.getDevice(), sampler, VulkanDefines::NO_CALLBACK);
+    vkDestroyImageView(vulkan_facade.getDeviceHandle(), image_view, VulkanDefines::NO_CALLBACK);
+    vkDestroySampler(vulkan_facade.getDeviceHandle(), sampler, VulkanDefines::NO_CALLBACK);
 }
 
 void DeviceTexture::transitionImageLayout(VkImageLayout old_layout, VkImageLayout new_layout)
 {
-    VkCommandBuffer command_buffer = vulkan_facade.beginSingleTimeCommands();
+    VkCommandBuffer command_buffer = vulkan_facade.getCommandPool().beginSingleTimeCommands();
 
     VkImageMemoryBarrier barrier{};
     barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
@@ -177,7 +177,7 @@ void DeviceTexture::transitionImageLayout(VkImageLayout old_layout, VkImageLayou
             1,
             &barrier);
 
-    vulkan_facade.endSingleTimeCommands(command_buffer);
+    vulkan_facade.getCommandPool().endSingleTimeCommands(command_buffer);
 
     image_layout = new_layout;
 }
@@ -185,14 +185,14 @@ void DeviceTexture::transitionImageLayout(VkImageLayout old_layout, VkImageLayou
 void DeviceTexture::generateMipmaps()
 {
     VkFormatProperties format_properties;
-    vkGetPhysicalDeviceFormatProperties(vulkan_facade.getPhysicalDevice(), image_info.format, &format_properties);
+    vkGetPhysicalDeviceFormatProperties(vulkan_facade.getPhysicalDeviceHandle(), image_info.format, &format_properties);
 
     if (!(format_properties.optimalTilingFeatures & VK_FORMAT_FEATURE_SAMPLED_IMAGE_FILTER_LINEAR_BIT))
     {
         throw std::runtime_error("Texture image format does not support linear blitting!");
     }
 
-    VkCommandBuffer command_buffer = vulkan_facade.beginSingleTimeCommands();
+    VkCommandBuffer command_buffer = vulkan_facade.getCommandPool().beginSingleTimeCommands();
 
     VkImageMemoryBarrier barrier{};
     barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
@@ -290,7 +290,7 @@ void DeviceTexture::generateMipmaps()
             1,
             &barrier);
 
-    vulkan_facade.endSingleTimeCommands(command_buffer);
+    vulkan_facade.getCommandPool().endSingleTimeCommands(command_buffer);
 
     image_layout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
 }

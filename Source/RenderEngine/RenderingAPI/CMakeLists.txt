@@ -1,5 +1,5 @@
 target_sources(Vera-Lib PRIVATE
-        VulkanFacade.cpp
+        VulkanHandler.cpp
         Pipeline.cpp
         SwapChain.cpp
         CommandPool.cpp

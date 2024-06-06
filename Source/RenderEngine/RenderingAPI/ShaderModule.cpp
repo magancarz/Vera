@@ -4,7 +4,7 @@
 
 #include <fstream>
 
-ShaderModule::ShaderModule(VulkanFacade& device, const std::string& shader_code_file, VkShaderStageFlagBits shader_stage)
+ShaderModule::ShaderModule(VulkanHandler& device, const std::string& shader_code_file, VkShaderStageFlagBits shader_stage)
     : device{device}
 {
     std::string path_to_shader_code = getPathToShaderCodeFile(shader_code_file, shader_stage);
@@ -30,7 +30,7 @@ void ShaderModule::createShaderModule(const std::string& path_to_shader_code)
     shader_module_create_info.codeSize = static_cast<uint32_t>(shader_source.size() * sizeof(uint32_t));
     shader_module_create_info.pCode = shader_source.data();
 
-    if (vkCreateShaderModule(device.getDevice(), &shader_module_create_info, VulkanDefines::NO_CALLBACK, &shader_module) != VK_SUCCESS)
+    if (vkCreateShaderModule(device.getDeviceHandle(), &shader_module_create_info, VulkanDefines::NO_CALLBACK, &shader_module) != VK_SUCCESS)
     {
         throw std::runtime_error("Failed to create shader module!");
     }
@@ -51,6 +51,6 @@ std::vector<uint32_t> ShaderModule::loadShaderSourceCode(const std::string& path
 
 ShaderModule::~ShaderModule()
 {
-    vkDestroyShaderModule(device.getDevice(), shader_module, VulkanDefines::NO_CALLBACK);
+    vkDestroyShaderModule(device.getDeviceHandle(), shader_module, VulkanDefines::NO_CALLBACK);
 }
 

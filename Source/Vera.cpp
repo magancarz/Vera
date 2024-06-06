@@ -25,8 +25,7 @@ void Vera::initializeAppComponents()
     window = WindowSystem::initialize(std::make_unique<GLFWWindow>());
     input_manager = std::make_unique<GLFWInputManager>();
 
-    vulkan_facade = std::make_unique<VulkanFacade>(*window);
-
+    vulkan_facade = std::make_unique<VulkanHandler>();
     memory_allocator = std::make_unique<VulkanMemoryAllocator>(*vulkan_facade);
     asset_manager = std::make_unique<AssetManager>(*vulkan_facade, *memory_allocator);
 }
@@ -53,7 +52,7 @@ void Vera::createRenderer()
 
 Vera::~Vera()
 {
-    vkDeviceWaitIdle(vulkan_facade->getDevice());
+    vkDeviceWaitIdle(vulkan_facade->getDeviceHandle());
 }
 
 void Vera::run()

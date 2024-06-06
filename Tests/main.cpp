@@ -1,12 +1,10 @@
-#include <UnitTests/Mocks/MockLogger.h>
-
 #include "gtest/gtest.h"
-#include "Logs/LogSystem.h"
+
+#include <Environment.h>
 
 int main(int argc, char *argv[])
 {
-    LogSystem::initialize(std::make_unique<MockLogger>());
-
     testing::InitGoogleTest(&argc, argv);
+    ::testing::AddGlobalTestEnvironment(new Environment());
     return RUN_ALL_TESTS();
 }

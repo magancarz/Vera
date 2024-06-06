@@ -32,7 +32,7 @@ void OBJLoader::loadAssetsFromFile(
             AssetManager& asset_manager,
             const std::string& file_name)
 {
-    const std::string filepath = PathBuilder(Assets::MODELS_DIRECTORY_PATH).append(file_name).fileExtension(OBJ_FILE_EXTENSION).build();
+    const std::string filepath = PathBuilder().append(Assets::MODELS_DIRECTORY_PATH).append(file_name).fileExtension(OBJ_FILE_EXTENSION).build();
 
     tinyobj::ObjReader reader;
     tinyobj::ObjReaderConfig reader_config;
@@ -41,6 +41,7 @@ void OBJLoader::loadAssetsFromFile(
     handleErrorsAndWarnings(reader);
 
     std::vector<tinyobj::material_t> materials = reader.GetMaterials();
+    addDefaultMaterialIfThereAreNone(materials);
     loadMaterials(asset_manager, materials);
     loadMesh(memory_allocator, asset_manager, reader, materials, file_name);
 }
@@ -56,6 +57,18 @@ void OBJLoader::handleErrorsAndWarnings(const tinyobj::ObjReader& reader)
     if (!reader.Warning().empty())
     {
         LogSystem::log(LogSeverity::WARNING, "TinyObjReader: ", reader.Warning());
+    }
+}
+
+void OBJLoader::addDefaultMaterialIfThereAreNone(std::vector<tinyobj::material_t>& obj_materials)
+{
+    if (obj_materials.empty())
+    {
+        tinyobj::material_t material_info{};
+        material_info.name = Assets::DEFAULT_MATERIAL_NAME;
+        material_info.diffuse_texname = Assets::DEFAULT_DIFFUSE_TEXTURE;
+        material_info.displacement_texname = Assets::DEFAULT_NORMAL_MAP;
+        obj_materials.emplace_back(std::move(material_info));
     }
 }
 

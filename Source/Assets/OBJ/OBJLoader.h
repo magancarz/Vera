@@ -16,6 +16,8 @@ private:
     inline static const char* OBJ_FILE_EXTENSION{".obj"};
 
     static void handleErrorsAndWarnings(const tinyobj::ObjReader& reader);
+    static void addDefaultMaterialIfThereAreNone(
+            std::vector<tinyobj::material_t>& obj_materials);
     static void loadMaterials(
             AssetManager& asset_manager,
             const std::vector<tinyobj::material_t>& obj_materials);

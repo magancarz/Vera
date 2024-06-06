@@ -12,7 +12,7 @@
 class RayTracedRenderer : public SceneRenderer
 {
 public:
-    RayTracedRenderer(VulkanFacade& device, MemoryAllocator& memory_allocator, AssetManager& asset_manager, World& world);
+    RayTracedRenderer(VulkanHandler& device, MemoryAllocator& memory_allocator, AssetManager& asset_manager, World& world);
     ~RayTracedRenderer() noexcept override;
 
     void renderScene(FrameInfo& frame_info) override;
@@ -21,7 +21,7 @@ public:
     [[nodiscard]] VkSampler getRayTracedImageSampler() const { return ray_traced_texture->getSampler(); }
 
 private:
-    VulkanFacade& device;
+    VulkanHandler& device;
     MemoryAllocator& memory_allocator;
     AssetManager& asset_manager;
     World& world;
