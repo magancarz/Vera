@@ -3,7 +3,7 @@
 #include <memory>
 #include <unordered_map>
 
-#include "RenderEngine/RenderingAPI/VulkanFacade.h"
+#include "RenderEngine/RenderingAPI/VulkanHandler.h"
 #include "Project/Project.h"
 #include "Assets/Material/Material.h"
 #include "Model/Model.h"
@@ -15,18 +15,14 @@ class DeviceTexture;
 class AssetManager
 {
 public:
-    AssetManager(VulkanFacade& vulkan_facade, MemoryAllocator& memory_allocator);
+    AssetManager(VulkanHandler& vulkan_facade, MemoryAllocator& memory_allocator);
     virtual ~AssetManager() = default;
 
     AssetManager(const AssetManager&) = delete;
     AssetManager operator=(const AssetManager&) = delete;
 
-    void loadAssetsRequiredForProject(const ProjectInfo& project_info);
-    void clearResources();
-
     virtual Mesh* fetchMesh(const std::string& mesh_name);
     Mesh* storeMesh(std::unique_ptr<Mesh> mesh);
-
     virtual Model* fetchModel(const std::string& model_name);
     Model* storeModel(std::unique_ptr<Model> model);
 
@@ -39,7 +35,7 @@ public:
     DeviceTexture* storeTexture(std::unique_ptr<DeviceTexture> texture);
 
 protected:
-    VulkanFacade& vulkan_facade;
+    VulkanHandler& vulkan_facade;
     MemoryAllocator& memory_allocator;
 
     std::unordered_map<std::string, std::unique_ptr<Mesh>> available_meshes;

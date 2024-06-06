@@ -8,9 +8,10 @@
 class PhysicalDevice
 {
 public:
-    explicit PhysicalDevice(Instance& instance, Surface& surface);
+    PhysicalDevice(Instance& instance, Surface& surface);
 
     SwapChainSupportDetails querySwapChainSupport(VkPhysicalDevice device);
+    uint32_t findMemoryType(uint32_t type_filter, VkMemoryPropertyFlags memory_property_flags);
 
     [[nodiscard]] VkPhysicalDevice getPhysicalDevice() const { return used_physical_device; }
     [[nodiscard]] QueueFamilyIndices getQueueFamilyIndices() const { return queue_family_indices; }

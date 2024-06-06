@@ -3,7 +3,7 @@
 #include <iostream>
 #include <set>
 
-#include "VulkanFacade.h"
+#include "VulkanHandler.h"
 #include "SwapChainSupportDetails.h"
 #include "Logs/LogSystem.h"
 
@@ -150,4 +150,20 @@ SwapChainSupportDetails PhysicalDevice::querySwapChainSupport(VkPhysicalDevice d
                 details.presentModes.data());
     }
     return details;
+}
+
+uint32_t PhysicalDevice::findMemoryType(uint32_t type_filter, VkMemoryPropertyFlags memory_property_flags)
+{
+    VkPhysicalDeviceMemoryProperties memory_properties;
+    vkGetPhysicalDeviceMemoryProperties(used_physical_device, &memory_properties);
+    for (uint32_t i = 0; i < memory_properties.memoryTypeCount; ++i)
+    {
+        if ((type_filter & (1 << i)) &&
+            (memory_properties.memoryTypes[i].propertyFlags & memory_property_flags) == memory_property_flags)
+        {
+            return i;
+        }
+    }
+
+    throw std::runtime_error("failed to find suitable memory type!");
 }

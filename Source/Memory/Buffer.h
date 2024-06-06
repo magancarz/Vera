@@ -2,12 +2,17 @@
 
 #include <memory>
 
-#include "RenderEngine/RenderingAPI/VulkanFacade.h"
+#include "RenderEngine/RenderingAPI/VulkanHandler.h"
 #include "AllocatorInfo.h"
 
 class Buffer {
 public:
-    Buffer(VulkanFacade& vulkan_facade, const VulkanMemoryAllocatorInfo& allocator_info, VkBuffer buffer, uint32_t buffer_size);
+    Buffer(
+        Device& logical_device,
+        CommandPool& command_pool,
+        const VulkanMemoryAllocatorInfo& allocator_info,
+        VkBuffer buffer,
+        uint32_t buffer_size);
     ~Buffer();
 
     Buffer(const Buffer&) = delete;
@@ -16,18 +21,19 @@ public:
     VkResult map();
     void unmap();
 
-    void writeToBuffer(const void* data);
-    void copyFromBuffer(const std::unique_ptr<Buffer>& src_buffer);
+    void writeToBuffer(const void* data) const;
+    void copyFromBuffer(const Buffer& src_buffer) const;
     [[nodiscard]] VkResult flush() const;
-    VkDescriptorBufferInfo descriptorInfo();
+    [[nodiscard]] VkDescriptorBufferInfo descriptorInfo() const;
 
     [[nodiscard]] VkBuffer getBuffer() const { return buffer; }
     [[nodiscard]] uint32_t getSize() const { return buffer_size; }
     [[nodiscard]] void* getMappedMemory() const { return mapped; }
-    VkDeviceAddress getBufferDeviceAddress();
+    [[nodiscard]] VkDeviceAddress getBufferDeviceAddress() const;
 
 private:
-    VulkanFacade& vulkan_facade;
+    Device& logical_device;
+    CommandPool& command_pool;
     VulkanMemoryAllocatorInfo allocator_info;
     VkBuffer buffer;
     uint32_t buffer_size;

@@ -6,7 +6,7 @@
 #include "imgui.h"
 #include "imgui_impl_vulkan.h"
 
-Renderer::Renderer(Window& window, VulkanFacade& device, MemoryAllocator& memory_allocator, World& world, AssetManager& asset_manager)
+Renderer::Renderer(Window& window, VulkanHandler& device, MemoryAllocator& memory_allocator, World& world, AssetManager& asset_manager)
     : window{window}, device{device}, memory_allocator{memory_allocator}, world{world}, asset_manager(asset_manager)
 {
     createCommandBuffers();
@@ -23,10 +23,10 @@ void Renderer::createCommandBuffers()
     VkCommandBufferAllocateInfo allocate_info{};
     allocate_info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
     allocate_info.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-    allocate_info.commandPool = device.getCommandPool();
+    allocate_info.commandPool = device.getCommandPoolHandle();
     allocate_info.commandBufferCount = static_cast<uint32_t>(command_buffers.size());
 
-    if (vkAllocateCommandBuffers(device.getDevice(), &allocate_info, command_buffers.data()) != VK_SUCCESS)
+    if (vkAllocateCommandBuffers(device.getDeviceHandle(), &allocate_info, command_buffers.data()) != VK_SUCCESS)
     {
         throw std::runtime_error("Failed to allocate command buffers!");
     }
@@ -40,7 +40,7 @@ void Renderer::recreateSwapChain()
         extent = window.getExtent();
         glfwWaitEvents();
     }
-    vkDeviceWaitIdle(device.getDevice());
+    vkDeviceWaitIdle(device.getDeviceHandle());
 
     if (swap_chain == nullptr)
     {
@@ -103,8 +103,8 @@ Renderer::~Renderer()
 void Renderer::freeCommandBuffers()
 {
     vkFreeCommandBuffers(
-        device.getDevice(),
-        device.getCommandPool(),
+        device.getDeviceHandle(),
+        device.getCommandPoolHandle(),
         static_cast<uint32_t>(command_buffers.size()),
         command_buffers.data());
     command_buffers.clear();

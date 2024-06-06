@@ -1,6 +1,6 @@
 #pragma once
 
-#include "VulkanFacade.h"
+#include "VulkanHandler.h"
 
 #include <memory>
 #include <unordered_map>
@@ -12,7 +12,7 @@ public:
     class Builder
     {
     public:
-        explicit Builder(VulkanFacade& device) : device{device} {}
+        explicit Builder(VulkanHandler& device) : device{device} {}
 
         Builder& addBinding(
             uint32_t binding,
@@ -22,12 +22,12 @@ public:
         [[nodiscard]] std::unique_ptr<DescriptorSetLayout> build() const;
 
     private:
-        VulkanFacade& device;
+        VulkanHandler& device;
         std::unordered_map<uint32_t, VkDescriptorSetLayoutBinding> bindings{};
     };
 
     DescriptorSetLayout(
-            VulkanFacade& device, std::unordered_map<uint32_t, VkDescriptorSetLayoutBinding> bindings);
+            VulkanHandler& device, std::unordered_map<uint32_t, VkDescriptorSetLayoutBinding> bindings);
     ~DescriptorSetLayout();
     DescriptorSetLayout(const DescriptorSetLayout&) = delete;
     DescriptorSetLayout &operator=(const DescriptorSetLayout&) = delete;
@@ -35,7 +35,7 @@ public:
     VkDescriptorSetLayout getDescriptorSetLayout() const { return descriptor_set_layout; }
 
 private:
-    VulkanFacade& device;
+    VulkanHandler& device;
     VkDescriptorSetLayout descriptor_set_layout;
     std::unordered_map<uint32_t, VkDescriptorSetLayoutBinding> bindings;
 
@@ -48,7 +48,7 @@ public:
     class Builder
     {
     public:
-        Builder(VulkanFacade& device) : device{device} {}
+        Builder(VulkanHandler& device) : device{device} {}
 
         Builder& addPoolSize(VkDescriptorType descriptor_type, uint32_t count);
         Builder& setPoolFlags(VkDescriptorPoolCreateFlags flags);
@@ -56,14 +56,14 @@ public:
         std::unique_ptr<DescriptorPool> build() const;
 
     private:
-        VulkanFacade& device;
+        VulkanHandler& device;
         std::vector<VkDescriptorPoolSize> pool_sizes{};
         uint32_t max_sets = 1000;
         VkDescriptorPoolCreateFlags pool_flags = 0;
     };
 
     DescriptorPool(
-            VulkanFacade& device,
+            VulkanHandler& device,
             uint32_t max_sets,
             VkDescriptorPoolCreateFlags pool_flags,
             const std::vector<VkDescriptorPoolSize>& pool_sizes);
@@ -79,7 +79,7 @@ public:
     void resetPool();
 
 private:
-    VulkanFacade& device;
+    VulkanHandler& device;
     VkDescriptorPool descriptor_pool;
 
     friend class DescriptorWriter;

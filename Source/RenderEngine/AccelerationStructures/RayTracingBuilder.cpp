@@ -4,7 +4,7 @@
 #include "RenderEngine/RenderingAPI/VulkanDefines.h"
 #include "RenderEngine/RenderingAPI/VulkanHelper.h"
 
-RayTracingAccelerationStructureBuilder::RayTracingAccelerationStructureBuilder(VulkanFacade& device, MemoryAllocator& memory_allocator)
+RayTracingAccelerationStructureBuilder::RayTracingAccelerationStructureBuilder(VulkanHandler& device, MemoryAllocator& memory_allocator)
     : device{device}, memory_allocator{memory_allocator} {}
 
 AccelerationStructure RayTracingAccelerationStructureBuilder::buildBottomLevelAccelerationStructure(const BlasInput& blas_input)
@@ -29,7 +29,7 @@ AccelerationStructure RayTracingAccelerationStructureBuilder::buildBottomLevelAc
     bottom_level_acceleration_structure_build_sizes_info.buildScratchSize = 0;
 
     pvkGetAccelerationStructureBuildSizesKHR(
-            device.getDevice(),
+            device.getDeviceHandle(),
             VK_ACCELERATION_STRUCTURE_BUILD_TYPE_DEVICE_KHR,
             &acceleration_structure_build_geometry_info,
             bottom_level_max_primitive_count_list.data(),
@@ -49,7 +49,7 @@ AccelerationStructure RayTracingAccelerationStructureBuilder::buildBottomLevelAc
 
     VkAccelerationStructureKHR bottom_level_acceleration_structure_handle{VK_NULL_HANDLE};
     if (pvkCreateAccelerationStructureKHR(
-            device.getDevice(),
+            device.getDeviceHandle(),
             &bottom_level_acceleration_structure_create_info,
             VulkanDefines::NO_CALLBACK,
             &bottom_level_acceleration_structure_handle) != VK_SUCCESS)
@@ -61,7 +61,7 @@ AccelerationStructure RayTracingAccelerationStructureBuilder::buildBottomLevelAc
     bottom_level_acceleration_structure_device_address_info.sType = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_DEVICE_ADDRESS_INFO_KHR;
     bottom_level_acceleration_structure_device_address_info.accelerationStructure = bottom_level_acceleration_structure_handle;
 
-    acceleration_structure.bottom_level_acceleration_structure_device_address = pvkGetAccelerationStructureDeviceAddressKHR(device.getDevice(), &bottom_level_acceleration_structure_device_address_info);
+    acceleration_structure.bottom_level_acceleration_structure_device_address = pvkGetAccelerationStructureDeviceAddressKHR(device.getDeviceHandle(), &bottom_level_acceleration_structure_device_address_info);
 
     auto bottom_level_acceleration_structure_scratch_buffer = memory_allocator.createBuffer(
             bottom_level_acceleration_structure_build_sizes_info.accelerationStructureSize,
@@ -82,14 +82,14 @@ AccelerationStructure RayTracingAccelerationStructureBuilder::buildBottomLevelAc
 
     const VkAccelerationStructureBuildRangeInfoKHR* bottom_level_acceleration_structure_build_range_infos = &bottom_level_acceleration_structure_build_range_info;
 
-    VkCommandBuffer command_buffer = device.beginSingleTimeCommands();
+    VkCommandBuffer command_buffer = device.getCommandPool().beginSingleTimeCommands();
 
     pvkCmdBuildAccelerationStructuresKHR(
             command_buffer, 1,
             &acceleration_structure_build_geometry_info,
             &bottom_level_acceleration_structure_build_range_infos);
 
-    device.endSingleTimeCommands(command_buffer);
+    device.getCommandPool().endSingleTimeCommands(command_buffer);
 
     acceleration_structure.acceleration_structure = acceleration_structure_build_geometry_info.dstAccelerationStructure;
 
@@ -123,7 +123,7 @@ std::vector<AccelerationStructure> RayTracingAccelerationStructureBuilder::build
         }
 
         pvkGetAccelerationStructureBuildSizesKHR(
-                device.getDevice(),
+                device.getDeviceHandle(),
                 VK_ACCELERATION_STRUCTURE_BUILD_TYPE_DEVICE_KHR,
                 &build_as[idx].buildInfo,
                 max_primitives_count.data(),
@@ -148,7 +148,7 @@ std::vector<AccelerationStructure> RayTracingAccelerationStructureBuilder::build
         VkQueryPoolCreateInfo query_pool_create_info{VK_STRUCTURE_TYPE_QUERY_POOL_CREATE_INFO};
         query_pool_create_info.queryCount = blas_count;
         query_pool_create_info.queryType = VK_QUERY_TYPE_ACCELERATION_STRUCTURE_COMPACTED_SIZE_KHR;
-        vkCreateQueryPool(device.getDevice(), &query_pool_create_info, VulkanDefines::NO_CALLBACK, &query_pool);
+        vkCreateQueryPool(device.getDeviceHandle(), &query_pool_create_info, VulkanDefines::NO_CALLBACK, &query_pool);
     }
 
     std::vector<uint32_t> indices;
@@ -162,16 +162,16 @@ std::vector<AccelerationStructure> RayTracingAccelerationStructureBuilder::build
         if (batch_size >= batch_limit || idx == blas_count - 1)
         {
             {
-                VkCommandBuffer command_buffer = device.beginSingleTimeCommands();
+                VkCommandBuffer command_buffer = device.getCommandPool().beginSingleTimeCommands();
                 cmdCreateBlas(command_buffer, indices, build_as, scratch_buffer_device_address, query_pool);
-                device.endSingleTimeCommands(command_buffer);
+                device.getCommandPool().endSingleTimeCommands(command_buffer);
             }
 
             if (query_pool)
             {
-                VkCommandBuffer command_buffer = device.beginSingleTimeCommands();
+                VkCommandBuffer command_buffer = device.getCommandPool().beginSingleTimeCommands();
                 cmdCompactBlas(command_buffer, indices, build_as, query_pool);
-                device.endSingleTimeCommands(command_buffer);
+                device.getCommandPool().endSingleTimeCommands(command_buffer);
                 destroyNonCompacted(indices, build_as);
             }
 
@@ -180,7 +180,7 @@ std::vector<AccelerationStructure> RayTracingAccelerationStructureBuilder::build
         }
     }
 
-    vkDestroyQueryPool(device.getDevice(), query_pool, VulkanDefines::NO_CALLBACK);
+    vkDestroyQueryPool(device.getDeviceHandle(), query_pool, VulkanDefines::NO_CALLBACK);
 
     std::vector<AccelerationStructure> out_blas_values;
     for (auto& blas : build_as)
@@ -200,7 +200,7 @@ void RayTracingAccelerationStructureBuilder::cmdCreateBlas(
 {
     if (query_pool)
     {
-        vkResetQueryPool(device.getDevice(), query_pool, 0, static_cast<uint32_t>(indices.size()));
+        vkResetQueryPool(device.getDeviceHandle(), query_pool, 0, static_cast<uint32_t>(indices.size()));
     }
 
     uint32_t query_count{0};
@@ -220,7 +220,7 @@ void RayTracingAccelerationStructureBuilder::cmdCreateBlas(
 
         create_info.buffer = build_as[idx].as.acceleration_structure_buffer->getBuffer();
         if (pvkCreateAccelerationStructureKHR(
-                device.getDevice(),
+                device.getDeviceHandle(),
                 &create_info,
                 VulkanDefines::NO_CALLBACK,
                 &build_as[idx].as.acceleration_structure) != VK_SUCCESS)
@@ -272,7 +272,7 @@ void RayTracingAccelerationStructureBuilder::cmdCompactBlas(
 
     std::vector<VkDeviceSize> compact_sizes(static_cast<uint32_t>(indices.size()));
     vkGetQueryPoolResults(
-            device.getDevice(),
+            device.getDeviceHandle(),
             query_pool,
             0,
             static_cast<uint32_t>(compact_sizes.size()),
@@ -299,7 +299,7 @@ void RayTracingAccelerationStructureBuilder::cmdCompactBlas(
 
         create_info.buffer = build_as[idx].as.acceleration_structure_buffer->getBuffer();
         if (pvkCreateAccelerationStructureKHR(
-                device.getDevice(),
+                device.getDeviceHandle(),
                 &create_info,
                 VulkanDefines::NO_CALLBACK,
                 &build_as[idx].as.acceleration_structure) != VK_SUCCESS)
@@ -321,7 +321,7 @@ void RayTracingAccelerationStructureBuilder::destroyNonCompacted(
 {
     for (uint32_t idx : indices)
     {
-        pvkDestroyAccelerationStructureKHR(device.getDevice(), build_as[idx].cleanupAS.acceleration_structure, VulkanDefines::NO_CALLBACK);
+        pvkDestroyAccelerationStructureKHR(device.getDeviceHandle(), build_as[idx].cleanupAS.acceleration_structure, VulkanDefines::NO_CALLBACK);
     }
 }
 
@@ -341,7 +341,7 @@ AccelerationStructure RayTracingAccelerationStructureBuilder::buildTopLevelAccel
             instances_temp.size(),
             VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT | VK_BUFFER_USAGE_ACCELERATION_STRUCTURE_BUILD_INPUT_READ_ONLY_BIT_KHR | VK_BUFFER_USAGE_TRANSFER_DST_BIT,
             VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
-    instances_buffer->copyFromBuffer(instances_staging_buffer);
+    instances_buffer->copyFromBuffer(*instances_staging_buffer);
 
     VkAccelerationStructureGeometryInstancesDataKHR instances{};
     instances.sType = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_GEOMETRY_INSTANCES_DATA_KHR;
@@ -376,7 +376,7 @@ AccelerationStructure RayTracingAccelerationStructureBuilder::buildTopLevelAccel
     std::vector<uint32_t> top_level_max_primitive_count_list = {1};
 
     pvkGetAccelerationStructureBuildSizesKHR(
-            device.getDevice(), VK_ACCELERATION_STRUCTURE_BUILD_TYPE_DEVICE_KHR,
+            device.getDeviceHandle(), VK_ACCELERATION_STRUCTURE_BUILD_TYPE_DEVICE_KHR,
             &top_level_acceleration_structure_build_geometry_info,
             top_level_max_primitive_count_list.data(),
             &top_level_acceleration_structure_build_sizes_info);
@@ -397,7 +397,7 @@ AccelerationStructure RayTracingAccelerationStructureBuilder::buildTopLevelAccel
     top_level_acceleration_structure_create_info.deviceAddress = 0;
 
     if (pvkCreateAccelerationStructureKHR(
-            device.getDevice(),
+            device.getDeviceHandle(),
             &top_level_acceleration_structure_create_info,
             VulkanDefines::NO_CALLBACK,
             &tlas.acceleration_structure) != VK_SUCCESS)
@@ -426,14 +426,14 @@ AccelerationStructure RayTracingAccelerationStructureBuilder::buildTopLevelAccel
 
     const VkAccelerationStructureBuildRangeInfoKHR* top_level_acceleration_structure_build_range_infos = &top_level_acceleration_structure_build_range_info;
 
-    VkCommandBuffer command_buffer = device.beginSingleTimeCommands();
+    VkCommandBuffer command_buffer = device.getCommandPool().beginSingleTimeCommands();
 
     pvkCmdBuildAccelerationStructuresKHR(
             command_buffer, 1,
             &top_level_acceleration_structure_build_geometry_info,
             &top_level_acceleration_structure_build_range_infos);
 
-    device.endSingleTimeCommands(command_buffer);
+    device.getCommandPool().endSingleTimeCommands(command_buffer);
 
     return tlas;
 }

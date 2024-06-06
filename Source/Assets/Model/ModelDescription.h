@@ -4,9 +4,9 @@
 
 struct ModelDescription
 {
-    Buffer* vertex_buffer;
-    Buffer* index_buffer;
-    uint64_t num_of_triangles;
-    uint64_t num_of_vertices;
-    uint64_t num_of_indices;
+    Buffer* vertex_buffer{nullptr};
+    Buffer* index_buffer{nullptr};
+    uint64_t num_of_triangles{0};
+    uint64_t num_of_vertices{0};
+    uint64_t num_of_indices{0};
 };

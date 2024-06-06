@@ -7,7 +7,7 @@
 #include <fstream>
 
 RayTracingPipeline::RayTracingPipeline(
-        VulkanFacade& device,
+        VulkanHandler& device,
         MemoryAllocator& memory_allocator,
         const std::vector<VkPipelineShaderStageCreateInfo>& shader_stage_create_info_list,
         const std::vector<VkRayTracingShaderGroupCreateInfoKHR>& shader_group_create_info_list,
@@ -40,7 +40,7 @@ void RayTracingPipeline::createPipeline(
     pipeline_layout_create_info.pushConstantRangeCount = 1;
     pipeline_layout_create_info.pPushConstantRanges = &push_constant_range;
 
-    if (vkCreatePipelineLayout(device.getDevice(), &pipeline_layout_create_info, VulkanDefines::NO_CALLBACK, &pipeline_layout_handle) != VK_SUCCESS)
+    if (vkCreatePipelineLayout(device.getDeviceHandle(), &pipeline_layout_create_info, VulkanDefines::NO_CALLBACK, &pipeline_layout_handle) != VK_SUCCESS)
     {
         throw std::runtime_error("Failed to create pipeline layout!");
     }
@@ -55,7 +55,7 @@ void RayTracingPipeline::createPipeline(
     ray_tracing_pipeline_create_info.layout = pipeline_layout_handle;
 
     if (pvkCreateRayTracingPipelinesKHR(
-            device.getDevice(), VK_NULL_HANDLE, VK_NULL_HANDLE, 1,
+            device.getDeviceHandle(), VK_NULL_HANDLE, VK_NULL_HANDLE, 1,
             &ray_tracing_pipeline_create_info, VulkanDefines::NO_CALLBACK, &pipeline_handle) != VK_SUCCESS)
     {
         throw std::runtime_error("Failed to create ray tracing pipeline!");
@@ -84,7 +84,7 @@ void RayTracingPipeline::createShaderBindingTable(uint32_t miss_count, uint32_t 
 
     uint32_t dataSize = handle_count * handle_size;
     std::vector<uint8_t> handles(dataSize);
-    if (pvkGetRayTracingShaderGroupHandlesKHR(device.getDevice(), pipeline_handle, 0, handle_count, dataSize, handles.data()) != VK_SUCCESS)
+    if (pvkGetRayTracingShaderGroupHandlesKHR(device.getDeviceHandle(), pipeline_handle, 0, handle_count, dataSize, handles.data()) != VK_SUCCESS)
     {
         throw std::runtime_error("Cannot create ray tracing shader group handles!");
     }
@@ -100,7 +100,7 @@ void RayTracingPipeline::createShaderBindingTable(uint32_t miss_count, uint32_t 
     );
 
     VkBufferDeviceAddressInfo info{VK_STRUCTURE_TYPE_BUFFER_DEVICE_ADDRESS_INFO, nullptr, shader_binding_table->getBuffer()};
-    VkDeviceAddress sbt_address = vkGetBufferDeviceAddress(device.getDevice(), &info);
+    VkDeviceAddress sbt_address = vkGetBufferDeviceAddress(device.getDeviceHandle(), &info);
     ray_gen_shader_binding_table.deviceAddress = sbt_address;
     miss_shader_binding_table.deviceAddress = sbt_address + ray_gen_shader_binding_table.size;
     hit_shader_binding_table.deviceAddress = sbt_address + ray_gen_shader_binding_table.size + miss_shader_binding_table.size;
@@ -132,8 +132,8 @@ void RayTracingPipeline::createShaderBindingTable(uint32_t miss_count, uint32_t 
 
 RayTracingPipeline::~RayTracingPipeline()
 {
-    vkDestroyPipeline(device.getDevice(), pipeline_handle, VulkanDefines::NO_CALLBACK);
-    vkDestroyPipelineLayout(device.getDevice(), pipeline_layout_handle, VulkanDefines::NO_CALLBACK);
+    vkDestroyPipeline(device.getDeviceHandle(), pipeline_handle, VulkanDefines::NO_CALLBACK);
+    vkDestroyPipelineLayout(device.getDeviceHandle(), pipeline_layout_handle, VulkanDefines::NO_CALLBACK);
 }
 
 void RayTracingPipeline::bind(VkCommandBuffer command_buffer)

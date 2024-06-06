@@ -12,7 +12,7 @@
 class Renderer
 {
 public:
-    Renderer(Window& window, VulkanFacade& device, MemoryAllocator& memory_allocator, World& world, AssetManager& asset_manager);
+    Renderer(Window& window, VulkanHandler& device, MemoryAllocator& memory_allocator, World& world, AssetManager& asset_manager);
     ~Renderer();
 
     Renderer(const Renderer&) = delete;
@@ -22,7 +22,7 @@ public:
 
 private:
     Window& window;
-    VulkanFacade& device;
+    VulkanHandler& device;
     MemoryAllocator& memory_allocator;
     World& world;
     AssetManager& asset_manager;

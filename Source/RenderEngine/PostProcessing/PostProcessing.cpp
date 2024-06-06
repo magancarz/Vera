@@ -1,11 +1,12 @@
 #include "PostProcessing.h"
 
-#include "RenderEngine/RenderingAPI/VulkanDefines.h"
-#include "Objects/Components/TransformComponent.h"
 #include "Assets/AssetManager.h"
+#include "Logs/LogSystem.h"
+#include "Objects/Components/TransformComponent.h"
+#include "RenderEngine/RenderingAPI/VulkanDefines.h"
 
 PostProcessing::PostProcessing(
-        VulkanFacade& device,
+        VulkanHandler& device,
         AssetManager& asset_manager,
         VkRenderPass render_pass,
         VkDescriptorSetLayout input_texture)
@@ -33,7 +34,7 @@ void PostProcessing::createPipelineLayout(VkDescriptorSetLayout input_texture)
     pipeline_layout_info.pushConstantRangeCount = 0;
     pipeline_layout_info.pPushConstantRanges = nullptr;
 
-    if (vkCreatePipelineLayout(device.getDevice(), &pipeline_layout_info, VulkanDefines::NO_CALLBACK, &pipeline_layout) != VK_SUCCESS)
+    if (vkCreatePipelineLayout(device.getDeviceHandle(), &pipeline_layout_info, VulkanDefines::NO_CALLBACK, &pipeline_layout) != VK_SUCCESS)
     {
         throw std::runtime_error("Failed to create pipeline layout!");
     }
@@ -58,7 +59,7 @@ void PostProcessing::createPipeline(VkRenderPass render_pass)
 
 PostProcessing::~PostProcessing()
 {
-    vkDestroyPipelineLayout(device.getDevice(), pipeline_layout, VulkanDefines::NO_CALLBACK);
+    vkDestroyPipelineLayout(device.getDeviceHandle(), pipeline_layout, VulkanDefines::NO_CALLBACK);
 }
 
 void PostProcessing::apply(FrameInfo& frame_info)

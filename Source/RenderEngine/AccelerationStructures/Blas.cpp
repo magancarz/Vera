@@ -7,7 +7,7 @@
 #include "../../Objects/Components/MeshComponent.h"
 
 Blas::Blas(
-        VulkanFacade& device,
+        VulkanHandler& device,
         MemoryAllocator& memory_allocator,
         AssetManager& asset_manager,
         MeshComponent& mesh_component)
@@ -64,7 +64,7 @@ void Blas::createBlas(MeshComponent& mesh_component)
 
 Blas::~Blas()
 {
-    pvkDestroyAccelerationStructureKHR(device.getDevice(), blas.acceleration_structure, VulkanDefines::NO_CALLBACK);
+    pvkDestroyAccelerationStructureKHR(device.getDeviceHandle(), blas.acceleration_structure, VulkanDefines::NO_CALLBACK);
 }
 
 BlasInstance Blas::createBlasInstance(const glm::mat4& transform)

@@ -3,15 +3,15 @@
 #include <memory>
 #include <vector>
 
-#include "VulkanFacade.h"
+#include "VulkanHandler.h"
 
 class SwapChain
 {
 public:
     static constexpr int MAX_FRAMES_IN_FLIGHT = 3;
 
-    SwapChain(VulkanFacade& device_ref, VkExtent2D window_extent);
-    SwapChain(VulkanFacade& device_ref, VkExtent2D window_extent, std::shared_ptr<SwapChain> previous);
+    SwapChain(VulkanHandler& device_ref, VkExtent2D window_extent);
+    SwapChain(VulkanHandler& device_ref, VkExtent2D window_extent, std::shared_ptr<SwapChain> previous);
     ~SwapChain();
 
     SwapChain(const SwapChain&) = delete;
@@ -65,7 +65,7 @@ private:
     std::vector<VkImage> swap_chain_images;
     std::vector<VkImageView> swap_chain_image_views;
 
-    VulkanFacade& device;
+    VulkanHandler& device;
     VkExtent2D window_extent;
 
     VkSwapchainKHR swap_chain;

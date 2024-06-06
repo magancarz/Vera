@@ -8,7 +8,7 @@ class RayTracingPipelineBuilder
 {
 public:
     RayTracingPipelineBuilder(
-            VulkanFacade& device,
+            VulkanHandler& device,
             MemoryAllocator& memory_allocator,
             VkPhysicalDeviceRayTracingPipelinePropertiesKHR ray_tracing_properties);
 
@@ -35,7 +35,7 @@ public:
     std::unique_ptr<RayTracingPipeline> build();
 
 private:
-    VulkanFacade& device;
+    VulkanHandler& device;
     MemoryAllocator& memory_allocator;
     VkPhysicalDeviceRayTracingPipelinePropertiesKHR ray_tracing_properties;
 

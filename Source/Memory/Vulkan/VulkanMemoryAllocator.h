@@ -6,7 +6,7 @@
 class VulkanMemoryAllocator : public MemoryAllocator
 {
 public:
-    explicit VulkanMemoryAllocator(VulkanFacade& vulkan_facade);
+    VulkanMemoryAllocator(VulkanHandler& vulkan_handler);
     ~VulkanMemoryAllocator() override;
 
     VulkanMemoryAllocator(const VulkanMemoryAllocator&) = delete;
@@ -24,10 +24,10 @@ public:
             uint32_t min_offset_alignment = 0) override;
     std::unique_ptr<Buffer> createStagingBuffer(uint32_t instance_size, uint32_t instance_count) override;
     std::unique_ptr<Buffer> createStagingBuffer(uint32_t instance_size, uint32_t instance_count, const void *data) override;
-    std::unique_ptr<Image> createImage(VkImageCreateInfo image_create_info) override;
+    std::unique_ptr<Image> createImage(const VkImageCreateInfo& image_create_info) override;
 
 private:
-    VulkanFacade& vulkan_facade;
+    VulkanHandler& vulkan_handler;
 
     void initializeVMA();
 

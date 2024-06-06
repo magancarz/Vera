@@ -2,7 +2,7 @@
 
 #include "Assets/AssetManager.h"
 
-class VeraMaterial
+class VeraMaterialLoader
 {
 public:
     static void loadAssetFromFile(AssetManager& asset_manager, const std::string& asset_name);

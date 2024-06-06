@@ -3,20 +3,20 @@
 #include <string>
 #include <Assets/Texture/TextureData.h>
 
-#include "RenderEngine/RenderingAPI/VulkanFacade.h"
+#include "RenderEngine/RenderingAPI/VulkanHandler.h"
 #include "Memory/MemoryAllocator.h"
 
 class DeviceTexture
 {
 public:
     DeviceTexture(
-            VulkanFacade& vulkan_facade,
+            VulkanHandler& vulkan_facade,
             MemoryAllocator& memory_allocator,
             const TextureData& texture_data,
             const VkImageCreateInfo& image_info,
             std::unique_ptr<Image> image);
     DeviceTexture(
-            VulkanFacade& vulkan_facade,
+            VulkanHandler& vulkan_facade,
             std::unique_ptr<Image> image, const VkImageCreateInfo& image_info);
     ~DeviceTexture();
 
@@ -29,7 +29,7 @@ public:
     [[nodiscard]] bool isOpaque() const { return is_opaque; }
 
 private:
-    VulkanFacade& vulkan_facade;
+    VulkanHandler& vulkan_facade;
     std::string name{};
     bool is_opaque{true};
     uint32_t channels{3};

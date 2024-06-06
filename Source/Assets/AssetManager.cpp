@@ -3,36 +3,24 @@
 #include "Defines.h"
 #include "Logs/LogSystem.h"
 #include "OBJ/OBJLoader.h"
-#include "Assets/Material/VeraMaterial.h"
+#include "Assets/Material/VeraMaterialLoader.h"
 #include "Texture/TextureLoader.h"
 
-AssetManager::AssetManager(VulkanFacade& vulkan_facade, MemoryAllocator& memory_allocator)
+AssetManager::AssetManager(VulkanHandler& vulkan_facade, MemoryAllocator& memory_allocator)
     : vulkan_facade{vulkan_facade}, memory_allocator{memory_allocator} {}
-
-void AssetManager::loadAssetsRequiredForProject(const ProjectInfo& project_info)
-{
-    LogSystem::log(LogSeverity::LOG, "Loading needed assets for the project ", project_info.project_name.c_str(), "...");
-    for (auto& object_info : project_info.objects_infos)
-    {
-        if (!fetchModel(object_info.mesh_name) || !fetchMaterial(object_info.material_name))
-        {
-            LogSystem::log(LogSeverity::FATAL, "Loading needed assets for project ", project_info.project_name.c_str(), " ended in failure");
-            return;
-        }
-    }
-
-    LogSystem::log(LogSeverity::LOG, "Loading needed assets for project ", project_info.project_name.c_str(), " ended in success");
-}
 
 Mesh* AssetManager::fetchMesh(const std::string& mesh_name)
 {
+    LogSystem::log(LogSeverity::LOG, "Fetching mesh named ", mesh_name.c_str());
     if (available_meshes.contains(mesh_name))
     {
-        return available_meshes.at(mesh_name).get();
+        LogSystem::log(LogSeverity::LOG, "Mesh found in available meshes list. Returning...");
+        return available_meshes[mesh_name].get();
     }
 
-    LogSystem::log(LogSeverity::FATAL, "Mesh ", mesh_name.c_str(), " not found in available meshes!");
-    return nullptr;
+    LogSystem::log(LogSeverity::LOG, "Mesh was not found in available meshes list. Loading from file...");
+    OBJLoader::loadAssetsFromFile(memory_allocator, *this, mesh_name);
+    return available_meshes[mesh_name].get();
 }
 
 Mesh* AssetManager::storeMesh(std::unique_ptr<Mesh> mesh)
@@ -75,7 +63,7 @@ Material* AssetManager::fetchMaterial(const std::string& material_name)
     }
 
     LogSystem::log(LogSeverity::LOG, "Material was not found in available materials list. Loading from file...");
-    VeraMaterial::loadAssetFromFile(*this, material_name);
+    VeraMaterialLoader::loadAssetFromFile(*this, material_name);
     return available_materials[material_name].get();
 }
 
@@ -127,12 +115,4 @@ DeviceTexture* AssetManager::storeTexture(std::unique_ptr<DeviceTexture> texture
     auto texture_name = texture->getName();
     available_textures[texture_name] = std::move(texture);
     return available_textures[texture_name].get();
-}
-
-void AssetManager::clearResources()
-{
-    available_meshes.clear();
-    available_models.clear();
-    available_materials.clear();
-    available_textures.clear();
 }

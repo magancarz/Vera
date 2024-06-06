@@ -23,6 +23,6 @@ void Surface::createSurface()
     }
     else
     {
-        LogSystem::log(LogSeverity::FATAL, "Couldn't create surface from glfw window!");
+        LogSystem::log(LogSeverity::FATAL, "Unable to fetch glfw window!");
     }
 }

@@ -5,7 +5,7 @@
 #include "RenderEngine/RenderingAPI/VulkanHelper.h"
 
 RayTracingPipelineBuilder::RayTracingPipelineBuilder(
-        VulkanFacade& device,
+        VulkanHandler& device,
         MemoryAllocator& memory_allocator,
         VkPhysicalDeviceRayTracingPipelinePropertiesKHR ray_tracing_properties)
     : device{device}, memory_allocator{memory_allocator}, ray_tracing_properties{ray_tracing_properties} {}

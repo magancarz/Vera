@@ -12,7 +12,7 @@
 #include "Utils/Algorithms.h"
 
 std::unique_ptr<DeviceTexture> TextureLoader::loadFromAssetFile(
-        VulkanFacade& vulkan_facade,
+        VulkanHandler& vulkan_facade,
         MemoryAllocator& memory_allocator,
         const std::string& texture_name,
         VkFormat format)
@@ -28,11 +28,11 @@ TextureData TextureLoader::loadTextureData(const std::string& texture_resource_l
     int width, height, number_of_channels;
     constexpr int EXPECTED_NUMBER_OF_CHANNELS = 4;
     unsigned char* data = stbi_load(
-            location.c_str(),
-            &width,
-            &height,
-            &number_of_channels,
-            EXPECTED_NUMBER_OF_CHANNELS);
+        location.c_str(),
+        &width,
+        &height,
+        &number_of_channels,
+        EXPECTED_NUMBER_OF_CHANNELS);
 
     if (!data)
     {
@@ -51,16 +51,16 @@ TextureData TextureLoader::loadTextureData(const std::string& texture_resource_l
 
     return
     {
-            .name = texture_resource_location,
-            .width = static_cast<uint32_t>(width),
-            .height = static_cast<uint32_t>(height),
-            .number_of_channels = static_cast<uint32_t>(EXPECTED_NUMBER_OF_CHANNELS),
-            .data = std::move(copied_data)
+        .name = texture_resource_location,
+        .width = static_cast<uint32_t>(width),
+        .height = static_cast<uint32_t>(height),
+        .number_of_channels = static_cast<uint32_t>(EXPECTED_NUMBER_OF_CHANNELS),
+        .data = std::move(copied_data)
     };
 }
 
 std::unique_ptr<DeviceTexture> TextureLoader::createTextureOnDevice(
-        VulkanFacade& vulkan_facade,
+        VulkanHandler& vulkan_facade,
         MemoryAllocator& memory_allocator,
         const TextureData& texture_data,
         VkFormat format)

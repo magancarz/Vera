@@ -19,12 +19,12 @@ public:
 
 private:
     void initializeAppComponents();
-    void initializeLogSystem();
+    static void initializeLogSystem();
 
     Window* window{nullptr};
     std::unique_ptr<InputManager> input_manager{nullptr};
 
-    std::unique_ptr<VulkanFacade> vulkan_facade{nullptr};
+    std::unique_ptr<VulkanHandler> vulkan_facade{nullptr};
 
     std::unique_ptr<MemoryAllocator> memory_allocator{nullptr};
     std::unique_ptr<AssetManager> asset_manager{nullptr};

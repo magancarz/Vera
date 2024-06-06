@@ -1,4 +1,4 @@
-#include "VeraMaterial.h"
+#include "VeraMaterialLoader.h"
 
 #include <fstream>
 
@@ -6,9 +6,9 @@
 #include "Logs/LogSystem.h"
 #include "Utils/PathBuilder.h"
 
-void VeraMaterial::loadAssetFromFile(AssetManager& asset_manager, const std::string& asset_name)
+void VeraMaterialLoader::loadAssetFromFile(AssetManager& asset_manager, const std::string& asset_name)
 {
-    LogSystem::log(LogSeverity::LOG, "Trying to load material named ", asset_name.c_str(), "...");
+    LogSystem::log(LogSeverity::LOG, "Trying to load material ", asset_name.c_str(), "...");
 
     const std::string filepath = PathBuilder(Assets::MATERIALS_DIRECTORY_PATH).append(asset_name).fileExtension(VERA_MATERIAL_FILE_EXTENSION).build();
     std::ifstream file_stream(filepath);
@@ -23,10 +23,13 @@ void VeraMaterial::loadAssetFromFile(AssetManager& asset_manager, const std::str
         std::string type;
         iss >> type;
 
-        MaterialInfo material_info{};
-        std::string color_x, color_y, color_z;
+        std::string color_x;
         iss >> color_x;
+
+        std::string color_y;
         iss >> color_y;
+
+        std::string color_z;
         iss >> color_z;
 
         std::string value;
@@ -39,12 +42,14 @@ void VeraMaterial::loadAssetFromFile(AssetManager& asset_manager, const std::str
 
         file_stream.close();
 
+        MaterialInfo material_info{};
+        material_info.name = material_name;
         material_info.diffuse_texture = asset_manager.fetchDiffuseTexture(texture_name);
-        material_info.normal_texture = asset_manager.fetchNormalMap("blue.png");
+        material_info.normal_texture = asset_manager.fetchNormalMap(Assets::DEFAULT_NORMAL_MAP);
 
-        LogSystem::log(LogSeverity::LOG, "Loading material from file ended in success");
+        LogSystem::log(LogSeverity::LOG, "Loading material ", asset_name.c_str(), " ended in success");
         asset_manager.storeMaterial(std::make_unique<Material>(material_info));
     }
 
-    LogSystem::log(LogSeverity::ERROR, "Failed to load material");
+    LogSystem::log(LogSeverity::ERROR, "Failed to load material ", asset_name.c_str());
 }
