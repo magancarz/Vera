@@ -21,11 +21,14 @@ Vera::Vera()
 void Vera::initializeAppComponents()
 {
     initializeLogSystem();
+
     window = WindowSystem::initialize(std::make_unique<GLFWWindow>());
+    input_manager = std::make_unique<GLFWInputManager>();
+
     vulkan_facade = std::make_unique<VulkanFacade>(*window);
+
     memory_allocator = std::make_unique<VulkanMemoryAllocator>(*vulkan_facade);
     asset_manager = std::make_unique<AssetManager>(*vulkan_facade, *memory_allocator);
-    input_manager = std::make_unique<GLFWInputManager>();
 }
 
 void Vera::initializeLogSystem()

@@ -22,11 +22,12 @@ private:
     void initializeLogSystem();
 
     Window* window{nullptr};
-    std::unique_ptr<VulkanFacade> vulkan_facade;
-    std::unique_ptr<MemoryAllocator> memory_allocator;
+    std::unique_ptr<InputManager> input_manager{nullptr};
 
-    std::unique_ptr<AssetManager> asset_manager;
-    std::unique_ptr<InputManager> input_manager;
+    std::unique_ptr<VulkanFacade> vulkan_facade{nullptr};
+
+    std::unique_ptr<MemoryAllocator> memory_allocator{nullptr};
+    std::unique_ptr<AssetManager> asset_manager{nullptr};
 
     void loadProject();
 
