@@ -13,7 +13,7 @@ TEST(VeraMaterialLoaderTests, shouldCorrectlyLoadMaterialData)
 
     // then
     EXPECT_EQ(material_data.name, Assets::DEBUG_MATERIAL_NAME);
-    EXPECT_EQ(material_data.diffuse_texture_name, Assets::DEBUG_TEXTURE_NAME);
+    EXPECT_EQ(material_data.diffuse_texture_name, Assets::DEBUG_DIFFUSE_TEXTURE_NAME);
     EXPECT_EQ(material_data.normal_map_name, Assets::DEBUG_NORMAL_MAP_NAME);
 }
 

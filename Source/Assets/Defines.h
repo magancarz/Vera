@@ -8,6 +8,7 @@ namespace Assets
 {
     inline constexpr const char* DEFAULT_MESH_NAME{"cube"};
     inline constexpr const char* EMPTY_MESH_NAME{"__invalid_mesh__"};
+    inline constexpr const char* DEBUG_MESH_NAME{"__debug_mesh__"};
 
     inline constexpr const char* DEFAULT_MATERIAL_NAME{"white"};
     inline constexpr const char* DEBUG_MATERIAL_NAME{"__debug__"};
@@ -15,7 +16,7 @@ namespace Assets
     inline constexpr const char* DEFAULT_DIFFUSE_TEXTURE{"white.png"};
     inline constexpr const char* DEFAULT_NORMAL_MAP{"blue.png"};
     inline constexpr const char* EMPTY_TEXTURE_NAME{"__invalid_texture__"};
-    inline constexpr const char* DEBUG_TEXTURE_NAME{"white.png"};
+    inline constexpr const char* DEBUG_DIFFUSE_TEXTURE_NAME{"white.png"};
     inline constexpr const char* DEBUG_NORMAL_MAP_NAME{"blue.png"};
 
     inline static const std::filesystem::path RESOURCES_DIRECTORY_PATH{"Resources"};

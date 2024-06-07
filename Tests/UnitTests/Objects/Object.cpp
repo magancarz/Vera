@@ -1,6 +1,9 @@
 #include "gtest/gtest.h"
 
 #include "Objects/Object.h"
+
+#include <Objects/Components/MeshComponent.h>
+
 #include "World/World.h"
 #include "Objects/Components/TransformComponent.h"
 
@@ -39,6 +42,35 @@ TEST(ObjectTests, shouldAddComponentToObject)
     EXPECT_TRUE(object.findComponentByClass<TransformComponent>() != nullptr);
 }
 
+TEST(ObjectTests, shouldRootComponentToObject)
+{
+    // given
+    Object object{};
+
+    auto transform_component = std::make_unique<TransformComponent>(object);
+
+    // when
+    object.addRootComponent(std::move(transform_component));
+
+    // then
+    EXPECT_TRUE(object.findComponentByClass<TransformComponent>() != nullptr);
+}
+
+TEST(ObjectTests, shouldNotFindObjectComponent)
+{
+    // given
+    Object object{};
+
+    auto transform_component = std::make_unique<TransformComponent>(object);
+    object.addComponent(std::move(transform_component));
+
+    // when
+    auto found_component = object.findComponentByClass<MeshComponent>();
+
+    // then
+    EXPECT_TRUE(found_component == nullptr);
+}
+
 TEST(ObjectTests, shouldFindObjectComponent)
 {
     // given
@@ -54,7 +86,7 @@ TEST(ObjectTests, shouldFindObjectComponent)
     EXPECT_TRUE(found_component != nullptr);
 }
 
-TEST(ObjectTests, shouldReturnObjectLocationIfTransformComponentIsPresent)
+TEST(ObjectTests, shouldReturnObjectLocationIfRootComponentIsPresent)
 {
     // given
     Object object{};
@@ -63,6 +95,20 @@ TEST(ObjectTests, shouldReturnObjectLocationIfTransformComponentIsPresent)
     auto transform_component = std::make_unique<TransformComponent>(object);
     transform_component->translation = expected_location;
     object.addRootComponent(std::move(transform_component));
+
+    // when
+    auto actual_location = object.getLocation();
+
+    // then
+    TestUtils::expectTwoVectorsToBeEqual(actual_location, expected_location);
+}
+
+TEST(ObjectTests, shouldReturnZeroLocationIfRootComponentIsNotPresent)
+{
+    // given
+    Object object{};
+
+    constexpr glm::vec3 expected_location{0, 0, 0};
 
     // when
     auto actual_location = object.getLocation();

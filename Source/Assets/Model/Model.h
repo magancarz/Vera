@@ -1,6 +1,5 @@
 #pragma once
 
-#include "RenderEngine/RenderingAPI/VulkanHandler.h"
 #include "Memory/Buffer.h"
 #include "ModelMemoryDescription.h"
 

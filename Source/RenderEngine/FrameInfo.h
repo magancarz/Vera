@@ -7,10 +7,10 @@ struct FrameInfo
 {
     VkCommandBuffer command_buffer;
     VkExtent2D window_size;
-    float delta_time;
+    float delta_time{0};
 
-    glm::mat4 camera_view_matrix;
-    glm::mat4 camera_projection_matrix;
+    glm::mat4 camera_view_matrix{1.f};
+    glm::mat4 camera_projection_matrix{1.f};
 
     VkDescriptorSet ray_traced_texture;
 
