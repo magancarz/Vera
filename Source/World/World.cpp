@@ -41,7 +41,7 @@ void World::createViewerObject(InputManager& input_manager)
     auto player_movement_component = std::make_unique<PlayerMovementComponent>(*new_viewer_object, input_manager, transform_component.get());
     new_viewer_object->addComponent(std::move(player_movement_component));
     auto player_camera_component = std::make_unique<CameraComponent>(*new_viewer_object, transform_component.get());
-    player_camera_component->setPerspectiveProjection(glm::radians(70.0f), WindowSystem::get().getAspect(), 0.1f, 100.f);
+    player_camera_component->setPerspectiveProjection(glm::radians(70.0f), WindowSystem::get().getAspect());
     new_viewer_object->addComponent(std::move(player_camera_component));
     new_viewer_object->addRootComponent(std::move(transform_component));
     viewer_object = storeObject(std::move(new_viewer_object));

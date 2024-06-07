@@ -1,7 +1,5 @@
 #pragma once
 
-#include "Objects/TickGroups.h"
-
 struct FrameInfo;
 class World;
 class Object;
@@ -14,11 +12,9 @@ public:
     virtual void update(FrameInfo& frame_info) {}
 
     [[nodiscard]] Object& getOwner() const { return owner; }
-    [[nodiscard]] TickGroup getTickGroup() const { return tick_group; }
 
 protected:
-    explicit ObjectComponent(Object& object, TickGroup tick_group = TickGroup::UPDATE);
+    explicit ObjectComponent(Object& object);
 
     Object& owner;
-    TickGroup tick_group{TickGroup::UPDATE};
 };

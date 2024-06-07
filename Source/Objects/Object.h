@@ -34,7 +34,7 @@ public:
     template <typename T>
     T* findComponentByClass()
     {
-        for (auto& component : components)
+        for (const auto& component : components)
         {
             if (auto matching_class_component = dynamic_cast<T*>(component.get()))
             {

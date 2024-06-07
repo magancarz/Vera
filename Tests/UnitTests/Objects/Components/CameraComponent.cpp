@@ -26,18 +26,16 @@ TEST_F(CameraComponentTests, shouldReturnCorrectProjectionMatrix)
     CameraComponent camera_component{owner, owner.findComponentByClass<TransformComponent>()};
     constexpr float fovy = 70.f;
     constexpr float aspect = 1280.f / 800.f;
-    constexpr float near = 0.1f;
-    constexpr float far = 100.f;
-    camera_component.setPerspectiveProjection(fovy, aspect, near, far);
+    camera_component.setPerspectiveProjection(fovy, aspect);
 
-    glm::mat4 expected_projection{0.f};
+    glm::mat4 expected_projection;
     constexpr float tan_half_fov_y = glm::tan(fovy / 2.f);
     expected_projection = glm::mat4{0.0f};
     expected_projection[0][0] = 1.f / (aspect * tan_half_fov_y);
     expected_projection[1][1] = -1.f / tan_half_fov_y;
-    expected_projection[2][2] = far / (far - near);
+    expected_projection[2][2] = CameraComponent::CAMERA_FAR / (CameraComponent::CAMERA_FAR - CameraComponent::CAMERA_NEAR);
     expected_projection[2][3] = 1.f;
-    expected_projection[3][2] = -(far * near) / (far - near);
+    expected_projection[3][2] = -(CameraComponent::CAMERA_FAR * CameraComponent::CAMERA_NEAR) / (CameraComponent::CAMERA_FAR - CameraComponent::CAMERA_NEAR);
 
     // when
     glm::mat4 projection = camera_component.getProjection();
@@ -132,18 +130,16 @@ TEST_F(CameraComponentTests, shouldUpdateProjectionMatrixInfoForEveryFrame)
     CameraComponent camera_component{owner, owner.findComponentByClass<TransformComponent>()};
     constexpr float fovy = 70.f;
     constexpr float aspect = 1280.f / 800.f;
-    constexpr float near = 0.1f;
-    constexpr float far = 100.f;
-    camera_component.setPerspectiveProjection(fovy, aspect, near, far);
+    camera_component.setPerspectiveProjection(fovy, aspect);
 
-    glm::mat4 expected_projection{0.f};
+    glm::mat4 expected_projection;
     constexpr float tan_half_fov_y = glm::tan(fovy / 2.f);
     expected_projection = glm::mat4{0.0f};
     expected_projection[0][0] = 1.f / (aspect * tan_half_fov_y);
     expected_projection[1][1] = -1.f / tan_half_fov_y;
-    expected_projection[2][2] = far / (far - near);
+    expected_projection[2][2] = CameraComponent::CAMERA_FAR / (CameraComponent::CAMERA_FAR - CameraComponent::CAMERA_NEAR);
     expected_projection[2][3] = 1.f;
-    expected_projection[3][2] = -(far * near) / (far - near);
+    expected_projection[3][2] = -(CameraComponent::CAMERA_FAR * CameraComponent::CAMERA_NEAR) / (CameraComponent::CAMERA_FAR - CameraComponent::CAMERA_NEAR);
 
     FrameInfo frame_info{};
 

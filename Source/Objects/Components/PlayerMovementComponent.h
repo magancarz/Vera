@@ -1,6 +1,7 @@
 #pragma once
 
 #include <memory>
+#include <glm/vec3.hpp>
 
 #include "ObjectComponent.h"
 
@@ -22,8 +23,15 @@ private:
 
     TransformComponent* transform_component;
 
-    float move_speed{12.f};
+    glm::vec3 rotatePlayerWithInput(const FrameInfo& frame_info) const;
+
     float look_speed{2.f};
+
+    glm::vec3 translatePlayerWithInput(const FrameInfo& frame_info) const;
+
+    float move_speed{12.f};
+
+    bool checkIfPlayerHasMoved(const glm::vec3& player_frame_rotation, const glm::vec3& player_frame_translation) const;
 
     bool player_moved{false};
 };

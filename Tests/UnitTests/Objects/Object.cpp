@@ -1,13 +1,15 @@
 #include "gtest/gtest.h"
 
 #include "Objects/Object.h"
-
 #include <Objects/Components/MeshComponent.h>
-
 #include "World/World.h"
 #include "Objects/Components/TransformComponent.h"
+#include "Mocks/MockObjectComponent.h"
+#include "RenderEngine/FrameInfo.h"
 
 #include "TestUtils.h"
+
+using ::testing::_;
 
 TEST(ObjectTests, shouldAssignUniqueIDToEachObject)
 {
@@ -54,6 +56,27 @@ TEST(ObjectTests, shouldRootComponentToObject)
 
     // then
     EXPECT_TRUE(object.findComponentByClass<TransformComponent>() != nullptr);
+}
+
+TEST(ObjectTests, shouldUpdateObjectComponents)
+{
+    // given
+    Object object{};
+    auto first_component = std::make_unique<MockObjectComponent>(object);
+    MockObjectComponent& first_component_ref = *first_component;
+    object.addComponent(std::move(first_component));
+    auto second_component = std::make_unique<MockObjectComponent>(object);
+    MockObjectComponent& second_component_ref = *second_component;
+    object.addComponent(std::move(second_component));
+
+    FrameInfo frame_info{};
+
+    // then
+    EXPECT_CALL(first_component_ref, update(_)).Times(1);
+    EXPECT_CALL(second_component_ref, update(_)).Times(1);
+
+    // when
+    object.update(frame_info);
 }
 
 TEST(ObjectTests, shouldNotFindObjectComponent)

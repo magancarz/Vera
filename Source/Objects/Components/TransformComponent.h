@@ -7,9 +7,7 @@
 class TransformComponent : public ObjectComponent
 {
 public:
-    TransformComponent(Object& owner);
-
-    void update(FrameInfo& frame_info) override;
+    explicit TransformComponent(Object& owner);
 
     [[nodiscard]] glm::mat4 transform() const;
     [[nodiscard]] glm::mat3 normalMatrix() const;

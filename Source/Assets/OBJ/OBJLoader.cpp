@@ -89,6 +89,7 @@ std::vector<MaterialData> OBJLoader::loadMaterials(const std::vector<tinyobj::ma
         material_data.name = obj_material.name;
         material_data.diffuse_texture_name = getMaterialDiffuseTextureName(obj_material);
         material_data.normal_map_name = getMaterialNormalMapName(obj_material);
+        materials_data.emplace_back(material_data);
     }
 
     return materials_data;
