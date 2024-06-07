@@ -1,16 +1,16 @@
 #include "Model.h"
 
+#include "ModelData.h"
 #include "RenderEngine/RenderingAPI/VulkanHelper.h"
 #include "Memory/MemoryAllocator.h"
-#include "ModelInfo.h"
 
 Model::Model(
         MemoryAllocator& memory_allocator,
-        const ModelInfo& model_info)
-    : name{model_info.name}, required_material{model_info.required_material}
+        const ModelData& model_data)
+    : name{model_data.name}, required_material{model_data.required_material}
 {
-    createVertexBuffer(memory_allocator, model_info.vertices);
-    createIndexBuffer(memory_allocator, model_info.indices);
+    createVertexBuffer(memory_allocator, model_data.vertices);
+    createIndexBuffer(memory_allocator, model_data.indices);
 }
 
 void Model::createVertexBuffer(MemoryAllocator& memory_allocator, const std::vector<Vertex>& vertices)

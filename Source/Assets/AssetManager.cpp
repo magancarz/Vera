@@ -19,16 +19,62 @@ Mesh* AssetManager::fetchMesh(const std::string& mesh_name)
     }
 
     LogSystem::log(LogSeverity::LOG, "Mesh was not found in available meshes list. Loading from file...");
-    OBJLoader::loadAssetsFromFile(memory_allocator, *this, mesh_name);
-    return available_meshes[mesh_name].get();
+    MeshData mesh_data = OBJLoader::loadAssetsFromFile(mesh_name);
+    return storeMesh(mesh_data);
 }
 
-Mesh* AssetManager::storeMesh(std::unique_ptr<Mesh> mesh)
+Mesh* AssetManager::storeMesh(const MeshData& mesh_data)
 {
-    assert(mesh && "It is useless to store empty mesh");
-    auto mesh_name = mesh->name;
-    available_meshes[mesh_name] = std::move(mesh);
-    return available_meshes[mesh_name].get();
+    if (available_meshes.contains(mesh_data.name))
+    {
+        LogSystem::log(LogSeverity::WARNING, "Tried to store mesh ", mesh_data.name, " that already existed in asset manager!");
+        return available_meshes.at(mesh_data.name).get();
+    }
+
+    auto mesh = std::make_unique<Mesh>();
+    mesh->name = mesh_data.name;
+    mesh->materials.reserve(mesh_data.materials_data.size());
+    for (auto& material_data : mesh_data.materials_data)
+    {
+        mesh->materials.emplace_back(storeMaterial(material_data));
+    }
+
+    mesh->models.reserve(mesh_data.models_data.size());
+    for (auto& model_data : mesh_data.models_data)
+    {
+        mesh->models.emplace_back(storeModel(model_data));
+    }
+
+    available_meshes[mesh_data.name] = std::move(mesh);
+    return available_meshes[mesh_data.name].get();
+}
+
+Material* AssetManager::storeMaterial(const MaterialData& material_data)
+{
+    if (available_materials.contains(material_data.name))
+    {
+        LogSystem::log(LogSeverity::WARNING, "Tried to store material ", material_data.name, " that already existed in asset manager!");
+        return available_materials.at(material_data.name).get();
+    }
+
+    MaterialInfo material_info{};
+    material_info.name = material_data.name;
+    material_info.diffuse_texture = fetchDiffuseTexture(material_data.diffuse_texture_name);
+    material_info.normal_texture = fetchNormalMap(material_data.normal_map_name);
+    available_materials[material_data.name] = std::make_unique<Material>(material_info);
+    return available_materials[material_data.name].get();
+}
+
+Model* AssetManager::storeModel(const ModelData& model_data)
+{
+    if (available_models.contains(model_data.name))
+    {
+        LogSystem::log(LogSeverity::WARNING, "Tried to store material ", model_data.name, " that already existed in asset manager!");
+        return available_models.at(model_data.name).get();
+    }
+
+    available_models[model_data.name] = std::make_unique<Model>(memory_allocator, model_data);
+    return available_models[model_data.name].get();
 }
 
 Model* AssetManager::fetchModel(const std::string& model_name)
@@ -40,16 +86,8 @@ Model* AssetManager::fetchModel(const std::string& model_name)
         return available_models[model_name].get();
     }
 
-    LogSystem::log(LogSeverity::LOG, "Model was not found in available models list. Loading from file...");
-    OBJLoader::loadAssetsFromFile(memory_allocator, *this, model_name);
-    return available_models[model_name].get();
-}
-
-Model* AssetManager::storeModel(std::unique_ptr<Model> model)
-{
-    assert(model && "It is useless to store empty model");
-    auto model_name = model->getName();
-    available_models[model_name] = std::move(model);
+    LogSystem::log(LogSeverity::WARNING, "Model was not found in available models list. Searching for model in mesh file...");
+    fetchMesh(model_name);
     return available_models[model_name].get();
 }
 
@@ -63,16 +101,8 @@ Material* AssetManager::fetchMaterial(const std::string& material_name)
     }
 
     LogSystem::log(LogSeverity::LOG, "Material was not found in available materials list. Loading from file...");
-    VeraMaterialLoader::loadAssetFromFile(*this, material_name);
-    return available_materials[material_name].get();
-}
-
-Material* AssetManager::storeMaterial(std::unique_ptr<Material> material)
-{
-    assert(material && "It is useless to store empty material");
-    auto material_name = material->getName();
-    available_materials[material_name] = std::move(material);
-    return available_materials[material_name].get();
+    MaterialData material_data = VeraMaterialLoader::loadAssetFromFile(material_name);
+    return storeMaterial(material_data);
 }
 
 std::vector<Material*> AssetManager::fetchRequiredMaterials(const std::vector<std::string>& required_materials)

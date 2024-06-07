@@ -1,6 +1,6 @@
 #pragma once
 
-#include "ModelDescription.h"
+#include "ModelMemoryDescription.h"
 
 struct MeshDescription
 {

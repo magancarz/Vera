@@ -11,8 +11,9 @@
 #include "Logs/LogSystem.h"
 #include "Utils/PathBuilder.h"
 #include "Utils/Algorithms.h"
-#include "../Model/Vertex.h"
-#include "Assets/Model/ModelInfo.h"
+#include "Assets/Model/Vertex.h"
+#include "Assets/Model/ModelData.h"
+#include "Assets/MeshData.h"
 
 namespace std
 {
@@ -27,23 +28,26 @@ namespace std
     };
 }
 
-void OBJLoader::loadAssetsFromFile(
-            MemoryAllocator& memory_allocator,
-            AssetManager& asset_manager,
-            const std::string& file_name)
+MeshData OBJLoader::loadAssetsFromFile(const std::string& mesh_name)
 {
-    const std::string filepath = PathBuilder().append(Assets::MODELS_DIRECTORY_PATH).append(file_name).fileExtension(OBJ_FILE_EXTENSION).build();
+    const std::string filepath = PathBuilder().append(Assets::MODELS_DIRECTORY_PATH).append(mesh_name).fileExtension(OBJ_FILE_EXTENSION).build();
 
     tinyobj::ObjReader reader;
     tinyobj::ObjReaderConfig reader_config;
 
     reader.ParseFromFile(filepath, reader_config);
     handleErrorsAndWarnings(reader);
+    if (!reader.Valid())
+    {
+        return MeshData{};
+    }
 
+    MeshData mesh_data{};
+    mesh_data.name = mesh_name;
     std::vector<tinyobj::material_t> materials = reader.GetMaterials();
-    addDefaultMaterialIfThereAreNone(materials);
-    loadMaterials(asset_manager, materials);
-    loadMesh(memory_allocator, asset_manager, reader, materials, file_name);
+    mesh_data.materials_data = loadMaterials(materials);
+    mesh_data.models_data = loadModels(reader, mesh_data.materials_data);
+    return mesh_data;
 }
 
 void OBJLoader::handleErrorsAndWarnings(const tinyobj::ObjReader& reader)
@@ -51,7 +55,6 @@ void OBJLoader::handleErrorsAndWarnings(const tinyobj::ObjReader& reader)
     if (!reader.Valid())
     {
         LogSystem::log(LogSeverity::FATAL, "TinyObjReader: ", reader.Error());
-        throw std::runtime_error("TinyObjReader: " + reader.Error());
     }
 
     if (!reader.Warning().empty())
@@ -60,60 +63,45 @@ void OBJLoader::handleErrorsAndWarnings(const tinyobj::ObjReader& reader)
     }
 }
 
-void OBJLoader::addDefaultMaterialIfThereAreNone(std::vector<tinyobj::material_t>& obj_materials)
+std::vector<MaterialData> OBJLoader::loadMaterials(const std::vector<tinyobj::material_t>& obj_materials)
 {
-    if (obj_materials.empty())
-    {
-        tinyobj::material_t material_info{};
-        material_info.name = Assets::DEFAULT_MATERIAL_NAME;
-        material_info.diffuse_texname = Assets::DEFAULT_DIFFUSE_TEXTURE;
-        material_info.displacement_texname = Assets::DEFAULT_NORMAL_MAP;
-        obj_materials.emplace_back(std::move(material_info));
-    }
-}
-
-void OBJLoader::loadMaterials(
-        AssetManager& asset_manager,
-        const std::vector<tinyobj::material_t>& obj_materials)
-{
+    std::vector<MaterialData> materials_data;
+    materials_data.reserve(obj_materials.size());
     for (auto& material : obj_materials)
     {
-        MaterialInfo material_info{};
-        material_info.name = material.name;
-
-        auto diffuse_texture_name = material.diffuse_texname.empty() ? Assets::DEFAULT_DIFFUSE_TEXTURE : material.diffuse_texname;
-        material_info.diffuse_texture = asset_manager.fetchDiffuseTexture(diffuse_texture_name);
-
-        auto normal_texture_name = material.displacement_texname.empty() ? Assets::DEFAULT_NORMAL_MAP : material.displacement_texname;
-        material_info.normal_texture = asset_manager.fetchNormalMap(normal_texture_name);
-
-        asset_manager.storeMaterial(std::make_unique<Material>(material_info));
+        MaterialData material_data{};
+        material_data.name = material.name;
+        material_data.diffuse_texture_name = material.diffuse_texname.empty() ? Assets::DEFAULT_DIFFUSE_TEXTURE : material.diffuse_texname;
+        material_data.normal_map_name = material.displacement_texname.empty() ? Assets::DEFAULT_NORMAL_MAP : material.displacement_texname;
     }
+
+    if (materials_data.empty())
+    {
+        materials_data.emplace_back(MaterialData{});
+    }
+
+    return materials_data;
 }
 
-void OBJLoader::loadMesh(
-        MemoryAllocator& memory_allocator,
-        AssetManager& asset_manager,
+std::vector<ModelData> OBJLoader::loadModels(
         const tinyobj::ObjReader& reader,
-        const std::vector<tinyobj::material_t>& obj_materials,
-        const std::string& mesh_name)
+        const std::vector<MaterialData>& materials_data)
 {
     const tinyobj::attrib_t& attrib = reader.GetAttrib();
+
     std::vector<tinyobj::shape_t> shapes = reader.GetShapes();
-    std::vector<Model*> models;
-    models.reserve(shapes.size());
-    std::vector<Material*> mesh_materials;
-    mesh_materials.reserve(shapes.size());
+    std::vector<ModelData> models_data;
+    models_data.reserve(shapes.size());
+
     for (const auto& shape : shapes)
     {
-        ModelInfo model_info{};
-        model_info.name = shape.name;
+        ModelData model_data{};
+        model_data.name = shape.name;
         int material_id = shape.mesh.material_ids[0];
-        if (material_id >= 0 && !obj_materials.empty())
+        if (material_id >= 0 && !materials_data.empty())
         {
-            model_info.required_material = obj_materials[material_id].name;
+            model_data.required_material = materials_data[material_id].name;
         }
-        mesh_materials.emplace_back(asset_manager.fetchMaterial(model_info.required_material));
 
         std::unordered_map<Vertex, uint32_t> unique_vertices{};
         for (size_t i = 0; i < shape.mesh.indices.size(); i += 3)
@@ -124,15 +112,15 @@ void OBJLoader::loadMesh(
 
             calculateTangentSpaceVectors(first_vertex, second_vertex, third_vertex);
 
-            addVertexToModelInfo(model_info, unique_vertices, first_vertex);
-            addVertexToModelInfo(model_info, unique_vertices, second_vertex);
-            addVertexToModelInfo(model_info, unique_vertices, third_vertex);
+            addVertexToModelInfo(model_data, unique_vertices, first_vertex);
+            addVertexToModelInfo(model_data, unique_vertices, second_vertex);
+            addVertexToModelInfo(model_data, unique_vertices, third_vertex);
         }
 
-        models.emplace_back(asset_manager.storeModel(std::make_unique<Model>(memory_allocator, model_info)));
+        models_data.emplace_back(model_data);
     }
 
-    asset_manager.storeMesh(std::make_unique<Mesh>(mesh_name, models, mesh_materials));
+    return models_data;
 }
 
 Vertex OBJLoader::extractVertex(const tinyobj::index_t& index, const tinyobj::attrib_t& attrib)
@@ -185,12 +173,12 @@ void OBJLoader::calculateTangentSpaceVectors(Vertex& first_vertex, Vertex& secon
     first_vertex.tangent = second_vertex.tangent = third_vertex.tangent = normalize(tangent);
 }
 
-void OBJLoader::addVertexToModelInfo(ModelInfo& model_info, std::unordered_map<Vertex, uint32_t>& unique_vertices, const Vertex& vertex)
+void OBJLoader::addVertexToModelInfo(ModelData& model_data, std::unordered_map<Vertex, uint32_t>& unique_vertices, const Vertex& vertex)
 {
     if (!unique_vertices.contains(vertex))
     {
-        unique_vertices[vertex] = static_cast<uint32_t>(model_info.vertices.size());
-        model_info.vertices.push_back(vertex);
+        unique_vertices[vertex] = static_cast<uint32_t>(model_data.vertices.size());
+        model_data.vertices.push_back(vertex);
     }
-    model_info.indices.push_back(unique_vertices[vertex]);
+    model_data.indices.push_back(unique_vertices[vertex]);
 }

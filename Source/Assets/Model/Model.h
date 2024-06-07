@@ -2,8 +2,9 @@
 
 #include "RenderEngine/RenderingAPI/VulkanHandler.h"
 #include "Memory/Buffer.h"
-#include "ModelDescription.h"
+#include "ModelMemoryDescription.h"
 
+struct ModelData;
 struct ModelInfo;
 struct Vertex;
 class MemoryAllocator;
@@ -13,7 +14,7 @@ class Model
 public:
     Model(
         MemoryAllocator& memory_allocator,
-        const ModelInfo& model_info);
+        const ModelData& model_data);
     virtual ~Model() = default;
 
     Model(const Model&) = delete;

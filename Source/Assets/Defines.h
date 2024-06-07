@@ -2,9 +2,13 @@
 
 #include <filesystem>
 
+#include <vulkan/vulkan.hpp>
+
 namespace Assets
 {
-    inline constexpr const char* DEFAULT_MODEL_NAME{"cube"};
+    inline constexpr const char* DEFAULT_MESH_NAME{"cube"};
+    inline constexpr const char* EMPTY_MESH_NAME{"__invalid_mesh__"};
+
     inline constexpr const char* DEFAULT_MATERIAL_NAME{"white"};
 
     inline constexpr const char* DEFAULT_DIFFUSE_TEXTURE{"white.png"};
