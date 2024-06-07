@@ -22,7 +22,7 @@ DeviceTexture::DeviceTexture(
 
 void DeviceTexture::checkIfTextureIsOpaque(const std::vector<unsigned char>& texture_data)
 {
-    is_opaque = channels == 3 || texture_data[3] > 0.5;
+    is_opaque = channels == 3 || texture_data[3] > 127;
 }
 
 void DeviceTexture::copyDataToImage(MemoryAllocator& memory_allocator, const std::vector<unsigned char>& texture_data)

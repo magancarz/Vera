@@ -3,6 +3,8 @@
 #include <cstdint>
 #include <vector>
 
+#include "Assets/Defines.h"
+
 struct TextureData
 {
     std::string name{Assets::EMPTY_TEXTURE_NAME};

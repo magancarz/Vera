@@ -150,7 +150,9 @@ DeviceTexture* AssetManager::storeTexture(const TextureData& texture_data, VkFor
     image_create_info.imageType = VK_IMAGE_TYPE_2D;
     image_create_info.extent.width = texture_data.width;
     image_create_info.extent.height = texture_data.height;
+    image_create_info.extent.depth = 1;
     image_create_info.mipLevels = static_cast<uint32_t>(std::floor(std::log2(std::max(texture_data.width, texture_data.height)))) + 1;
+    image_create_info.arrayLayers = 1;
     image_create_info.format = format;
     image_create_info.tiling = VK_IMAGE_TILING_OPTIMAL;
     image_create_info.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
