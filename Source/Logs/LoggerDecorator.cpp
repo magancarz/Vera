@@ -5,5 +5,8 @@ LoggerDecorator::LoggerDecorator(std::unique_ptr<Logger> wrapee)
 
 void LoggerDecorator::log(LogSeverity severity, const char* message)
 {
-    wrapee->log(severity, message);
+    if (wrapee)
+    {
+        wrapee->log(severity, message);
+    }
 }

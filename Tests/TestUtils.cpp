@@ -50,6 +50,18 @@ std::string TestUtils::loadFileToString(const std::string& file_location)
     return content;
 }
 
+void TestUtils::removeFileIfExists(const std::string& file_path)
+{
+    try
+    {
+        std::filesystem::remove(file_path);
+    }
+    catch(const std::filesystem::filesystem_error& err)
+    {
+        std::cout << "Test Utils: filesystem error: " << err.what() << '\n';
+    }
+}
+
 void TestUtils::printMatrix(const glm::mat4& matrix)
 {
     printf("%f, %f, %f, %f\n", matrix[0][0], matrix[0][1], matrix[0][2], matrix[0][3]);

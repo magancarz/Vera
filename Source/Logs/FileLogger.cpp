@@ -1,5 +1,8 @@
 #include "FileLogger.h"
 
+FileLogger::FileLogger(std::string log_file_location)
+    : FileLogger(nullptr, std::move(log_file_location)) {}
+
 FileLogger::FileLogger(std::unique_ptr<Logger> next_logger, std::string log_file_location)
     : LoggerDecorator(std::move(next_logger)),
     log_file(log_file_location, std::ios::out),

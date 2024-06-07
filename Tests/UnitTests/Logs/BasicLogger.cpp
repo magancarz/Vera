@@ -2,13 +2,7 @@
 
 #include <Logs/BasicLogger.h>
 
-struct BasicLoggerTests : public ::testing::Test
-{
-    void SetUp() override {}
-    void TearDown() override {}
-};
-
-TEST_F(BasicLoggerTests, shouldLogMessageWithLogSeverity)
+TEST(BasicLoggerTests, shouldLogMessageWithLogSeverity)
 {
     // given
     BasicLogger basic_logger{};
@@ -17,7 +11,7 @@ TEST_F(BasicLoggerTests, shouldLogMessageWithLogSeverity)
     basic_logger.log(LogSeverity::LOG, "dummy log");
 }
 
-TEST_F(BasicLoggerTests, shouldLogMessageWithWarningSeverity)
+TEST(BasicLoggerTests, shouldLogMessageWithWarningSeverity)
 {
     // given
     BasicLogger basic_logger{};
@@ -26,7 +20,7 @@ TEST_F(BasicLoggerTests, shouldLogMessageWithWarningSeverity)
     basic_logger.log(LogSeverity::WARNING, "dummy warning");
 }
 
-TEST_F(BasicLoggerTests, shouldLogMessageWithErrorSeverity)
+TEST(BasicLoggerTests, shouldLogMessageWithErrorSeverity)
 {
     // given
     BasicLogger basic_logger{};
@@ -35,7 +29,7 @@ TEST_F(BasicLoggerTests, shouldLogMessageWithErrorSeverity)
     basic_logger.log(LogSeverity::ERROR, "dummy error");
 }
 
-TEST_F(BasicLoggerTests, shouldLogMessageWithFatalSeverity)
+TEST(BasicLoggerTests, shouldLogMessageWithFatalSeverity)
 {
     // given
     BasicLogger basic_logger{};

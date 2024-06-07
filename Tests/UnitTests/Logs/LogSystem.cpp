@@ -5,7 +5,6 @@
 
 struct LogSystemTests : public ::testing::Test
 {
-    void SetUp() override {}
     void TearDown() override
     {
         LogSystem::initialize(std::make_unique<MockLogger>());
@@ -30,8 +29,8 @@ TEST_F(LogSystemTests, shouldLogMessage)
     LogSeverity expected_severity = LogSeverity::LOG;
     std::string first_part = "first";
     std::string second_part = "second";
-    std::string expected_log_without_timestamp = LogSystem::LOG_SEVERITY_PREFIXES.at(expected_severity) + first_part + " " + second_part + '\n';
-    EXPECT_CALL(*mock_logger, log(expected_severity, testing::StrEq(expected_log_without_timestamp))).Times(1);
+    std::string expected_log = LogSystem::LOG_SEVERITY_PREFIXES.at(expected_severity) + first_part + " " + second_part + '\n';
+    EXPECT_CALL(*mock_logger, log(expected_severity, testing::StrEq(expected_log))).Times(1);
 
     // given
     LogSystem::initialize(std::move(mock_logger));
