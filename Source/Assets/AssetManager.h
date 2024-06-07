@@ -50,7 +50,7 @@ protected:
     std::unordered_map<std::string, std::unique_ptr<Material>> available_materials;
 
     virtual DeviceTexture* fetchTexture(const std::string& texture_name, VkFormat format);
-    DeviceTexture* storeTexture(std::unique_ptr<DeviceTexture> texture);
+    DeviceTexture* storeTexture(const TextureData& texture_data, VkFormat format);
 
     std::unordered_map<std::string, std::unique_ptr<DeviceTexture>> available_textures;
 };

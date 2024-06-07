@@ -9,7 +9,7 @@ TEST(OBJLoaderTests, shouldCorrectlyLoadOBJData)
     std::string example_mesh_name = Assets::DEFAULT_MESH_NAME;
 
     // when
-    MeshData mesh_data = OBJLoader::loadAssetsFromFile(example_mesh_name);
+    MeshData mesh_data = OBJLoader::loadMeshFromFile(example_mesh_name);
 
     // then
     EXPECT_EQ(mesh_data.name, example_mesh_name);
@@ -33,7 +33,7 @@ TEST(OBJLoaderTests, shouldReturnEmptyMeshDataIfFileDoesntExist)
     std::string example_non_existing_mesh_name{"non_existing_invalid_mesh_test"};
 
     // when
-    MeshData empty_mesh_data = OBJLoader::loadAssetsFromFile(example_non_existing_mesh_name);
+    MeshData empty_mesh_data = OBJLoader::loadMeshFromFile(example_non_existing_mesh_name);
 
     // then
     EXPECT_EQ(empty_mesh_data.name, Assets::EMPTY_MESH_NAME);

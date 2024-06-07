@@ -8,17 +8,7 @@ class DeviceTexture;
 class TextureLoader
 {
 public:
-    static std::unique_ptr<DeviceTexture> loadFromAssetFile(
-        VulkanHandler& vulkan_facade,
-        MemoryAllocator& memory_allocator,
-        const std::string& texture_name,
-        VkFormat format);
+    static TextureData loadFromAssetFile(const std::string& texture_name);
 
-private:
-    static TextureData loadTextureData(const std::string& texture_resource_location);
-    static std::unique_ptr<DeviceTexture> createTextureOnDevice(
-        VulkanHandler& vulkan_facade,
-        MemoryAllocator& memory_allocator,
-        const TextureData& texture_data,
-        VkFormat format);
+    static constexpr int EXPECTED_NUMBER_OF_CHANNELS = 4;
 };

@@ -28,33 +28,34 @@ namespace std
     };
 }
 
-MeshData OBJLoader::loadAssetsFromFile(const std::string& mesh_name)
+MeshData OBJLoader::loadMeshFromFile(const std::string& mesh_name)
 {
     const std::string filepath = PathBuilder().append(Assets::MODELS_DIRECTORY_PATH).append(mesh_name).fileExtension(OBJ_FILE_EXTENSION).build();
+    tinyobj::ObjReader obj_reader = parseFromFile(filepath);
 
-    tinyobj::ObjReader reader;
-    tinyobj::ObjReaderConfig reader_config;
-
-    reader.ParseFromFile(filepath, reader_config);
-    handleErrorsAndWarnings(reader);
-    if (!reader.Valid())
+    if (!obj_reader.Valid())
     {
         return MeshData{};
     }
 
-    MeshData mesh_data{};
-    mesh_data.name = mesh_name;
-    std::vector<tinyobj::material_t> materials = reader.GetMaterials();
-    mesh_data.materials_data = loadMaterials(materials);
-    mesh_data.models_data = loadModels(reader, mesh_data.materials_data);
-    return mesh_data;
+    return loadMeshData(obj_reader, mesh_name);
 }
 
-void OBJLoader::handleErrorsAndWarnings(const tinyobj::ObjReader& reader)
+tinyobj::ObjReader OBJLoader::parseFromFile(const std::string& file_path)
+{
+    tinyobj::ObjReader obj_reader;
+    tinyobj::ObjReaderConfig reader_config;
+    obj_reader.ParseFromFile(file_path, reader_config);
+    handleOBJParserErrorsAndWarnings(obj_reader);
+
+    return obj_reader;
+}
+
+void OBJLoader::handleOBJParserErrorsAndWarnings(const tinyobj::ObjReader& reader)
 {
     if (!reader.Valid())
     {
-        LogSystem::log(LogSeverity::FATAL, "TinyObjReader: ", reader.Error());
+        LogSystem::log(LogSeverity::ERROR, "TinyObjReader: ", reader.Error());
     }
 
     if (!reader.Warning().empty())
@@ -63,27 +64,57 @@ void OBJLoader::handleErrorsAndWarnings(const tinyobj::ObjReader& reader)
     }
 }
 
+MeshData OBJLoader::loadMeshData(const tinyobj::ObjReader& obj_reader, std::string_view mesh_name)
+{
+    MeshData mesh_data{};
+    mesh_data.name = mesh_name;
+    mesh_data.materials_data = loadMaterials(obj_reader.GetMaterials());
+    mesh_data.models_data = loadShapes(obj_reader, mesh_data.materials_data);
+
+    return mesh_data;
+}
+
 std::vector<MaterialData> OBJLoader::loadMaterials(const std::vector<tinyobj::material_t>& obj_materials)
 {
-    std::vector<MaterialData> materials_data;
-    materials_data.reserve(obj_materials.size());
-    for (auto& material : obj_materials)
+    if (obj_materials.empty())
     {
-        MaterialData material_data{};
-        material_data.name = material.name;
-        material_data.diffuse_texture_name = material.diffuse_texname.empty() ? Assets::DEFAULT_DIFFUSE_TEXTURE : material.diffuse_texname;
-        material_data.normal_map_name = material.displacement_texname.empty() ? Assets::DEFAULT_NORMAL_MAP : material.displacement_texname;
+        return { MaterialData{} };
     }
 
-    if (materials_data.empty())
+    std::vector<MaterialData> materials_data;
+    materials_data.reserve(obj_materials.size());
+    for (auto& obj_material : obj_materials)
     {
-        materials_data.emplace_back(MaterialData{});
+        MaterialData material_data{};
+        material_data.name = obj_material.name;
+        material_data.diffuse_texture_name = getMaterialDiffuseTextureName(obj_material);
+        material_data.normal_map_name = getMaterialNormalMapName(obj_material);
     }
 
     return materials_data;
 }
 
-std::vector<ModelData> OBJLoader::loadModels(
+std::string OBJLoader::getMaterialDiffuseTextureName(const tinyobj::material_t& obj_material)
+{
+    if (obj_material.diffuse_texname.empty())
+    {
+        return Assets::DEFAULT_DIFFUSE_TEXTURE;
+    }
+
+    return obj_material.diffuse_texname;
+}
+
+std::string OBJLoader::getMaterialNormalMapName(const tinyobj::material_t& obj_material)
+{
+    if (obj_material.displacement_texname.empty())
+    {
+        return Assets::DEFAULT_NORMAL_MAP;
+    }
+
+    return obj_material.displacement_texname;
+}
+
+std::vector<ModelData> OBJLoader::loadShapes(
         const tinyobj::ObjReader& reader,
         const std::vector<MaterialData>& materials_data)
 {
@@ -97,11 +128,7 @@ std::vector<ModelData> OBJLoader::loadModels(
     {
         ModelData model_data{};
         model_data.name = shape.name;
-        int material_id = shape.mesh.material_ids[0];
-        if (material_id >= 0 && !materials_data.empty())
-        {
-            model_data.required_material = materials_data[material_id].name;
-        }
+        model_data.required_material = getShapeRequiredMaterialName(shape, materials_data);
 
         std::unordered_map<Vertex, uint32_t> unique_vertices{};
         for (size_t i = 0; i < shape.mesh.indices.size(); i += 3)
@@ -123,50 +150,83 @@ std::vector<ModelData> OBJLoader::loadModels(
     return models_data;
 }
 
+std::string OBJLoader::getShapeRequiredMaterialName(const tinyobj::shape_t& shape, const std::vector<MaterialData>& materials_data)
+{
+    if (int material_id = shape.mesh.material_ids[0]; material_id >= 0 && !materials_data.empty())
+    {
+        return materials_data[material_id].name;
+    }
+
+    return Assets::DEFAULT_MATERIAL_NAME;
+}
+
 Vertex OBJLoader::extractVertex(const tinyobj::index_t& index, const tinyobj::attrib_t& attrib)
 {
     Vertex vertex{};
-    if (index.vertex_index >= 0)
-    {
-        vertex.position =
-        {
-                attrib.vertices[3 * index.vertex_index + 0],
-                attrib.vertices[3 * index.vertex_index + 1],
-                attrib.vertices[3 * index.vertex_index + 2],
-        };
-    }
-
-    if (index.normal_index >= 0)
-    {
-        vertex.normal =
-        {
-                attrib.normals[3 * index.normal_index + 0],
-                attrib.normals[3 * index.normal_index + 1],
-                attrib.normals[3 * index.normal_index + 2],
-        };
-    }
-
-    if (index.texcoord_index >= 0)
-    {
-        vertex.uv =
-        {
-                attrib.texcoords[2 * index.texcoord_index + 0],
-                1.0 - attrib.texcoords[2 * index.texcoord_index + 1],
-        };
-    }
+    vertex.position = getVertexPosition(index, attrib);
+    vertex.normal = getVertexNormal(index, attrib);
+    vertex.uv = getVertexTextureCoordinates(index, attrib);
 
     return vertex;
 }
 
+glm::vec3 OBJLoader::getVertexPosition(const tinyobj::index_t& index, const tinyobj::attrib_t& attrib)
+{
+    glm::vec3 position{0, 0, 0};
+
+    if (index.vertex_index >= 0)
+    {
+        position =
+        {
+            attrib.vertices[3 * index.vertex_index + 0],
+            attrib.vertices[3 * index.vertex_index + 1],
+            attrib.vertices[3 * index.vertex_index + 2],
+        };
+    }
+
+    return position;
+}
+
+glm::vec3 OBJLoader::getVertexNormal(const tinyobj::index_t& index, const tinyobj::attrib_t& attrib)
+{
+    glm::vec3 normal{0, 0, 1};
+    if (index.normal_index >= 0)
+    {
+        normal =
+        {
+            attrib.normals[3 * index.normal_index + 0],
+            attrib.normals[3 * index.normal_index + 1],
+            attrib.normals[3 * index.normal_index + 2],
+        };
+    }
+
+    return normal;
+}
+
+glm::vec2 OBJLoader::getVertexTextureCoordinates(const tinyobj::index_t& index, const tinyobj::attrib_t& attrib)
+{
+    glm::vec2 uv{0, 0};
+    if (index.texcoord_index >= 0)
+    {
+        uv =
+        {
+            attrib.texcoords[2 * index.texcoord_index + 0],
+            1.0 - attrib.texcoords[2 * index.texcoord_index + 1],
+        };
+    }
+
+    return uv;
+}
+
 void OBJLoader::calculateTangentSpaceVectors(Vertex& first_vertex, Vertex& second_vertex, Vertex& third_vertex)
 {
-    glm::vec3 edge1 = second_vertex.position - first_vertex.position;
-    glm::vec3 edge2 = third_vertex.position - first_vertex.position;
-    glm::vec2 delta_UV1 = second_vertex.uv - first_vertex.uv;
-    glm::vec2 delta_UV2 = third_vertex.uv - first_vertex.uv;
+    const glm::vec3 edge1 = second_vertex.position - first_vertex.position;
+    const glm::vec3 edge2 = third_vertex.position - first_vertex.position;
+    const glm::vec2 delta_UV1 = second_vertex.uv - first_vertex.uv;
+    const glm::vec2 delta_UV2 = third_vertex.uv - first_vertex.uv;
 
     glm::vec3 tangent;
-    float f = 1.0f / (delta_UV1.x * delta_UV2.y - delta_UV2.x * delta_UV1.y);
+    const float f = 1.0f / (delta_UV1.x * delta_UV2.y - delta_UV2.x * delta_UV1.y);
     tangent.x = f * (delta_UV2.y * edge1.x - delta_UV1.y * edge2.x);
     tangent.y = f * (delta_UV2.y * edge1.y - delta_UV1.y * edge2.y);
     tangent.z = f * (delta_UV2.y * edge1.z - delta_UV1.y * edge2.z);

@@ -19,8 +19,7 @@ Mesh* AssetManager::fetchMesh(const std::string& mesh_name)
     }
 
     LogSystem::log(LogSeverity::LOG, "Mesh was not found in available meshes list. Loading from file...");
-    MeshData mesh_data = OBJLoader::loadAssetsFromFile(mesh_name);
-    return storeMesh(mesh_data);
+    return storeMesh(OBJLoader::loadMeshFromFile(mesh_name));
 }
 
 Mesh* AssetManager::storeMesh(const MeshData& mesh_data)
@@ -45,7 +44,7 @@ Mesh* AssetManager::storeMesh(const MeshData& mesh_data)
         mesh->models.emplace_back(storeModel(model_data));
     }
 
-    available_meshes[mesh_data.name] = std::move(mesh);
+    available_meshes.try_emplace(mesh_data.name, std::move(mesh));
     return available_meshes[mesh_data.name].get();
 }
 
@@ -61,7 +60,7 @@ Material* AssetManager::storeMaterial(const MaterialData& material_data)
     material_info.name = material_data.name;
     material_info.diffuse_texture = fetchDiffuseTexture(material_data.diffuse_texture_name);
     material_info.normal_texture = fetchNormalMap(material_data.normal_map_name);
-    available_materials[material_data.name] = std::make_unique<Material>(material_info);
+    available_materials.try_emplace(material_data.name, std::make_unique<Material>(material_info));
     return available_materials[material_data.name].get();
 }
 
@@ -73,7 +72,7 @@ Model* AssetManager::storeModel(const ModelData& model_data)
         return available_models.at(model_data.name).get();
     }
 
-    available_models[model_data.name] = std::make_unique<Model>(memory_allocator, model_data);
+    available_models.try_emplace(model_data.name, std::make_unique<Model>(memory_allocator, model_data));
     return available_models[model_data.name].get();
 }
 
@@ -101,8 +100,7 @@ Material* AssetManager::fetchMaterial(const std::string& material_name)
     }
 
     LogSystem::log(LogSeverity::LOG, "Material was not found in available materials list. Loading from file...");
-    MaterialData material_data = VeraMaterialLoader::loadAssetFromFile(material_name);
-    return storeMaterial(material_data);
+    return storeMaterial(VeraMaterialLoader::loadAssetFromFile(material_name));
 }
 
 std::vector<Material*> AssetManager::fetchRequiredMaterials(const std::vector<std::string>& required_materials)
@@ -136,13 +134,38 @@ DeviceTexture* AssetManager::fetchTexture(const std::string& texture_name, VkFor
     }
 
     LogSystem::log(LogSeverity::LOG, "Texture was not found in available textures list. Loading from file...");
-    return storeTexture(TextureLoader::loadFromAssetFile(vulkan_facade, memory_allocator, texture_name, format));
+    return storeTexture(TextureLoader::loadFromAssetFile(texture_name), format);
 }
 
-DeviceTexture* AssetManager::storeTexture(std::unique_ptr<DeviceTexture> texture)
+DeviceTexture* AssetManager::storeTexture(const TextureData& texture_data, VkFormat format)
 {
-    assert(texture && "It is useless to store empty texture");
-    auto texture_name = texture->getName();
-    available_textures[texture_name] = std::move(texture);
-    return available_textures[texture_name].get();
+    if (available_textures.contains(texture_data.name))
+    {
+        LogSystem::log(LogSeverity::WARNING, "Tried to store texture ", texture_data.name, " that already existed in asset manager!");
+        return available_textures.at(texture_data.name).get();
+    }
+
+    VkImageCreateInfo image_create_info{};
+    image_create_info.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
+    image_create_info.imageType = VK_IMAGE_TYPE_2D;
+    image_create_info.extent.width = texture_data.width;
+    image_create_info.extent.height = texture_data.height;
+    image_create_info.mipLevels = static_cast<uint32_t>(std::floor(std::log2(std::max(texture_data.width, texture_data.height)))) + 1;
+    image_create_info.format = format;
+    image_create_info.tiling = VK_IMAGE_TILING_OPTIMAL;
+    image_create_info.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+    image_create_info.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+    image_create_info.usage = VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT;
+    image_create_info.samples = VK_SAMPLE_COUNT_1_BIT;
+
+    std::unique_ptr<Image> image = memory_allocator.createImage(image_create_info);
+    available_textures.try_emplace(
+        texture_data.name,
+        std::make_unique<DeviceTexture>(
+            vulkan_facade,
+            memory_allocator,
+            texture_data,
+            image_create_info,
+            std::move(image)));
+    return available_textures.at(texture_data.name).get();
 }

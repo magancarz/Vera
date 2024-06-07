@@ -13,6 +13,7 @@ namespace Assets
 
     inline constexpr const char* DEFAULT_DIFFUSE_TEXTURE{"white.png"};
     inline constexpr const char* DEFAULT_NORMAL_MAP{"blue.png"};
+    inline constexpr const char* EMPTY_TEXTURE_NAME{"__invalid_texture__"};
 
     inline static const std::filesystem::path RESOURCES_DIRECTORY_PATH{"Resources"};
     inline static const std::filesystem::path MODELS_DIRECTORY_PATH{"Resources/Models"};
