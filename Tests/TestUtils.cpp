@@ -33,7 +33,8 @@ std::string TestUtils::loadFileToString(const std::string& file_location)
     }
 
     std::ifstream file(file_location);
-    if (!file.is_open()) {
+    if (!file.is_open())
+    {
         std::cerr << "Error while opening file " << file_location << "\n";
         std::cout << "Current working directory is " << std::filesystem::current_path() << "\n";
         return "";
@@ -48,18 +49,6 @@ std::string TestUtils::loadFileToString(const std::string& file_location)
 
     file.close();
     return content;
-}
-
-void TestUtils::removeFileIfExists(const std::string& file_path)
-{
-    try
-    {
-        std::filesystem::remove(file_path);
-    }
-    catch(const std::filesystem::filesystem_error& err)
-    {
-        std::cout << "Test Utils: filesystem error: " << err.what() << '\n';
-    }
 }
 
 void TestUtils::printMatrix(const glm::mat4& matrix)

@@ -9,8 +9,8 @@
 class FileLogger : public LoggerDecorator
 {
 public:
-    explicit FileLogger(std::string log_file_location);
-    FileLogger(std::unique_ptr<Logger> next_logger, std::string log_file_location);
+    explicit FileLogger(const std::string& log_file_location);
+    FileLogger(std::unique_ptr<Logger> next_logger, const std::string& log_file_location);
     ~FileLogger() override;
 
     FileLogger(const FileLogger&) = delete;

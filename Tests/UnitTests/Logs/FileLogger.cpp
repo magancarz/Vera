@@ -11,11 +11,11 @@
 
 struct FileLoggerTests : testing::Test
 {
-    std::string log_file_location = PathBuilder(std::filesystem::temp_directory_path()).append("test_log.txt").build();
+    std::string log_file_location = PathBuilder().append("__test_log__.txt").build();
 
     void TearDown() override
     {
-        TestUtils::removeFileIfExists(log_file_location);
+        TestUtils::deleteFileIfExists(log_file_location);
     }
 };
 
