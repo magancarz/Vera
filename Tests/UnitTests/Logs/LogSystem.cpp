@@ -3,11 +3,13 @@
 #include "Mocks/MockLogger.h"
 #include "Logs/LogSystem.h"
 
+#include <Environment.h>
+
 struct LogSystemTests : public ::testing::Test
 {
-    void TearDown() override
+    static void TearDownTestSuite()
     {
-        LogSystem::initialize(std::make_unique<MockLogger>());
+        TestsEnvironment::initializeTestsLogger();
     }
 };
 

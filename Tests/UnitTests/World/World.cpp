@@ -41,7 +41,7 @@ TEST(WorldTests, shouldLoadObjectsFromProjectInfo)
     project_info.objects_infos.emplace_back(TestUtils::createDummyObjectInfo("dummy1"));
     project_info.objects_infos.emplace_back(TestUtils::createDummyObjectInfo("dummy2"));
 
-    AssetManager asset_manager{Environment::vulkanHandler(), Environment::memoryAllocator()};
+    AssetManager asset_manager{TestsEnvironment::vulkanHandler(), TestsEnvironment::memoryAllocator()};
 
     // when
     world.loadProject(project_info, asset_manager);

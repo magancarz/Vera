@@ -179,22 +179,32 @@ void RayTracedRenderer::createRayTracedImage()
 {
     VkSurfaceCapabilitiesKHR surface_capabilities;
     vkGetPhysicalDeviceSurfaceCapabilitiesKHR(device.getPhysicalDeviceHandle(), device.getSurfaceKHRHandle(), &surface_capabilities);
+
+    TextureData texture_data{};
+    texture_data.name = "ray_traced_texture";
+    texture_data.width = surface_capabilities.currentExtent.width;
+    texture_data.height = surface_capabilities.currentExtent.height;
+    texture_data.mip_levels = 1;
+    texture_data.number_of_channels = 4;
+    texture_data.format = VK_FORMAT_R16G16B16A16_SFLOAT;
+
     VkImageCreateInfo image_create_info{};
     image_create_info.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
     image_create_info.imageType = VK_IMAGE_TYPE_2D;
-    image_create_info.extent.width = surface_capabilities.currentExtent.width;
-    image_create_info.extent.height = surface_capabilities.currentExtent.height;
+    image_create_info.extent.width = texture_data.width;
+    image_create_info.extent.height = texture_data.height;
     image_create_info.extent.depth = 1;
-    image_create_info.mipLevels = 1;
+    image_create_info.mipLevels = texture_data.mip_levels;
     image_create_info.arrayLayers = 1;
-    image_create_info.format = VK_FORMAT_R16G16B16A16_SFLOAT;
+    image_create_info.format = texture_data.format;
     image_create_info.tiling = VK_IMAGE_TILING_OPTIMAL;
     image_create_info.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
     image_create_info.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
     image_create_info.usage = VK_IMAGE_USAGE_STORAGE_BIT | VK_IMAGE_USAGE_SAMPLED_BIT;
     image_create_info.samples = VK_SAMPLE_COUNT_1_BIT;
     std::unique_ptr<Image> image = memory_allocator.createImage(image_create_info);
-    ray_traced_texture = std::make_unique<DeviceTexture>(device, std::move(image), image_create_info);
+
+    ray_traced_texture = std::make_unique<DeviceTexture>(device, std::move(texture_data), std::move(image));
 }
 
 void RayTracedRenderer::createCameraUniformBuffer()

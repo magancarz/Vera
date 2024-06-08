@@ -15,6 +15,8 @@ public:
     [[nodiscard]] bool validationLayersEnabled() const { return enable_validation_layers; }
     [[nodiscard]] std::vector<const char*> getEnabledValidationLayers() const { return validation_layers; }
 
+    static constexpr const char* VALIDATION_LAYERS_PREFIX{"Vulkan validation layers: "};
+
 private:
 #ifdef NDEBUG
     const bool enable_validation_layers = false;

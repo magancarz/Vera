@@ -14,7 +14,7 @@ using testing::Return;
 
 struct MeshComponentTests : public ::testing::Test
 {
-    std::unique_ptr<AssetManager> asset_manager = std::make_unique<AssetManager>(Environment::vulkanHandler(), Environment::memoryAllocator());
+    std::unique_ptr<AssetManager> asset_manager = std::make_unique<AssetManager>(TestsEnvironment::vulkanHandler(), TestsEnvironment::memoryAllocator());
     Object owner;
 
     void SetUp() override

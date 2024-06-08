@@ -11,7 +11,20 @@ static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(
         const VkDebugUtilsMessengerCallbackDataEXT* callback_data,
         void* user_data)
 {
-    LogSystem::log(LogSeverity::ERROR, "Vulkan validation layers: ", callback_data->pMessage);
+    LogSeverity severity;
+    switch (message_severity)
+    {
+    case VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT:
+        severity = LogSeverity::ERROR;
+        break;
+    case VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT:
+        severity = LogSeverity::WARNING;
+        break;
+    default:
+        severity = LogSeverity::LOG;
+        break;
+    }
+    LogSystem::log(severity, Instance::VALIDATION_LAYERS_PREFIX, callback_data->pMessage);
 
     return VK_FALSE;
 }
@@ -22,11 +35,8 @@ VkResult createDebugUtilsMessengerExt(
         const VkAllocationCallbacks* allocator,
         VkDebugUtilsMessengerEXT* debug_messenger)
 {
-    auto func = reinterpret_cast<PFN_vkCreateDebugUtilsMessengerEXT>(
-        vkGetInstanceProcAddr(
-            instance,
-            "vkCreateDebugUtilsMessengerEXT"));
-    if (func != nullptr)
+    if (auto func = std::bit_cast<PFN_vkCreateDebugUtilsMessengerEXT>(vkGetInstanceProcAddr(
+            instance, "vkCreateDebugUtilsMessengerEXT")))
     {
         return func(instance, create_info, allocator, debug_messenger);
     }

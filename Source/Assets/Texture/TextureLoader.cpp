@@ -35,12 +35,15 @@ TextureData TextureLoader::loadFromAssetFile(const std::string& texture_name)
     memcpy(copied_data.data(), data, copied_data.size() * sizeof(unsigned char));
     stbi_image_free(data);
 
+    bool is_opaque = EXPECTED_NUMBER_OF_CHANNELS <= 3 || copied_data[4] > 127;
+
     return TextureData
     {
         .name = texture_name,
         .width = static_cast<uint32_t>(width),
         .height = static_cast<uint32_t>(height),
         .number_of_channels = static_cast<uint32_t>(EXPECTED_NUMBER_OF_CHANNELS),
-        .data = std::move(copied_data)
+        .data = std::move(copied_data),
+        .is_opaque = is_opaque
     };
 }

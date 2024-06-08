@@ -8,7 +8,7 @@
 TEST(AssetManagerTests, shouldFetchMesh)
 {
     // given
-    AssetManager asset_manager{Environment::vulkanHandler(), Environment::memoryAllocator()};
+    AssetManager asset_manager{TestsEnvironment::vulkanHandler(), TestsEnvironment::memoryAllocator()};
     const std::string MESH_PATH = Assets::DEFAULT_MESH_NAME;
 
     // when
@@ -27,7 +27,7 @@ TEST(AssetManagerTests, shouldFetchMesh)
 TEST(AssetManagerTests, shouldFetchModel)
 {
     // given
-    AssetManager asset_manager{Environment::vulkanHandler(), Environment::memoryAllocator()};
+    AssetManager asset_manager{TestsEnvironment::vulkanHandler(), TestsEnvironment::memoryAllocator()};
     const std::string MODEL_PATH = Assets::DEFAULT_MESH_NAME;
     const std::string EXPECTED_MODEL_NAME{"cube"};
     const std::string EXPECTED_REQUIRED_MATERIAL{"white"};
@@ -43,7 +43,7 @@ TEST(AssetManagerTests, shouldFetchModel)
 TEST(AssetManagerTests, shouldFetchMaterial)
 {
     // given
-    AssetManager asset_manager{Environment::vulkanHandler(), Environment::memoryAllocator()};
+    AssetManager asset_manager{TestsEnvironment::vulkanHandler(), TestsEnvironment::memoryAllocator()};
 
     // when
     const Material* material = asset_manager.fetchMaterial(Assets::DEFAULT_MATERIAL_NAME);
@@ -57,7 +57,7 @@ TEST(AssetManagerTests, shouldFetchMaterial)
 TEST(AssetManagerTests, shouldFetchDiffuseTexture)
 {
     // given
-    AssetManager asset_manager{Environment::vulkanHandler(), Environment::memoryAllocator()};
+    AssetManager asset_manager{TestsEnvironment::vulkanHandler(), TestsEnvironment::memoryAllocator()};
 
     // when
     const DeviceTexture* texture = asset_manager.fetchDiffuseTexture(Assets::DEFAULT_DIFFUSE_TEXTURE);
@@ -69,7 +69,7 @@ TEST(AssetManagerTests, shouldFetchDiffuseTexture)
 TEST(AssetManagerTests, shouldFetchNormalMap)
 {
     // given
-    AssetManager asset_manager{Environment::vulkanHandler(), Environment::memoryAllocator()};
+    AssetManager asset_manager{TestsEnvironment::vulkanHandler(), TestsEnvironment::memoryAllocator()};
 
     // when
     const DeviceTexture* texture = asset_manager.fetchNormalMap(Assets::DEFAULT_NORMAL_MAP);

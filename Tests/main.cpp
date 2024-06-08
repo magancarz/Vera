@@ -5,6 +5,6 @@
 int main(int argc, char *argv[])
 {
     testing::InitGoogleTest(&argc, argv);
-    ::testing::AddGlobalTestEnvironment(new Environment());
+    ::testing::AddGlobalTestEnvironment(new TestsEnvironment());
     return RUN_ALL_TESTS();
 }

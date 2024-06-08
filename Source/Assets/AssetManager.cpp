@@ -137,7 +137,7 @@ DeviceTexture* AssetManager::fetchTexture(const std::string& texture_name, VkFor
     return storeTexture(TextureLoader::loadFromAssetFile(texture_name), format);
 }
 
-DeviceTexture* AssetManager::storeTexture(const TextureData& texture_data, VkFormat format)
+DeviceTexture* AssetManager::storeTexture(TextureData texture_data, VkFormat format)
 {
     if (available_textures.contains(texture_data.name))
     {
@@ -145,13 +145,16 @@ DeviceTexture* AssetManager::storeTexture(const TextureData& texture_data, VkFor
         return available_textures.at(texture_data.name).get();
     }
 
+    texture_data.format = format;
+    texture_data.mip_levels = static_cast<uint32_t>(std::floor(std::log2(std::max(texture_data.width, texture_data.height)))) + 1;
+
     VkImageCreateInfo image_create_info{};
     image_create_info.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
     image_create_info.imageType = VK_IMAGE_TYPE_2D;
     image_create_info.extent.width = texture_data.width;
     image_create_info.extent.height = texture_data.height;
     image_create_info.extent.depth = 1;
-    image_create_info.mipLevels = static_cast<uint32_t>(std::floor(std::log2(std::max(texture_data.width, texture_data.height)))) + 1;
+    image_create_info.mipLevels = texture_data.mip_levels;
     image_create_info.arrayLayers = 1;
     image_create_info.format = format;
     image_create_info.tiling = VK_IMAGE_TILING_OPTIMAL;
@@ -162,7 +165,7 @@ DeviceTexture* AssetManager::storeTexture(const TextureData& texture_data, VkFor
 
     std::unique_ptr<Image> image = memory_allocator.createImage(image_create_info);
     available_textures.try_emplace(texture_data.name, std::make_unique<DeviceTexture>(
-        vulkan_facade, memory_allocator, texture_data, image_create_info, std::move(image)));
+        vulkan_facade, memory_allocator, std::move(texture_data), std::move(image)));
 
     return available_textures.at(texture_data.name).get();
 }

@@ -12,4 +12,7 @@ struct TextureData
     uint32_t height{0};
     uint32_t number_of_channels{4};
     std::vector<unsigned char> data;
+    VkFormat format;
+    uint32_t mip_levels{0};
+    bool is_opaque{true};
 };

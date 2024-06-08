@@ -1,6 +1,7 @@
 target_sources(Vera-Tests PRIVATE
         Environment.cpp
         main.cpp
+        TestLogger.cpp
         TestUtils.cpp)
 
 add_subdirectory(IntegrationTests)
