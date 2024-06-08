@@ -13,10 +13,10 @@ class Blas
 {
 public:
     Blas(
-            VulkanHandler& device,
-            MemoryAllocator& memory_allocator,
-            AssetManager& asset_manager,
-            MeshComponent& mesh_component);
+        VulkanHandler& device,
+        MemoryAllocator& memory_allocator,
+        AssetManager& asset_manager,
+        MeshComponent& mesh_component);
     ~Blas();
 
     Blas(const Blas&) = delete;

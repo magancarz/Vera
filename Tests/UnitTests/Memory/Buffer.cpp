@@ -1,7 +1,7 @@
+#include "gtest/gtest.h"
+
 #include <Environment.h>
 #include <TestUtils.h>
-
-#include "gtest/gtest.h"
 
 TEST(BufferTests, shouldMapBufferMemory)
 {

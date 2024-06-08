@@ -1,3 +1,4 @@
 target_sources(Vera-Lib PRIVATE
         Blas.cpp
-        RayTracingBuilder.cpp)
+        BlasBuilder.cpp
+        TlasBuilder.cpp)

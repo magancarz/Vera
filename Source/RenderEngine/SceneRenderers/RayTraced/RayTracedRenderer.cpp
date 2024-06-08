@@ -2,13 +2,13 @@
 
 #include <chrono>
 #include <iostream>
+#include <RenderEngine/AccelerationStructures/TlasBuilder.h>
 
 #include "RenderEngine/RenderingAPI/VulkanHelper.h"
 #include "RenderEngine/GlobalUBO.h"
 #include "RenderEngine/RenderingAPI/VulkanDefines.h"
 #include "RenderEngine/SceneRenderers/RayTraced/Pipeline/RayTracingPipelineBuilder.h"
 #include "Objects/Components/MeshComponent.h"
-#include "RenderEngine/AccelerationStructures/RayTracingAccelerationStructureBuilder.h"
 #include "RenderEngine/Materials/DeviceMaterialInfo.h"
 #include "Objects/Object.h"
 
@@ -151,8 +151,6 @@ void RayTracedRenderer::createObjectDescriptionsBuffer()
 
 void RayTracedRenderer::createAccelerationStructure()
 {
-    RayTracingAccelerationStructureBuilder builder{device, memory_allocator};
-
     std::vector<BlasInstance> blas_instances;
     blas_instances.reserve(rendered_objects.size());
     size_t i = 0;
@@ -172,7 +170,7 @@ void RayTracedRenderer::createAccelerationStructure()
         blas_instance.bottomLevelAccelerationStructureInstance.instanceCustomIndex = object_description_offsets[i++];
         blas_instances.push_back(std::move(blas_instance));
     }
-    tlas = builder.buildTopLevelAccelerationStructure(blas_instances);
+    tlas = TlasBuilder::buildTopLevelAccelerationStructure(device, memory_allocator, blas_instances);
 }
 
 void RayTracedRenderer::createRayTracedImage()

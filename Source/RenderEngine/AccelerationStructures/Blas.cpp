@@ -1,10 +1,11 @@
 #include "Blas.h"
 
-#include "RayTracingAccelerationStructureBuilder.h"
-#include "../RenderingAPI/VulkanHelper.h"
-#include "../RenderingAPI/VulkanDefines.h"
-#include "../../Assets/Model/Vertex.h"
-#include "../../Objects/Components/MeshComponent.h"
+#include "BlasBuilder.h"
+#include "RenderEngine/RenderingAPI/VulkanHelper.h"
+#include "RenderEngine/RenderingAPI/VulkanDefines.h"
+#include "Assets/Model/Vertex.h"
+#include "Objects/Components/MeshComponent.h"
+#include "Assets/AssetManager.h"
 
 Blas::Blas(
         VulkanHandler& device,
@@ -20,7 +21,7 @@ void Blas::createBlas(MeshComponent& mesh_component)
 {
     MeshDescription mesh_description = mesh_component.getDescription();
 
-    RayTracingAccelerationStructureBuilder::BlasInput blas_input;
+    BlasBuilder::BlasInput blas_input;
     for (size_t i = 0; i < mesh_description.model_descriptions.size(); ++i)
     {
         ModelDescription& model_description = mesh_description.model_descriptions[i];
@@ -58,8 +59,8 @@ void Blas::createBlas(MeshComponent& mesh_component)
     }
     blas_input.flags = VK_BUILD_ACCELERATION_STRUCTURE_ALLOW_COMPACTION_BIT_KHR;
 
-    RayTracingAccelerationStructureBuilder builder{device, memory_allocator};
-    blas = std::move(builder.buildBottomLevelAccelerationStructures({blas_input}, VK_BUILD_ACCELERATION_STRUCTURE_PREFER_FAST_TRACE_BIT_KHR)[0]);
+    blas = std::move(BlasBuilder::buildBottomLevelAccelerationStructures(
+        device, memory_allocator, {blas_input}, VK_BUILD_ACCELERATION_STRUCTURE_PREFER_FAST_TRACE_BIT_KHR).front());
 }
 
 Blas::~Blas()
