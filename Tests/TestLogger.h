@@ -10,10 +10,10 @@ class TestLogger : public Logger
 public:
     void log(LogSeverity severity, const char* message) override;
 
-    [[nodiscard]] bool anyVulkanValidationLayersErrorsOrWarnings() const { return number_of_vulkan_validation_layers_messages > 0; }
+    [[nodiscard]] bool anyVulkanValidationLayersErrors() const { return number_of_vulkan_validation_layers_messages > 0; }
 
 private:
-    bool isVulkanValidationLayersMessage(const std::string& message);
+    bool isVulkanValidationLayersError(const std::string_view& message);
 
     uint32_t number_of_vulkan_validation_layers_messages{0};
 };

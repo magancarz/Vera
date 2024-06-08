@@ -3,6 +3,7 @@
 #include <filesystem>
 #include <iostream>
 #include <fstream>
+#include <TestLogger.h>
 
 void TestUtils::deleteFileIfExists(const std::string& location)
 {

@@ -4,11 +4,16 @@
 
 void BasicLogger::log(LogSeverity severity, const char* message)
 {
-    if (severity <= LogSeverity::WARNING)
+    switch (severity)
     {
+    case LogSeverity::ERROR:
+        std::cerr << message;
+        break;
+    case LogSeverity::WARNING:
+        std::cout << "\033[0;33m" << message << "\033[0m";
+        break;
+    default:
         std::cout << message;
-        return;
+        break;
     }
-
-    std::cerr << message;
 }

@@ -1,7 +1,5 @@
 #pragma once
 
-#include <memory>
-
 #include "RenderEngine/RenderingAPI/VulkanHandler.h"
 #include "AllocatorInfo.h"
 
@@ -21,9 +19,8 @@ public:
     VkResult map();
     void unmap();
 
-    void writeToBuffer(const void* data) const;
-    void copyFromBuffer(const Buffer& src_buffer) const;
-    [[nodiscard]] VkResult flush() const;
+    void writeToBuffer(const void* data);
+    void copyFrom(const Buffer& src_buffer) const;
     [[nodiscard]] VkDescriptorBufferInfo descriptorInfo() const;
 
     [[nodiscard]] VkBuffer getBuffer() const { return buffer; }

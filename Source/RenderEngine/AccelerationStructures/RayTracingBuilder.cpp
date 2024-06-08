@@ -341,7 +341,7 @@ AccelerationStructure RayTracingAccelerationStructureBuilder::buildTopLevelAccel
             instances_temp.size(),
             VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT | VK_BUFFER_USAGE_ACCELERATION_STRUCTURE_BUILD_INPUT_READ_ONLY_BIT_KHR | VK_BUFFER_USAGE_TRANSFER_DST_BIT,
             VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
-    instances_buffer->copyFromBuffer(*instances_staging_buffer);
+    instances_buffer->copyFrom(*instances_staging_buffer);
 
     VkAccelerationStructureGeometryInstancesDataKHR instances{};
     instances.sType = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_GEOMETRY_INSTANCES_DATA_KHR;

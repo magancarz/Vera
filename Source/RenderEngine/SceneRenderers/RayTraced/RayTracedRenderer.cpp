@@ -133,7 +133,7 @@ void RayTracedRenderer::createObjectDescriptionsBuffer()
             VK_BUFFER_USAGE_STORAGE_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT,
             VK_MEMORY_ALLOCATE_DEVICE_ADDRESS_BIT
     );
-    object_descriptions_buffer->copyFromBuffer(*object_descriptions_staging_buffer);
+    object_descriptions_buffer->copyFrom(*object_descriptions_staging_buffer);
 
     auto material_descriptions_staging_buffer = memory_allocator.createStagingBuffer(
             sizeof(DeviceMaterialInfo),
@@ -146,7 +146,7 @@ void RayTracedRenderer::createObjectDescriptionsBuffer()
             VK_BUFFER_USAGE_STORAGE_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT,
             VK_MEMORY_ALLOCATE_DEVICE_ADDRESS_BIT
     );
-    material_descriptions_buffer->copyFromBuffer(*material_descriptions_staging_buffer);
+    material_descriptions_buffer->copyFrom(*material_descriptions_staging_buffer);
 }
 
 void RayTracedRenderer::createAccelerationStructure()

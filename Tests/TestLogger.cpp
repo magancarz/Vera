@@ -2,15 +2,17 @@
 
 #include <RenderEngine/RenderingAPI/Instance.h>
 
+#include "Logs/LogSystem.h"
+
 void TestLogger::log(LogSeverity severity, const char* message)
 {
-    if (isVulkanValidationLayersMessage(message))
+    if (isVulkanValidationLayersError(message))
     {
         ++number_of_vulkan_validation_layers_messages;
     }
 }
 
-bool TestLogger::isVulkanValidationLayersMessage(const std::string& message)
+bool TestLogger::isVulkanValidationLayersError(const std::string_view& message)
 {
-    return message.contains(Instance::VALIDATION_LAYERS_PREFIX);
+    return message.contains(Instance::VALIDATION_LAYERS_PREFIX) && message.contains(LogSystem::LOG_SEVERITY_PREFIXES.at(LogSeverity::ERROR));
 }

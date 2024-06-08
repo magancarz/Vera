@@ -1,11 +1,14 @@
 #pragma once
 
+#include <Environment.h>
+
 #include "gtest/gtest.h"
 #include "Project/ObjectInfo.h"
 
 #include <glm/glm.hpp>
 
 #include <string>
+#include <Memory/Buffer.h>
 
 class TestUtils
 {
@@ -31,4 +34,20 @@ public:
             const glm::vec3& position = {0, 0, 0},
             const glm::vec3& rotation = {0, 0, 0},
             float scale = 0.f);
+
+    template <typename T>
+    static void expectBufferHasEqualData(const Buffer& buffer, const std::vector<T>& expected_data)
+    {
+        auto data_buffer = TestsEnvironment::memoryAllocator().createBuffer(sizeof(T), buffer.getSize() / sizeof(T),
+            VK_BUFFER_USAGE_TRANSFER_DST_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+            VMA_ALLOCATION_CREATE_HOST_ACCESS_SEQUENTIAL_WRITE_BIT);
+        data_buffer->copyFrom(buffer);
+
+        data_buffer->map();
+        auto actual_data = std::bit_cast<T*>(data_buffer->getMappedMemory());
+        for (size_t i = 0; i < expected_data.size(); ++i)
+        {
+            EXPECT_EQ(actual_data[i], expected_data[i]);
+        }
+    }
 };

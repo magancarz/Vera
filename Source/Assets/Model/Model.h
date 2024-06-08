@@ -1,5 +1,7 @@
 #pragma once
 
+#include <memory>
+
 #include "Memory/Buffer.h"
 #include "ModelMemoryDescription.h"
 

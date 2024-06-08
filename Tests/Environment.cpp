@@ -25,9 +25,9 @@ void TestsEnvironment::initializeTestsLogger()
     LogSystem::initialize(std::move(new_test_logger));
 }
 
-void TestsEnvironment::failAllTestsIfThereWereAnyVulkanValidationLayersErrorsDuringSetup()
+void TestsEnvironment::failAllTestsIfThereWereAnyVulkanValidationLayersErrorsDuringSetup() const
 {
-    if (test_logger->anyVulkanValidationLayersErrorsOrWarnings())
+    if (test_logger->anyVulkanValidationLayersErrors())
     {
         GTEST_FATAL_FAILURE_("Vulkan validation layer messages occured during Vulkan setup!");
     }

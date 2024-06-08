@@ -19,7 +19,7 @@ public:
     [[nodiscard]] static TestLogger& testLogger() { return *test_logger; }
 
 private:
-    void failAllTestsIfThereWereAnyVulkanValidationLayersErrorsDuringSetup();
+    void failAllTestsIfThereWereAnyVulkanValidationLayersErrorsDuringSetup() const;
 
     inline static std::unique_ptr<VulkanHandler> vulkan_handler;
     inline static std::unique_ptr<MemoryAllocator> memory_allocator;

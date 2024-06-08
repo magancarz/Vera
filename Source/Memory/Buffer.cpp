@@ -5,6 +5,8 @@
 
 #include <vulkan/vulkan_core.h>
 
+#include "Logs/LogSystem.h"
+
 Buffer::Buffer(
         Device& logical_device,
         CommandPool& command_pool,
@@ -33,13 +35,17 @@ void Buffer::unmap()
     }
 }
 
-void Buffer::writeToBuffer(const void* data) const
+void Buffer::writeToBuffer(const void* data)
 {
-    assert(mapped && "Cannot copy to unmapped buffer");
+    if (!mapped)
+    {
+        LogSystem::log(LogSeverity::WARNING, "Tried to copy to unmapped buffer! Mapping...");
+        map();
+    }
     memcpy(mapped, data, buffer_size);
 }
 
-void Buffer::copyFromBuffer(const Buffer& src_buffer) const
+void Buffer::copyFrom(const Buffer& src_buffer) const
 {
     VkCommandBuffer command_buffer = command_pool.beginSingleTimeCommands();
 
@@ -48,11 +54,6 @@ void Buffer::copyFromBuffer(const Buffer& src_buffer) const
     vkCmdCopyBuffer(command_buffer, src_buffer.getBuffer(), buffer, 1, &copy_region);
 
     command_pool.endSingleTimeCommands(command_buffer);
-}
-
-VkResult Buffer::flush() const
-{
-    return vmaFlushAllocation(allocator_info.vma_allocator, allocator_info.vma_allocation, 0, VK_WHOLE_SIZE);
 }
 
 VkDescriptorBufferInfo Buffer::descriptorInfo() const

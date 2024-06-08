@@ -31,7 +31,7 @@ void Model::createVertexBuffer(MemoryAllocator& memory_allocator, const std::vec
         VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT |
         VK_BUFFER_USAGE_ACCELERATION_STRUCTURE_BUILD_INPUT_READ_ONLY_BIT_KHR,
         VK_MEMORY_ALLOCATE_DEVICE_ADDRESS_BIT);
-    vertex_buffer->copyFromBuffer(*staging_buffer);
+    vertex_buffer->copyFrom(*staging_buffer);
 }
 
 void Model::createIndexBuffer(MemoryAllocator& memory_allocator, const std::vector<uint32_t>& indices)
@@ -51,7 +51,7 @@ void Model::createIndexBuffer(MemoryAllocator& memory_allocator, const std::vect
         VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT |
         VK_BUFFER_USAGE_ACCELERATION_STRUCTURE_BUILD_INPUT_READ_ONLY_BIT_KHR,
         VK_MEMORY_ALLOCATE_DEVICE_ADDRESS_BIT);
-    index_buffer->copyFromBuffer(*staging_buffer);
+    index_buffer->copyFrom(*staging_buffer);
 }
 
 ModelDescription Model::getModelDescription() const
