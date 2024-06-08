@@ -1,6 +1,6 @@
 #include "gtest/gtest.h"
 
-#include "UnitTests/Mocks/MockLogger.h"
+#include "Mocks/MockLogger.h"
 #include "Logs/LogSystem.h"
 
 struct LogSystemTests : public ::testing::Test

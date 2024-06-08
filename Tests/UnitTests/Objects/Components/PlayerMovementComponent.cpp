@@ -6,7 +6,7 @@
 #include "Objects/Object.h"
 #include "RenderEngine/FrameInfo.h"
 
-#include "UnitTests/Mocks/MockInputManager.h"
+#include "Mocks/MockInputManager.h"
 #include "TestUtils.h"
 
 using testing::Return;

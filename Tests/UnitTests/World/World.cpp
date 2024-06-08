@@ -8,7 +8,7 @@
 #include "Objects/Components/TransformComponent.h"
 
 #include "Objects/Components/CameraComponent.h"
-#include "UnitTests/Mocks/MockInputManager.h"
+#include "Mocks/MockInputManager.h"
 #include "Mocks/MockObject.h"
 #include "TestUtils.h"
 

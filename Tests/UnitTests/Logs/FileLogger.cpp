@@ -4,7 +4,7 @@
 #include <TestUtils.h>
 
 #include <Logs/FileLogger.h>
-#include <UnitTests/Mocks/MockLogger.h>
+#include <Mocks/MockLogger.h>
 
 #include "Logs/LogSystem.h"
 #include "Utils/PathBuilder.h"
