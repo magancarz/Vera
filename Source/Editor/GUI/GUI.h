@@ -37,6 +37,10 @@ private:
     std::unique_ptr<DescriptorPool> descriptor_pool;
 
     void createRenderPass();
+    VkAttachmentDescription createAttachmentDescription();
+    VkAttachmentReference createColorAttachment();
+    VkSubpassDescription createSubpass(VkAttachmentReference* color_attachment);
+    VkSubpassDependency createSubpassDependency();
 
     VkRenderPass render_pass;
 

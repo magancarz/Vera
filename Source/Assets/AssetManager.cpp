@@ -161,13 +161,8 @@ DeviceTexture* AssetManager::storeTexture(const TextureData& texture_data, VkFor
     image_create_info.samples = VK_SAMPLE_COUNT_1_BIT;
 
     std::unique_ptr<Image> image = memory_allocator.createImage(image_create_info);
-    available_textures.try_emplace(
-        texture_data.name,
-        std::make_unique<DeviceTexture>(
-            vulkan_facade,
-            memory_allocator,
-            texture_data,
-            image_create_info,
-            std::move(image)));
+    available_textures.try_emplace(texture_data.name, std::make_unique<DeviceTexture>(
+        vulkan_facade, memory_allocator, texture_data, image_create_info, std::move(image)));
+
     return available_textures.at(texture_data.name).get();
 }

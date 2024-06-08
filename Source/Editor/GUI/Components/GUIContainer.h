@@ -13,7 +13,6 @@ public:
     void update(FrameInfo& frame_info) override;
 
     void addComponent(std::unique_ptr<GUIComponent> component);
-    void removeComponent(const GUIComponent& component);
 
 private:
     std::vector<std::unique_ptr<GUIComponent>> components;
