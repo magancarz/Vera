@@ -20,5 +20,4 @@ public:
 
 private:
     std::ofstream log_file;
-    std::string log_file_location;
 };

@@ -11,7 +11,7 @@
 
 struct FileLoggerTests : testing::Test
 {
-    std::string log_file_location = PathBuilder().append("__test_log__.txt").build();
+    std::string log_file_location = PathBuilder(std::filesystem::temp_directory_path()).append("__vera_test_log__.txt").build();
 
     void TearDown() override
     {
@@ -25,22 +25,25 @@ TEST_F(FileLoggerTests, shouldCreateLogFile)
     FileLogger file_logger{log_file_location};
 
     // then
-    EXPECT_TRUE(std::filesystem::exists(log_file_location));
+    EXPECT_TRUE(TestUtils::fileExists(log_file_location));
 }
 
-TEST_F(FileLoggerTests, shouldLogMessageWithLogSeverity)
+TEST_F(FileLoggerTests, shouldLogMessageToFile)
 {
-    // given
-    FileLogger file_logger{log_file_location};
-    constexpr LogSeverity log_severity = LogSeverity::LOG;
     const std::string log_message{"dummy log"};
+    const std::string expected_file_contents{log_message + '\n'};
+    {
+        // given
+        FileLogger file_logger{log_file_location};
+        constexpr LogSeverity log_severity = LogSeverity::LOG;
 
-    // when
-    file_logger.log(log_severity, log_message.c_str());
+        // when
+        file_logger.log(log_severity, log_message.c_str());
+    }
 
     // then
     const std::string file_contents = TestUtils::loadFileToString(log_file_location);
-    EXPECT_EQ(file_contents, log_message);
+    EXPECT_EQ(file_contents, expected_file_contents);
 }
 
 TEST_F(FileLoggerTests, shouldPassLogMessageToWrapee)
