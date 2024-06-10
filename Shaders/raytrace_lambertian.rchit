@@ -7,13 +7,12 @@
 #extension GL_EXT_shader_explicit_arithmetic_types_int64 : require
 #extension GL_EXT_buffer_reference2 : require
 
-#include "ray.glsl"
-#include "random.glsl"
-#include "cosine_pdf.glsl"
-#include "lambertian.glsl"
-#include "material.glsl"
-#include "defines.glsl"
-
+#include "Commons/ray.glsl"
+#include "Commons/random.glsl"
+#include "Commons/cosine_pdf.glsl"
+#include "Commons/lambertian.glsl"
+#include "Commons/material.glsl"
+#include "Commons/defines.glsl"
 #include "Commons/Common.h"
 
 layout(location = 0) rayPayloadInEXT Ray payload;
