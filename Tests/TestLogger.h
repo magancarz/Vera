@@ -13,7 +13,7 @@ public:
     [[nodiscard]] bool anyVulkanValidationLayersErrors() const { return number_of_vulkan_validation_layers_messages > 0; }
 
 private:
-    bool isVulkanValidationLayersError(const std::string_view& message);
+    static bool isVulkanValidationLayersError(const std::string_view& message);
 
     uint32_t number_of_vulkan_validation_layers_messages{0};
 };

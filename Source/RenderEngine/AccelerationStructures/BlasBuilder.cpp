@@ -127,8 +127,6 @@ void BlasBuilder::cmdCreateBlas(
                 VK_BUFFER_USAGE_ACCELERATION_STRUCTURE_STORAGE_BIT_KHR | VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT,
                 VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
 
-        build_as[idx].as.bottom_level_acceleration_structure_device_address = build_as[idx].as.acceleration_structure_buffer->getBufferDeviceAddress();
-
         create_info.buffer = build_as[idx].as.acceleration_structure_buffer->getBuffer();
         if (pvkCreateAccelerationStructureKHR(
                 device.getDeviceHandle(),
@@ -207,7 +205,6 @@ void BlasBuilder::cmdCompactBlas(
                 1,
                 VK_BUFFER_USAGE_ACCELERATION_STRUCTURE_STORAGE_BIT_KHR | VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT,
                 VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
-        build_as[idx].as.bottom_level_acceleration_structure_device_address = build_as[idx].as.acceleration_structure_buffer->getBufferDeviceAddress();
 
         create_info.buffer = build_as[idx].as.acceleration_structure_buffer->getBuffer();
         if (pvkCreateAccelerationStructureKHR(

@@ -6,7 +6,6 @@
 #include <RenderEngine/AccelerationStructures/Blas.h>
 #include <RenderEngine/AccelerationStructures/BlasBuilder.h>
 #include <RenderEngine/RenderingAPI/VulkanHelper.h>
-#include <RenderEngine/RenderingAPI/VulkanUtils.h>
 
 TEST(BlasTests, shouldBuildValidBlas)
 {

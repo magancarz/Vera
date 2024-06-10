@@ -9,6 +9,8 @@
 #include <Assets/Model/Vertex.h>
 #include <RenderEngine/AccelerationStructures/AccelerationStructure.h>
 #include <RenderEngine/AccelerationStructures/BlasBuilder.h>
+#include <RenderEngine/RenderingAPI/VulkanDefines.h>
+#include <RenderEngine/RenderingAPI/VulkanHelper.h>
 
 TEST(BlasBuilderTests, shouldBuildValidBlas)
 {
@@ -57,7 +59,7 @@ TEST(BlasBuilderTests, shouldBuildValidBlas)
     AccelerationStructure blas = std::move(blases.front());
     EXPECT_NE(blas.acceleration_structure, VK_NULL_HANDLE);
     EXPECT_NE(blas.acceleration_structure_buffer, nullptr);
-    EXPECT_NE(blas.bottom_level_acceleration_structure_device_address, 0ULL);
 
+    pvkDestroyAccelerationStructureKHR(TestsEnvironment::vulkanHandler().getDeviceHandle(), blas.acceleration_structure, VulkanDefines::NO_CALLBACK);
     TestUtils::failIfVulkanValidationLayersErrorsWerePresent();
 }

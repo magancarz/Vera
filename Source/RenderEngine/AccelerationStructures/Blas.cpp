@@ -44,7 +44,7 @@ void Blas::createBlas(const Mesh& mesh)
         acceleration_structure_geometry.geometryType = VK_GEOMETRY_TYPE_TRIANGLES_KHR;
 
         auto material = asset_manager.fetchMaterial(model->getRequiredMaterial());
-        acceleration_structure_geometry.flags = material->isOpaque() ? VK_GEOMETRY_OPAQUE_BIT_KHR : 0;
+        acceleration_structure_geometry.flags = material->isOpaque() ? VK_GEOMETRY_OPAQUE_BIT_KHR : VK_GEOMETRY_NO_DUPLICATE_ANY_HIT_INVOCATION_BIT_KHR;
         acceleration_structure_geometry.geometry.triangles = triangles;
 
         VkAccelerationStructureBuildRangeInfoKHR offset{};
@@ -74,7 +74,7 @@ BlasInstance Blas::createBlasInstance(const glm::mat4& transform) const
     blas_instance.bottom_level_acceleration_structure_instance.mask = 0xFF;
     blas_instance.bottom_level_acceleration_structure_instance.instanceShaderBindingTableRecordOffset = 0;
     blas_instance.bottom_level_acceleration_structure_instance.flags = VK_GEOMETRY_INSTANCE_TRIANGLE_FACING_CULL_DISABLE_BIT_KHR;
-    blas_instance.bottom_level_acceleration_structure_instance.accelerationStructureReference = blas.bottom_level_acceleration_structure_device_address;
+    blas_instance.bottom_level_acceleration_structure_instance.accelerationStructureReference = blas.acceleration_structure_buffer->getBufferDeviceAddress();
 
     blas_instance.bottom_level_geometry_instance_buffer = memory_allocator.createBuffer
     (

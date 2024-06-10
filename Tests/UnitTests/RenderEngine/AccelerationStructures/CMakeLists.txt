@@ -1,3 +1,3 @@
 target_sources(Vera-Tests PRIVATE
-        Blas.cpp
-        BlasBuilder.cpp)
+        BlasBuilder.cpp
+        ../../../IntegrationTests/RenderEngine/AccelerationStructures/TlasBuilder.cpp)
