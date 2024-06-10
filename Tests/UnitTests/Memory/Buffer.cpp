@@ -6,11 +6,14 @@
 TEST(BufferTests, shouldMapBufferMemory)
 {
     // given
-    auto buffer = TestsEnvironment::memoryAllocator().createBuffer(
-        sizeof(uint32_t), 22,
-            VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
-            VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
-            VMA_ALLOCATION_CREATE_HOST_ACCESS_SEQUENTIAL_WRITE_BIT);
+    BufferInfo buffer_info{};
+    buffer_info.instance_size = sizeof(uint8_t);
+    buffer_info.instance_count = 22;
+    buffer_info.usage_flags = VK_BUFFER_USAGE_TRANSFER_SRC_BIT;
+    buffer_info.required_memory_flags = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT;
+    buffer_info.allocation_flags = VMA_ALLOCATION_CREATE_HOST_ACCESS_SEQUENTIAL_WRITE_BIT;
+
+    auto buffer = TestsEnvironment::memoryAllocator().createBuffer(buffer_info);
 
     // when
     buffer->map();
@@ -22,11 +25,14 @@ TEST(BufferTests, shouldMapBufferMemory)
 TEST(BufferTests, shouldUnmapBufferMemory)
 {
     // given
-    auto buffer = TestsEnvironment::memoryAllocator().createBuffer(
-        sizeof(uint32_t), 22,
-            VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
-            VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
-            VMA_ALLOCATION_CREATE_HOST_ACCESS_SEQUENTIAL_WRITE_BIT);
+    BufferInfo buffer_info{};
+    buffer_info.instance_size = sizeof(uint8_t);
+    buffer_info.instance_count = 22;
+    buffer_info.usage_flags = VK_BUFFER_USAGE_TRANSFER_SRC_BIT;
+    buffer_info.required_memory_flags = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT;
+    buffer_info.allocation_flags = VMA_ALLOCATION_CREATE_HOST_ACCESS_SEQUENTIAL_WRITE_BIT;
+
+    auto buffer = TestsEnvironment::memoryAllocator().createBuffer(buffer_info);
     buffer->map();
 
     ASSERT_TRUE(buffer->getMappedMemory() != nullptr);
@@ -59,8 +65,12 @@ TEST(BufferTests, shouldCopyFromStagingBuffer)
     auto staging_buffer = TestsEnvironment::memoryAllocator().createStagingBuffer(
         sizeof(uint8_t), static_cast<uint32_t>(data.size()), data.data());
 
-    auto dest_buffer = TestsEnvironment::memoryAllocator().createBuffer(
-        sizeof(uint8_t), static_cast<uint32_t>(data.size()), VK_BUFFER_USAGE_TRANSFER_SRC_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT);
+    BufferInfo buffer_info{};
+    buffer_info.instance_size = sizeof(uint8_t);
+    buffer_info.instance_count = static_cast<uint32_t>(data.size());
+    buffer_info.usage_flags = VK_BUFFER_USAGE_TRANSFER_SRC_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT;
+
+    auto dest_buffer = TestsEnvironment::memoryAllocator().createBuffer(buffer_info);
 
     // when
     dest_buffer->copyFrom(*staging_buffer);
@@ -72,11 +82,14 @@ TEST(BufferTests, shouldCopyFromStagingBuffer)
 TEST(BufferTests, shouldReturnValidBufferHandle)
 {
     // given
-    auto buffer = TestsEnvironment::memoryAllocator().createBuffer(
-        sizeof(uint8_t),
-        static_cast<uint32_t>(22),
-        VK_BUFFER_USAGE_TRANSFER_SRC_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT,
-        VK_MEMORY_ALLOCATE_DEVICE_ADDRESS_BIT);
+    BufferInfo buffer_info{};
+    buffer_info.instance_size = sizeof(uint8_t);
+    buffer_info.instance_count = 22;
+    buffer_info.usage_flags =
+        VK_BUFFER_USAGE_TRANSFER_SRC_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT;
+    buffer_info.required_memory_flags = VK_MEMORY_ALLOCATE_DEVICE_ADDRESS_BIT;
+
+    auto buffer = TestsEnvironment::memoryAllocator().createBuffer(buffer_info);
 
     // when
     VkBuffer buffer_handle = buffer->getBuffer();
@@ -88,28 +101,31 @@ TEST(BufferTests, shouldReturnValidBufferHandle)
 TEST(BufferTests, shouldReturnCorrectBufferSize)
 {
     // given
-    uint32_t instance_size = sizeof(uint8_t);
-    uint32_t instances_count = 22;
-    auto buffer = TestsEnvironment::memoryAllocator().createBuffer(
-        instance_size,
-        instances_count,
-        VK_BUFFER_USAGE_TRANSFER_SRC_BIT);
+    BufferInfo buffer_info{};
+    buffer_info.instance_size = sizeof(uint8_t);
+    buffer_info.instance_count = 22;
+    buffer_info.usage_flags = VK_BUFFER_USAGE_TRANSFER_SRC_BIT;
+
+    auto buffer = TestsEnvironment::memoryAllocator().createBuffer(buffer_info);
 
     // when
     uint32_t buffer_size  = buffer->getSize();
 
     // then
-    EXPECT_EQ(buffer_size, instance_size * instances_count);
+    EXPECT_EQ(buffer_size, buffer_info.instance_size * buffer_info.instance_count);
 }
 
 TEST(BufferTests, shouldReturnValidDeviceAddress)
 {
     // given
-    auto buffer = TestsEnvironment::memoryAllocator().createBuffer(
-        sizeof(uint8_t),
-        static_cast<uint32_t>(22),
-        VK_BUFFER_USAGE_TRANSFER_SRC_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT,
-        VK_MEMORY_ALLOCATE_DEVICE_ADDRESS_BIT);
+    BufferInfo buffer_info{};
+    buffer_info.instance_size = sizeof(uint8_t);
+    buffer_info.instance_count = 22;
+    buffer_info.usage_flags =
+        VK_BUFFER_USAGE_TRANSFER_SRC_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT;
+    buffer_info.required_memory_flags = VK_MEMORY_ALLOCATE_DEVICE_ADDRESS_BIT;
+
+    auto buffer = TestsEnvironment::memoryAllocator().createBuffer(buffer_info);
 
     // when
     VkDeviceAddress device_address = buffer->getBufferDeviceAddress();
@@ -121,12 +137,12 @@ TEST(BufferTests, shouldReturnValidDeviceAddress)
 TEST(BufferTests, shouldReturnValidDescriptorInfo)
 {
     // given
-    uint32_t instance_size = sizeof(uint8_t);
-    uint32_t instances_count = 22;
-    auto buffer = TestsEnvironment::memoryAllocator().createBuffer(
-        instance_size,
-        instances_count,
-        VK_BUFFER_USAGE_TRANSFER_SRC_BIT);
+    BufferInfo buffer_info{};
+    buffer_info.instance_size = sizeof(uint8_t);
+    buffer_info.instance_count = 22;
+    buffer_info.usage_flags = VK_BUFFER_USAGE_TRANSFER_SRC_BIT;
+
+    auto buffer = TestsEnvironment::memoryAllocator().createBuffer(buffer_info);
 
     // when
     VkDescriptorBufferInfo descriptor_buffer_info  = buffer->descriptorInfo();

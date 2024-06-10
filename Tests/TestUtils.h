@@ -43,9 +43,14 @@ public:
     template <typename T>
     static void expectBufferHasEqualData(const Buffer& buffer, const std::vector<T>& expected_data)
     {
-        auto data_buffer = TestsEnvironment::memoryAllocator().createBuffer(sizeof(T), buffer.getSize() / sizeof(T),
-            VK_BUFFER_USAGE_TRANSFER_DST_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
-            VMA_ALLOCATION_CREATE_HOST_ACCESS_SEQUENTIAL_WRITE_BIT);
+        BufferInfo data_buffer_info{};
+        data_buffer_info.instance_size = sizeof(T);
+        data_buffer_info.instance_count = static_cast<uint32_t>(expected_data.size());
+        data_buffer_info.usage_flags = VK_BUFFER_USAGE_TRANSFER_DST_BIT;
+        data_buffer_info.required_memory_flags = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT;
+        data_buffer_info.allocation_flags = VMA_ALLOCATION_CREATE_HOST_ACCESS_SEQUENTIAL_WRITE_BIT;
+
+        auto data_buffer = TestsEnvironment::memoryAllocator().createBuffer(data_buffer_info);
         data_buffer->copyFrom(buffer);
 
         data_buffer->map();

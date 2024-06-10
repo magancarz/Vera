@@ -18,8 +18,11 @@ TEST(DescriptorPoolBuilderTests, shouldWriteReferencesToDescriptorSet)
         .addBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_RAYGEN_BIT_KHR | VK_SHADER_STAGE_CLOSEST_HIT_BIT_KHR)
         .build();
 
-    auto uniform_buffer = TestsEnvironment::memoryAllocator().createBuffer(
-        sizeof(uint8_t), 22, VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT);
+    BufferInfo uniform_buffer_info{};
+    uniform_buffer_info.instance_size = sizeof(uint8_t);
+    uniform_buffer_info.instance_count = 22;
+    uniform_buffer_info.usage_flags = VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT;
+    auto uniform_buffer = TestsEnvironment::memoryAllocator().createBuffer(uniform_buffer_info);
 
     auto camera_buffer_descriptor_info = uniform_buffer->descriptorInfo();
 

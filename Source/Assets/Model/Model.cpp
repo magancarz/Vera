@@ -22,15 +22,19 @@ void Model::createVertexBuffer(MemoryAllocator& memory_allocator, const std::vec
         sizeof(Vertex),
         static_cast<uint32_t>(vertices.size()),
         vertices.data());
-    vertex_buffer = memory_allocator.createBuffer(
-        sizeof(Vertex),
-        static_cast<uint32_t>(vertices.size()),
+
+    BufferInfo vertex_buffer_info{};
+    vertex_buffer_info.instance_size = sizeof(Vertex);
+    vertex_buffer_info.instance_count = static_cast<uint32_t>(vertices.size());
+    vertex_buffer_info.usage_flags =
         VK_BUFFER_USAGE_STORAGE_BUFFER_BIT |
         VK_BUFFER_USAGE_VERTEX_BUFFER_BIT |
         VK_BUFFER_USAGE_TRANSFER_DST_BIT |
         VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT |
-        VK_BUFFER_USAGE_ACCELERATION_STRUCTURE_BUILD_INPUT_READ_ONLY_BIT_KHR,
-        VK_MEMORY_ALLOCATE_DEVICE_ADDRESS_BIT);
+        VK_BUFFER_USAGE_ACCELERATION_STRUCTURE_BUILD_INPUT_READ_ONLY_BIT_KHR;
+    vertex_buffer_info.required_memory_flags = VK_MEMORY_ALLOCATE_DEVICE_ADDRESS_BIT;
+
+    vertex_buffer = memory_allocator.createBuffer(vertex_buffer_info);
     vertex_buffer->copyFrom(*staging_buffer);
 }
 
@@ -42,15 +46,19 @@ void Model::createIndexBuffer(MemoryAllocator& memory_allocator, const std::vect
         sizeof(uint32_t),
         static_cast<uint32_t>(indices.size()),
         indices.data());
-    index_buffer = memory_allocator.createBuffer(
-        sizeof(uint32_t),
-        static_cast<uint32_t>(indices.size()),
+
+    BufferInfo index_buffer_info{};
+    index_buffer_info.instance_size = sizeof(uint32_t);
+    index_buffer_info.instance_count = static_cast<uint32_t>(indices.size());
+    index_buffer_info.usage_flags =
         VK_BUFFER_USAGE_STORAGE_BUFFER_BIT |
         VK_BUFFER_USAGE_INDEX_BUFFER_BIT |
         VK_BUFFER_USAGE_TRANSFER_DST_BIT |
         VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT |
-        VK_BUFFER_USAGE_ACCELERATION_STRUCTURE_BUILD_INPUT_READ_ONLY_BIT_KHR,
-        VK_MEMORY_ALLOCATE_DEVICE_ADDRESS_BIT);
+        VK_BUFFER_USAGE_ACCELERATION_STRUCTURE_BUILD_INPUT_READ_ONLY_BIT_KHR;
+    index_buffer_info.required_memory_flags = VK_MEMORY_ALLOCATE_DEVICE_ADDRESS_BIT;
+
+    index_buffer = memory_allocator.createBuffer(index_buffer_info);
     index_buffer->copyFrom(*staging_buffer);
 }
 

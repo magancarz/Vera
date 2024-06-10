@@ -44,11 +44,14 @@ std::vector<AccelerationStructure> BlasBuilder::buildBottomLevelAccelerationStru
         number_of_compactions += build_as[idx].buildInfo.flags & VK_BUILD_ACCELERATION_STRUCTURE_ALLOW_COMPACTION_BIT_KHR ? 1 : 0;
     }
 
-    auto scratch_buffer = memory_allocator.createBuffer(
-            max_scratch_buffer_size,
-            1,
-            VK_BUFFER_USAGE_STORAGE_BUFFER_BIT | VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT,
-            VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+    BufferInfo scratch_buffer_info{};
+    scratch_buffer_info.instance_size = static_cast<uint32_t>(max_scratch_buffer_size);
+    scratch_buffer_info.instance_count = 1;
+    scratch_buffer_info.usage_flags =
+        VK_BUFFER_USAGE_STORAGE_BUFFER_BIT | VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT;
+    scratch_buffer_info.required_memory_flags = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
+
+    auto scratch_buffer = memory_allocator.createBuffer(scratch_buffer_info);
     VkDeviceAddress scratch_buffer_device_address = scratch_buffer->getBufferDeviceAddress();
 
     VkQueryPool query_pool{VK_NULL_HANDLE};
@@ -121,11 +124,14 @@ void BlasBuilder::cmdCreateBlas(
         create_info.type = VK_ACCELERATION_STRUCTURE_TYPE_BOTTOM_LEVEL_KHR;
         create_info.size = build_as[idx].sizeInfo.accelerationStructureSize;
 
-        build_as[idx].as.acceleration_structure_buffer = memory_allocator.createBuffer(
-                create_info.size,
-                1,
-                VK_BUFFER_USAGE_ACCELERATION_STRUCTURE_STORAGE_BIT_KHR | VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT,
-                VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+        BufferInfo acceleration_structure_buffer_info{};
+        acceleration_structure_buffer_info.instance_size = static_cast<uint32_t>(create_info.size);
+        acceleration_structure_buffer_info.instance_count = 1;
+        acceleration_structure_buffer_info.usage_flags =
+            VK_BUFFER_USAGE_ACCELERATION_STRUCTURE_STORAGE_BIT_KHR | VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT;
+        acceleration_structure_buffer_info.required_memory_flags = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
+
+        build_as[idx].as.acceleration_structure_buffer = memory_allocator.createBuffer(acceleration_structure_buffer_info);
 
         create_info.buffer = build_as[idx].as.acceleration_structure_buffer->getBuffer();
         if (pvkCreateAccelerationStructureKHR(
@@ -200,11 +206,14 @@ void BlasBuilder::cmdCompactBlas(
         create_info.size = build_as[idx].sizeInfo.accelerationStructureSize;
         create_info.type = VK_ACCELERATION_STRUCTURE_TYPE_BOTTOM_LEVEL_KHR;
 
-        build_as[idx].as.acceleration_structure_buffer = memory_allocator.createBuffer(
-                create_info.size,
-                1,
-                VK_BUFFER_USAGE_ACCELERATION_STRUCTURE_STORAGE_BIT_KHR | VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT,
-                VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+        BufferInfo acceleration_structure_buffer_info{};
+        acceleration_structure_buffer_info.instance_size = static_cast<uint32_t>(create_info.size);
+        acceleration_structure_buffer_info.instance_count = 1;
+        acceleration_structure_buffer_info.usage_flags =
+            VK_BUFFER_USAGE_ACCELERATION_STRUCTURE_STORAGE_BIT_KHR | VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT;
+        acceleration_structure_buffer_info.required_memory_flags = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
+
+        build_as[idx].as.acceleration_structure_buffer = memory_allocator.createBuffer(acceleration_structure_buffer_info);
 
         create_info.buffer = build_as[idx].as.acceleration_structure_buffer->getBuffer();
         if (pvkCreateAccelerationStructureKHR(

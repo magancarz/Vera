@@ -90,14 +90,15 @@ void RayTracingPipeline::createShaderBindingTable(uint32_t miss_count, uint32_t 
     }
 
     VkDeviceSize sbt_size = ray_gen_shader_binding_table.size + miss_shader_binding_table.size + hit_shader_binding_table.size + callable_shader_binding_table.size;
-    shader_binding_table = memory_allocator.createBuffer
-    (
-            sbt_size,
-            1,
-            VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT | VK_BUFFER_USAGE_SHADER_BINDING_TABLE_BIT_KHR,
-            VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
-            VMA_ALLOCATION_CREATE_HOST_ACCESS_SEQUENTIAL_WRITE_BIT
-    );
+
+    BufferInfo sbt_buffer_info{};
+    sbt_buffer_info.instance_size = static_cast<uint32_t>(sbt_size);
+    sbt_buffer_info.instance_count = 1;
+    sbt_buffer_info.usage_flags = VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT | VK_BUFFER_USAGE_SHADER_BINDING_TABLE_BIT_KHR;
+    sbt_buffer_info.required_memory_flags = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT;
+    sbt_buffer_info.allocation_flags = VMA_ALLOCATION_CREATE_HOST_ACCESS_SEQUENTIAL_WRITE_BIT;
+
+    shader_binding_table = memory_allocator.createBuffer(sbt_buffer_info);
 
     VkBufferDeviceAddressInfo info{VK_STRUCTURE_TYPE_BUFFER_DEVICE_ADDRESS_INFO, nullptr, shader_binding_table->getBuffer()};
     VkDeviceAddress sbt_address = vkGetBufferDeviceAddress(device.getDeviceHandle(), &info);
@@ -107,7 +108,7 @@ void RayTracingPipeline::createShaderBindingTable(uint32_t miss_count, uint32_t 
 
     auto get_handle = [&] (uint32_t i) { return handles.data() + i * handle_size; };
     shader_binding_table->map();
-    auto sbt_buffer = reinterpret_cast<uint8_t*>(shader_binding_table->getMappedMemory());
+    auto sbt_buffer = std::bit_cast<uint8_t*>(shader_binding_table->getMappedMemory());
     uint8_t* data;
     uint32_t handle_idx{0};
 

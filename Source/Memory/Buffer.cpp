@@ -7,6 +7,7 @@
 
 #include "Logs/LogSystem.h"
 
+// #lizard forgives the complexity
 Buffer::Buffer(
         Device& logical_device,
         CommandPool& command_pool,

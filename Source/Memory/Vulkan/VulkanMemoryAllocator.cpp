@@ -37,27 +37,20 @@ VkDeviceSize VulkanMemoryAllocator::getAlignment(VkDeviceSize instance_size, VkD
     return instance_size;
 }
 
-std::unique_ptr<Buffer> VulkanMemoryAllocator::createBuffer(
-        uint32_t instance_size,
-        uint32_t instance_count,
-        uint32_t usage_flags,
-        uint32_t required_memory_flags,
-        uint32_t allocation_flags,
-        uint32_t preferred_memory_flags,
-        uint32_t min_offset_alignment)
+std::unique_ptr<Buffer> VulkanMemoryAllocator::createBuffer(const BufferInfo& buffer_info)
 {
-    VkDeviceSize alignment_size = getAlignment(instance_size, min_offset_alignment);
-    uint32_t buffer_size = alignment_size * instance_count;
+    VkDeviceSize alignment_size = getAlignment(buffer_info.instance_size, buffer_info.min_offset_alignment);
+    uint32_t buffer_size = alignment_size * buffer_info.instance_count;
 
     VkBufferCreateInfo buffer_create_info{.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO};
     buffer_create_info.size = buffer_size;
-    buffer_create_info.usage = usage_flags;
+    buffer_create_info.usage = buffer_info.usage_flags;
 
     VmaAllocationCreateInfo alloc_info{};
     alloc_info.usage = VMA_MEMORY_USAGE_AUTO;
-    alloc_info.requiredFlags = required_memory_flags;
-    alloc_info.preferredFlags = preferred_memory_flags;
-    alloc_info.flags = allocation_flags;
+    alloc_info.requiredFlags = buffer_info.required_memory_flags;
+    alloc_info.preferredFlags = buffer_info.preferred_memory_flags;
+    alloc_info.flags = buffer_info.allocation_flags;
 
     VkBuffer buffer;
     VmaAllocation allocation;
@@ -74,22 +67,28 @@ std::unique_ptr<Buffer> VulkanMemoryAllocator::createBuffer(
 
 std::unique_ptr<Buffer> VulkanMemoryAllocator::createStagingBuffer(uint32_t instance_size, uint32_t instance_count)
 {
-    return createBuffer(
-            instance_size,
-            instance_count,
-            VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
-            VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
-            VMA_ALLOCATION_CREATE_HOST_ACCESS_SEQUENTIAL_WRITE_BIT);
+    BufferInfo buffer_info = createStagingBufferInfo(instance_size, instance_count);
+
+    return createBuffer(buffer_info);
+}
+
+BufferInfo VulkanMemoryAllocator::createStagingBufferInfo(uint32_t instance_size, uint32_t instance_count)
+{
+    BufferInfo buffer_info{};
+    buffer_info.instance_size = instance_size;
+    buffer_info.instance_count = instance_count;
+    buffer_info.usage_flags = VK_BUFFER_USAGE_TRANSFER_SRC_BIT;
+    buffer_info.required_memory_flags = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT;
+    buffer_info.allocation_flags = VMA_ALLOCATION_CREATE_HOST_ACCESS_SEQUENTIAL_WRITE_BIT;
+
+    return buffer_info;
 }
 
 std::unique_ptr<Buffer> VulkanMemoryAllocator::createStagingBuffer(uint32_t instance_size, uint32_t instance_count, const void* data)
 {
-    auto buffer = createBuffer(
-            instance_size,
-            instance_count,
-            VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
-            VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
-            VMA_ALLOCATION_CREATE_HOST_ACCESS_SEQUENTIAL_WRITE_BIT);
+    BufferInfo buffer_info = createStagingBufferInfo(instance_size, instance_count);
+
+    auto buffer = createBuffer(buffer_info);
     buffer->map();
     buffer->writeToBuffer(data);
 

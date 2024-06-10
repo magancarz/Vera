@@ -35,5 +35,5 @@ private:
     VkBuffer buffer;
     uint32_t buffer_size;
 
-    void* mapped = nullptr;
+    void* mapped{nullptr};
 };

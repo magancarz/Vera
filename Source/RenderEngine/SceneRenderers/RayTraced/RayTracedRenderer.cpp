@@ -126,28 +126,32 @@ void RayTracedRenderer::createObjectDescriptionsBuffer()
 
     auto object_descriptions_staging_buffer = memory_allocator.createStagingBuffer(
             sizeof(ObjectDescription),
-            object_descriptions.size(),
-            object_descriptions.data());
-    object_descriptions_buffer = memory_allocator.createBuffer
-    (
-            sizeof(ObjectDescription),
             static_cast<uint32_t>(object_descriptions.size()),
-            VK_BUFFER_USAGE_STORAGE_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT,
-            VK_MEMORY_ALLOCATE_DEVICE_ADDRESS_BIT
-    );
+            object_descriptions.data());
+
+    BufferInfo object_descriptions_buffer_info{};
+    object_descriptions_buffer_info.instance_size = sizeof(ObjectDescription);
+    object_descriptions_buffer_info.instance_count = static_cast<uint32_t>(object_descriptions.size());
+    object_descriptions_buffer_info.usage_flags =
+        VK_BUFFER_USAGE_STORAGE_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT;
+    object_descriptions_buffer_info.required_memory_flags = VK_MEMORY_ALLOCATE_DEVICE_ADDRESS_BIT;
+
+    object_descriptions_buffer = memory_allocator.createBuffer(object_descriptions_buffer_info);
     object_descriptions_buffer->copyFrom(*object_descriptions_staging_buffer);
 
     auto material_descriptions_staging_buffer = memory_allocator.createStagingBuffer(
             sizeof(DeviceMaterialInfo),
             device_material_infos.size(),
             device_material_infos.data());
-    material_descriptions_buffer = memory_allocator.createBuffer
-    (
-            sizeof(DeviceMaterialInfo),
-            static_cast<uint32_t>(device_material_infos.size()),
-            VK_BUFFER_USAGE_STORAGE_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT,
-            VK_MEMORY_ALLOCATE_DEVICE_ADDRESS_BIT
-    );
+
+    BufferInfo material_descriptions_buffer_info{};
+    material_descriptions_buffer_info.instance_size = sizeof(DeviceMaterialInfo);
+    material_descriptions_buffer_info.instance_count = static_cast<uint32_t>(device_material_infos.size());
+    material_descriptions_buffer_info.usage_flags =
+        VK_BUFFER_USAGE_STORAGE_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT;
+    material_descriptions_buffer_info.required_memory_flags = VK_MEMORY_ALLOCATE_DEVICE_ADDRESS_BIT;
+
+    material_descriptions_buffer = memory_allocator.createBuffer(material_descriptions_buffer_info);
     material_descriptions_buffer->copyFrom(*material_descriptions_staging_buffer);
 }
 
@@ -209,14 +213,14 @@ void RayTracedRenderer::createRayTracedImage()
 
 void RayTracedRenderer::createCameraUniformBuffer()
 {
-    camera_uniform_buffer = memory_allocator.createBuffer
-    (
-            sizeof(GlobalUBO),
-            1,
-            VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
-            VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
-            VMA_ALLOCATION_CREATE_HOST_ACCESS_SEQUENTIAL_WRITE_BIT
-    );
+    BufferInfo material_descriptions_buffer_info{};
+    material_descriptions_buffer_info.instance_size = sizeof(GlobalUBO);
+    material_descriptions_buffer_info.instance_count = 1;
+    material_descriptions_buffer_info.usage_flags = VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT;
+    material_descriptions_buffer_info.required_memory_flags = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT;
+    material_descriptions_buffer_info.allocation_flags = VMA_ALLOCATION_CREATE_HOST_ACCESS_SEQUENTIAL_WRITE_BIT;
+
+    camera_uniform_buffer = memory_allocator.createBuffer(material_descriptions_buffer_info);
     camera_uniform_buffer->map();
 }
 

@@ -21,12 +21,17 @@ AccelerationStructure TlasBuilder::buildTopLevelAccelerationStructure(
 
     auto instances_staging_buffer = memory_allocator.createStagingBuffer(
         sizeof(VkAccelerationStructureInstanceKHR), instances_temp.size(), instances_temp.data());
-    auto instances_buffer = memory_allocator.createBuffer(
-        sizeof(VkAccelerationStructureInstanceKHR),
-        instances_temp.size(),
-        VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT | VK_BUFFER_USAGE_ACCELERATION_STRUCTURE_BUILD_INPUT_READ_ONLY_BIT_KHR
-        | VK_BUFFER_USAGE_TRANSFER_DST_BIT,
-        VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+
+    BufferInfo instances_buffer_info{};
+    instances_buffer_info.instance_size = sizeof(VkAccelerationStructureInstanceKHR);
+    instances_buffer_info.instance_count = static_cast<uint32_t>(instances_temp.size());
+    instances_buffer_info.usage_flags =
+        VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT |
+        VK_BUFFER_USAGE_ACCELERATION_STRUCTURE_BUILD_INPUT_READ_ONLY_BIT_KHR |
+        VK_BUFFER_USAGE_TRANSFER_DST_BIT;
+    instances_buffer_info.required_memory_flags = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
+
+    auto instances_buffer = memory_allocator.createBuffer(instances_buffer_info);
     instances_buffer->copyFrom(*instances_staging_buffer);
 
     VkAccelerationStructureGeometryInstancesDataKHR instances{};
@@ -68,11 +73,13 @@ AccelerationStructure TlasBuilder::buildTopLevelAccelerationStructure(
         top_level_max_primitive_count_list.data(),
         &top_level_acceleration_structure_build_sizes_info);
 
-    auto acceleration_structure_buffer = memory_allocator.createBuffer(
-        top_level_acceleration_structure_build_sizes_info.accelerationStructureSize,
-        1,
-        VK_BUFFER_USAGE_ACCELERATION_STRUCTURE_STORAGE_BIT_KHR,
-        VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+    BufferInfo acceleration_structure_buffer_info{};
+    acceleration_structure_buffer_info.instance_size = static_cast<uint32_t>(top_level_acceleration_structure_build_sizes_info.accelerationStructureSize);
+    acceleration_structure_buffer_info.instance_count = 1;
+    acceleration_structure_buffer_info.usage_flags = VK_BUFFER_USAGE_ACCELERATION_STRUCTURE_STORAGE_BIT_KHR;
+    acceleration_structure_buffer_info.required_memory_flags = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
+
+    auto acceleration_structure_buffer = memory_allocator.createBuffer(acceleration_structure_buffer_info);
 
     VkAccelerationStructureCreateInfoKHR top_level_acceleration_structure_create_info{};
     top_level_acceleration_structure_create_info.sType = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_CREATE_INFO_KHR;
@@ -93,11 +100,14 @@ AccelerationStructure TlasBuilder::buildTopLevelAccelerationStructure(
         throw std::runtime_error("vkCreateAccelerationStructureKHR");
     }
 
-    auto top_level_acceleration_structure_scratch_buffer = memory_allocator.createBuffer(
-        top_level_acceleration_structure_build_sizes_info.buildScratchSize,
-        1,
-        VK_BUFFER_USAGE_STORAGE_BUFFER_BIT | VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT,
-        VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+    BufferInfo top_level_acceleration_structure_scratch_buffer_info{};
+    top_level_acceleration_structure_scratch_buffer_info.instance_size =
+        static_cast<uint32_t>(top_level_acceleration_structure_build_sizes_info.buildScratchSize);
+    top_level_acceleration_structure_scratch_buffer_info.instance_count = 1;
+    top_level_acceleration_structure_scratch_buffer_info.usage_flags = VK_BUFFER_USAGE_STORAGE_BUFFER_BIT | VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT;
+    top_level_acceleration_structure_scratch_buffer_info.required_memory_flags = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
+
+    auto top_level_acceleration_structure_scratch_buffer = memory_allocator.createBuffer(top_level_acceleration_structure_scratch_buffer_info);
 
     VkDeviceAddress top_level_acceleration_structure_scratch_buffer_device_address =
         top_level_acceleration_structure_scratch_buffer->getBufferDeviceAddress();
