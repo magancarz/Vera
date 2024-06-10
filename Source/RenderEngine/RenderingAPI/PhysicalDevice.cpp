@@ -72,10 +72,10 @@ bool PhysicalDevice::checkDeviceExtensionSupport(VkPhysicalDevice device)
 
     std::vector<VkExtensionProperties> available_extensions(extension_count);
     vkEnumerateDeviceExtensionProperties(
-            device,
-            nullptr,
-            &extension_count,
-            available_extensions.data());
+        device,
+        nullptr,
+        &extension_count,
+        available_extensions.data());
 
     std::set<std::string> required_extensions(device_extensions.begin(), device_extensions.end());
 
@@ -144,10 +144,10 @@ SwapChainSupportDetails PhysicalDevice::querySwapChainSupport(VkPhysicalDevice d
     {
         details.presentModes.resize(present_mode_count);
         vkGetPhysicalDeviceSurfacePresentModesKHR(
-                device,
-                surface.getSurface(),
-                &present_mode_count,
-                details.presentModes.data());
+            device,
+            surface.getSurface(),
+            &present_mode_count,
+            details.presentModes.data());
     }
     return details;
 }
@@ -158,8 +158,7 @@ uint32_t PhysicalDevice::findMemoryType(uint32_t type_filter, VkMemoryPropertyFl
     vkGetPhysicalDeviceMemoryProperties(used_physical_device, &memory_properties);
     for (uint32_t i = 0; i < memory_properties.memoryTypeCount; ++i)
     {
-        if ((type_filter & (1 << i)) &&
-            (memory_properties.memoryTypes[i].propertyFlags & memory_property_flags) == memory_property_flags)
+        if ((type_filter & (1 << i)) && (memory_properties.memoryTypes[i].propertyFlags & memory_property_flags) == memory_property_flags)
         {
             return i;
         }

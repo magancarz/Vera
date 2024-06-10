@@ -49,7 +49,7 @@ void World::createViewerObject(InputManager& input_manager)
 
 void World::update(FrameInfo& frame_info)
 {
-    for (auto& [id, object] : objects)
+    for (const auto& [id, object] : objects)
     {
         object->update(frame_info);
     }

@@ -1,6 +1,5 @@
 #pragma once
 
-#include "Memory/MemoryAllocator.h"
 #include "TextureData.h"
 
 class DeviceTexture;

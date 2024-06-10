@@ -41,14 +41,14 @@ struct ObjectInfo
     [[nodiscard]] std::string toString() const
     {
         return object_name + " "
-                + mesh_name + " "
-                + material_name + " "
-                + std::to_string(position.x) + " "
-                + std::to_string(position.y) + " "
-                + std::to_string(position.z) + " "
-                + std::to_string(glm::degrees(rotation.x)) + " "
-                + std::to_string(glm::degrees(rotation.y)) + " "
-                + std::to_string(glm::degrees(rotation.z)) + " "
-                + std::to_string(scale);
+            + mesh_name + " "
+            + material_name + " "
+            + std::to_string(position.x) + " "
+            + std::to_string(position.y) + " "
+            + std::to_string(position.z) + " "
+            + std::to_string(glm::degrees(rotation.x)) + " "
+            + std::to_string(glm::degrees(rotation.y)) + " "
+            + std::to_string(glm::degrees(rotation.z)) + " "
+            + std::to_string(scale);
     }
 };

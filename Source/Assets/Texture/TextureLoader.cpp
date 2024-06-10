@@ -35,7 +35,7 @@ TextureData TextureLoader::loadFromAssetFile(const std::string& texture_name)
     memcpy(copied_data.data(), data, copied_data.size() * sizeof(unsigned char));
     stbi_image_free(data);
 
-    bool is_opaque = EXPECTED_NUMBER_OF_CHANNELS <= 3 || copied_data[4] > 127;
+    bool is_opaque = EXPECTED_NUMBER_OF_CHANNELS <= 3 || copied_data[3] > 127;
 
     return TextureData
     {

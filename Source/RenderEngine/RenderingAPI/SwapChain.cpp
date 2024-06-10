@@ -8,7 +8,7 @@
 #include "Logs/LogSystem.h"
 
 SwapChain::SwapChain(VulkanHandler& device_ref, VkExtent2D window_extent)
-        : device{device_ref}, window_extent{window_extent}
+    : device{device_ref}, window_extent{window_extent}
 {
     init();
 }
@@ -23,7 +23,7 @@ void SwapChain::init()
 }
 
 SwapChain::SwapChain(VulkanHandler& device_ref, VkExtent2D window_extent, std::shared_ptr<SwapChain> previous)
-        : device{device_ref}, window_extent{window_extent}, old_swap_chain{std::move(previous)}
+    : device{device_ref}, window_extent{window_extent}, old_swap_chain{std::move(previous)}
 {
     init();
 
@@ -69,19 +69,19 @@ SwapChain::~SwapChain()
 VkResult SwapChain::acquireNextImage(uint32_t* image_index)
 {
     vkWaitForFences(
-            device.getDeviceHandle(),
-            1,
-            &in_flight_fences[current_frame],
-            VK_TRUE,
-            UINT_MAX);
+        device.getDeviceHandle(),
+        1,
+        &in_flight_fences[current_frame],
+        VK_TRUE,
+        UINT_MAX);
 
     VkResult result = vkAcquireNextImageKHR(
-            device.getDeviceHandle(),
-            swap_chain,
-            UINT_MAX,
-            image_available_semaphores[current_frame],
-            VK_NULL_HANDLE,
-            image_index);
+        device.getDeviceHandle(),
+        swap_chain,
+        UINT_MAX,
+        image_available_semaphores[current_frame],
+        VK_NULL_HANDLE,
+        image_index);
 
     return result;
 }
@@ -97,18 +97,18 @@ VkResult SwapChain::submitCommandBuffers(const VkCommandBuffer* buffers, uint32_
     VkSubmitInfo submit_info{};
     submit_info.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
 
-    VkSemaphore wait_semaphores[] = {image_available_semaphores[current_frame]};
-    VkPipelineStageFlags wait_stages[] = {VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT};
-    submit_info.waitSemaphoreCount = 1;
-    submit_info.pWaitSemaphores = wait_semaphores;
-    submit_info.pWaitDstStageMask = wait_stages;
+    std::array<VkSemaphore, 1> wait_semaphores = {image_available_semaphores[current_frame]};
+    std::array<VkPipelineStageFlags, 1> wait_stages = {VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT};
+    submit_info.waitSemaphoreCount = wait_semaphores.size();
+    submit_info.pWaitSemaphores = wait_semaphores.data();
+    submit_info.pWaitDstStageMask = wait_stages.data();
 
     submit_info.commandBufferCount = buffers_count;
     submit_info.pCommandBuffers = buffers;
 
-    VkSemaphore signal_semaphores[] = {render_finished_semaphores[current_frame]};
-    submit_info.signalSemaphoreCount = 1;
-    submit_info.pSignalSemaphores = signal_semaphores;
+    std::array<VkSemaphore, 1> signal_semaphores = {render_finished_semaphores[current_frame]};
+    submit_info.signalSemaphoreCount = signal_semaphores.size();
+    submit_info.pSignalSemaphores = signal_semaphores.data();
 
     vkResetFences(device.getDeviceHandle(), 1, &in_flight_fences[current_frame]);
     if (vkQueueSubmit(device.getLogicalDevice().getGraphicsQueue(), 1, &submit_info, in_flight_fences[current_frame]) != VK_SUCCESS)
@@ -119,12 +119,12 @@ VkResult SwapChain::submitCommandBuffers(const VkCommandBuffer* buffers, uint32_
     VkPresentInfoKHR present_info{};
     present_info.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
 
-    present_info.waitSemaphoreCount = 1;
-    present_info.pWaitSemaphores = signal_semaphores;
+    present_info.waitSemaphoreCount = signal_semaphores.size();
+    present_info.pWaitSemaphores = signal_semaphores.data();
 
-    VkSwapchainKHR swap_chains[] = {swap_chain};
-    present_info.swapchainCount = 1;
-    present_info.pSwapchains = swap_chains;
+    std::array<VkSwapchainKHR, 1> swap_chains = {swap_chain};
+    present_info.swapchainCount = swap_chains.size();
+    present_info.pSwapchains = swap_chains.data();
 
     present_info.pImageIndices = image_index;
 
@@ -144,8 +144,7 @@ void SwapChain::createSwapChain()
     VkExtent2D extent = chooseSwapExtent(swap_chain_support.capabilities);
 
     uint32_t image_count = swap_chain_support.capabilities.minImageCount + 1;
-    if (swap_chain_support.capabilities.maxImageCount > 0 &&
-        image_count > swap_chain_support.capabilities.maxImageCount)
+    if (swap_chain_support.capabilities.maxImageCount > 0 && image_count > swap_chain_support.capabilities.maxImageCount)
     {
         image_count = swap_chain_support.capabilities.maxImageCount;
     }
@@ -162,13 +161,13 @@ void SwapChain::createSwapChain()
     create_info.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
 
     QueueFamilyIndices indices = device.getPhysicalDevice().getQueueFamilyIndices();
-    uint32_t queue_family_indices[] = {indices.graphicsFamily, indices.presentFamily};
+    std::array<uint32_t, 2> queue_family_indices = {indices.graphicsFamily, indices.presentFamily};
 
     if (indices.graphicsFamily != indices.presentFamily)
     {
         create_info.imageSharingMode = VK_SHARING_MODE_CONCURRENT;
-        create_info.queueFamilyIndexCount = 2;
-        create_info.pQueueFamilyIndices = queue_family_indices;
+        create_info.queueFamilyIndexCount = queue_family_indices.size();
+        create_info.pQueueFamilyIndices = queue_family_indices.data();
     } else
     {
         create_info.imageSharingMode = VK_SHARING_MODE_EXCLUSIVE;
@@ -249,21 +248,21 @@ void SwapChain::createFramebuffers()
     {
         std::array<VkImageView, 1> attachments = {swap_chain_image_views[i]};
 
-        VkExtent2D swap_chain_extent = getSwapChainExtent();
+        VkExtent2D extent = getSwapChainExtent();
         VkFramebufferCreateInfo framebuffer_info{};
         framebuffer_info.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
         framebuffer_info.renderPass = render_pass;
         framebuffer_info.attachmentCount = static_cast<uint32_t>(attachments.size());
         framebuffer_info.pAttachments = attachments.data();
-        framebuffer_info.width = swap_chain_extent.width;
-        framebuffer_info.height = swap_chain_extent.height;
+        framebuffer_info.width = extent.width;
+        framebuffer_info.height = extent.height;
         framebuffer_info.layers = 1;
 
         if (vkCreateFramebuffer(
-                device.getDeviceHandle(),
-                &framebuffer_info,
-                nullptr,
-                &swap_chain_framebuffers[i]) != VK_SUCCESS)
+            device.getDeviceHandle(),
+            &framebuffer_info,
+            nullptr,
+            &swap_chain_framebuffers[i]) != VK_SUCCESS)
         {
             throw std::runtime_error("failed to create framebuffer!");
         }
@@ -355,11 +354,11 @@ VkExtent2D SwapChain::chooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilit
     }
     VkExtent2D actual_extent = window_extent;
     actual_extent.width = std::max(
-            capabilities.minImageExtent.width,
-            std::min(capabilities.maxImageExtent.width, actual_extent.width));
+        capabilities.minImageExtent.width,
+        std::min(capabilities.maxImageExtent.width, actual_extent.width));
     actual_extent.height = std::max(
-            capabilities.minImageExtent.height,
-            std::min(capabilities.maxImageExtent.height, actual_extent.height));
+        capabilities.minImageExtent.height,
+        std::min(capabilities.maxImageExtent.height, actual_extent.height));
 
     return actual_extent;
 }

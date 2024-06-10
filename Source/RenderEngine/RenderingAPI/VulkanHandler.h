@@ -16,17 +16,17 @@ public:
     VulkanHandler(VulkanHandler&&) = delete;
     VulkanHandler& operator=(VulkanHandler&&) = delete;
 
-    Instance& getInstance() { return instance; }
-    Surface& getSurface() { return surface; }
-    PhysicalDevice& getPhysicalDevice() { return used_physical_device; }
-    Device& getLogicalDevice() { return device; }
-    CommandPool& getCommandPool() { return command_pool; }
+    [[nodiscard]] Instance& getInstance() { return instance; }
+    [[nodiscard]] Surface& getSurface() { return surface; }
+    [[nodiscard]] PhysicalDevice& getPhysicalDevice() { return used_physical_device; }
+    [[nodiscard]] Device& getLogicalDevice() { return device; }
+    [[nodiscard]] CommandPool& getCommandPool() { return command_pool; }
 
-    VkInstance getInstanceHandle() { return instance.getInstance(); }
-    VkSurfaceKHR getSurfaceKHRHandle() { return surface.getSurface(); }
-    VkPhysicalDevice getPhysicalDeviceHandle() { return used_physical_device.getPhysicalDevice(); }
-    VkDevice getDeviceHandle() { return device.getDevice(); }
-    VkCommandPool getCommandPoolHandle() { return command_pool.getCommandPool(); }
+    [[nodiscard]] VkInstance getInstanceHandle() { return instance.getInstance(); }
+    [[nodiscard]] VkSurfaceKHR getSurfaceKHRHandle() const { return surface.getSurface(); }
+    [[nodiscard]] VkPhysicalDevice getPhysicalDeviceHandle() const { return used_physical_device.getPhysicalDevice(); }
+    [[nodiscard]] VkDevice getDeviceHandle() const { return device.getDevice(); }
+    [[nodiscard]] VkCommandPool getCommandPoolHandle() const { return command_pool.getCommandPool(); }
 
 private:
     Instance instance;

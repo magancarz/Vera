@@ -1,6 +1,6 @@
 #include "VulkanUtils.h"
 
-#include "../../Assets/Model/Vertex.h"
+#include "Assets/Model/Vertex.h"
 
 std::vector<VkVertexInputBindingDescription> VulkanUtils::getVertexBindingDescriptions()
 {

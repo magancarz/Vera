@@ -39,7 +39,7 @@ void Pipeline::createGraphicsPipeline(const std::string& vertex_file_path, const
     createShaderModule(vert_code, &vertex_shader_module);
     createShaderModule(frag_code, &fragment_shader_module);
 
-    VkPipelineShaderStageCreateInfo shader_stage_create_infos[2];
+    std::array<VkPipelineShaderStageCreateInfo, 2> shader_stage_create_infos;
     shader_stage_create_infos[0].sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
     shader_stage_create_infos[0].stage = VK_SHADER_STAGE_VERTEX_BIT;
     shader_stage_create_infos[0].module = vertex_shader_module;
@@ -68,7 +68,7 @@ void Pipeline::createGraphicsPipeline(const std::string& vertex_file_path, const
     VkGraphicsPipelineCreateInfo pipeline_create_info{};
     pipeline_create_info.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
     pipeline_create_info.stageCount = 2;
-    pipeline_create_info.pStages = shader_stage_create_infos;
+    pipeline_create_info.pStages = shader_stage_create_infos.data();
     pipeline_create_info.pVertexInputState = &vertex_input_state_create_info;
     pipeline_create_info.pInputAssemblyState = &config_info.input_assembly_info;
     pipeline_create_info.pViewportState = &config_info.viewport_info;
@@ -113,7 +113,7 @@ void Pipeline::createShaderModule(const std::vector<char>& code, VkShaderModule*
     VkShaderModuleCreateInfo create_info{};
     create_info.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
     create_info.codeSize = code.size();
-    create_info.pCode = reinterpret_cast<const uint32_t*>(code.data());
+    create_info.pCode = std::bit_cast<const uint32_t*>(code.data());
 
     if (vkCreateShaderModule(device.getDeviceHandle(), &create_info, VulkanDefines::NO_CALLBACK, shader_module) != VK_SUCCESS)
     {
@@ -154,8 +154,7 @@ void Pipeline::defaultPipelineConfigInfo(PipelineConfigInfo& config_info)
     config_info.multisample_info.alphaToOneEnable = VK_FALSE;
 
     config_info.color_blend_attachment.colorWriteMask =
-            VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT |
-            VK_COLOR_COMPONENT_A_BIT;
+            VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
     config_info.color_blend_attachment.blendEnable = VK_FALSE;
     config_info.color_blend_attachment.srcColorBlendFactor = VK_BLEND_FACTOR_ONE;
     config_info.color_blend_attachment.dstColorBlendFactor = VK_BLEND_FACTOR_ZERO;

@@ -10,9 +10,9 @@ class GLFWWindow : public Window
 {
 public:
     explicit GLFWWindow(
-            uint32_t width = Editor::DEFAULT_WINDOW_WIDTH,
-            uint32_t height = Editor::DEFAULT_WINDOW_HEIGHT,
-            std::string name = Editor::DEFAULT_WINDOW_TITLE);
+        uint32_t width = Editor::DEFAULT_WINDOW_WIDTH,
+        uint32_t height = Editor::DEFAULT_WINDOW_HEIGHT,
+        std::string name = Editor::DEFAULT_WINDOW_TITLE);
     ~GLFWWindow() override;
 
     GLFWWindow(const GLFWWindow&) = delete;
@@ -24,7 +24,6 @@ public:
     void createWindowSurface(VkInstance instance, VkSurfaceKHR* surface);
 
 private:
-    static void framebufferResizeCallback(GLFWwindow* window, int width, int height);
     void createWindow();
 
     GLFWwindow* window{nullptr};

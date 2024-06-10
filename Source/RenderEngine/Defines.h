@@ -2,5 +2,5 @@
 
 namespace RenderEngine
 {
-    inline static const std::filesystem::path SHADERS_DIRECTORY_PATH{"Shaders"};
+    inline static const char* SHADERS_DIRECTORY_PATH{"Shaders"};
 };

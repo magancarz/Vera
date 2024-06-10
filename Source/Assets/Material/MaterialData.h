@@ -1,6 +1,7 @@
 #pragma once
 
 #include <string>
+
 #include <Assets/Defines.h>
 
 struct MaterialData

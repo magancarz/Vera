@@ -30,10 +30,10 @@ public:
 
     inline static std::unordered_map<LogSeverity, std::string> LOG_SEVERITY_PREFIXES
     {
-            {LogSeverity::LOG, "Log: "},
-            {LogSeverity::WARNING, "Warning: "},
-            {LogSeverity::ERROR, "Error: "},
-            {LogSeverity::FATAL, "Fatal: "}
+        {LogSeverity::LOG, "Log: "},
+        {LogSeverity::WARNING, "Warning: "},
+        {LogSeverity::ERROR, "Error: "},
+        {LogSeverity::FATAL, "Fatal: "}
     };
 
 private:

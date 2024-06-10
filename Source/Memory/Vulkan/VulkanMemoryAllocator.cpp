@@ -40,7 +40,7 @@ VkDeviceSize VulkanMemoryAllocator::getAlignment(VkDeviceSize instance_size, VkD
 std::unique_ptr<Buffer> VulkanMemoryAllocator::createBuffer(const BufferInfo& buffer_info)
 {
     VkDeviceSize alignment_size = getAlignment(buffer_info.instance_size, buffer_info.min_offset_alignment);
-    uint32_t buffer_size = alignment_size * buffer_info.instance_count;
+    auto buffer_size = static_cast<uint32_t>(alignment_size * buffer_info.instance_count);
 
     VkBufferCreateInfo buffer_create_info{.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO};
     buffer_create_info.size = buffer_size;

@@ -1,7 +1,9 @@
 #include "Image.h"
 
 Image::Image(VkImage image, const VulkanMemoryAllocatorInfo& allocator_info)
-    : image{image}, allocator_info{allocator_info} {}
+    : image{image}, allocator_info{allocator_info}
+{
+}
 
 Image::~Image()
 {

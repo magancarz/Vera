@@ -7,7 +7,7 @@ struct QueueFamilyIndices
     bool graphics_family_has_value = false;
     bool present_family_has_value = false;
 
-    bool isComplete()
+    bool isComplete() const
     {
         return graphics_family_has_value && present_family_has_value;
     }

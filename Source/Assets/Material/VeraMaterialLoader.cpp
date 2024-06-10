@@ -20,13 +20,8 @@ MaterialData VeraMaterialLoader::loadAssetFromFile(const std::string& asset_name
         MaterialData material_data{};
 
         std::stringstream iss(input);
-        std::string material_name;
         iss >> material_data.name;
-
-        std::string diffuse_texture_name;
         iss >> material_data.diffuse_texture_name;
-
-        std::string normal_map_name;
         iss >> material_data.normal_map_name;
 
         file_stream.close();

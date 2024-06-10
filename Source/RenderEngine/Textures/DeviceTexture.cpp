@@ -43,12 +43,12 @@ void DeviceTexture::copyBufferToImage(VkBuffer src_buffer)
     region.imageExtent = {texture_info.width, texture_info.height, 1};
 
     vkCmdCopyBufferToImage(
-            command_buffer,
-            src_buffer,
-            image_buffer->getImage(),
-            VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-            1,
-            &region);
+        command_buffer,
+        src_buffer,
+        image_buffer->getImage(),
+        VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+        1,
+        &region);
     vulkan_facade.getCommandPool().endSingleTimeCommands(command_buffer);
 }
 
@@ -197,8 +197,8 @@ void DeviceTexture::generateMipmaps()
     barrier.subresourceRange.layerCount = 1;
     barrier.subresourceRange.levelCount = 1;
 
-    int32_t mip_width = static_cast<int32_t>(texture_info.width);
-    int32_t mip_height = static_cast<int32_t>(texture_info.height);
+    auto mip_width = static_cast<int32_t>(texture_info.width);
+    auto mip_height = static_cast<int32_t>(texture_info.height);
 
     for (uint32_t i = 1; i < texture_info.mip_levels; ++i)
     {
@@ -209,16 +209,16 @@ void DeviceTexture::generateMipmaps()
         barrier.dstAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
 
         vkCmdPipelineBarrier(
-                command_buffer,
-                VK_PIPELINE_STAGE_TRANSFER_BIT,
-                VK_PIPELINE_STAGE_TRANSFER_BIT,
-                0,
-                0,
-                nullptr,
-                0,
-                nullptr,
-                1,
-                &barrier);
+            command_buffer,
+            VK_PIPELINE_STAGE_TRANSFER_BIT,
+            VK_PIPELINE_STAGE_TRANSFER_BIT,
+            0,
+            0,
+            nullptr,
+            0,
+            nullptr,
+            1,
+            &barrier);
 
         VkImageBlit blit{};
         blit.srcOffsets[0] = {0, 0, 0};
@@ -235,14 +235,14 @@ void DeviceTexture::generateMipmaps()
         blit.dstSubresource.layerCount = 1;
 
         vkCmdBlitImage(
-                command_buffer,
-                image_buffer->getImage(),
-                VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
-                image_buffer->getImage(),
-                VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-                1,
-                &blit,
-                VK_FILTER_LINEAR);
+            command_buffer,
+            image_buffer->getImage(),
+            VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+            image_buffer->getImage(),
+            VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+            1,
+            &blit,
+            VK_FILTER_LINEAR);
 
         barrier.oldLayout = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
         barrier.newLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
@@ -250,16 +250,16 @@ void DeviceTexture::generateMipmaps()
         barrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
 
         vkCmdPipelineBarrier(
-                command_buffer,
-                VK_PIPELINE_STAGE_TRANSFER_BIT,
-                VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,
-                0,
-                0,
-                nullptr,
-                0,
-                nullptr,
-                1,
-                &barrier);
+            command_buffer,
+            VK_PIPELINE_STAGE_TRANSFER_BIT,
+            VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,
+            0,
+            0,
+            nullptr,
+            0,
+            nullptr,
+            1,
+            &barrier);
 
         if (mip_width > 1) mip_width /= 2;
         if (mip_height > 1) mip_height /= 2;
@@ -272,16 +272,16 @@ void DeviceTexture::generateMipmaps()
     barrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
 
     vkCmdPipelineBarrier(
-            command_buffer,
-            VK_PIPELINE_STAGE_TRANSFER_BIT,
-            VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,
-            0,
-            0,
-            nullptr,
-            0,
-            nullptr,
-            1,
-            &barrier);
+        command_buffer,
+        VK_PIPELINE_STAGE_TRANSFER_BIT,
+        VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,
+        0,
+        0,
+        nullptr,
+        0,
+        nullptr,
+        1,
+        &barrier);
 
     vulkan_facade.getCommandPool().endSingleTimeCommands(command_buffer);
 

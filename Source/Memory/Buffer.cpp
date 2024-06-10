@@ -7,14 +7,16 @@
 
 #include "Logs/LogSystem.h"
 
-// #lizard forgives the complexity
 Buffer::Buffer(
-        Device& logical_device,
-        CommandPool& command_pool,
-        const VulkanMemoryAllocatorInfo& allocator_info,
-        VkBuffer buffer,
-        uint32_t buffer_size)
-    : logical_device{logical_device}, command_pool{command_pool}, allocator_info{allocator_info}, buffer{buffer}, buffer_size{buffer_size} {}
+    Device& logical_device,
+    CommandPool& command_pool,
+    const VulkanMemoryAllocatorInfo& allocator_info,
+    VkBuffer buffer,
+    uint32_t buffer_size)
+    : logical_device{logical_device}, command_pool{command_pool}, allocator_info{allocator_info}, buffer{buffer},
+      buffer_size{buffer_size}
+{
+}
 
 Buffer::~Buffer()
 {

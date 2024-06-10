@@ -10,10 +10,10 @@ class DeviceTexture
 {
 public:
     DeviceTexture(
-            VulkanHandler& vulkan_facade,
-            MemoryAllocator& memory_allocator,
-            const TextureData& texture_info,
-            std::unique_ptr<Image> image_buffer);
+        VulkanHandler& vulkan_facade,
+        MemoryAllocator& memory_allocator,
+        const TextureData& texture_info,
+        std::unique_ptr<Image> image_buffer);
     DeviceTexture(VulkanHandler& vulkan_facade, const TextureData& texture_data, std::unique_ptr<Image> image_buffer);
     ~DeviceTexture();
 
@@ -30,7 +30,6 @@ private:
     TextureData texture_info;
     std::unique_ptr<Image> image_buffer{};
 
-    void checkIfTextureIsOpaque(const std::vector<unsigned char>& texture_data);
     void createImageView();
     void createImageSampler();
 
