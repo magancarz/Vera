@@ -2,7 +2,8 @@
 
 #include "RenderEngine/RenderingAPI/SwapChain.h"
 #include "Assets/Model/Model.h"
-#include "RenderEngine/RenderingAPI/Descriptors.h"
+#include "RenderEngine/RenderingAPI/Descriptors/DescriptorPool.h"
+#include "RenderEngine/RenderingAPI/Descriptors/DescriptorSetLayout.h"
 #include "RenderEngine/SceneRenderers/SceneRenderer.h"
 #include "World/World.h"
 #include "Editor/GUI/GUI.h"

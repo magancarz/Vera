@@ -2,9 +2,12 @@
 
 #include <thread>
 
-#include "RenderEngine/SceneRenderers/RayTraced/RayTracedRenderer.h"
 #include "imgui.h"
-#include "imgui_impl_vulkan.h"
+
+#include "RenderEngine/SceneRenderers/RayTraced/RayTracedRenderer.h"
+#include "RenderEngine/RenderingAPI/Descriptors/DescriptorWriter.h"
+#include "RenderingAPI/Descriptors/DescriptorPoolBuilder.h"
+#include "RenderingAPI/Descriptors/DescriptorSetLayoutBuilder.h"
 
 Renderer::Renderer(Window& window, VulkanHandler& device, MemoryAllocator& memory_allocator, World& world, AssetManager& asset_manager)
     : window{window}, device{device}, memory_allocator{memory_allocator}, world{world}, asset_manager(asset_manager)
@@ -70,14 +73,14 @@ void Renderer::createSceneRenderer()
 
 void Renderer::createPostProcessingStage()
 {
-    post_process_texture_descriptor_pool = DescriptorPool::Builder(device)
-            .setMaxSets(SwapChain::MAX_FRAMES_IN_FLIGHT)
-            .addPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1)
-            .build();
+    post_process_texture_descriptor_pool = DescriptorPoolBuilder(device)
+        .setMaxSets(SwapChain::MAX_FRAMES_IN_FLIGHT)
+        .addPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1)
+        .build();
 
-    post_process_texture_descriptor_set_layout = DescriptorSetLayout::Builder(device)
-            .addBinding(0, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT)
-            .build();
+    post_process_texture_descriptor_set_layout = DescriptorSetLayoutBuilder(device)
+        .addBinding(0, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT)
+        .build();
 
     VkDescriptorImageInfo ray_trace_image_descriptor_info{};
     ray_trace_image_descriptor_info.sampler = scene_renderer->getRayTracedImageSampler();

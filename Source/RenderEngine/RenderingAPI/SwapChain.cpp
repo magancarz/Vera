@@ -336,7 +336,7 @@ VkPresentModeKHR SwapChain::chooseSwapPresentMode(const std::vector<VkPresentMod
 {
     for (const auto& available_present_mode: available_present_modes)
     {
-        if (available_present_mode == VK_PRESENT_MODE_IMMEDIATE_KHR)
+        if (available_present_mode == VK_PRESENT_MODE_MAILBOX_KHR)
         {
             LogSystem::log(LogSeverity::LOG, "Present mode: Mailbox");
             return available_present_mode;

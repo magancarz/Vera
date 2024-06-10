@@ -3,7 +3,7 @@
 #include <Editor/Window/Window.h>
 
 #include "RenderEngine/RenderingAPI/VulkanHandler.h"
-#include "RenderEngine/RenderingAPI/Descriptors.h"
+#include "RenderEngine/RenderingAPI/Descriptors/DescriptorPool.h"
 #include "RenderEngine/RenderingAPI/SwapChain.h"
 #include "RenderEngine/FrameInfo.h"
 #include "Editor/GUI/Components/GUIContainer.h"

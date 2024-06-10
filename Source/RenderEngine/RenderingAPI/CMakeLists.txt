@@ -3,7 +3,6 @@ target_sources(Vera-Lib PRIVATE
         Pipeline.cpp
         SwapChain.cpp
         CommandPool.cpp
-        Descriptors.cpp
         Device.cpp
         Instance.cpp
         PhysicalDevice.cpp
@@ -11,3 +10,5 @@ target_sources(Vera-Lib PRIVATE
         ShaderModule.cpp
         Surface.cpp
         VulkanUtils.cpp)
+
+add_subdirectory(Descriptors)

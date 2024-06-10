@@ -4,7 +4,6 @@
 #include "imgui_impl_vulkan.h"
 #include "imgui_impl_glfw.h"
 #include "RenderEngine/RenderingAPI/SwapChain.h"
-#include "RenderEngine/RenderingAPI/Descriptors.h"
 #include "RenderEngine/RenderingAPI/VulkanDefines.h"
 #include "RenderEngine/FrameInfo.h"
 #include "Editor/GUI/Components/GUIContainer.h"
@@ -12,6 +11,7 @@
 #include "Editor/Window/GLFWWindow.h"
 #include "Editor/Window/WindowSystem.h"
 #include "Logs/LogSystem.h"
+#include "RenderEngine/RenderingAPI/Descriptors/DescriptorPoolBuilder.h"
 
 GUI::GUI(VulkanHandler& device, Window& window, SwapChain* swap_chain)
     : device{device}, window{window}, swap_chain{swap_chain}
@@ -42,11 +42,11 @@ void GUI::createContext()
 
 void GUI::createDescriptorPool()
 {
-    descriptor_pool = DescriptorPool::Builder(device)
-            .addPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1)
-            .setMaxSets(1)
-            .setPoolFlags(VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT)
-            .build();
+    descriptor_pool = DescriptorPoolBuilder(device)
+        .addPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1)
+        .setMaxSets(1)
+        .setPoolFlags(VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT)
+        .build();
 }
 
 void GUI::createRenderPass()
