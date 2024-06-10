@@ -5,8 +5,8 @@
 
 #include "ObjectComponent.h"
 #include "Assets/Model/MeshDescription.h"
+#include "Assets/Mesh.h"
 
-class Mesh;
 class Model;
 class Material;
 
@@ -15,10 +15,11 @@ class MeshComponent : public ObjectComponent
 public:
     explicit MeshComponent(Object& owner);
 
-    void setMesh(Mesh* mesh);
+    void setMesh(Mesh* in_mesh);
 
-    [[nodiscard]] std::string getMeshName() const { return name; }
-    [[nodiscard]] std::vector<Model*> getModels() const { return models; }
+    [[nodiscard]] Mesh* getMesh() const { return mesh; }
+    [[nodiscard]] std::string getMeshName() const { return mesh->name; }
+    [[nodiscard]] std::vector<Model*> getModels() const { return mesh->models; }
 
     [[nodiscard]] std::vector<Material*> getMaterials() const { return materials; }
     [[nodiscard]] Material* findMaterial(const std::string& name) const;
@@ -27,11 +28,9 @@ public:
     [[nodiscard]] MeshDescription getDescription() const;
 
 private:
-    void setModels(std::vector<Model*> in_models);
-    void setMaterials(std::vector<Material*> in_materials);
+    void updateMaterials(std::vector<Material*> in_materials);
 
-    std::string name;
-    std::vector<Model*> models{};
+    Mesh* mesh{nullptr};
     std::vector<Material*> materials{};
 
     void updateModelDescriptions();

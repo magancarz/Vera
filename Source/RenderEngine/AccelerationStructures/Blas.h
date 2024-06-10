@@ -1,5 +1,6 @@
 #pragma once
 
+#include <Assets/Mesh.h>
 #include <glm/glm.hpp>
 
 #include "AccelerationStructure.h"
@@ -16,7 +17,7 @@ public:
         VulkanHandler& device,
         MemoryAllocator& memory_allocator,
         AssetManager& asset_manager,
-        MeshComponent& mesh_component);
+        const Mesh& mesh);
     ~Blas();
 
     Blas(const Blas&) = delete;
@@ -24,14 +25,14 @@ public:
     Blas(Blas&& other) = default;
     Blas& operator=(Blas&&) = delete;
 
-    BlasInstance createBlasInstance(const glm::mat4& transform);
+    [[nodiscard]] BlasInstance createBlasInstance(const glm::mat4& transform) const;
 
 private:
     VulkanHandler& device;
     MemoryAllocator& memory_allocator;
     AssetManager& asset_manager;
 
-    void createBlas(MeshComponent& mesh_component);
+    void createBlas(const Mesh& mesh);
 
     AccelerationStructure blas{};
 };

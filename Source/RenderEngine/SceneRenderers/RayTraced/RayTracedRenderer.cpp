@@ -164,10 +164,10 @@ void RayTracedRenderer::createAccelerationStructure()
             blas_objects.emplace(
                     std::piecewise_construct,
                     std::forward_as_tuple(mesh_component->getMeshName()),
-                    std::forward_as_tuple(device, memory_allocator, asset_manager, *mesh_component));
+                    std::forward_as_tuple(device, memory_allocator, asset_manager, *mesh_component->getMesh()));
         }
         BlasInstance blas_instance = blas_objects.at(mesh_component->getMeshName()).createBlasInstance(object->getTransform());
-        blas_instance.bottomLevelAccelerationStructureInstance.instanceCustomIndex = object_description_offsets[i++];
+        blas_instance.bottom_level_acceleration_structure_instance.instanceCustomIndex = object_description_offsets[(i++)];
         blas_instances.push_back(std::move(blas_instance));
     }
     tlas = TlasBuilder::buildTopLevelAccelerationStructure(device, memory_allocator, blas_instances);

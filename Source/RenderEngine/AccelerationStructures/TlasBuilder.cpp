@@ -14,7 +14,7 @@ AccelerationStructure TlasBuilder::buildTopLevelAccelerationStructure(
     std::vector<VkAccelerationStructureInstanceKHR> instances_temp{};
     instances_temp.reserve(blas_instances.size());
     std::ranges::transform(blas_instances.begin(), blas_instances.end(), std::back_inserter(instances_temp),
-                   [](const BlasInstance& blas_instance) { return blas_instance.bottomLevelAccelerationStructureInstance; });
+                   [](const BlasInstance& blas_instance) { return blas_instance.bottom_level_acceleration_structure_instance; });
 
     auto instances_staging_buffer = memory_allocator.createStagingBuffer(
             sizeof(VkAccelerationStructureInstanceKHR), instances_temp.size(), instances_temp.data());

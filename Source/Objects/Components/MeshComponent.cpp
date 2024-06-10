@@ -7,24 +7,17 @@
 MeshComponent::MeshComponent(Object& owner)
     : ObjectComponent(owner) {}
 
-void MeshComponent::setMesh(Mesh* mesh)
+void MeshComponent::setMesh(Mesh* in_mesh)
 {
-    name = mesh->name;
-    setModels(mesh->models);
-    setMaterials(mesh->materials);
-}
-
-void MeshComponent::setModels(std::vector<Model*> in_models)
-{
-    models = std::move(in_models);
+    mesh = in_mesh;
     updateModelDescriptions();
-    updateRequiredMaterials();
+    updateMaterials(in_mesh->materials);
 }
 
 void MeshComponent::updateModelDescriptions()
 {
     model_descriptions.clear();
-    for (auto model : models)
+    for (auto model : mesh->models)
     {
         model_descriptions.emplace_back(model->getModelDescription());
     }
@@ -33,15 +26,16 @@ void MeshComponent::updateModelDescriptions()
 void MeshComponent::updateRequiredMaterials()
 {
     required_materials.clear();
-    for (auto model : models)
+    for (auto model : mesh->models)
     {
         required_materials.emplace_back(model->getRequiredMaterial());
     }
 }
 
-void MeshComponent::setMaterials(std::vector<Material*> in_materials)
+void MeshComponent::updateMaterials(std::vector<Material*> in_materials)
 {
     materials = std::move(in_materials);
+    updateRequiredMaterials();
 }
 
 Material* MeshComponent::findMaterial(const std::string& name) const

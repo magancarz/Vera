@@ -28,12 +28,17 @@ public:
 
     static void expectTwoVectorsToBeEqual(const glm::vec3& actual_vector, const glm::vec3& expected_vector);
     static void expectTwoMatricesToBeEqual(const glm::mat4& actual_matrix, const glm::mat4& expected_matrix);
+    static void expectTwoMatricesToBeEqual(const VkTransformMatrixKHR& actual_matrix, const VkTransformMatrixKHR& expected_matrix);
 
     static ObjectInfo createDummyObjectInfo(
             std::string object_name,
             const glm::vec3& position = {0, 0, 0},
             const glm::vec3& rotation = {0, 0, 0},
             float scale = 0.f);
+
+    static float randomFloat();
+    static float randomFloat(float min, float max);
+    static glm::mat4 randomTransform();
 
     template <typename T>
     static void expectBufferHasEqualData(const Buffer& buffer, const std::vector<T>& expected_data)
@@ -50,4 +55,6 @@ public:
             EXPECT_EQ(actual_data[i], expected_data[i]);
         }
     }
+
+    static void failIfVulkanValidationLayersErrorsWerePresent();
 };

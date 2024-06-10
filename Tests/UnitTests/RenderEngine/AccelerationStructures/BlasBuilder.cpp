@@ -1,7 +1,8 @@
-#include <Environment.h>
-#include <Assets/AssetManager.h>
-
 #include "gtest/gtest.h"
+
+#include <Environment.h>
+#include <TestUtils.h>
+#include <Assets/AssetManager.h>
 
 #include <vulkan/vulkan.hpp>
 
@@ -57,4 +58,6 @@ TEST(BlasBuilderTests, shouldBuildValidBlas)
     EXPECT_NE(blas.acceleration_structure, VK_NULL_HANDLE);
     EXPECT_NE(blas.acceleration_structure_buffer, nullptr);
     EXPECT_NE(blas.bottom_level_acceleration_structure_device_address, 0ULL);
+
+    TestUtils::failIfVulkanValidationLayersErrorsWerePresent();
 }
