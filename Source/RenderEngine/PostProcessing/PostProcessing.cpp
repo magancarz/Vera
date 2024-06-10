@@ -2,7 +2,6 @@
 
 #include "Assets/AssetManager.h"
 #include "Logs/LogSystem.h"
-#include "Objects/Components/TransformComponent.h"
 #include "RenderEngine/RenderingAPI/VulkanDefines.h"
 
 PostProcessing::PostProcessing(

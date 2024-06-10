@@ -3,7 +3,7 @@
 #include <fstream>
 
 #include "VulkanDefines.h"
-#include "../../Assets/Model/Vertex.h"
+#include "Assets/Model/Vertex.h"
 #include "VulkanUtils.h"
 
 Pipeline::Pipeline(

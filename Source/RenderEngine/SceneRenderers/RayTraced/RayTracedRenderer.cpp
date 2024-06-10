@@ -6,7 +6,7 @@
 #include "RenderEngine/RenderingAPI/VulkanHelper.h"
 #include "RenderEngine/GlobalUBO.h"
 #include "RenderEngine/RenderingAPI/VulkanDefines.h"
-#include "RenderEngine/SceneRenderers/RayTraced/Pipeline/RayTracingPipelineBuilder.h"
+#include "RenderEngine/Pipeline/RayTracingPipelineBuilder.h"
 #include "Objects/Components/MeshComponent.h"
 #include "RenderEngine/Materials/DeviceMaterialInfo.h"
 #include "Objects/Object.h"
@@ -37,8 +37,7 @@ void RayTracedRenderer::queryRayTracingPipelineProperties()
     VkPhysicalDevice physical_device = device.getPhysicalDeviceHandle();
 
     VkPhysicalDeviceProperties physical_device_properties;
-    vkGetPhysicalDeviceProperties(physical_device,
-                                  &physical_device_properties);
+    vkGetPhysicalDeviceProperties(physical_device, &physical_device_properties);
 
     ray_tracing_properties = VkPhysicalDeviceRayTracingPipelinePropertiesKHR{VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAY_TRACING_PIPELINE_PROPERTIES_KHR};
     VkPhysicalDeviceProperties2 physical_device_properties_2{VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PROPERTIES_2};

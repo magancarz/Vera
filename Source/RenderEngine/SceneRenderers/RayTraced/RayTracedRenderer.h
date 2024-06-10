@@ -3,12 +3,12 @@
 #include "RenderEngine/AccelerationStructures/ObjectDescription.h"
 #include "RenderEngine/SceneRenderers/SceneRenderer.h"
 #include "World/World.h"
-#include "RenderEngine/SceneRenderers/RayTraced/Pipeline/RayTracingPipeline.h"
+#include "RenderEngine/Pipeline/RayTracingPipeline.h"
 #include "RenderEngine/RenderingAPI/Descriptors/DescriptorPool.h"
 #include "RenderEngine/RenderingAPI/Descriptors/DescriptorSetLayout.h"
 #include "RenderEngine/Textures/DeviceTexture.h"
 #include "RenderEngine/AccelerationStructures/Blas.h"
-#include "RenderEngine/SceneRenderers/RayTraced/Pipeline/RayTracingPipelineBuilder.h"
+#include "RenderEngine/Pipeline/RayTracingPipelineBuilder.h"
 
 class RayTracedRenderer : public SceneRenderer
 {
