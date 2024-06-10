@@ -1,10 +1,39 @@
 #include "Renderer.h"
 
-Renderer::Renderer(Device& device, Window& window)
-    : device{device}, window{window}
+#include <thread>
+
+#include "imgui.h"
+
+#include "RenderEngine/SceneRenderers/RayTraced/RayTracedRenderer.h"
+#include "RenderEngine/RenderingAPI/Descriptors/DescriptorWriter.h"
+#include "RenderingAPI/Descriptors/DescriptorPoolBuilder.h"
+#include "RenderingAPI/Descriptors/DescriptorSetLayoutBuilder.h"
+
+Renderer::Renderer(Window& window, VulkanHandler& device, MemoryAllocator& memory_allocator, World& world,
+                   AssetManager& asset_manager)
+    : window{window}, device{device}, memory_allocator{memory_allocator}, world{world}, asset_manager(asset_manager)
 {
-    recreateSwapChain();
     createCommandBuffers();
+    recreateSwapChain();
+    createGUI();
+    createSceneRenderer();
+    createPostProcessingStage();
+}
+
+void Renderer::createCommandBuffers()
+{
+    command_buffers.resize(SwapChain::MAX_FRAMES_IN_FLIGHT);
+
+    VkCommandBufferAllocateInfo allocate_info{};
+    allocate_info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+    allocate_info.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+    allocate_info.commandPool = device.getCommandPoolHandle();
+    allocate_info.commandBufferCount = static_cast<uint32_t>(command_buffers.size());
+
+    if (vkAllocateCommandBuffers(device.getDeviceHandle(), &allocate_info, command_buffers.data()) != VK_SUCCESS)
+    {
+        throw std::runtime_error("Failed to allocate command buffers!");
+    }
 }
 
 void Renderer::recreateSwapChain()
@@ -15,7 +44,7 @@ void Renderer::recreateSwapChain()
         extent = window.getExtent();
         glfwWaitEvents();
     }
-    vkDeviceWaitIdle(device.getDevice());
+    vkDeviceWaitIdle(device.getDeviceHandle());
 
     if (swap_chain == nullptr)
     {
@@ -33,20 +62,41 @@ void Renderer::recreateSwapChain()
     }
 }
 
-void Renderer::createCommandBuffers()
+void Renderer::createGUI()
 {
-    command_buffers.resize(SwapChain::MAX_FRAMES_IN_FLIGHT);
+    gui = std::make_unique<GUI>(device, window, swap_chain.get());
+}
 
-    VkCommandBufferAllocateInfo allocate_info{};
-    allocate_info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-    allocate_info.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-    allocate_info.commandPool = device.getCommandPool();
-    allocate_info.commandBufferCount = static_cast<uint32_t>(command_buffers.size());
+void Renderer::createSceneRenderer()
+{
+    scene_renderer = std::make_unique<RayTracedRenderer>(device, memory_allocator, asset_manager, world);
+}
 
-    if (vkAllocateCommandBuffers(device.getDevice(), &allocate_info, command_buffers.data()) != VK_SUCCESS)
-    {
-        throw std::runtime_error("Failed to allocate command buffers!");
-    }
+void Renderer::createPostProcessingStage()
+{
+    post_process_texture_descriptor_pool = DescriptorPoolBuilder(device)
+       .setMaxSets(SwapChain::MAX_FRAMES_IN_FLIGHT)
+       .addPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1)
+       .build();
+
+    post_process_texture_descriptor_set_layout = DescriptorSetLayoutBuilder(device)
+         .addBinding(0, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT)
+         .build();
+
+    VkDescriptorImageInfo ray_trace_image_descriptor_info{};
+    ray_trace_image_descriptor_info.sampler = scene_renderer->getRayTracedImageSampler();
+    ray_trace_image_descriptor_info.imageView = scene_renderer->getRayTracedImageViewHandle();
+    ray_trace_image_descriptor_info.imageLayout = VK_IMAGE_LAYOUT_GENERAL;
+
+    DescriptorWriter(*post_process_texture_descriptor_set_layout, *post_process_texture_descriptor_pool)
+        .writeImage(0, &ray_trace_image_descriptor_info)
+        .build(post_process_texture_descriptor_set_handle);
+
+    post_processing = std::make_unique<PostProcessing>(
+        device,
+        asset_manager,
+        swap_chain->getRenderPass(),
+        post_process_texture_descriptor_set_layout->getDescriptorSetLayout());
 }
 
 Renderer::~Renderer()
@@ -57,11 +107,28 @@ Renderer::~Renderer()
 void Renderer::freeCommandBuffers()
 {
     vkFreeCommandBuffers(
-        device.getDevice(),
-        device.getCommandPool(),
+        device.getDeviceHandle(),
+        device.getCommandPoolHandle(),
         static_cast<uint32_t>(command_buffers.size()),
         command_buffers.data());
     command_buffers.clear();
+}
+
+void Renderer::render(FrameInfo& frame_info)
+{
+    if (auto command_buffer = beginFrame())
+    {
+        frame_info.command_buffer = command_buffer;
+        frame_info.window_size = swap_chain->getSwapChainExtent();
+        frame_info.ray_traced_texture = post_process_texture_descriptor_set_handle;
+
+        gui->updateGUIElements(frame_info);
+        scene_renderer->renderScene(frame_info);
+        applyPostProcessing(frame_info);
+        gui->renderGUIElements(command_buffer);
+
+        endFrame();
+    }
 }
 
 VkCommandBuffer Renderer::beginFrame()
@@ -93,6 +160,13 @@ VkCommandBuffer Renderer::beginFrame()
     return command_buffer;
 }
 
+void Renderer::applyPostProcessing(FrameInfo& frame_info)
+{
+    beginSwapChainRenderPass(frame_info.command_buffer);
+    post_processing->apply(frame_info);
+    endSwapChainRenderPass(frame_info.command_buffer);
+}
+
 void Renderer::endFrame()
 {
     assert(is_frame_started && "Can't call endFrame while frame is not in progress");
@@ -103,13 +177,10 @@ void Renderer::endFrame()
         throw std::runtime_error("Failed to record command buffer!");
     }
 
-    auto result = swap_chain->submitCommandBuffers(&command_buffer, &current_image_index);
-    if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || window.wasWindowResized())
-    {
-        window.resetWindowResizedFlag();
-        recreateSwapChain();
-    }
-    else if (result != VK_SUCCESS)
+    std::vector<VkCommandBuffer> submit_command_buffers = {command_buffer};
+    auto result = swap_chain->submitCommandBuffers(
+        submit_command_buffers.data(), submit_command_buffers.size(), &current_image_index);
+    if (result != VK_SUCCESS)
     {
         throw std::runtime_error("Failed to present swap chain image!");
     }
@@ -121,7 +192,8 @@ void Renderer::endFrame()
 void Renderer::beginSwapChainRenderPass(VkCommandBuffer command_buffer)
 {
     assert(is_frame_started && "Can't call beginSwapChainRenderPass if frame is not in progress!");
-    assert(command_buffer == getCurrentCommandBuffer() && "Can't begin render pass on command buffer from a different frame!");
+    assert(command_buffer == getCurrentCommandBuffer() &&
+        "Can't begin updateElements pass on command buffer from a different frame!");
 
     VkRenderPassBeginInfo render_pass_info{};
     render_pass_info.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
@@ -154,7 +226,8 @@ void Renderer::beginSwapChainRenderPass(VkCommandBuffer command_buffer)
 void Renderer::endSwapChainRenderPass(VkCommandBuffer command_buffer)
 {
     assert(is_frame_started && "Can't call endSwapChainRenderPass if frame is not in progress!");
-    assert(command_buffer == getCurrentCommandBuffer() && "Can't end render pass on command buffer from a different frame!");
+    assert(command_buffer == getCurrentCommandBuffer() &&
+        "Can't end updateElements pass on command buffer from a different frame!");
 
     vkCmdEndRenderPass(command_buffer);
 }

@@ -2,13 +2,17 @@
 
 #include <glm/ext/matrix_transform.hpp>
 
-class TransformComponent
+#include "ObjectComponent.h"
+
+class TransformComponent : public ObjectComponent
 {
 public:
-    glm::vec3 translation{};
-    glm::vec3 scale{1.f};
-    glm::vec3 rotation{};
+    explicit TransformComponent(Object& owner);
 
-    glm::mat4 transform();
-    glm::mat3 normalMatrix();
+    [[nodiscard]] glm::mat4 transform() const;
+    [[nodiscard]] glm::mat3 normalMatrix() const;
+
+    glm::vec3 translation{0.f};
+    glm::vec3 scale{1.f};
+    glm::vec3 rotation{0.f};
 };

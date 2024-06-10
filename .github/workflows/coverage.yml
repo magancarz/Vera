@@ -1,0 +1,32 @@
+name: Coverage
+run-name: Coverage
+on: [push]
+jobs:
+  Coverage:
+    runs-on: self-hosted
+    steps:
+      - run: echo "Job is running on a ${{ runner.os }} runner"
+      - name: Check out repository code
+        uses: actions/checkout@v4
+      - name: Fetch git submodules
+        run: |
+          git submodule update --init --recursive
+      - run: echo "The ${{ github.repository }} repository has been cloned to the runner."
+      - name: Files in the repository
+        run: |
+          ls ${{ github.workspace }}
+      - name: Build CMake project
+        run: |
+          cmake -S . -B build -DBUILD_TESTING=ON -Dcoverage=ON -DCMAKE_BUILD_TYPE=Debug
+          cmake --build build -j $(nproc --all)
+      - name: Run coverage
+        run: |
+          cd build
+          make -j $(nproc --all) Vera-Tests-Coverage
+          cd ..
+          gcovr -r . -f Source/ -e Tests/ -e ThirdParty/ --exclude-throw-branches --exclude-unreachable-branches --html -o coverage.html
+      - name: Uploading coverage results
+        uses: actions/upload-artifact@v4.3.3
+        with:
+          name: coverage-results
+          path: coverage.html

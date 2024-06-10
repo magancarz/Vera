@@ -1,9 +1,14 @@
 target_sources(Vera-Lib PRIVATE
-        Device.cpp
+        VulkanHandler.cpp
         Pipeline.cpp
         SwapChain.cpp
-        Model.cpp
-        Buffer.cpp
-        Descriptors.cpp)
+        CommandPool.cpp
+        Device.cpp
+        Instance.cpp
+        PhysicalDevice.cpp
+        VulkanHelper.cpp
+        ShaderModule.cpp
+        Surface.cpp
+        VulkanUtils.cpp)
 
-add_subdirectory(Textures)
+add_subdirectory(Descriptors)

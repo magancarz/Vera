@@ -3,10 +3,11 @@
 #include <fstream>
 
 #include "VulkanDefines.h"
-#include "Vertex.h"
+#include "Assets/Model/Vertex.h"
+#include "VulkanUtils.h"
 
 Pipeline::Pipeline(
-        Device& device,
+        VulkanHandler& device,
         const std::string& vertex_file_path,
         const std::string& fragment_file_path,
         const PipelineConfigInfo& config_info)
@@ -17,9 +18,9 @@ Pipeline::Pipeline(
 
 Pipeline::~Pipeline()
 {
-    vkDestroyShaderModule(device.getDevice(), vertex_shader_module, VulkanDefines::NO_CALLBACK);
-    vkDestroyShaderModule(device.getDevice(), fragment_shader_module, VulkanDefines::NO_CALLBACK);
-    vkDestroyPipeline(device.getDevice(), graphics_pipeline, VulkanDefines::NO_CALLBACK);
+    vkDestroyShaderModule(device.getDeviceHandle(), vertex_shader_module, VulkanDefines::NO_CALLBACK);
+    vkDestroyShaderModule(device.getDeviceHandle(), fragment_shader_module, VulkanDefines::NO_CALLBACK);
+    vkDestroyPipeline(device.getDeviceHandle(), graphics_pipeline, VulkanDefines::NO_CALLBACK);
 }
 
 void Pipeline::bind(VkCommandBuffer command_buffer)
@@ -30,7 +31,7 @@ void Pipeline::bind(VkCommandBuffer command_buffer)
 void Pipeline::createGraphicsPipeline(const std::string& vertex_file_path, const std::string& fragment_file_path, const PipelineConfigInfo& config_info)
 {
     assert(config_info.pipeline_layout != VK_NULL_HANDLE && "Cannot create graphics pipeline: no pipeline layout provided in config info!");
-    assert(config_info.render_pass != VK_NULL_HANDLE && "Cannot create graphics pipeline: no render pass provided in config info!");
+    assert(config_info.render_pass != VK_NULL_HANDLE && "Cannot create graphics pipeline: no updateElements pass provided in config info!");
 
     auto vert_code = readFile(vertex_file_path);
     auto frag_code = readFile(fragment_file_path);
@@ -38,7 +39,7 @@ void Pipeline::createGraphicsPipeline(const std::string& vertex_file_path, const
     createShaderModule(vert_code, &vertex_shader_module);
     createShaderModule(frag_code, &fragment_shader_module);
 
-    VkPipelineShaderStageCreateInfo shader_stage_create_infos[2];
+    std::array<VkPipelineShaderStageCreateInfo, 2> shader_stage_create_infos;
     shader_stage_create_infos[0].sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
     shader_stage_create_infos[0].stage = VK_SHADER_STAGE_VERTEX_BIT;
     shader_stage_create_infos[0].module = vertex_shader_module;
@@ -67,7 +68,7 @@ void Pipeline::createGraphicsPipeline(const std::string& vertex_file_path, const
     VkGraphicsPipelineCreateInfo pipeline_create_info{};
     pipeline_create_info.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
     pipeline_create_info.stageCount = 2;
-    pipeline_create_info.pStages = shader_stage_create_infos;
+    pipeline_create_info.pStages = shader_stage_create_infos.data();
     pipeline_create_info.pVertexInputState = &vertex_input_state_create_info;
     pipeline_create_info.pInputAssemblyState = &config_info.input_assembly_info;
     pipeline_create_info.pViewportState = &config_info.viewport_info;
@@ -84,7 +85,7 @@ void Pipeline::createGraphicsPipeline(const std::string& vertex_file_path, const
     pipeline_create_info.basePipelineIndex = -1;
     pipeline_create_info.basePipelineHandle = VK_NULL_HANDLE;
 
-    if (vkCreateGraphicsPipelines(device.getDevice(), VK_NULL_HANDLE, 1, &pipeline_create_info, nullptr, &graphics_pipeline) != VK_SUCCESS)
+    if (vkCreateGraphicsPipelines(device.getDeviceHandle(), VK_NULL_HANDLE, 1, &pipeline_create_info, nullptr, &graphics_pipeline) != VK_SUCCESS)
     {
         throw std::runtime_error("Failed to create graphics pipeline!");
     }
@@ -112,9 +113,9 @@ void Pipeline::createShaderModule(const std::vector<char>& code, VkShaderModule*
     VkShaderModuleCreateInfo create_info{};
     create_info.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
     create_info.codeSize = code.size();
-    create_info.pCode = reinterpret_cast<const uint32_t*>(code.data());
+    create_info.pCode = std::bit_cast<const uint32_t*>(code.data());
 
-    if (vkCreateShaderModule(device.getDevice(), &create_info, VulkanDefines::NO_CALLBACK, shader_module) != VK_SUCCESS)
+    if (vkCreateShaderModule(device.getDeviceHandle(), &create_info, VulkanDefines::NO_CALLBACK, shader_module) != VK_SUCCESS)
     {
         throw std::runtime_error("Failed to create shader module!");
     }
@@ -153,8 +154,7 @@ void Pipeline::defaultPipelineConfigInfo(PipelineConfigInfo& config_info)
     config_info.multisample_info.alphaToOneEnable = VK_FALSE;
 
     config_info.color_blend_attachment.colorWriteMask =
-            VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT |
-            VK_COLOR_COMPONENT_A_BIT;
+            VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
     config_info.color_blend_attachment.blendEnable = VK_FALSE;
     config_info.color_blend_attachment.srcColorBlendFactor = VK_BLEND_FACTOR_ONE;
     config_info.color_blend_attachment.dstColorBlendFactor = VK_BLEND_FACTOR_ZERO;
@@ -190,6 +190,6 @@ void Pipeline::defaultPipelineConfigInfo(PipelineConfigInfo& config_info)
     config_info.dynamic_state_info.dynamicStateCount = static_cast<uint32_t>(config_info.dynamic_state_enables.size());
     config_info.depth_stencil_info.flags = 0;
 
-    config_info.binding_descriptions = Vertex::getBindingDescriptions();
-    config_info.attribute_descriptions = Vertex::getAttributeDescriptions();
+    config_info.binding_descriptions = VulkanUtils::getVertexBindingDescriptions();
+    config_info.attribute_descriptions = VulkanUtils::getVertexAttributeDescriptions();
 }

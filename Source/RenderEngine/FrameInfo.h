@@ -1,17 +1,20 @@
 #pragma once
 
-#include "RenderEngine/Camera.h"
-#include "Objects/Object.h"
-
 #include <vulkan/vulkan.hpp>
-#include <map>
+#include <glm/glm.hpp>
 
 struct FrameInfo
 {
-    int frame_index;
-    float frame_time;
     VkCommandBuffer command_buffer;
-    Camera& camera;
-    VkDescriptorSet global_uniform_buffer_descriptor_set;
-    std::map<int, Object>& objects;
+    VkExtent2D window_size;
+    float delta_time{0};
+
+    glm::mat4 camera_view_matrix{1.f};
+    glm::mat4 camera_projection_matrix{1.f};
+
+    VkDescriptorSet ray_traced_texture;
+
+    glm::vec3 sun_position{glm::normalize(glm::vec3{1})};
+    float weather{0.05f};
+    bool need_to_refresh_generated_image{false};
 };

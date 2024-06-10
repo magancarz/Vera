@@ -1,24 +1,20 @@
 #pragma once
 
-#include <glm/ext/matrix_transform.hpp>
-#include "RenderEngine/RenderingAPI/Model.h"
-#include "Components/TransformComponent.h"
-#include "Objects/Components/PointLightComponent.h"
-#include "RenderEngine/Materials/Material.h"
+#include <memory>
 
-struct PointLight
-{
-    glm::vec4 position{}; // ignore w
-    glm::vec4 color{}; // w is intensity
-};
+#include <glm/glm.hpp>
+
+struct FrameInfo;
+class ObjectComponent;
+class TransformComponent;
 
 class Object
 {
 public:
-    using id_t = unsigned int;
+    using id_t = uint32_t;
 
-    static Object createObject();
-    static Object createPointLight(float intensity = 10.f, float radius = 0.1f, const glm::vec3& color = {1.f, 1.f, 1.f});
+    Object();
+    virtual ~Object() = default;
 
     Object(const Object&) = delete;
     Object& operator=(const Object&) = delete;
@@ -27,15 +23,34 @@ public:
 
     [[nodiscard]] id_t getID() const { return id; }
 
-    glm::vec3 color{};
-    TransformComponent transform_component;
+    glm::vec3 getLocation();
+    glm::mat4 getTransform();
 
-    std::shared_ptr<Model> model;
-    std::shared_ptr<Material> material;
-    std::unique_ptr<PointLightComponent> point_light;
+    virtual void update(FrameInfo& frame_info);
+
+    void addComponent(std::unique_ptr<ObjectComponent> component);
+    void addRootComponent(std::unique_ptr<TransformComponent> transform_component);
+
+    template <typename T>
+    T* findComponentByClass()
+    {
+        for (const auto& component : components)
+        {
+            if (auto matching_class_component = dynamic_cast<T*>(component.get()))
+            {
+                return matching_class_component;
+            }
+        }
+
+        return nullptr;
+    }
 
 private:
-    Object(id_t object_id) : id{object_id} {}
+    explicit Object(id_t object_id) : id{object_id} {}
 
+    inline static id_t available_id = 0;
     id_t id;
+
+    std::vector<std::unique_ptr<ObjectComponent>> components;
+    TransformComponent* root_component{nullptr};
 };

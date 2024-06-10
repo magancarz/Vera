@@ -1,17 +1,49 @@
 #include "Object.h"
 
-Object Object::createObject()
+#include "RenderEngine/RenderingAPI/VulkanHelper.h"
+#include "Objects/Components/TransformComponent.h"
+#include "Objects/Components/MeshComponent.h"
+
+Object::Object()
+    : id{available_id++} {}
+
+glm::vec3 Object::getLocation()
 {
-    static id_t available_id = 0;
-    return Object{available_id++};
+    if (root_component)
+    {
+        return root_component->translation;
+    }
+
+    return glm::vec3{0};
 }
 
-Object Object::createPointLight(float intensity, float radius, const glm::vec3& color)
+glm::mat4 Object::getTransform()
 {
-    Object object = Object::createObject();
-    object.color = color;
-    object.transform_component.scale.x = radius;
-    object.point_light = std::make_unique<PointLightComponent>();
-    object.point_light->light_intensity = intensity;
-    return object;
+    if (root_component)
+    {
+        return root_component->transform();
+    }
+
+    return glm::mat4{1};
+}
+
+void Object::update(FrameInfo& frame_info)
+{
+    for (auto& component : components)
+    {
+        component->update(frame_info);
+    }
+}
+
+void Object::addComponent(std::unique_ptr<ObjectComponent> component)
+{
+    assert(component->getOwner().getID() == this->getID() && "Component's owner should be the same as the object to which component tried to be added");
+    components.emplace_back(std::move(component));
+}
+
+void Object::addRootComponent(std::unique_ptr<TransformComponent> transform_component)
+{
+    assert(transform_component && "It is useless to pass empty root component");
+    addComponent(std::move(transform_component));
+    root_component = findComponentByClass<TransformComponent>();
 }

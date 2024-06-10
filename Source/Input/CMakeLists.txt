@@ -1,2 +1,5 @@
 target_sources(Vera-Lib PRIVATE
-        KeyboardMovementController.cpp)
+        GLFWInputManager.cpp
+        GLFWKeyMappings.cpp
+        KeyMappings.cpp
+        KeyMappingsSystem.cpp)

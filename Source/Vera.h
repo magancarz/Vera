@@ -1,18 +1,16 @@
 #pragma once
 
-#include "RenderEngine/Camera.h"
-#include "RenderEngine/RenderingAPI/Pipeline.h"
-#include "Objects/Object.h"
 #include "RenderEngine/Renderer.h"
-#include "RenderEngine/RenderingAPI/Model.h"
-#include "RenderEngine/Systems/SimpleRenderSystem.h"
-#include "RenderEngine/RenderingAPI/Descriptors.h"
-#include "RenderEngine/RenderingAPI/Textures/Texture.h"
+#include "World/World.h"
+#include "Assets/AssetManager.h"
+#include "Input/GLFWInputManager.h"
+#include "Memory/MemoryAllocator.h"
 
 class Vera
 {
 public:
     Vera();
+    ~Vera();
 
     void run();
 
@@ -20,13 +18,22 @@ public:
     Vera& operator=(const Vera&) = delete;
 
 private:
-    void loadObjects(const std::vector<std::shared_ptr<Material>>& available_materials);
+    void initializeAppComponents();
+    static void initializeLogSystem();
 
-    Camera camera;
+    Window* window{nullptr};
+    std::unique_ptr<InputManager> input_manager{nullptr};
 
-    Window window{1280, 800, "Vera"};
-    Device device{window};
-    Renderer master_renderer{device, window};
-    std::unique_ptr<DescriptorPool> global_pool{};
-    std::map<int, Object> objects;
+    std::unique_ptr<VulkanHandler> vulkan_facade{nullptr};
+
+    std::unique_ptr<MemoryAllocator> memory_allocator{nullptr};
+    std::unique_ptr<AssetManager> asset_manager{nullptr};
+
+    void loadProject();
+
+    World world{};
+
+    void createRenderer();
+
+    std::unique_ptr<Renderer> renderer;
 };

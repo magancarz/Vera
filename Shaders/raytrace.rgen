@@ -1,0 +1,77 @@
+#version 460
+
+#extension GL_EXT_ray_tracing : require
+#extension GL_GOOGLE_include_directive : enable
+
+#include "Commons/ray.glsl"
+#include "Commons/random.glsl"
+#include "Commons/defines.glsl"
+#include "Commons/Common.h"
+
+layout(binding = 0, set = 0) uniform accelerationStructureEXT topLevelAS;
+layout(binding = 1, set = 0, rgba32f) uniform image2D image;
+layout(binding = 2, set = 0) uniform Camera { CameraUniformBuffer camera; };
+
+layout(push_constant) uniform _PushConstantRay { PushConstantRay push_constant; };
+
+layout(location = 0) rayPayloadEXT Ray payload;
+
+void main() 
+{
+    uint seed = tea(gl_LaunchIDEXT.y * gl_LaunchSizeEXT.x + gl_LaunchIDEXT.x, push_constant.time);
+    float r1 = rnd(seed);
+    float r2 = rnd(seed);
+    vec2 subpixel_jitter = push_constant.frames == 0 ? vec2(0.5f, 0.5f) : vec2(r1, r2);
+
+    const vec2 pixel_center = vec2(gl_LaunchIDEXT.xy) + subpixel_jitter;
+    const vec2 in_uv = pixel_center / vec2(gl_LaunchSizeEXT.xy);
+    vec2 d = in_uv * 2.0 - 1.0;
+
+    vec4 origin = inverse(camera.view) * vec4(0, 0, 0, 1);
+    vec4 target = inverse(camera.proj) * vec4(d.x, d.y, 1, 1);
+    vec4 direction = inverse(camera.view) * vec4(normalize(target.xyz), 0);
+
+    payload.origin = origin.xyz;
+    payload.direction = direction.xyz;
+    payload.color = vec3(1.0, 1.0, 1.0);
+    payload.is_active = 1;
+    payload.seed = seed;
+    payload.depth = 0;
+
+    uint rayFlags = gl_RayFlagsNoneEXT;
+    for (uint current_depth = 0; current_depth <= MAX_CALCULATIONS_DEPTH; ++current_depth)
+    {
+        traceRayEXT(
+            topLevelAS, // acceleration structure
+            rayFlags,       // rayFlags
+            0xFF,           // cullMask
+            0,              // sbtRecordOffset
+            0,              // sbtRecordStride
+            0,              // missIndex
+            payload.origin,     // ray origin
+            T_MIN,           // ray min range
+            payload.direction,  // ray direction
+            T_MAX,           // ray max range
+            0               // payload (location = 0)
+            );
+
+        if (payload.is_active == 0 || payload.depth > MAX_RAY_DEPTH)
+        {
+            break;
+        }
+    }
+
+    payload.color = payload.color * (1 - payload.is_active);
+
+    payload.color.x = isinf(payload.color.x) || isnan(payload.color.x) ? 0.0f : payload.color.x;
+    payload.color.y = isinf(payload.color.y) || isnan(payload.color.y) ? 0.0f : payload.color.y;
+    payload.color.z = isinf(payload.color.z) || isnan(payload.color.z) ? 0.0f : payload.color.z;
+
+    vec3 previous_color = imageLoad(image, ivec2(gl_LaunchIDEXT.xy)).xyz;
+    previous_color *= push_constant.frames;
+
+    payload.color += previous_color;
+    payload.color /= (push_constant.frames + 1);
+
+    imageStore(image, ivec2(gl_LaunchIDEXT.xy), vec4(payload.color, 1.0));
+}

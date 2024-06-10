@@ -1,3 +1,6 @@
 target_sources(Vera-Lib PRIVATE
-        TransformComponent.cpp
-        PointLightComponent.cpp)
+        CameraComponent.cpp
+        MeshComponent.cpp
+        ObjectComponent.cpp
+        PlayerMovementComponent.cpp
+        TransformComponent.cpp)

@@ -1,27 +1,27 @@
 #pragma once
 
-#include "Device.h"
-
-#include <vulkan/vulkan.h>
-
-#include <string>
+#include <memory>
 #include <vector>
+
+#include "VulkanHandler.h"
 
 class SwapChain
 {
 public:
-    static constexpr int MAX_FRAMES_IN_FLIGHT = 2;
+    static constexpr int MAX_FRAMES_IN_FLIGHT = 3;
 
-    SwapChain(Device& device_ref, VkExtent2D window_extent);
-    SwapChain(Device& device_ref, VkExtent2D window_extent, std::shared_ptr<SwapChain> previous);
+    SwapChain(VulkanHandler& device_ref, VkExtent2D window_extent);
+    SwapChain(VulkanHandler& device_ref, VkExtent2D window_extent, std::shared_ptr<SwapChain> previous);
     ~SwapChain();
 
     SwapChain(const SwapChain&) = delete;
     SwapChain& operator=(const SwapChain&) = delete;
 
+    uint32_t getCurrentFrameIndex() { return current_frame; }
     VkFramebuffer getFrameBuffer(int index) { return swap_chain_framebuffers[index]; }
     VkRenderPass getRenderPass() { return render_pass; }
     VkImageView getImageView(int index) { return swap_chain_image_views[index]; }
+    VkImage getImage(int index) { return swap_chain_images[index]; }
     size_t imageCount() { return swap_chain_images.size(); }
     VkFormat getSwapChainImageFormat() { return swap_chain_image_format; }
     VkExtent2D getSwapChainExtent() { return swap_chain_extent; }
@@ -32,7 +32,7 @@ public:
     VkFormat findDepthFormat();
 
     VkResult acquireNextImage(uint32_t* image_index);
-    VkResult submitCommandBuffers(const VkCommandBuffer* buffers, uint32_t* image_index);
+    VkResult submitCommandBuffers(const VkCommandBuffer* buffers, uint32_t buffers_count, uint32_t* image_index);
 
     bool compareSwapFormats(const SwapChain& swap_chain) const
     {
@@ -44,7 +44,6 @@ private:
     void init();
     void createSwapChain();
     void createImageViews();
-    void createDepthResources();
     void createRenderPass();
     void createFramebuffers();
     void createSyncObjects();
@@ -66,7 +65,7 @@ private:
     std::vector<VkImage> swap_chain_images;
     std::vector<VkImageView> swap_chain_image_views;
 
-    Device& device;
+    VulkanHandler& device;
     VkExtent2D window_extent;
 
     VkSwapchainKHR swap_chain;

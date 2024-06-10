@@ -19,7 +19,7 @@ struct PipelineConfigInfo
     VkPipelineDepthStencilStateCreateInfo depth_stencil_info{};
     std::vector<VkDynamicState> dynamic_state_enables;
     VkPipelineDynamicStateCreateInfo dynamic_state_info;
-    VkPipelineLayout pipeline_layout = nullptr;
-    VkRenderPass render_pass = nullptr;
-    uint32_t subpass = 0;
+    VkPipelineLayout pipeline_layout{nullptr};
+    VkRenderPass render_pass{nullptr};
+    uint32_t subpass{0};
 };
