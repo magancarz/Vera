@@ -3,6 +3,7 @@
 #include "VulkanDefines.h"
 
 #include <fstream>
+#include <Utils/PathBuilder.h>
 
 ShaderModule::ShaderModule(VulkanHandler& device, const std::string& shader_code_file, VkShaderStageFlagBits shader_stage)
     : device{device}
@@ -17,9 +18,8 @@ std::string ShaderModule::getPathToShaderCodeFile(const std::string& shader_code
     {
         throw std::runtime_error("Unsupported shader stage extension while creating shader module!");
     }
-    std::filesystem::path file_name_with_extension{shader_code_file + SHADER_CODE_EXTENSIONS.at(shader_stage)};
-    std::filesystem::path full_file_path{RenderEngine::SHADERS_DIRECTORY_PATH / file_name_with_extension};
-    return full_file_path.generic_string();
+
+    return PathBuilder().append(RenderEngine::SHADERS_DIRECTORY_PATH).append(shader_code_file).fileExtension(SHADER_CODE_EXTENSIONS.at(shader_stage)).build();
 }
 
 void ShaderModule::createShaderModule(const std::string& path_to_shader_code)
@@ -38,6 +38,11 @@ void ShaderModule::createShaderModule(const std::string& path_to_shader_code)
 
 std::vector<uint32_t> ShaderModule::loadShaderSourceCode(const std::string& path_to_shader_code)
 {
+    if (!std::filesystem::exists(path_to_shader_code))
+    {
+        return {};
+    }
+
     std::ifstream file(path_to_shader_code, std::ios::binary | std::ios::ate);
     std::streamsize file_size = file.tellg();
     file.seekg(0, std::ios::beg);
