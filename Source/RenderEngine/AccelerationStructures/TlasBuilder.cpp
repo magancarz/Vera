@@ -49,10 +49,9 @@ AccelerationStructure TlasBuilder::buildTopLevelAccelerationStructure(
     top_level_acceleration_structure_geometry.flags = VK_GEOMETRY_OPAQUE_BIT_KHR;
 
     VkAccelerationStructureBuildGeometryInfoKHR top_level_acceleration_structure_build_geometry_info{};
-    top_level_acceleration_structure_build_geometry_info.sType =
-        VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_BUILD_GEOMETRY_INFO_KHR;
+    top_level_acceleration_structure_build_geometry_info.sType = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_BUILD_GEOMETRY_INFO_KHR;
     top_level_acceleration_structure_build_geometry_info.type = VK_ACCELERATION_STRUCTURE_TYPE_TOP_LEVEL_KHR;
-    top_level_acceleration_structure_build_geometry_info.flags = 0;
+    top_level_acceleration_structure_build_geometry_info.flags = VK_BUILD_ACCELERATION_STRUCTURE_PREFER_FAST_TRACE_BIT_KHR;
     top_level_acceleration_structure_build_geometry_info.mode = VK_BUILD_ACCELERATION_STRUCTURE_MODE_BUILD_KHR;
     top_level_acceleration_structure_build_geometry_info.srcAccelerationStructure = VK_NULL_HANDLE;
     top_level_acceleration_structure_build_geometry_info.dstAccelerationStructure = VK_NULL_HANDLE;
@@ -65,7 +64,7 @@ AccelerationStructure TlasBuilder::buildTopLevelAccelerationStructure(
     top_level_acceleration_structure_build_sizes_info.updateScratchSize = 0;
     top_level_acceleration_structure_build_sizes_info.buildScratchSize = 0;
 
-    std::vector<uint32_t> top_level_max_primitive_count_list = {1};
+    std::vector<uint32_t> top_level_max_primitive_count_list{static_cast<uint32_t>(blas_instances.size())};
 
     pvkGetAccelerationStructureBuildSizesKHR(
         device.getDeviceHandle(), VK_ACCELERATION_STRUCTURE_BUILD_TYPE_DEVICE_KHR,
