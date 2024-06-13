@@ -23,6 +23,8 @@ public:
     [[nodiscard]] VkImageView getImageView() const { return image_view; }
     [[nodiscard]] VkImageLayout getImageLayout() const { return image_layout; }
 
+    [[nodiscard]] VkDescriptorImageInfo descriptorInfo() const;
+
     [[nodiscard]] bool isOpaque() const { return texture_info.is_opaque; }
 
 private:

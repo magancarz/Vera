@@ -30,13 +30,13 @@ private:
 
     [[nodiscard]] VkCommandBuffer getCurrentCommandBuffer() const
     {
-        assert(is_frame_started && "Cannot get command buffer when frame not in progress");
+        assert(is_frame_in_progress && "Cannot get command buffer when frame not in progress");
         return command_buffers[current_frame_index];
     }
 
     [[nodiscard]] int getFrameIndex() const
     {
-        assert(is_frame_started && "Cannot get frame index when frame not in progress!");
+        assert(is_frame_in_progress && "Cannot get frame index when frame not in progress!");
         return current_frame_index;
     }
 
@@ -72,7 +72,7 @@ private:
 
     std::vector<VkCommandBuffer> command_buffers;
 
-    bool is_frame_started{false};
+    bool is_frame_in_progress{false};
     int current_frame_index{0};
     uint32_t current_image_index{0};
 };

@@ -27,4 +27,6 @@ private:
     void createWindow();
 
     GLFWwindow* window{nullptr};
+
+    static void framebufferResizeCallback(GLFWwindow* window, int width, int height);
 };

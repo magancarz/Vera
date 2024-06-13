@@ -26,7 +26,10 @@ RayTracedRenderer::RayTracedRenderer(
     obtainRenderedObjectsFromWorld();
     createObjectDescriptionsBuffer();
     createAccelerationStructure();
-    createRayTracedImage();
+
+    VkSurfaceCapabilitiesKHR surface_capabilities;
+    vkGetPhysicalDeviceSurfaceCapabilitiesKHR(device.getPhysicalDeviceHandle(), device.getSurfaceKHRHandle(), &surface_capabilities);
+    createRayTracedImage(surface_capabilities.currentExtent.width, surface_capabilities.currentExtent.height);
     createCameraUniformBuffer();
     createDescriptors();
     buildRayTracingPipeline();
@@ -183,15 +186,12 @@ void RayTracedRenderer::createAccelerationStructure()
     tlas = TlasBuilder::buildTopLevelAccelerationStructure(device, memory_allocator, blas_instances);
 }
 
-void RayTracedRenderer::createRayTracedImage()
+void RayTracedRenderer::createRayTracedImage(uint32_t width, uint32_t height)
 {
-    VkSurfaceCapabilitiesKHR surface_capabilities;
-    vkGetPhysicalDeviceSurfaceCapabilitiesKHR(device.getPhysicalDeviceHandle(), device.getSurfaceKHRHandle(), &surface_capabilities);
-
     TextureData texture_data{};
     texture_data.name = "ray_traced_texture";
-    texture_data.width = surface_capabilities.currentExtent.width;
-    texture_data.height = surface_capabilities.currentExtent.height;
+    texture_data.width = width;
+    texture_data.height = height;
     texture_data.mip_levels = 1;
     texture_data.number_of_channels = 4;
     texture_data.format = VK_FORMAT_R16G16B16A16_SFLOAT;
@@ -261,10 +261,7 @@ void RayTracedRenderer::createDescriptors()
     auto object_descriptions_buffer_descriptor_info = object_descriptions_buffer->descriptorInfo();
     auto material_descriptions_descriptor_info = material_descriptions_buffer->descriptorInfo();
 
-    VkDescriptorImageInfo ray_trace_image_descriptor_info{};
-    ray_trace_image_descriptor_info.sampler = VK_NULL_HANDLE;
-    ray_trace_image_descriptor_info.imageView = ray_traced_texture->getImageView();
-    ray_trace_image_descriptor_info.imageLayout = VK_IMAGE_LAYOUT_GENERAL;
+    VkDescriptorImageInfo ray_trace_image_descriptor_info = ray_traced_texture->descriptorInfo();
 
     std::vector<VkDescriptorImageInfo> diffuse_texture_descriptor_infos;
     diffuse_texture_descriptor_infos.reserve(diffuse_textures.size());
@@ -376,4 +373,11 @@ void RayTracedRenderer::executeRayTracing(FrameInfo& frame_info)
         frame_info.window_size.width, frame_info.window_size.height, DEPTH);
 
     ++current_number_of_frames;
+}
+
+void RayTracedRenderer::recreateRayTracedImage(uint32_t new_width, uint32_t new_height)
+{
+    createRayTracedImage(new_width, new_height);
+    createDescriptors();
+    buildRayTracingPipeline();
 }

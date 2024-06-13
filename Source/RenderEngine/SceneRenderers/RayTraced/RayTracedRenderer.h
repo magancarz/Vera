@@ -18,8 +18,9 @@ public:
 
     void renderScene(FrameInfo& frame_info) override;
 
-    [[nodiscard]] VkImageView getRayTracedImageViewHandle() const { return ray_traced_texture->getImageView(); }
-    [[nodiscard]] VkSampler getRayTracedImageSampler() const { return ray_traced_texture->getSampler(); }
+    void recreateRayTracedImage(uint32_t new_width, uint32_t new_height);
+
+    [[nodiscard]] const DeviceTexture& getRayTracedImage() const { return *ray_traced_texture; }
 
 private:
     VulkanHandler& device;
@@ -48,7 +49,7 @@ private:
     std::unordered_map<std::string, Blas> blas_objects;
     AccelerationStructure tlas{};
 
-    void createRayTracedImage();
+    void createRayTracedImage(uint32_t width, uint32_t height);
 
     std::unique_ptr<DeviceTexture> ray_traced_texture;
 
