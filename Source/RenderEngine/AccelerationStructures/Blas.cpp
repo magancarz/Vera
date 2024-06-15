@@ -70,7 +70,7 @@ void Blas::createBlas(const Mesh& mesh)
 
 Blas::~Blas()
 {
-    pvkDestroyAccelerationStructureKHR(device.getDeviceHandle(), blas.acceleration_structure,
+    pvkDestroyAccelerationStructureKHR(device.getDeviceHandle(), blas.handle,
                                        VulkanDefines::NO_CALLBACK);
 }
 
@@ -84,7 +84,7 @@ BlasInstance Blas::createBlasInstance(const glm::mat4& transform) const
     blas_instance.bottom_level_acceleration_structure_instance.flags =
         VK_GEOMETRY_INSTANCE_TRIANGLE_FACING_CULL_DISABLE_BIT_KHR;
     blas_instance.bottom_level_acceleration_structure_instance.accelerationStructureReference = blas.
-        acceleration_structure_buffer->getBufferDeviceAddress();
+        buffer->getBufferDeviceAddress();
 
     BufferInfo bottom_level_geometry_instance_buffer_info{};
     bottom_level_geometry_instance_buffer_info.instance_size = sizeof(VkAccelerationStructureInstanceKHR);

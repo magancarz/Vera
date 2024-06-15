@@ -131,19 +131,19 @@ void BlasBuilder::cmdCreateBlas(
             VK_BUFFER_USAGE_ACCELERATION_STRUCTURE_STORAGE_BIT_KHR | VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT;
         acceleration_structure_buffer_info.required_memory_flags = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
 
-        build_as[idx].as.acceleration_structure_buffer = memory_allocator.createBuffer(acceleration_structure_buffer_info);
+        build_as[idx].as.buffer = memory_allocator.createBuffer(acceleration_structure_buffer_info);
 
-        create_info.buffer = build_as[idx].as.acceleration_structure_buffer->getBuffer();
+        create_info.buffer = build_as[idx].as.buffer->getBuffer();
         if (pvkCreateAccelerationStructureKHR(
                 device.getDeviceHandle(),
                 &create_info,
                 VulkanDefines::NO_CALLBACK,
-                &build_as[idx].as.acceleration_structure) != VK_SUCCESS)
+                &build_as[idx].as.handle) != VK_SUCCESS)
         {
             throw std::runtime_error("vkCreateAccelerationStructureKHR");
         }
 
-        build_as[idx].buildInfo.dstAccelerationStructure = build_as[idx].as.acceleration_structure;
+        build_as[idx].buildInfo.dstAccelerationStructure = build_as[idx].as.handle;
         build_as[idx].buildInfo.scratchData.deviceAddress = scratch_address;
 
         pvkCmdBuildAccelerationStructuresKHR(command_buffer, 1, &build_as[idx].buildInfo, &build_as[idx].rangeInfo);
@@ -213,21 +213,21 @@ void BlasBuilder::cmdCompactBlas(
             VK_BUFFER_USAGE_ACCELERATION_STRUCTURE_STORAGE_BIT_KHR | VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT;
         acceleration_structure_buffer_info.required_memory_flags = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
 
-        build_as[idx].as.acceleration_structure_buffer = memory_allocator.createBuffer(acceleration_structure_buffer_info);
+        build_as[idx].as.buffer = memory_allocator.createBuffer(acceleration_structure_buffer_info);
 
-        create_info.buffer = build_as[idx].as.acceleration_structure_buffer->getBuffer();
+        create_info.buffer = build_as[idx].as.buffer->getBuffer();
         if (pvkCreateAccelerationStructureKHR(
                 device.getDeviceHandle(),
                 &create_info,
                 VulkanDefines::NO_CALLBACK,
-                &build_as[idx].as.acceleration_structure) != VK_SUCCESS)
+                &build_as[idx].as.handle) != VK_SUCCESS)
         {
             throw std::runtime_error("vkCreateAccelerationStructureKHR");
         }
 
         VkCopyAccelerationStructureInfoKHR copy_info{VK_STRUCTURE_TYPE_COPY_ACCELERATION_STRUCTURE_INFO_KHR};
         copy_info.src  = build_as[idx].buildInfo.dstAccelerationStructure;
-        copy_info.dst  = build_as[idx].as.acceleration_structure;
+        copy_info.dst  = build_as[idx].as.handle;
         copy_info.mode = VK_COPY_ACCELERATION_STRUCTURE_MODE_COMPACT_KHR;
         pvkCmdCopyAccelerationStructureKHR(command_buffer, &copy_info);
     }
@@ -240,6 +240,6 @@ void BlasBuilder::destroyNonCompacted(
 {
     for (uint32_t idx : indices)
     {
-        pvkDestroyAccelerationStructureKHR(device.getDeviceHandle(), build_as[idx].cleanupAS.acceleration_structure, VulkanDefines::NO_CALLBACK);
+        pvkDestroyAccelerationStructureKHR(device.getDeviceHandle(), build_as[idx].cleanupAS.handle, VulkanDefines::NO_CALLBACK);
     }
 }

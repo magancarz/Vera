@@ -7,6 +7,7 @@
 #include "RenderEngine/RenderingAPI/Descriptors/DescriptorSetLayout.h"
 #include "RenderEngine/Textures/DeviceTexture.h"
 #include "RenderEngine/AccelerationStructures/Blas.h"
+#include "RenderEngine/AccelerationStructures/Tlas.h"
 
 class DescriptorPool;
 class DescriptorWriter;
@@ -42,9 +43,10 @@ private:
     std::vector<uint32_t> object_description_offsets;
 
     void createAccelerationStructure();
+    std::vector<BlasInstance> getBlasInstances();
 
     std::unordered_map<std::string, Blas> blas_objects;
-    AccelerationStructure tlas{};
+    Tlas tlas;
 
     void createRayTracedImage(uint32_t width, uint32_t height);
 

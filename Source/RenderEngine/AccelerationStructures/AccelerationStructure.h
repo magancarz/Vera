@@ -6,6 +6,6 @@
 
 struct AccelerationStructure
 {
-    VkAccelerationStructureKHR acceleration_structure;
-    std::unique_ptr<Buffer> acceleration_structure_buffer;
+    VkAccelerationStructureKHR handle;
+    std::unique_ptr<Buffer> buffer;
 };

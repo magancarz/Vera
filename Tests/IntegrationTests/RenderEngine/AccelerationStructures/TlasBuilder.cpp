@@ -23,13 +23,13 @@ TEST(TlasBuilderTests, shouldBuildValidTlas)
     blas_instances.emplace_back(std::move(blas_instance));
 
     // when
-    AccelerationStructure tlas = TlasBuilder::buildTopLevelAccelerationStructure(
+    AccelerationStructure tlas = Tlas::buildTopLevelAccelerationStructure(
     TestsEnvironment::vulkanHandler(), TestsEnvironment::memoryAllocator(), blas_instances);
 
     // then
-    EXPECT_NE(tlas.acceleration_structure, VK_NULL_HANDLE);
-    EXPECT_NE(tlas.acceleration_structure_buffer, nullptr);
+    EXPECT_NE(tlas.handle, VK_NULL_HANDLE);
+    EXPECT_NE(tlas.buffer, nullptr);
 
-    pvkDestroyAccelerationStructureKHR(TestsEnvironment::vulkanHandler().getDeviceHandle(), tlas.acceleration_structure, VulkanDefines::NO_CALLBACK);
+    pvkDestroyAccelerationStructureKHR(TestsEnvironment::vulkanHandler().getDeviceHandle(), tlas.handle, VulkanDefines::NO_CALLBACK);
     TestUtils::failIfVulkanValidationLayersErrorsWerePresent();
 }

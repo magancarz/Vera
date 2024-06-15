@@ -57,9 +57,9 @@ TEST(BlasBuilderTests, shouldBuildValidBlas)
     EXPECT_EQ(blases.size(), blas_inputs.size());
 
     AccelerationStructure blas = std::move(blases.front());
-    EXPECT_NE(blas.acceleration_structure, VK_NULL_HANDLE);
-    EXPECT_NE(blas.acceleration_structure_buffer, nullptr);
+    EXPECT_NE(blas.handle, VK_NULL_HANDLE);
+    EXPECT_NE(blas.buffer, nullptr);
 
-    pvkDestroyAccelerationStructureKHR(TestsEnvironment::vulkanHandler().getDeviceHandle(), blas.acceleration_structure, VulkanDefines::NO_CALLBACK);
+    pvkDestroyAccelerationStructureKHR(TestsEnvironment::vulkanHandler().getDeviceHandle(), blas.handle, VulkanDefines::NO_CALLBACK);
     TestUtils::failIfVulkanValidationLayersErrorsWerePresent();
 }

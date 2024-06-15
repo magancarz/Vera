@@ -79,7 +79,7 @@ BufferInfo VulkanMemoryAllocator::createStagingBufferInfo(uint32_t instance_size
     buffer_info.instance_count = instance_count;
     buffer_info.usage_flags = VK_BUFFER_USAGE_TRANSFER_SRC_BIT;
     buffer_info.required_memory_flags = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT;
-    buffer_info.allocation_flags = VMA_ALLOCATION_CREATE_HOST_ACCESS_SEQUENTIAL_WRITE_BIT;
+    buffer_info.allocation_flags = VMA_ALLOCATION_CREATE_HOST_ACCESS_SEQUENTIAL_WRITE_BIT | VMA_ALLOCATION_CREATE_MAPPED_BIT;
 
     return buffer_info;
 }
