@@ -1,5 +1,6 @@
 #include <TestUtils.h>
 #include <Assets/AssetManager.h>
+#include <Editor/Window/GLFWWindow.h>
 #include <Editor/Window/WindowSystem.h>
 #include <Mocks/MockInputManager.h>
 #include <RenderEngine/FrameInfo.h>
@@ -8,23 +9,36 @@
 
 #include "gtest/gtest.h"
 
-TEST(E2ETests, shouldMakeCorrectApplicationRun)
+struct ApplicationTests : public ::testing::Test
 {
-    // given
-    auto asset_manager = std::make_unique<AssetManager>(TestsEnvironment::vulkanHandler(), TestsEnvironment::memoryAllocator());
-    auto input_manager = std::make_unique<MockInputManager>();
+    inline static std::unique_ptr<AssetManager> asset_manager;
+    inline static std::unique_ptr<MockInputManager> input_manager;
+    inline static std::unique_ptr<Renderer> renderer;
+    inline static World world{};
 
-    World world{};
-    ProjectInfo project_info = ProjectUtils::loadProject("debug");
-    world.loadProject(project_info, *asset_manager);
-    world.createViewerObject(*input_manager);
+    static constexpr float FPS = 30.f;
 
-    auto renderer = std::make_unique<Renderer>(WindowSystem::get(), TestsEnvironment::vulkanHandler(), TestsEnvironment::memoryAllocator(), world, *asset_manager);
+    static void SetUpTestSuite()
+    {
+        asset_manager = std::make_unique<AssetManager>(TestsEnvironment::vulkanHandler(), TestsEnvironment::memoryAllocator());
+        input_manager = std::make_unique<MockInputManager>();
 
-    constexpr float FPS = 30.f;
+        ProjectInfo project_info = ProjectUtils::loadProject("debug");
+        world.loadProject(project_info, *asset_manager);
+        world.createViewerObject(*input_manager);
 
-    // when
-    for (size_t i = 0; i < 30; ++i)
+        renderer = std::make_unique<Renderer>(WindowSystem::get(), TestsEnvironment::vulkanHandler(), TestsEnvironment::memoryAllocator(), world, *asset_manager);
+    }
+
+    static void TearDownTestSuite()
+    {
+        renderer.reset();
+        world = World{};
+        input_manager.reset();
+        asset_manager.reset();
+    }
+
+    static void runFrame()
     {
         FrameInfo frame_info{};
 
@@ -34,7 +48,40 @@ TEST(E2ETests, shouldMakeCorrectApplicationRun)
         renderer->render(frame_info);
     }
 
+    static void runFrames(uint32_t num_of_frames)
+    {
+        for (uint32_t i = 0; i < num_of_frames; ++i)
+        {
+            runFrame();
+        }
+    }
+};
+
+TEST_F(ApplicationTests, shouldMakeCorrectApplicationRun)
+{
+    // when
+    runFrames(30);
+
     // then
     vkDeviceWaitIdle(TestsEnvironment::vulkanHandler().getDeviceHandle());
     TestUtils::failIfVulkanValidationLayersErrorsWerePresent();
+}
+
+TEST_F(ApplicationTests, shouldHandleWindowResizing)
+{
+    // given
+    runFrames(5);
+
+    GLFWwindow* glfw_window = dynamic_cast<GLFWWindow*>(&WindowSystem::get())->getGFLWwindow();
+    glfwSetWindowSize(glfw_window, Editor::DEFAULT_WINDOW_WIDTH / 2, Editor::DEFAULT_WINDOW_HEIGHT / 2);
+
+    // when
+    runFrames(5);
+
+    // then
+    glfwSetWindowSize(glfw_window, Editor::DEFAULT_WINDOW_WIDTH, Editor::DEFAULT_WINDOW_HEIGHT);
+    runFrames(5);
+
+    TestUtils::failIfVulkanValidationLayersErrorsWerePresent();
+    vkDeviceWaitIdle(TestsEnvironment::vulkanHandler().getDeviceHandle());
 }

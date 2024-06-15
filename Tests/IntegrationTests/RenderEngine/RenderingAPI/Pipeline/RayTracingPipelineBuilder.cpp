@@ -26,20 +26,20 @@ TEST(RayTracingPipelineBuilderTests, shouldBuildValidRayTracingPipeline)
         .build();
 
     auto ray_tracing_pipeline_builder = RayTracingPipelineBuilder(TestsEnvironment::vulkanHandler(), TestsEnvironment::memoryAllocator())
-            .addRayGenerationStage(std::make_unique<ShaderModule>(TestsEnvironment::vulkanHandler(), "raytrace", VK_SHADER_STAGE_RAYGEN_BIT_KHR))
-            .addMissStage(std::make_unique<ShaderModule>(TestsEnvironment::vulkanHandler(), "raytrace", VK_SHADER_STAGE_MISS_BIT_KHR))
-            .addMissStage(std::make_unique<ShaderModule>(TestsEnvironment::vulkanHandler(), "raytrace_shadow", VK_SHADER_STAGE_MISS_BIT_KHR))
-            .addDefaultOcclusionCheckShader(std::make_unique<ShaderModule>(TestsEnvironment::vulkanHandler(), "raytrace_occlusion", VK_SHADER_STAGE_ANY_HIT_BIT_KHR))
-            .addDescriptorSetLayout(acceleration_structure_descriptor_set_layout->getDescriptorSetLayout())
-            .addDescriptorSetLayout(ray_traced_image_descriptor_set_layout->getDescriptorSetLayout())
-            .addDescriptorSetLayout(object_descriptions_descriptor_set_layout->getDescriptorSetLayout())
-            .setMaxRecursionDepth(2);
+        .addRayGenerationStage(std::make_unique<ShaderModule>(TestsEnvironment::vulkanHandler(), "raytrace", VK_SHADER_STAGE_RAYGEN_BIT_KHR))
+        .addMissStage(std::make_unique<ShaderModule>(TestsEnvironment::vulkanHandler(), "raytrace", VK_SHADER_STAGE_MISS_BIT_KHR))
+        .addMissStage(std::make_unique<ShaderModule>(TestsEnvironment::vulkanHandler(), "raytrace_shadow", VK_SHADER_STAGE_MISS_BIT_KHR))
+        .addDefaultOcclusionCheckShader(std::make_unique<ShaderModule>(TestsEnvironment::vulkanHandler(), "raytrace_occlusion", VK_SHADER_STAGE_ANY_HIT_BIT_KHR))
+        .addDescriptorSetLayout(acceleration_structure_descriptor_set_layout->getDescriptorSetLayout())
+        .addDescriptorSetLayout(ray_traced_image_descriptor_set_layout->getDescriptorSetLayout())
+        .addDescriptorSetLayout(object_descriptions_descriptor_set_layout->getDescriptorSetLayout())
+        .setMaxRecursionDepth(2);
 
     ray_tracing_pipeline_builder.addMaterialShader(
-            "lambertian",
-            std::make_unique<ShaderModule>(TestsEnvironment::vulkanHandler(), "raytrace_lambertian", VK_SHADER_STAGE_CLOSEST_HIT_BIT_KHR),
-            std::make_unique<ShaderModule>(TestsEnvironment::vulkanHandler(), "raytrace_alpha_check", VK_SHADER_STAGE_ANY_HIT_BIT_KHR),
-            std::make_unique<ShaderModule>(TestsEnvironment::vulkanHandler(), "raytrace_alpha_check", VK_SHADER_STAGE_ANY_HIT_BIT_KHR));
+        "lambertian",
+        std::make_unique<ShaderModule>(TestsEnvironment::vulkanHandler(), "raytrace_lambertian", VK_SHADER_STAGE_CLOSEST_HIT_BIT_KHR),
+        std::make_unique<ShaderModule>(TestsEnvironment::vulkanHandler(), "raytrace_alpha_check", VK_SHADER_STAGE_ANY_HIT_BIT_KHR),
+        std::make_unique<ShaderModule>(TestsEnvironment::vulkanHandler(), "raytrace_alpha_check", VK_SHADER_STAGE_ANY_HIT_BIT_KHR));
     ray_tracing_pipeline_builder.registerObjectMaterial("lambertian");
 
     // when
