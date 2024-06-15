@@ -18,15 +18,15 @@ class RayTracingPipeline
 {
 public:
     RayTracingPipeline(
-            VulkanHandler& device,
-            MemoryAllocator& memory_allocator,
-            const std::vector<VkPipelineShaderStageCreateInfo>& shader_stage_create_info_list,
-            const std::vector<VkRayTracingShaderGroupCreateInfoKHR>& shader_group_create_info_list,
-            const std::vector<VkDescriptorSetLayout>& descriptor_set_layouts,
-            uint32_t max_recursion_depth,
-            uint32_t miss_count,
-            uint32_t hit_group_count,
-            const VkPhysicalDeviceRayTracingPipelinePropertiesKHR& ray_tracing_properties);
+        VulkanHandler& device,
+        MemoryAllocator& memory_allocator,
+        const std::vector<VkPipelineShaderStageCreateInfo>& shader_stage_create_info_list,
+        const std::vector<VkRayTracingShaderGroupCreateInfoKHR>& shader_group_create_info_list,
+        const std::vector<VkDescriptorSetLayout>& descriptor_set_layouts,
+        uint32_t max_recursion_depth,
+        uint32_t miss_count,
+        uint32_t hit_group_count,
+        const VkPhysicalDeviceRayTracingPipelinePropertiesKHR& ray_tracing_properties);
     ~RayTracingPipeline();
 
     RayTracingPipeline(const RayTracingPipeline&) = delete;
@@ -40,10 +40,10 @@ public:
 
 private:
     void createPipeline(
-            const std::vector<VkPipelineShaderStageCreateInfo>& shader_stage_create_info_list,
-            const std::vector<VkRayTracingShaderGroupCreateInfoKHR>& shader_group_create_info_list,
-            const std::vector<VkDescriptorSetLayout>& descriptor_set_layouts,
-            uint32_t max_recursion_depth);
+        const std::vector<VkPipelineShaderStageCreateInfo>& shader_stage_create_info_list,
+        const std::vector<VkRayTracingShaderGroupCreateInfoKHR>& shader_group_create_info_list,
+        const std::vector<VkDescriptorSetLayout>& descriptor_set_layouts,
+        uint32_t max_recursion_depth);
     void createShaderBindingTable(uint32_t miss_count, uint32_t hit_group_count);
 
     VulkanHandler& device;
@@ -58,5 +58,4 @@ private:
     VkStridedDeviceAddressRegionKHR ray_gen_shader_binding_table{};
     VkStridedDeviceAddressRegionKHR miss_shader_binding_table{};
     VkStridedDeviceAddressRegionKHR callable_shader_binding_table{};
-
 };

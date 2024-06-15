@@ -4,11 +4,12 @@
 #include "RenderEngine/SceneRenderers/SceneRenderer.h"
 #include "World/World.h"
 #include "RenderEngine/Pipeline/RayTracingPipeline.h"
-#include "RenderEngine/RenderingAPI/Descriptors/DescriptorPool.h"
 #include "RenderEngine/RenderingAPI/Descriptors/DescriptorSetLayout.h"
 #include "RenderEngine/Textures/DeviceTexture.h"
 #include "RenderEngine/AccelerationStructures/Blas.h"
-#include "RenderEngine/Pipeline/RayTracingPipelineBuilder.h"
+
+class DescriptorPool;
+class DescriptorWriter;
 
 class RayTracedRenderer : public SceneRenderer
 {
@@ -18,18 +19,15 @@ public:
 
     void renderScene(FrameInfo& frame_info) override;
 
-    [[nodiscard]] VkImageView getRayTracedImageViewHandle() const { return ray_traced_texture->getImageView(); }
-    [[nodiscard]] VkSampler getRayTracedImageSampler() const { return ray_traced_texture->getSampler(); }
+    void handleWindowResize(uint32_t new_width, uint32_t new_height);
+
+    [[nodiscard]] const DeviceTexture& getRayTracedImage() const { return *ray_traced_texture; }
 
 private:
     VulkanHandler& device;
     MemoryAllocator& memory_allocator;
     AssetManager& asset_manager;
     World& world;
-
-    void queryRayTracingPipelineProperties();
-
-    VkPhysicalDeviceRayTracingPipelinePropertiesKHR ray_tracing_properties;
 
     void obtainRenderedObjectsFromWorld();
 
@@ -48,7 +46,7 @@ private:
     std::unordered_map<std::string, Blas> blas_objects;
     AccelerationStructure tlas{};
 
-    void createRayTracedImage();
+    void createRayTracedImage(uint32_t width, uint32_t height);
 
     std::unique_ptr<DeviceTexture> ray_traced_texture;
 
@@ -59,8 +57,28 @@ private:
     void createDescriptors();
 
     std::unique_ptr<DescriptorPool> descriptor_pool;
-    std::unique_ptr<DescriptorSetLayout> descriptor_set_layout;
-    VkDescriptorSet descriptor_set_handle;
+    std::unique_ptr<DescriptorWriter> descriptor_writer;
+
+    void createAccelerationStructureDescriptor();
+    void createAccelerationStructureDescriptorLayout();
+    void writeToAccelerationStructureDescriptorSet();
+
+    std::unique_ptr<DescriptorSetLayout> acceleration_structure_descriptor_set_layout;
+    VkDescriptorSet acceleration_structure_descriptor_set_handle{VK_NULL_HANDLE};
+
+    void createRayTracedImageDescriptor();
+    void createRayTracedImageDescriptorLayout();
+    void writeToRayTracedImageDescriptorSet();
+
+    std::unique_ptr<DescriptorSetLayout> ray_traced_image_descriptor_set_layout;
+    VkDescriptorSet ray_traced_image_descriptor_set_handle{VK_NULL_HANDLE};
+
+    void createObjectDescriptionsDescriptor();
+    void createObjectDescriptionsDescriptorLayout();
+    void writeToObjectDescriptionsDescriptorSet();
+
+    std::unique_ptr<DescriptorSetLayout> objects_descriptions_descriptor_set_layout;
+    VkDescriptorSet objects_info_descriptor_set_handle{VK_NULL_HANDLE};
 
     void buildRayTracingPipeline();
 
@@ -70,6 +88,7 @@ private:
 
     void updatePipelineUniformVariables(FrameInfo& frame_info);
     void updateCameraUniformBuffer(FrameInfo& frame_info);
+    void bindDescriptorSets(FrameInfo& frame_info);
     void updateRayPushConstant(FrameInfo& frame_info);
     void executeRayTracing(FrameInfo& frame_info);
 

@@ -35,7 +35,7 @@ void RayTracingPipeline::createPipeline(
 
     VkPipelineLayoutCreateInfo pipeline_layout_create_info{VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO};
     pipeline_layout_create_info.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-    pipeline_layout_create_info.setLayoutCount = (uint32_t)descriptor_set_layouts.size();
+    pipeline_layout_create_info.setLayoutCount = static_cast<uint32_t>(descriptor_set_layouts.size());
     pipeline_layout_create_info.pSetLayouts = descriptor_set_layouts.data();
     pipeline_layout_create_info.pushConstantRangeCount = 1;
     pipeline_layout_create_info.pPushConstantRanges = &push_constant_range;
@@ -145,34 +145,34 @@ void RayTracingPipeline::bind(VkCommandBuffer command_buffer)
 void RayTracingPipeline::bindDescriptorSets(VkCommandBuffer command_buffer, const std::vector<VkDescriptorSet>& descriptor_sets)
 {
     vkCmdBindDescriptorSets(
-            command_buffer,
-            VK_PIPELINE_BIND_POINT_RAY_TRACING_KHR,
-            pipeline_layout_handle,
-            0,
-            (uint32_t)descriptor_sets.size(),
-            descriptor_sets.data(),
-            0,
-            nullptr);
+        command_buffer,
+        VK_PIPELINE_BIND_POINT_RAY_TRACING_KHR,
+        pipeline_layout_handle,
+        0,
+        (uint32_t)descriptor_sets.size(),
+        descriptor_sets.data(),
+        0,
+        nullptr);
 }
 
 void RayTracingPipeline::pushConstants(VkCommandBuffer command_buffer, const PushConstantRay& push_constant_ray)
 {
     vkCmdPushConstants(
-            command_buffer,
-            pipeline_layout_handle,
-            VK_SHADER_STAGE_RAYGEN_BIT_KHR | VK_SHADER_STAGE_CLOSEST_HIT_BIT_KHR | VK_SHADER_STAGE_MISS_BIT_KHR,
-            0,
-            sizeof(PushConstantRay),
-            &push_constant_ray);
+        command_buffer,
+        pipeline_layout_handle,
+        VK_SHADER_STAGE_RAYGEN_BIT_KHR | VK_SHADER_STAGE_CLOSEST_HIT_BIT_KHR | VK_SHADER_STAGE_MISS_BIT_KHR,
+        0,
+        sizeof(PushConstantRay),
+        &push_constant_ray);
 }
 
 ShaderBindingTableValues RayTracingPipeline::getShaderBindingTableValues()
 {
     return
     {
-            .ray_gen_shader_binding_table = ray_gen_shader_binding_table,
-            .miss_shader_binding_table = miss_shader_binding_table,
-            .closest_hit_shader_binding_table = hit_shader_binding_table,
-            .callable_shader_binding_table = callable_shader_binding_table
+        .ray_gen_shader_binding_table = ray_gen_shader_binding_table,
+        .miss_shader_binding_table = miss_shader_binding_table,
+        .closest_hit_shader_binding_table = hit_shader_binding_table,
+        .callable_shader_binding_table = callable_shader_binding_table
     };
 }

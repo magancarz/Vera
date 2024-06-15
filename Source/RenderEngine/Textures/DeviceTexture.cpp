@@ -287,3 +287,13 @@ void DeviceTexture::generateMipmaps()
 
     image_layout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
 }
+
+VkDescriptorImageInfo DeviceTexture::descriptorInfo() const
+{
+    VkDescriptorImageInfo descriptor_info{};
+    descriptor_info.sampler = sampler;
+    descriptor_info.imageView = image_view;
+    descriptor_info.imageLayout = image_layout;
+
+    return descriptor_info;
+}

@@ -13,6 +13,11 @@ PhysicalDevice::PhysicalDevice(Instance& instance, Surface& surface)
     pickPhysicalDevice();
 }
 
+PhysicalDevice::operator VkPhysicalDevice () const
+{
+    return used_physical_device;
+}
+
 void PhysicalDevice::pickPhysicalDevice()
 {
     uint32_t device_count = 0;

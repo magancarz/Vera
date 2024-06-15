@@ -5,15 +5,16 @@
 #include <climits>
 #include <stdexcept>
 
+#include "VulkanDefines.h"
 #include "Logs/LogSystem.h"
 
 SwapChain::SwapChain(VulkanHandler& device_ref, VkExtent2D window_extent)
     : device{device_ref}, window_extent{window_extent}
 {
-    init();
+    initializeSwapChain();
 }
 
-void SwapChain::init()
+void SwapChain::initializeSwapChain()
 {
     createSwapChain();
     createImageViews();
@@ -25,9 +26,9 @@ void SwapChain::init()
 SwapChain::SwapChain(VulkanHandler& device_ref, VkExtent2D window_extent, std::shared_ptr<SwapChain> previous)
     : device{device_ref}, window_extent{window_extent}, old_swap_chain{std::move(previous)}
 {
-    init();
+    initializeSwapChain();
 
-    old_swap_chain = nullptr;
+    old_swap_chain.reset();
 }
 
 SwapChain::~SwapChain()
@@ -42,13 +43,6 @@ SwapChain::~SwapChain()
     {
         vkDestroySwapchainKHR(device.getDeviceHandle(), swap_chain, nullptr);
         swap_chain = nullptr;
-    }
-
-    for (int i = 0; i < depth_images.size(); i++)
-    {
-        vkDestroyImageView(device.getDeviceHandle(), depth_image_views[i], nullptr);
-        vkDestroyImage(device.getDeviceHandle(), depth_images[i], nullptr);
-        vkFreeMemory(device.getDeviceHandle(), depth_image_memorys[i], nullptr);
     }
 
     for (auto framebuffer: swap_chain_framebuffers)
@@ -308,9 +302,9 @@ void SwapChain::createSyncObjects()
 
     for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++)
     {
-        if (vkCreateSemaphore(device.getDeviceHandle(), &semaphore_info, nullptr, &image_available_semaphores[i]) != VK_SUCCESS ||
-            vkCreateSemaphore(device.getDeviceHandle(), &semaphore_info, nullptr, &render_finished_semaphores[i]) != VK_SUCCESS ||
-            vkCreateFence(device.getDeviceHandle(), &fence_info, nullptr, &in_flight_fences[i]) != VK_SUCCESS)
+        if (vkCreateSemaphore(device.getDeviceHandle(), &semaphore_info, VulkanDefines::NO_CALLBACK, &image_available_semaphores[i]) != VK_SUCCESS ||
+            vkCreateSemaphore(device.getDeviceHandle(), &semaphore_info, VulkanDefines::NO_CALLBACK, &render_finished_semaphores[i]) != VK_SUCCESS ||
+            vkCreateFence(device.getDeviceHandle(), &fence_info, VulkanDefines::NO_CALLBACK, &in_flight_fences[i]) != VK_SUCCESS)
         {
             throw std::runtime_error("failed to create synchronization objects for a frame!");
         }
@@ -352,6 +346,7 @@ VkExtent2D SwapChain::chooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilit
     {
         return capabilities.currentExtent;
     }
+
     VkExtent2D actual_extent = window_extent;
     actual_extent.width = std::max(
         capabilities.minImageExtent.width,

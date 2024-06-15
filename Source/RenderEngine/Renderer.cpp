@@ -9,12 +9,11 @@
 #include "RenderingAPI/Descriptors/DescriptorPoolBuilder.h"
 #include "RenderingAPI/Descriptors/DescriptorSetLayoutBuilder.h"
 
-Renderer::Renderer(Window& window, VulkanHandler& device, MemoryAllocator& memory_allocator, World& world,
-                   AssetManager& asset_manager)
+Renderer::Renderer(Window& window, VulkanHandler& device, MemoryAllocator& memory_allocator, World& world, AssetManager& asset_manager)
     : window{window}, device{device}, memory_allocator{memory_allocator}, world{world}, asset_manager(asset_manager)
 {
-    createCommandBuffers();
     recreateSwapChain();
+    createCommandBuffers();
     createGUI();
     createSceneRenderer();
     createPostProcessingStage();
@@ -55,10 +54,14 @@ void Renderer::recreateSwapChain()
         std::shared_ptr<SwapChain> old_swap_chain = std::move(swap_chain);
         swap_chain = std::make_unique<SwapChain>(device, extent, old_swap_chain);
 
-        if (!old_swap_chain->compareSwapFormats(*swap_chain))
+        if (!old_swap_chain->compareSwapChainFormats(*swap_chain))
         {
             throw std::runtime_error("Swap chain image or depth format has changed!");
         }
+
+        gui->handleWindowResize(swap_chain.get());
+        scene_renderer->handleWindowResize(swap_chain->width(), swap_chain->height());
+        writeToPostProcessInputTextureInfoDescriptorSet();
     }
 }
 
@@ -75,28 +78,43 @@ void Renderer::createSceneRenderer()
 void Renderer::createPostProcessingStage()
 {
     post_process_texture_descriptor_pool = DescriptorPoolBuilder(device)
-       .setMaxSets(SwapChain::MAX_FRAMES_IN_FLIGHT)
-       .addPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1)
-       .build();
+        .setMaxSets(SwapChain::MAX_FRAMES_IN_FLIGHT)
+        .addPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1)
+        .build();
 
-    post_process_texture_descriptor_set_layout = DescriptorSetLayoutBuilder(device)
-         .addBinding(0, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT)
-         .build();
-
-    VkDescriptorImageInfo ray_trace_image_descriptor_info{};
-    ray_trace_image_descriptor_info.sampler = scene_renderer->getRayTracedImageSampler();
-    ray_trace_image_descriptor_info.imageView = scene_renderer->getRayTracedImageViewHandle();
-    ray_trace_image_descriptor_info.imageLayout = VK_IMAGE_LAYOUT_GENERAL;
-
-    DescriptorWriter(*post_process_texture_descriptor_set_layout, *post_process_texture_descriptor_pool)
-        .writeImage(0, &ray_trace_image_descriptor_info)
-        .build(post_process_texture_descriptor_set_handle);
+    createPostProcessInputTextureDescriptorSetLayout();
+    writeToPostProcessInputTextureInfoDescriptorSet();
 
     post_processing = std::make_unique<PostProcessing>(
         device,
         asset_manager,
         swap_chain->getRenderPass(),
         post_process_texture_descriptor_set_layout->getDescriptorSetLayout());
+}
+
+void Renderer::createPostProcessInputTextureDescriptorSetLayout()
+{
+    post_process_texture_descriptor_set_layout = DescriptorSetLayoutBuilder(device)
+        .addBinding(0, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT)
+        .build();
+}
+
+void Renderer::writeToPostProcessInputTextureInfoDescriptorSet()
+{
+    const DeviceTexture& ray_traced_image = scene_renderer->getRayTracedImage();
+    VkDescriptorImageInfo ray_trace_image_descriptor_info = ray_traced_image.descriptorInfo();
+
+    auto descriptor_writer = DescriptorWriter(*post_process_texture_descriptor_set_layout, *post_process_texture_descriptor_pool)
+        .writeImage(0, &ray_trace_image_descriptor_info);
+
+    if (post_process_texture_descriptor_set_handle == VK_NULL_HANDLE)
+    {
+        descriptor_writer.build(post_process_texture_descriptor_set_handle);
+    }
+    else
+    {
+        descriptor_writer.overwrite(post_process_texture_descriptor_set_handle);
+    }
 }
 
 Renderer::~Renderer()
@@ -133,7 +151,7 @@ void Renderer::render(FrameInfo& frame_info)
 
 VkCommandBuffer Renderer::beginFrame()
 {
-    assert(!is_frame_started && "Can't call beginFrame while already in progress!");
+    assert(!is_frame_in_progress && "Can't call beginFrame while already in progress!");
 
     auto result = swap_chain->acquireNextImage(&current_image_index);
     if (result == VK_ERROR_OUT_OF_DATE_KHR)
@@ -147,7 +165,7 @@ VkCommandBuffer Renderer::beginFrame()
         throw std::runtime_error("Failed to acquire swap chain image!");
     }
 
-    is_frame_started = true;
+    is_frame_in_progress = true;
 
     auto command_buffer = getCurrentCommandBuffer();
     VkCommandBufferBeginInfo begin_info{};
@@ -169,7 +187,7 @@ void Renderer::applyPostProcessing(FrameInfo& frame_info)
 
 void Renderer::endFrame()
 {
-    assert(is_frame_started && "Can't call endFrame while frame is not in progress");
+    assert(is_frame_in_progress && "Can't call endFrame while frame is not in progress");
 
     auto command_buffer = getCurrentCommandBuffer();
     if (vkEndCommandBuffer(command_buffer) != VK_SUCCESS)
@@ -177,21 +195,24 @@ void Renderer::endFrame()
         throw std::runtime_error("Failed to record command buffer!");
     }
 
-    std::vector<VkCommandBuffer> submit_command_buffers = {command_buffer};
-    auto result = swap_chain->submitCommandBuffers(
-        submit_command_buffers.data(), submit_command_buffers.size(), &current_image_index);
-    if (result != VK_SUCCESS)
+    auto result = swap_chain->submitCommandBuffers(&command_buffer, 1, &current_image_index);
+    if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || window.wasWindowResized())
+    {
+        window.resetWindowResizedFlag();
+        recreateSwapChain();
+    }
+    else if (result != VK_SUCCESS)
     {
         throw std::runtime_error("Failed to present swap chain image!");
     }
 
-    is_frame_started = false;
+    is_frame_in_progress = false;
     current_frame_index = (current_frame_index + 1) % SwapChain::MAX_FRAMES_IN_FLIGHT;
 }
 
 void Renderer::beginSwapChainRenderPass(VkCommandBuffer command_buffer)
 {
-    assert(is_frame_started && "Can't call beginSwapChainRenderPass if frame is not in progress!");
+    assert(is_frame_in_progress && "Can't call beginSwapChainRenderPass if frame is not in progress!");
     assert(command_buffer == getCurrentCommandBuffer() &&
         "Can't begin updateElements pass on command buffer from a different frame!");
 
@@ -225,7 +246,7 @@ void Renderer::beginSwapChainRenderPass(VkCommandBuffer command_buffer)
 
 void Renderer::endSwapChainRenderPass(VkCommandBuffer command_buffer)
 {
-    assert(is_frame_started && "Can't call endSwapChainRenderPass if frame is not in progress!");
+    assert(is_frame_in_progress && "Can't call endSwapChainRenderPass if frame is not in progress!");
     assert(command_buffer == getCurrentCommandBuffer() &&
         "Can't end updateElements pass on command buffer from a different frame!");
 

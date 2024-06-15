@@ -22,8 +22,13 @@ public:
     [[nodiscard]] VkExtent2D getExtent() const { return {width, height}; }
     [[nodiscard]] float getAspect() const { return static_cast<float>(width) / static_cast<float>(height); }
 
+    [[nodiscard]] bool wasWindowResized() const { return framebuffer_resized; }
+    void resetWindowResizedFlag() { framebuffer_resized = false; }
+
 protected:
     uint32_t width;
     uint32_t height;
     std::string window_name;
+
+    bool framebuffer_resized{false};
 };
