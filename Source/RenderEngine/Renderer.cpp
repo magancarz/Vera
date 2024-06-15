@@ -59,9 +59,9 @@ void Renderer::recreateSwapChain()
             throw std::runtime_error("Swap chain image or depth format has changed!");
         }
 
-        //gui->onWindowResizeCallback();
-        scene_renderer->recreateRayTracedImage(swap_chain->width(), swap_chain->height());
-        createPostProcessingStage();
+        gui->handleWindowResize(swap_chain.get());
+        scene_renderer->handleWindowResize(swap_chain->width(), swap_chain->height());
+        writeToPostProcessInputTextureInfoDescriptorSet();
     }
 }
 
@@ -78,26 +78,43 @@ void Renderer::createSceneRenderer()
 void Renderer::createPostProcessingStage()
 {
     post_process_texture_descriptor_pool = DescriptorPoolBuilder(device)
-       .setMaxSets(SwapChain::MAX_FRAMES_IN_FLIGHT)
-       .addPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1)
-       .build();
+        .setMaxSets(SwapChain::MAX_FRAMES_IN_FLIGHT)
+        .addPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1)
+        .build();
 
-    post_process_texture_descriptor_set_layout = DescriptorSetLayoutBuilder(device)
-         .addBinding(0, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT)
-         .build();
-
-    const DeviceTexture& ray_traced_image = scene_renderer->getRayTracedImage();
-    VkDescriptorImageInfo ray_trace_image_descriptor_info = ray_traced_image.descriptorInfo();
-
-    DescriptorWriter(*post_process_texture_descriptor_set_layout, *post_process_texture_descriptor_pool)
-        .writeImage(0, &ray_trace_image_descriptor_info)
-        .build(post_process_texture_descriptor_set_handle);
+    createPostProcessInputTextureDescriptorSetLayout();
+    writeToPostProcessInputTextureInfoDescriptorSet();
 
     post_processing = std::make_unique<PostProcessing>(
         device,
         asset_manager,
         swap_chain->getRenderPass(),
         post_process_texture_descriptor_set_layout->getDescriptorSetLayout());
+}
+
+void Renderer::createPostProcessInputTextureDescriptorSetLayout()
+{
+    post_process_texture_descriptor_set_layout = DescriptorSetLayoutBuilder(device)
+        .addBinding(0, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT)
+        .build();
+}
+
+void Renderer::writeToPostProcessInputTextureInfoDescriptorSet()
+{
+    const DeviceTexture& ray_traced_image = scene_renderer->getRayTracedImage();
+    VkDescriptorImageInfo ray_trace_image_descriptor_info = ray_traced_image.descriptorInfo();
+
+    auto descriptor_writer = DescriptorWriter(*post_process_texture_descriptor_set_layout, *post_process_texture_descriptor_pool)
+        .writeImage(0, &ray_trace_image_descriptor_info);
+
+    if (post_process_texture_descriptor_set_handle == VK_NULL_HANDLE)
+    {
+        descriptor_writer.build(post_process_texture_descriptor_set_handle);
+    }
+    else
+    {
+        descriptor_writer.overwrite(post_process_texture_descriptor_set_handle);
+    }
 }
 
 Renderer::~Renderer()
@@ -123,10 +140,10 @@ void Renderer::render(FrameInfo& frame_info)
         frame_info.window_size = swap_chain->getSwapChainExtent();
         frame_info.ray_traced_texture = post_process_texture_descriptor_set_handle;
 
-        //gui->updateGUIElements(frame_info);
+        gui->updateGUIElements(frame_info);
         scene_renderer->renderScene(frame_info);
         applyPostProcessing(frame_info);
-        //gui->renderGUIElements(command_buffer);
+        gui->renderGUIElements(command_buffer);
 
         endFrame();
     }

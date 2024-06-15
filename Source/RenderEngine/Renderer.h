@@ -55,6 +55,8 @@ private:
     std::unique_ptr<RayTracedRenderer> scene_renderer;
 
     void createPostProcessingStage();
+    void createPostProcessInputTextureDescriptorSetLayout();
+    void writeToPostProcessInputTextureInfoDescriptorSet();
 
     std::unique_ptr<DescriptorPool> post_process_texture_descriptor_pool;
     std::unique_ptr<DescriptorSetLayout> post_process_texture_descriptor_set_layout;

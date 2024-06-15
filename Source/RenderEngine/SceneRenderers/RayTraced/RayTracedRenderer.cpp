@@ -434,8 +434,9 @@ void RayTracedRenderer::executeRayTracing(FrameInfo& frame_info)
     ++current_number_of_frames;
 }
 
-void RayTracedRenderer::recreateRayTracedImage(uint32_t new_width, uint32_t new_height)
+void RayTracedRenderer::handleWindowResize(uint32_t new_width, uint32_t new_height)
 {
     createRayTracedImage(new_width, new_height);
     writeToRayTracedImageDescriptorSet();
+    current_number_of_frames = 0;
 }

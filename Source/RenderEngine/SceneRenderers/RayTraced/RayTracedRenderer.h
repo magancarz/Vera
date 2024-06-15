@@ -19,7 +19,7 @@ public:
 
     void renderScene(FrameInfo& frame_info) override;
 
-    void recreateRayTracedImage(uint32_t new_width, uint32_t new_height);
+    void handleWindowResize(uint32_t new_width, uint32_t new_height);
 
     [[nodiscard]] const DeviceTexture& getRayTracedImage() const { return *ray_traced_texture; }
 

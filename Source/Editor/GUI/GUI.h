@@ -20,12 +20,12 @@ public:
     void updateGUIElements(FrameInfo& frame_info);
     void renderGUIElements(VkCommandBuffer command_buffer);
 
-    void onWindowResizeCallback();
+    void handleWindowResize(SwapChain* new_swap_chain);
 
 private:
     VulkanHandler& device;
     Window& window;
-    SwapChain* swap_chain;
+    SwapChain* swap_chain{nullptr};
 
     void initializeGUIComponents();
 

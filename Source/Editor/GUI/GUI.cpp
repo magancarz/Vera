@@ -248,8 +248,12 @@ void GUI::renderGUIElements(VkCommandBuffer command_buffer)
     vkCmdEndRenderPass(command_buffer);
 }
 
-void GUI::onWindowResizeCallback()
+void GUI::handleWindowResize(SwapChain* new_swap_chain)
 {
+    assert(new_swap_chain && "Passed swap chain is null!");
+
+    swap_chain = new_swap_chain;
+
     destroyFramebuffers();
     createFramebuffers();
 }
