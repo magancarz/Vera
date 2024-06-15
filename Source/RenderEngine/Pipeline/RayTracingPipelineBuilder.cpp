@@ -3,12 +3,15 @@
 #include "Logs/LogSystem.h"
 #include "RenderEngine/RenderingAPI/VulkanDefines.h"
 #include "RenderEngine/RenderingAPI/VulkanHelper.h"
+#include "RenderEngine/RenderingAPI/VulkanUtils.h"
 
 RayTracingPipelineBuilder::RayTracingPipelineBuilder(
-        VulkanHandler& device,
-        MemoryAllocator& memory_allocator,
-        VkPhysicalDeviceRayTracingPipelinePropertiesKHR ray_tracing_properties)
-    : device{device}, memory_allocator{memory_allocator}, ray_tracing_properties{ray_tracing_properties} {}
+    VulkanHandler& device,
+    MemoryAllocator& memory_allocator)
+    : device{device}, memory_allocator{memory_allocator},
+      ray_tracing_properties{VulkanUtils::queryRayTracingPipelineProperties(device.getPhysicalDevice())}
+{
+}
 
 RayTracingPipelineBuilder& RayTracingPipelineBuilder::addRayGenerationStage(std::shared_ptr<ShaderModule> ray_gen)
 {
@@ -30,8 +33,8 @@ RayTracingPipelineBuilder& RayTracingPipelineBuilder::addRayGenerationStage(std:
 }
 
 uint32_t RayTracingPipelineBuilder::addShaderStage(
-        const std::shared_ptr<ShaderModule>& shader_module,
-        VkShaderStageFlagBits shader_stage)
+    const std::shared_ptr<ShaderModule>& shader_module,
+    VkShaderStageFlagBits shader_stage)
 {
     uint32_t shader_stage_index = shader_stage_create_info_list.size();
     shader_stage_create_info_list.push_back(createShaderStageCreateInfo(shader_module, shader_stage));
@@ -39,8 +42,8 @@ uint32_t RayTracingPipelineBuilder::addShaderStage(
 }
 
 VkPipelineShaderStageCreateInfo RayTracingPipelineBuilder::createShaderStageCreateInfo(
-        const std::shared_ptr<ShaderModule>& shader_module,
-        VkShaderStageFlagBits shader_stage)
+    const std::shared_ptr<ShaderModule>& shader_module,
+    VkShaderStageFlagBits shader_stage)
 {
     VkPipelineShaderStageCreateInfo stage_create_info{VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO};
     stage_create_info.pName = "main";
@@ -84,16 +87,16 @@ RayTracingPipelineBuilder& RayTracingPipelineBuilder::addMaterialShader(const st
     uint32_t closest_hit_stage_index = addClosestHitStage(std::move(hit));
     material_shaders[material_name] = MaterialShader
     {
-            .closest_hit_shader_stage_index = closest_hit_stage_index
+        .closest_hit_shader_stage_index = closest_hit_stage_index
     };
 
     return *this;
 }
 
 RayTracingPipelineBuilder& RayTracingPipelineBuilder::addMaterialShader(
-        const std::string& material_name,
-        std::shared_ptr<ShaderModule> hit,
-        std::shared_ptr<ShaderModule> any_hit)
+    const std::string& material_name,
+    std::shared_ptr<ShaderModule> hit,
+    std::shared_ptr<ShaderModule> any_hit)
 {
     if (material_shaders.contains(material_name))
     {
@@ -112,10 +115,10 @@ RayTracingPipelineBuilder& RayTracingPipelineBuilder::addMaterialShader(
 }
 
 RayTracingPipelineBuilder& RayTracingPipelineBuilder::addMaterialShader(
-        const std::string& material_name,
-        std::shared_ptr<ShaderModule> hit,
-        std::shared_ptr<ShaderModule> any_hit,
-        std::shared_ptr<ShaderModule> occlusion)
+    const std::string& material_name,
+    std::shared_ptr<ShaderModule> hit,
+    std::shared_ptr<ShaderModule> any_hit,
+    std::shared_ptr<ShaderModule> occlusion)
 {
     if (material_shaders.contains(material_name))
     {
@@ -127,9 +130,9 @@ RayTracingPipelineBuilder& RayTracingPipelineBuilder::addMaterialShader(
     uint32_t occlusion_stage_index = addAnyHitStage(std::move(occlusion));
     material_shaders[material_name] = MaterialShader
     {
-            .closest_hit_shader_stage_index = closest_hit_stage_index,
-            .any_hit_shader_stage_index = any_hit_stage_index,
-            .occlusion_shader_stage_index = occlusion_stage_index
+        .closest_hit_shader_stage_index = closest_hit_stage_index,
+        .any_hit_shader_stage_index = any_hit_stage_index,
+        .occlusion_shader_stage_index = occlusion_stage_index
     };
 
     return *this;
@@ -155,7 +158,8 @@ RayTracingPipelineBuilder& RayTracingPipelineBuilder::registerObjectMaterial(con
     if (material_shader.any_hit_shader_stage_index.has_value())
     {
         addHitGroup(material_shader.closest_hit_shader_stage_index, material_shader.any_hit_shader_stage_index.value());
-    } else
+    }
+    else
     {
         addHitGroup(material_shader.closest_hit_shader_stage_index);
     }
@@ -227,14 +231,14 @@ RayTracingPipelineBuilder& RayTracingPipelineBuilder::addDescriptorSetLayout(VkD
 std::unique_ptr<RayTracingPipeline> RayTracingPipelineBuilder::build()
 {
     return std::make_unique<RayTracingPipeline>(
-            device,
-            memory_allocator,
-            shader_stage_create_info_list,
-            shader_group_create_info_list,
-            descriptor_set_layouts,
-            max_recursion,
-            miss_count,
-            hit_group_count,
-            ray_tracing_properties
-            );
+        device,
+        memory_allocator,
+        shader_stage_create_info_list,
+        shader_group_create_info_list,
+        descriptor_set_layouts,
+        max_recursion,
+        miss_count,
+        hit_group_count,
+        ray_tracing_properties
+    );
 }

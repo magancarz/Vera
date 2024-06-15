@@ -20,6 +20,8 @@ public:
     void updateGUIElements(FrameInfo& frame_info);
     void renderGUIElements(VkCommandBuffer command_buffer);
 
+    void onWindowResizeCallback();
+
 private:
     VulkanHandler& device;
     Window& window;
@@ -47,6 +49,7 @@ private:
     void setupRendererBackends();
 
     void createFramebuffers();
+    void destroyFramebuffers();
 
     std::vector<VkFramebuffer> framebuffers;
 

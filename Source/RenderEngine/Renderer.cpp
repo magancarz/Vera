@@ -59,7 +59,7 @@ void Renderer::recreateSwapChain()
             throw std::runtime_error("Swap chain image or depth format has changed!");
         }
 
-        // update gui
+        //gui->onWindowResizeCallback();
         scene_renderer->recreateRayTracedImage(swap_chain->width(), swap_chain->height());
         createPostProcessingStage();
     }

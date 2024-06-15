@@ -66,7 +66,7 @@ void GUI::createRenderPass()
     info.pDependencies = &dependency;
     if (vkCreateRenderPass(device.getDeviceHandle(), &info, VulkanDefines::NO_CALLBACK, &render_pass) != VK_SUCCESS)
     {
-        throw std::runtime_error("Could not create Dear ImGui's updateElements pass");
+        throw std::runtime_error("Could not create Dear ImGui's render pass");
     }
 }
 
@@ -197,11 +197,16 @@ GUI::~GUI()
     ImGui_ImplGlfw_Shutdown();
     ImGui::DestroyContext();
 
+    destroyFramebuffers();
+    vkDestroyRenderPass(device.getDeviceHandle(), render_pass, VulkanDefines::NO_CALLBACK);
+}
+
+void GUI::destroyFramebuffers()
+{
     for (auto& framebuffer : framebuffers)
     {
         vkDestroyFramebuffer(device.getDeviceHandle(), framebuffer, VulkanDefines::NO_CALLBACK);
     }
-    vkDestroyRenderPass(device.getDeviceHandle(), render_pass, VulkanDefines::NO_CALLBACK);
 }
 
 void GUI::updateGUIElements(FrameInfo& frame_info)
@@ -235,8 +240,16 @@ void GUI::renderGUIElements(VkCommandBuffer command_buffer)
     info.renderArea.extent.height = swap_chain->height();
     info.clearValueCount = 1;
     info.pClearValues = &clear_value;
+
     vkCmdBeginRenderPass(command_buffer, &info, VK_SUBPASS_CONTENTS_INLINE);
 
     ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), command_buffer);
+
     vkCmdEndRenderPass(command_buffer);
+}
+
+void GUI::onWindowResizeCallback()
+{
+    destroyFramebuffers();
+    createFramebuffers();
 }

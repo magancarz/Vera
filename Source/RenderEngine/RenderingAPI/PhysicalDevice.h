@@ -10,6 +10,8 @@ class PhysicalDevice
 public:
     PhysicalDevice(Instance& instance, Surface& surface);
 
+    operator VkPhysicalDevice () const;
+
     SwapChainSupportDetails querySwapChainSupport(VkPhysicalDevice device);
     uint32_t findMemoryType(uint32_t type_filter, VkMemoryPropertyFlags memory_property_flags);
 
@@ -26,7 +28,7 @@ private:
     bool checkDeviceExtensionSupport(VkPhysicalDevice device);
 
     VkPhysicalDevice used_physical_device{VK_NULL_HANDLE};
-    VkPhysicalDeviceProperties properties;
+    VkPhysicalDeviceProperties properties{};
 
     QueueFamilyIndices findQueueFamilies(VkPhysicalDevice physical_device);
 
