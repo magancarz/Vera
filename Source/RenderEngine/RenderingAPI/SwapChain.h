@@ -33,7 +33,7 @@ public:
     VkResult acquireNextImage(uint32_t* image_index);
     VkResult submitCommandBuffers(const VkCommandBuffer* buffers, uint32_t buffers_count, uint32_t* image_index);
 
-    [[nodiscard]] bool compareSwapFormats(const SwapChain& swap_chain) const
+    [[nodiscard]] bool compareSwapChainFormats(const SwapChain& swap_chain) const
     {
         return swap_chain.swap_chain_image_format == swap_chain_image_format;
     }
@@ -57,7 +57,7 @@ private:
     VkExtent2D swap_chain_extent;
 
     std::vector<VkFramebuffer> swap_chain_framebuffers;
-    VkRenderPass render_pass;
+    VkRenderPass render_pass{VK_NULL_HANDLE};
 
     std::vector<VkImage> swap_chain_images;
     std::vector<VkImageView> swap_chain_image_views;

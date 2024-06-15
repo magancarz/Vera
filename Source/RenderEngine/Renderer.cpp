@@ -54,7 +54,7 @@ void Renderer::recreateSwapChain()
         std::shared_ptr<SwapChain> old_swap_chain = std::move(swap_chain);
         swap_chain = std::make_unique<SwapChain>(device, extent, old_swap_chain);
 
-        if (!old_swap_chain->compareSwapFormats(*swap_chain))
+        if (!old_swap_chain->compareSwapChainFormats(*swap_chain))
         {
             throw std::runtime_error("Swap chain image or depth format has changed!");
         }
