@@ -25,6 +25,18 @@ jobs:
           make -j $(nproc --all) Vera-Tests-Coverage
           cd ..
           gcovr -r . -f Source/ -e Tests/ -e ThirdParty/ --exclude-throw-branches --exclude-unreachable-branches --html -o coverage.html
+      - name: Code Coverage Report
+        uses: irongut/CodeCoverageSummary@latest
+        with:
+          filename: coverage.html
+          badge: true
+          fail_below_min: true
+          format: markdown
+          hide_branch_rate: false
+          hide_complexity: true
+          indicators: true
+          output: both
+          thresholds: '70 90'
       - name: Uploading coverage results
         uses: actions/upload-artifact@v4.3.3
         with:
