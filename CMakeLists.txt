@@ -40,7 +40,8 @@ file(GLOB SHADERS
     ${SHADER_SOURCE_DIR}/*.rchit
     ${SHADER_SOURCE_DIR}/*.rahit
     ${SHADER_SOURCE_DIR}/*.rgen
-    ${SHADER_SOURCE_DIR}/*.rmiss)
+    ${SHADER_SOURCE_DIR}/*.rmiss
+    ${SHADER_SOURCE_DIR}/*.comp)
 
 add_custom_command(
     COMMAND ${CMAKE_COMMAND} -E make_directory ${SHADER_BINARY_DIR}

@@ -14,7 +14,7 @@ namespace Assets
     inline constexpr const char* DEBUG_MATERIAL_NAME{"__debug__"};
 
     inline constexpr const char* DEFAULT_DIFFUSE_TEXTURE{"white.png"};
-    inline constexpr const char* DEFAULT_NORMAL_MAP{"blue.png"};
+    inline constexpr const char* DEFAULT_NORMAL_MAP{"default_normal_map.png"};
     inline constexpr const char* EMPTY_TEXTURE_NAME{"__invalid_texture__"};
     inline constexpr const char* DEBUG_DIFFUSE_TEXTURE_NAME{"white.png"};
     inline constexpr const char* DEBUG_NORMAL_MAP_NAME{"blue.png"};
