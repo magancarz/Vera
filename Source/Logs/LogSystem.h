@@ -4,6 +4,7 @@
 #include <memory>
 #include <sstream>
 #include <unordered_map>
+#include <mutex>
 
 #include "Logger.h"
 #include "LogSeverity.h"

@@ -13,7 +13,7 @@
 
 TextureData TextureLoader::loadFromAssetFile(const std::string& texture_name)
 {
-    const std::string location = PathBuilder().append(Assets::TEXTURES_DIRECTORY_PATH).append(texture_name).build();
+    const std::string location = PathBuilder().append(Assets::TEXTURES_DIRECTORY_PATH.string()).append(texture_name).build();
 
     int width;
     int height;

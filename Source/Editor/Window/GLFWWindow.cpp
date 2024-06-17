@@ -1,6 +1,7 @@
 #include "GLFWWindow.h"
 
 #include <stdexcept>
+#include <bit>
 
 GLFWWindow::GLFWWindow(uint32_t width, uint32_t height, std::string name)
     : Window{width, height, std::move(name)}

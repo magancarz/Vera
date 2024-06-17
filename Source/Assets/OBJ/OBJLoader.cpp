@@ -30,7 +30,7 @@ namespace std
 
 MeshData OBJLoader::loadMeshFromFile(const std::string& mesh_name)
 {
-    const std::string filepath = PathBuilder().append(Assets::MODELS_DIRECTORY_PATH).append(mesh_name).fileExtension(OBJ_FILE_EXTENSION).build();
+    const std::string filepath = PathBuilder().append(Assets::MODELS_DIRECTORY_PATH.string()).append(mesh_name).fileExtension(OBJ_FILE_EXTENSION).build();
     tinyobj::ObjReader obj_reader = parseFromFile(filepath);
 
     if (!obj_reader.Valid())

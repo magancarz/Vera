@@ -11,7 +11,7 @@ MaterialData VeraMaterialLoader::loadAssetFromFile(const std::string& asset_name
 {
     LogSystem::log(LogSeverity::LOG, "Trying to load material ", asset_name.c_str(), "...");
 
-    const std::string filepath = PathBuilder().append(Assets::MATERIALS_DIRECTORY_PATH).append(asset_name).fileExtension(VERA_MATERIAL_FILE_EXTENSION).build();
+    const std::string filepath = PathBuilder().append(Assets::MATERIALS_DIRECTORY_PATH.string()).append(asset_name).fileExtension(VERA_MATERIAL_FILE_EXTENSION).build();
     std::ifstream file_stream(filepath);
     std::string input;
 
