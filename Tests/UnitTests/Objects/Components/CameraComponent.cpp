@@ -29,7 +29,7 @@ TEST_F(CameraComponentTests, shouldReturnCorrectProjectionMatrix)
     camera_component.setPerspectiveProjection(fovy, aspect);
 
     glm::mat4 expected_projection;
-    constexpr float tan_half_fov_y = glm::tan(fovy / 2.f);
+    const float tan_half_fov_y = glm::tan(fovy / 2.f);
     expected_projection = glm::mat4{0.0f};
     expected_projection[0][0] = 1.f / (aspect * tan_half_fov_y);
     expected_projection[1][1] = -1.f / tan_half_fov_y;
@@ -133,7 +133,7 @@ TEST_F(CameraComponentTests, shouldUpdateProjectionMatrixInfoForEveryFrame)
     camera_component.setPerspectiveProjection(fovy, aspect);
 
     glm::mat4 expected_projection;
-    constexpr float tan_half_fov_y = glm::tan(fovy / 2.f);
+    const float tan_half_fov_y = glm::tan(fovy / 2.f);
     expected_projection = glm::mat4{0.0f};
     expected_projection[0][0] = 1.f / (aspect * tan_half_fov_y);
     expected_projection[1][1] = -1.f / tan_half_fov_y;
