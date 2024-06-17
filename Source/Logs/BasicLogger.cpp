@@ -8,9 +8,11 @@
 
 void BasicLogger::log(LogSeverity severity, const char* message)
 {
+#ifdef _WIN64
     HANDLE h_console = GetStdHandle(STD_OUTPUT_HANDLE);
     CONSOLE_SCREEN_BUFFER_INFO console_info;
     WORD saved_attributes;
+#endif
 
     switch (severity)
     {
@@ -28,8 +30,8 @@ void BasicLogger::log(LogSeverity severity, const char* message)
         printf("%s", message);
 
         SetConsoleTextAttribute(h_console, saved_attributes);
-        break;
 #endif
+        break;
     default:
         std::cerr << message;
         break;
