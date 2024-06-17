@@ -7,7 +7,7 @@
 
 #include "Commons/Common.h"
 
-layout(binding = 0, scalar) buffer Vertices  { Vertex v[]; } vertices;
+layout(binding = 0, scalar) buffer Vertices { Vertex v[]; } vertices;
 
 layout(push_constant) uniform ShaderInformation { float time; } push_constant;
 

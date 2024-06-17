@@ -8,7 +8,7 @@
 #include "Commons/defines.glsl"
 #include "Commons/Common.h"
 
-layout(binding = 0, set = 0) uniform accelerationStructureEXT topLevelAS;
+layout(binding = 0, set = 0) uniform accelerationStructureEXT top_level_as;
 layout(binding = 0, set = 1, rgba32f) uniform image2D image;
 layout(binding = 0, set = 2) uniform Camera { CameraUniformBuffer camera; };
 
@@ -38,21 +38,21 @@ void main()
     payload.seed = seed;
     payload.depth = 0;
 
-    uint rayFlags = gl_RayFlagsNoneEXT;
+    uint ray_flags = gl_RayFlagsNoneEXT;
     for (uint current_depth = 0; current_depth <= MAX_CALCULATIONS_DEPTH; ++current_depth)
     {
         traceRayEXT(
-            topLevelAS, // acceleration structure
-            rayFlags,       // rayFlags
-            0xFF,           // cullMask
-            0,              // sbtRecordOffset
-            0,              // sbtRecordStride
-            0,              // missIndex
-            payload.origin,     // ray origin
-            T_MIN,           // ray min range
-            payload.direction,  // ray direction
-            T_MAX,           // ray max range
-            0               // payload (location = 0)
+            top_level_as,
+            ray_flags,
+            0xFF,
+            0,
+            0,
+            0,
+            payload.origin,
+            T_MIN,
+            payload.direction,
+            T_MAX,
+            0
             );
 
         if (payload.is_active == 0 || payload.depth > MAX_RAY_DEPTH)

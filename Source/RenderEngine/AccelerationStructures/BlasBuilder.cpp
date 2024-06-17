@@ -17,7 +17,13 @@ std::vector<AccelerationStructure> BlasBuilder::buildBottomLevelAccelerationStru
     VkDeviceSize max_scratch_buffer_size{0};
 
     std::vector<BuildAccelerationStructure> build_as = fillBuildInfos(
-        device.getLogicalDevice(), blas_input, VK_BUILD_ACCELERATION_STRUCTURE_MODE_BUILD_KHR, flags, as_total_size, number_of_compactions, max_scratch_buffer_size);
+        device.getLogicalDevice(),
+        blas_input,
+        VK_BUILD_ACCELERATION_STRUCTURE_MODE_BUILD_KHR,
+        flags,
+        as_total_size,
+        number_of_compactions,
+        max_scratch_buffer_size);
 
     auto scratch_buffer = createScratchBuffer(memory_allocator, max_scratch_buffer_size);
 
@@ -270,16 +276,31 @@ void BlasBuilder::updateBottomLevelAccelerationStructures(
     VkDeviceSize as_total_size{0};
     uint32_t number_of_compactions{0};
     VkDeviceSize max_scratch_buffer_size{0};
-    std::vector<BuildAccelerationStructure> build_as = fillBuildInfos(
-        device.getLogicalDevice(), blas_input, VK_BUILD_ACCELERATION_STRUCTURE_MODE_UPDATE_KHR, flags, as_total_size, number_of_compactions, max_scratch_buffer_size);
+    std::vector<BuildAccelerationStructure> build_infos = fillBuildInfos(
+        device.getLogicalDevice(),
+        blas_input,
+        VK_BUILD_ACCELERATION_STRUCTURE_MODE_UPDATE_KHR,
+        flags,
+        as_total_size,
+        number_of_compactions,
+        max_scratch_buffer_size);
 
     std::unique_ptr<Buffer> scratch_buffer = createScratchBuffer(memory_allocator, max_scratch_buffer_size);
 
-    build_as.front().build_info.srcAccelerationStructure = source_acceleration_structures.front();
-    build_as.front().build_info.dstAccelerationStructure = source_acceleration_structures.front();
-    build_as.front().build_info.scratchData.deviceAddress = scratch_buffer->getBufferDeviceAddress();
+    std::vector<VkAccelerationStructureBuildGeometryInfoKHR> final_build_infos(build_infos.size());
+    std::vector<const VkAccelerationStructureBuildRangeInfoKHR*> final_range_infos(build_infos.size());
+    for (size_t i = 0; i < build_infos.size(); ++i)
+    {
+        build_infos[i].build_info.srcAccelerationStructure = source_acceleration_structures[i];
+        build_infos[i].build_info.dstAccelerationStructure = source_acceleration_structures[i];
+        build_infos[i].build_info.scratchData.deviceAddress = scratch_buffer->getBufferDeviceAddress();
 
+        final_build_infos[i] = build_infos[i].build_info;
+        final_range_infos[i] = build_infos[i].range_info;
+    }
+
+    // TODO: update BLASes in batches
     VkCommandBuffer command_buffer = device.getCommandPool().beginSingleTimeCommands();
-    pvkCmdBuildAccelerationStructuresKHR(command_buffer, 1, &build_as.front().build_info, &build_as.front().range_info);
+    pvkCmdBuildAccelerationStructuresKHR(command_buffer, build_infos.size(), final_build_infos.data(), final_range_infos.data());
     device.getCommandPool().endSingleTimeCommands(command_buffer);
 }

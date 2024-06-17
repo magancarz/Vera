@@ -89,16 +89,6 @@ private:
     std::vector<Material*> used_materials;
     std::unique_ptr<RayTracingPipeline> ray_tracing_pipeline;
 
-    void createSphereAnimComputePipeline();
-
-    std::unique_ptr<DescriptorSetLayout> demo_anim_descriptor_set_layout;
-    VkDescriptorSet demo_anim_descriptor_set_handle{VK_NULL_HANDLE};
-    std::unique_ptr<ComputePipeline> compute_pipeline;
-    uint32_t num_of_vertices{0};
-
-    void updateAnimations(FrameInfo& frame_info);
-    void updateAcelerationStructures();
-
     void updatePipelineUniformVariables(FrameInfo& frame_info);
     void updateCameraUniformBuffer(FrameInfo& frame_info);
     void bindDescriptorSets(FrameInfo& frame_info);

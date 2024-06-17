@@ -34,7 +34,6 @@ RayTracedRenderer::RayTracedRenderer(
     createCameraUniformBuffer();
     createDescriptors();
     buildRayTracingPipeline();
-    createSphereAnimComputePipeline();
 }
 
 void RayTracedRenderer::obtainRenderedObjectsFromWorld()
@@ -381,43 +380,6 @@ void RayTracedRenderer::buildRayTracingPipeline()
     ray_tracing_pipeline = ray_tracing_pipeline_builder.build();
 }
 
-void RayTracedRenderer::createSphereAnimComputePipeline()
-{
-    demo_anim_descriptor_set_layout = DescriptorSetLayoutBuilder(device)
-        .addBinding(0, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, VK_SHADER_STAGE_COMPUTE_BIT)
-        .build();
-
-    auto sphere = std::find_if(rendered_objects.begin(), rendered_objects.end(), [&] (const Object* object)
-        {
-            //TODO: sphere id must be 0
-            return object->getID() == 0;
-        });
-
-    VkDescriptorBufferInfo buffer_descriptor{};
-    if (sphere != rendered_objects.end())
-    {
-        auto sphere_mesh_description = (*sphere)->findComponentByClass<MeshComponent>()->getDescription();
-        buffer_descriptor = sphere_mesh_description.model_descriptions[0].vertex_buffer->descriptorInfo();
-        num_of_vertices = sphere_mesh_description.model_descriptions[0].num_of_vertices;
-    }
-
-    DescriptorWriter(*demo_anim_descriptor_set_layout, *descriptor_pool)
-        .writeBuffer(0, &buffer_descriptor)
-        .build(demo_anim_descriptor_set_handle);
-
-    VkPushConstantRange push_constant_range{};
-    push_constant_range.stageFlags = VK_SHADER_STAGE_COMPUTE_BIT;
-    push_constant_range.offset = 0;
-    push_constant_range.size = sizeof(float);
-
-    auto push_constant_ranges = {push_constant_range};
-    auto descriptor_set_layouts = {demo_anim_descriptor_set_layout->getDescriptorSetLayout()};
-
-    compute_pipeline = std::make_unique<ComputePipeline>(
-        device.getLogicalDevice(), push_constant_ranges, descriptor_set_layouts,
-        std::make_unique<ShaderModule>(device, "demo_sphere_anim", VK_SHADER_STAGE_COMPUTE_BIT));
-}
-
 RayTracedRenderer::~RayTracedRenderer() noexcept
 {
     pvkDestroyAccelerationStructureKHR(device.getDeviceHandle(), tlas.accelerationStructure().handle, VulkanDefines::NO_CALLBACK);
@@ -425,36 +387,9 @@ RayTracedRenderer::~RayTracedRenderer() noexcept
 
 void RayTracedRenderer::renderScene(FrameInfo& frame_info)
 {
-    updateAnimations(frame_info);
-    updateAcelerationStructures();
     ray_tracing_pipeline->bind(frame_info.command_buffer);
     updatePipelineUniformVariables(frame_info);
     executeRayTracing(frame_info);
-}
-
-void RayTracedRenderer::updateAnimations(FrameInfo& frame_info)
-{
-    static float max_time = 0;
-    max_time += frame_info.delta_time;
-
-    VkCommandBuffer command_buffer = device.getCommandPool().beginSingleTimeCommands();
-
-    compute_pipeline->bind(command_buffer);
-    compute_pipeline->bindDescriptorSets(command_buffer, {demo_anim_descriptor_set_handle});
-    compute_pipeline->pushConstants(command_buffer, max_time);
-    compute_pipeline->dispatch(command_buffer, num_of_vertices, 1, 1);
-
-    device.getCommandPool().endSingleTimeCommands(command_buffer);
-}
-
-void RayTracedRenderer::updateAcelerationStructures()
-{
-    blas_objects.at("sphere").update();
-
-    std::vector<BlasInstance> blas_instances = getBlasInstances();
-    tlas.update(blas_instances);
-
-    current_number_of_frames = 0;
 }
 
 void RayTracedRenderer::updatePipelineUniformVariables(FrameInfo& frame_info)
