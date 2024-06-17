@@ -22,15 +22,31 @@ public:
         const std::vector<BlasInput>& blas_input,
         VkBuildAccelerationStructureFlagsKHR flags);
 
+    static void updateBottomLevelAccelerationStructures(
+        VulkanHandler& device, MemoryAllocator& memory_allocator,
+        const std::vector<VkAccelerationStructureKHR>& source_acceleration_structures,
+        const std::vector<BlasInput>& blas_input,
+        VkBuildAccelerationStructureFlagsKHR flags);
+
 private:
     struct BuildAccelerationStructure
     {
-        VkAccelerationStructureBuildGeometryInfoKHR buildInfo{VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_BUILD_GEOMETRY_INFO_KHR};
-        VkAccelerationStructureBuildSizesInfoKHR sizeInfo{VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_BUILD_SIZES_INFO_KHR};
-        const VkAccelerationStructureBuildRangeInfoKHR* rangeInfo;
+        VkAccelerationStructureBuildGeometryInfoKHR build_info{VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_BUILD_GEOMETRY_INFO_KHR};
+        VkAccelerationStructureBuildSizesInfoKHR size_info{VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_BUILD_SIZES_INFO_KHR};
+        const VkAccelerationStructureBuildRangeInfoKHR* range_info;
         AccelerationStructure as;
-        AccelerationStructure cleanupAS;
+        AccelerationStructure cleanup_as;
     };
+
+    static std::vector<BuildAccelerationStructure> fillBuildInfos(
+        const Device& logical_device,
+        const std::vector<BlasInput>& blas_input,
+        VkBuildAccelerationStructureModeKHR mode,
+        VkBuildAccelerationStructureFlagsKHR flags,
+        VkDeviceSize& as_total_size,
+        uint32_t& number_of_compactions,
+        VkDeviceSize& max_scratch_buffer_size);
+    static std::unique_ptr<Buffer> createScratchBuffer(MemoryAllocator& memory_allocator, uint32_t scratch_buffer_size);
 
     static void cmdCreateBlas(
         VulkanHandler& device, MemoryAllocator& memory_allocator,

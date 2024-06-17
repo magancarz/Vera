@@ -4,6 +4,7 @@
 #include <glm/glm.hpp>
 
 #include "AccelerationStructure.h"
+#include "BlasBuilder.h"
 #include "BlasInstance.h"
 
 class MeshComponent;
@@ -27,6 +28,8 @@ public:
 
     [[nodiscard]] BlasInstance createBlasInstance(const glm::mat4& transform) const;
 
+    void update();
+
 private:
     VulkanHandler& device;
     MemoryAllocator& memory_allocator;
@@ -34,5 +37,6 @@ private:
 
     void createBlas(const Mesh& mesh);
 
+    BlasBuilder::BlasInput blas_input{};
     AccelerationStructure blas{};
 };

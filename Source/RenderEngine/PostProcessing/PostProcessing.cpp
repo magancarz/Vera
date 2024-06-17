@@ -49,10 +49,10 @@ void PostProcessing::createPipeline(VkRenderPass render_pass)
     config_info.pipeline_layout = pipeline_layout;
     simple_pipeline = std::make_unique<Pipeline>
     (
-            device,
-            "Shaders/SimpleShader.vert.spv",
-            "Shaders/SimpleShader.frag.spv",
-            config_info
+        device,
+        "Shaders/HDR.vert.spv",
+        "Shaders/HDR.frag.spv",
+        config_info
     );
 }
 
@@ -65,14 +65,14 @@ void PostProcessing::apply(FrameInfo& frame_info)
 {
     simple_pipeline->bind(frame_info.command_buffer);
     vkCmdBindDescriptorSets(
-            frame_info.command_buffer,
-            VK_PIPELINE_BIND_POINT_GRAPHICS,
-            pipeline_layout,
-            0,
-            1,
-            &frame_info.ray_traced_texture,
-            0,
-            nullptr);
+        frame_info.command_buffer,
+        VK_PIPELINE_BIND_POINT_GRAPHICS,
+        pipeline_layout,
+        0,
+        1,
+        &frame_info.ray_traced_texture,
+        0,
+        nullptr);
 
     VkBuffer buffers[] = {scene_quad_model_description.vertex_buffer->getBuffer()};
     VkDeviceSize offsets[] = {0};

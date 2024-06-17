@@ -18,7 +18,7 @@
 layout(location = 0) rayPayloadInEXT Ray payload;
 layout(location = 1) rayPayloadEXT bool occluded;
 
-layout(binding = 0, set = 0) uniform accelerationStructureEXT topLevelAS;
+layout(binding = 0, set = 0) uniform accelerationStructureEXT top_level_as;
 layout(binding = 1, set = 2) buffer ObjectDescriptions { ObjectDescription data[]; } object_descriptions;
 layout(binding = 2, set = 2) buffer Materials { Material m[]; } materials;
 layout(binding = 3, set = 2) uniform sampler2D diffuse_textures[];
@@ -117,25 +117,25 @@ void main()
     vec3 random_cosine_direction = generateRandomDirectionWithCosinePDF(payload.seed, u, v, w);
     payload.direction = rnd(payload.seed) > 0.5 ? positionToLightDirection : random_cosine_direction;
 
-    const uint rayFlags = gl_RayFlagsTerminateOnFirstHitEXT | gl_RayFlagsSkipClosestHitShaderEXT;
+    const uint ray_flags = gl_RayFlagsTerminateOnFirstHitEXT | gl_RayFlagsSkipClosestHitShaderEXT;
     occluded = false;
     traceRayEXT(
-        topLevelAS, // acceleration structure
-        rayFlags,       // rayFlags
-        0xFF,           // cullMask
-        1,              // sbtRecordOffset
-        0,              // sbtRecordStride
-        1,              // missIndex
-        payload.origin,     // ray origin
-        T_MIN,           // ray min range
-        payload.direction,  // ray direction
-        T_MAX,           // ray max range
-        1               // payload (location = 0)
+        top_level_as,
+        ray_flags,
+        0xFF,
+        1,
+        0,
+        1,
+        payload.origin,
+        T_MIN,
+        payload.direction,
+        T_MAX,
+        1
         );
 
     float scattering_pdf = scatteringPDFFromLambertian(payload.direction, normal);
     float cosine = occluded ? 0 : max(dot(push_constant.sun_position, payload.direction), 0.0);
-    float sun_contribution = 25 * cosine;
+    float sun_contribution = cosine * 50;
 
     uint texture_offset = uint(material.diffuse_texture_offset);
     vec3 texture_color = texture(diffuse_textures[nonuniformEXT(texture_offset)], texture_uv).xyz;

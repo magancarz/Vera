@@ -1,4 +1,4 @@
-#include "RenderEngine/AccelerationStructures/TlasBuilder.h"
+#include "RenderEngine/AccelerationStructures/Tlas.h"
 
 #include <RenderEngine/RenderingAPI/VulkanDefines.h>
 #include <RenderEngine/RenderingAPI/VulkanHelper.h>
@@ -10,7 +10,7 @@
 #include "Assets/AssetManager.h"
 #include "RenderEngine/AccelerationStructures/Blas.h"
 
-TEST(TlasBuilderTests, shouldBuildValidTlas)
+TEST(TlasTests, shouldBuildValidTlas)
 {
     // given
     AssetManager asset_manager{TestsEnvironment::vulkanHandler(), TestsEnvironment::memoryAllocator()};
@@ -22,14 +22,20 @@ TEST(TlasBuilderTests, shouldBuildValidTlas)
     std::vector<BlasInstance> blas_instances{};
     blas_instances.emplace_back(std::move(blas_instance));
 
+    Tlas tlas{
+        TestsEnvironment::vulkanHandler().getLogicalDevice(),
+        TestsEnvironment::vulkanHandler().getCommandPool(),
+        TestsEnvironment::memoryAllocator(),
+        VK_BUILD_ACCELERATION_STRUCTURE_PREFER_FAST_TRACE_BIT_KHR | VK_BUILD_ACCELERATION_STRUCTURE_ALLOW_UPDATE_BIT_KHR};
+
     // when
-    AccelerationStructure tlas = TlasBuilder::buildTopLevelAccelerationStructure(
-    TestsEnvironment::vulkanHandler(), TestsEnvironment::memoryAllocator(), blas_instances);
+    tlas.build(blas_instances);
 
     // then
-    EXPECT_NE(tlas.acceleration_structure, VK_NULL_HANDLE);
-    EXPECT_NE(tlas.acceleration_structure_buffer, nullptr);
+    const AccelerationStructure& acceleration_structure = tlas.accelerationStructure();
+    EXPECT_NE(acceleration_structure.handle, VK_NULL_HANDLE);
+    EXPECT_NE(acceleration_structure.buffer, nullptr);
 
-    pvkDestroyAccelerationStructureKHR(TestsEnvironment::vulkanHandler().getDeviceHandle(), tlas.acceleration_structure, VulkanDefines::NO_CALLBACK);
+    pvkDestroyAccelerationStructureKHR(TestsEnvironment::vulkanHandler().getDeviceHandle(), acceleration_structure.handle, VulkanDefines::NO_CALLBACK);
     TestUtils::failIfVulkanValidationLayersErrorsWerePresent();
 }
