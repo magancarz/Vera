@@ -13,38 +13,15 @@ void Tlas::build(const std::vector<BlasInstance>& blas_instances)
 {
     copyBlasInstancesDataToBuffer(blas_instances);
 
-    //TODO: find out why it doesnt work when it is in a function
-    // auto [geometries, build_geometry_info] = fillBuildGeometryInfo(VK_BUILD_ACCELERATION_STRUCTURE_MODE_BUILD_KHR);
-    VkAccelerationStructureGeometryInstancesDataKHR instances{};
-    instances.sType = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_GEOMETRY_INSTANCES_DATA_KHR;
-    instances.arrayOfPointers = VK_FALSE;
-    instances.data.deviceAddress = blas_instances_buffer->getBufferDeviceAddress();
+    auto geometries = fillGeometryInfo();
+    auto build_geometry_info = fillBuildGeometryInfo(&geometries, VK_BUILD_ACCELERATION_STRUCTURE_MODE_BUILD_KHR);
 
-    VkAccelerationStructureGeometryDataKHR acceleration_structure_geometry_data{};
-    acceleration_structure_geometry_data.instances = instances;
-
-    VkAccelerationStructureGeometryKHR acceleration_structure_geometry{};
-    acceleration_structure_geometry.sType = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_GEOMETRY_KHR;
-    acceleration_structure_geometry.geometryType = VK_GEOMETRY_TYPE_INSTANCES_KHR;
-    acceleration_structure_geometry.geometry = acceleration_structure_geometry_data;
-    acceleration_structure_geometry.flags = VK_GEOMETRY_OPAQUE_BIT_KHR;
-
-    VkAccelerationStructureBuildGeometryInfoKHR acceleration_structure_build_geometry_info{};
-    acceleration_structure_build_geometry_info.sType = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_BUILD_GEOMETRY_INFO_KHR;
-    acceleration_structure_build_geometry_info.type = VK_ACCELERATION_STRUCTURE_TYPE_TOP_LEVEL_KHR;
-    acceleration_structure_build_geometry_info.flags = build_flags;
-    acceleration_structure_build_geometry_info.mode = VK_BUILD_ACCELERATION_STRUCTURE_MODE_BUILD_KHR;
-    acceleration_structure_build_geometry_info.srcAccelerationStructure = VK_NULL_HANDLE;
-    acceleration_structure_build_geometry_info.dstAccelerationStructure = VK_NULL_HANDLE;
-    acceleration_structure_build_geometry_info.geometryCount = 1;
-    acceleration_structure_build_geometry_info.pGeometries = &acceleration_structure_geometry;
-
-    VkAccelerationStructureBuildSizesInfoKHR acceleration_structure_build_sizes_info = obtainBuildSizesInfo(acceleration_structure_build_geometry_info, blas_instances.size());
+    VkAccelerationStructureBuildSizesInfoKHR acceleration_structure_build_sizes_info = obtainBuildSizesInfo(build_geometry_info, blas_instances.size());
     createAccelerationStructure(acceleration_structure_build_sizes_info.accelerationStructureSize);
     std::unique_ptr<Buffer> scratch_buffer = createScratchBuffer(acceleration_structure_build_sizes_info.buildScratchSize);
 
-    acceleration_structure_build_geometry_info.dstAccelerationStructure = acceleration_structure.handle;
-    acceleration_structure_build_geometry_info.scratchData.deviceAddress = scratch_buffer->getBufferDeviceAddress();
+    build_geometry_info.dstAccelerationStructure = acceleration_structure.handle;
+    build_geometry_info.scratchData.deviceAddress = scratch_buffer->getBufferDeviceAddress();
 
     VkAccelerationStructureBuildRangeInfoKHR top_level_acceleration_structure_build_range_info =
     {
@@ -54,7 +31,7 @@ void Tlas::build(const std::vector<BlasInstance>& blas_instances)
         .transformOffset = 0
     };
 
-    cmdBuildTlas(acceleration_structure_build_geometry_info, &top_level_acceleration_structure_build_range_info);
+    cmdBuildTlas(build_geometry_info, &top_level_acceleration_structure_build_range_info);
 }
 
 void Tlas::copyBlasInstancesDataToBuffer(const std::vector<BlasInstance>& blas_instances)
@@ -95,7 +72,7 @@ void Tlas::createBlasInstancesBuffer(uint32_t blas_instances_count)
     blas_instances_buffer = memory_allocator.createBuffer(instances_buffer_info);
 }
 
-std::pair<VkAccelerationStructureGeometryKHR, VkAccelerationStructureBuildGeometryInfoKHR> Tlas::fillBuildGeometryInfo(VkBuildAccelerationStructureModeKHR mode)
+VkAccelerationStructureGeometryKHR Tlas::fillGeometryInfo()
 {
     VkAccelerationStructureGeometryInstancesDataKHR instances{};
     instances.sType = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_GEOMETRY_INSTANCES_DATA_KHR;
@@ -111,6 +88,12 @@ std::pair<VkAccelerationStructureGeometryKHR, VkAccelerationStructureBuildGeomet
     acceleration_structure_geometry.geometry = acceleration_structure_geometry_data;
     acceleration_structure_geometry.flags = VK_GEOMETRY_OPAQUE_BIT_KHR;
 
+    return acceleration_structure_geometry;
+}
+
+VkAccelerationStructureBuildGeometryInfoKHR Tlas::fillBuildGeometryInfo(
+        VkAccelerationStructureGeometryKHR* geometries, VkBuildAccelerationStructureModeKHR mode)
+{
     VkAccelerationStructureBuildGeometryInfoKHR acceleration_structure_build_geometry_info{};
     acceleration_structure_build_geometry_info.sType = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_BUILD_GEOMETRY_INFO_KHR;
     acceleration_structure_build_geometry_info.type = VK_ACCELERATION_STRUCTURE_TYPE_TOP_LEVEL_KHR;
@@ -119,9 +102,9 @@ std::pair<VkAccelerationStructureGeometryKHR, VkAccelerationStructureBuildGeomet
     acceleration_structure_build_geometry_info.srcAccelerationStructure = VK_NULL_HANDLE;
     acceleration_structure_build_geometry_info.dstAccelerationStructure = VK_NULL_HANDLE;
     acceleration_structure_build_geometry_info.geometryCount = 1;
-    acceleration_structure_build_geometry_info.pGeometries = &acceleration_structure_geometry;
+    acceleration_structure_build_geometry_info.pGeometries = geometries;
 
-    return {acceleration_structure_geometry, acceleration_structure_build_geometry_info};
+    return acceleration_structure_build_geometry_info;
 }
 
 VkAccelerationStructureBuildSizesInfoKHR Tlas::obtainBuildSizesInfo(const VkAccelerationStructureBuildGeometryInfoKHR& build_geometry_info, uint32_t blas_instances_count)
@@ -197,39 +180,16 @@ void Tlas::update(const std::vector<BlasInstance>& blas_instances)
         "Cannot call update if tlas wasn't created with VK_BUILD_ACCELERATION_STRUCTURE_ALLOW_UPDATE_BIT_KHR flag");
 
     copyBlasInstancesDataToBuffer(blas_instances);
-    // auto [geometries, build_geometry_info] = fillBuildGeometryInfo(VK_BUILD_ACCELERATION_STRUCTURE_MODE_UPDATE_KHR);
 
-    //TODO: find out why it doesnt work when it is in a function
-    VkAccelerationStructureGeometryInstancesDataKHR instances{};
-    instances.sType = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_GEOMETRY_INSTANCES_DATA_KHR;
-    instances.arrayOfPointers = VK_FALSE;
-    instances.data.deviceAddress = blas_instances_buffer->getBufferDeviceAddress();
+    auto geometries = fillGeometryInfo();
+    auto build_geometry_info = fillBuildGeometryInfo(&geometries, VK_BUILD_ACCELERATION_STRUCTURE_MODE_UPDATE_KHR);
 
-    VkAccelerationStructureGeometryDataKHR acceleration_structure_geometry_data{};
-    acceleration_structure_geometry_data.instances = instances;
-
-    VkAccelerationStructureGeometryKHR acceleration_structure_geometry{};
-    acceleration_structure_geometry.sType = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_GEOMETRY_KHR;
-    acceleration_structure_geometry.geometryType = VK_GEOMETRY_TYPE_INSTANCES_KHR;
-    acceleration_structure_geometry.geometry = acceleration_structure_geometry_data;
-    acceleration_structure_geometry.flags = VK_GEOMETRY_OPAQUE_BIT_KHR;
-
-    VkAccelerationStructureBuildGeometryInfoKHR acceleration_structure_build_geometry_info{};
-    acceleration_structure_build_geometry_info.sType = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_BUILD_GEOMETRY_INFO_KHR;
-    acceleration_structure_build_geometry_info.type = VK_ACCELERATION_STRUCTURE_TYPE_TOP_LEVEL_KHR;
-    acceleration_structure_build_geometry_info.flags = build_flags;
-    acceleration_structure_build_geometry_info.mode = VK_BUILD_ACCELERATION_STRUCTURE_MODE_UPDATE_KHR;
-    acceleration_structure_build_geometry_info.srcAccelerationStructure = VK_NULL_HANDLE;
-    acceleration_structure_build_geometry_info.dstAccelerationStructure = VK_NULL_HANDLE;
-    acceleration_structure_build_geometry_info.geometryCount = 1;
-    acceleration_structure_build_geometry_info.pGeometries = &acceleration_structure_geometry;
-
-    VkAccelerationStructureBuildSizesInfoKHR acceleration_structure_build_sizes_info = obtainBuildSizesInfo(acceleration_structure_build_geometry_info, blas_instances.size());
+    VkAccelerationStructureBuildSizesInfoKHR acceleration_structure_build_sizes_info = obtainBuildSizesInfo(build_geometry_info, blas_instances.size());
     std::unique_ptr<Buffer> scratch_buffer = createScratchBuffer(acceleration_structure_build_sizes_info.buildScratchSize);
 
-    acceleration_structure_build_geometry_info.srcAccelerationStructure = acceleration_structure.handle;
-    acceleration_structure_build_geometry_info.dstAccelerationStructure = acceleration_structure.handle;
-    acceleration_structure_build_geometry_info.scratchData.deviceAddress = scratch_buffer->getBufferDeviceAddress();
+    build_geometry_info.srcAccelerationStructure = acceleration_structure.handle;
+    build_geometry_info.dstAccelerationStructure = acceleration_structure.handle;
+    build_geometry_info.scratchData.deviceAddress = scratch_buffer->getBufferDeviceAddress();
 
     VkAccelerationStructureBuildRangeInfoKHR top_level_acceleration_structure_build_range_info =
     {
@@ -239,5 +199,5 @@ void Tlas::update(const std::vector<BlasInstance>& blas_instances)
         .transformOffset = 0
     };
 
-    cmdBuildTlas(acceleration_structure_build_geometry_info, &top_level_acceleration_structure_build_range_info);
+    cmdBuildTlas(build_geometry_info, &top_level_acceleration_structure_build_range_info);
 }
