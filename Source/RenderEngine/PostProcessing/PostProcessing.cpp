@@ -70,7 +70,7 @@ void PostProcessing::apply(FrameInfo& frame_info)
         pipeline_layout,
         0,
         1,
-        &frame_info.ray_traced_texture,
+        &frame_info.rendered_to_texture,
         0,
         nullptr);
 

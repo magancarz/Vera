@@ -25,7 +25,8 @@ public:
         {VK_SHADER_STAGE_MISS_BIT_KHR, ".rmiss.spv"},
         {VK_SHADER_STAGE_CLOSEST_HIT_BIT_KHR, ".rchit.spv"},
         {VK_SHADER_STAGE_ANY_HIT_BIT_KHR, ".rahit.spv"},
-        {VK_SHADER_STAGE_COMPUTE_BIT, ".comp.spv"}
+        {VK_SHADER_STAGE_COMPUTE_BIT, ".comp.spv"},
+        {VK_SHADER_STAGE_INTERSECTION_BIT_KHR, ".rint.spv"}
     };
 
 private:

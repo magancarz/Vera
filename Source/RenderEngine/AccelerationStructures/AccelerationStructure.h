@@ -7,6 +7,7 @@
 class AccelerationStructure
 {
 public:
+    explicit AccelerationStructure(Device& logical_device);
     AccelerationStructure(Device& logical_device, VkAccelerationStructureKHR handle, std::unique_ptr<Buffer> buffer);
     ~AccelerationStructure();
 
@@ -20,7 +21,7 @@ public:
 
 private:
     Device& logical_device;
-    VkAccelerationStructureKHR handle;
+    VkAccelerationStructureKHR handle{VK_NULL_HANDLE};
     std::unique_ptr<Buffer> buffer;
 
     void destroyAccelerationStructureIfNeeded();

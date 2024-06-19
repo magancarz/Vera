@@ -12,7 +12,7 @@ struct FrameInfo
     glm::mat4 camera_view_matrix{1.f};
     glm::mat4 camera_projection_matrix{1.f};
 
-    VkDescriptorSet ray_traced_texture;
+    VkDescriptorSet rendered_to_texture;
 
     glm::vec3 sun_position{glm::normalize(glm::vec3{1})};
     float weather{0.05f};

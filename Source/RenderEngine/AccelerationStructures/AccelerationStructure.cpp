@@ -3,6 +3,9 @@
 #include "RenderEngine/RenderingAPI/VulkanDefines.h"
 #include "RenderEngine/RenderingAPI/VulkanHelper.h"
 
+AccelerationStructure::AccelerationStructure(Device& logical_device)
+    : logical_device{logical_device} {}
+
 AccelerationStructure::AccelerationStructure(Device& logical_device, VkAccelerationStructureKHR handle, std::unique_ptr<Buffer> buffer)
     : logical_device{logical_device}, handle{handle}, buffer{std::move(buffer)} {}
 

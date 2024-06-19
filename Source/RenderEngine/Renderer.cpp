@@ -19,22 +19,6 @@ Renderer::Renderer(Window& window, VulkanHandler& device, MemoryAllocator& memor
     createPostProcessingStage();
 }
 
-void Renderer::createCommandBuffers()
-{
-    command_buffers.resize(SwapChain::MAX_FRAMES_IN_FLIGHT);
-
-    VkCommandBufferAllocateInfo allocate_info{};
-    allocate_info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-    allocate_info.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-    allocate_info.commandPool = device.getCommandPoolHandle();
-    allocate_info.commandBufferCount = static_cast<uint32_t>(command_buffers.size());
-
-    if (vkAllocateCommandBuffers(device.getDeviceHandle(), &allocate_info, command_buffers.data()) != VK_SUCCESS)
-    {
-        throw std::runtime_error("Failed to allocate command buffers!");
-    }
-}
-
 void Renderer::recreateSwapChain()
 {
     auto extent = window.getExtent();
@@ -62,6 +46,22 @@ void Renderer::recreateSwapChain()
         gui->handleWindowResize(swap_chain.get());
         scene_renderer->handleWindowResize(swap_chain->width(), swap_chain->height());
         writeToPostProcessInputTextureInfoDescriptorSet();
+    }
+}
+
+void Renderer::createCommandBuffers()
+{
+    command_buffers.resize(SwapChain::MAX_FRAMES_IN_FLIGHT);
+
+    VkCommandBufferAllocateInfo allocate_info{};
+    allocate_info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+    allocate_info.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+    allocate_info.commandPool = device.getCommandPoolHandle();
+    allocate_info.commandBufferCount = static_cast<uint32_t>(command_buffers.size());
+
+    if (vkAllocateCommandBuffers(device.getDeviceHandle(), &allocate_info, command_buffers.data()) != VK_SUCCESS)
+    {
+        throw std::runtime_error("Failed to allocate command buffers!");
     }
 }
 
@@ -138,7 +138,7 @@ void Renderer::render(FrameInfo& frame_info)
     {
         frame_info.command_buffer = command_buffer;
         frame_info.window_size = swap_chain->getSwapChainExtent();
-        frame_info.ray_traced_texture = post_process_texture_descriptor_set_handle;
+        frame_info.rendered_to_texture = post_process_texture_descriptor_set_handle;
 
         gui->updateGUIElements(frame_info);
         scene_renderer->renderScene(frame_info);
@@ -247,8 +247,7 @@ void Renderer::beginSwapChainRenderPass(VkCommandBuffer command_buffer)
 void Renderer::endSwapChainRenderPass(VkCommandBuffer command_buffer)
 {
     assert(is_frame_in_progress && "Can't call endSwapChainRenderPass if frame is not in progress!");
-    assert(command_buffer == getCurrentCommandBuffer() &&
-        "Can't end updateElements pass on command buffer from a different frame!");
+    assert(command_buffer == getCurrentCommandBuffer() && "Can't end updateElements pass on command buffer from a different frame!");
 
     vkCmdEndRenderPass(command_buffer);
 }

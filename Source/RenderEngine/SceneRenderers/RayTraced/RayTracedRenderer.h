@@ -6,7 +6,7 @@
 #include "RenderEngine/Pipeline/RayTracingPipeline.h"
 #include "RenderEngine/RenderingAPI/Descriptors/DescriptorSetLayout.h"
 #include "RenderEngine/Textures/DeviceTexture.h"
-#include "RenderEngine/AccelerationStructures/Blas.h"
+#include "RenderEngine/AccelerationStructures/Blas/Blas.h"
 #include "RenderEngine/AccelerationStructures/Tlas.h"
 #include "RenderEngine/Materials/DeviceMaterialInfo.h"
 #include "RenderEngine/Pipeline/Compute/ComputePipeline.h"
@@ -54,7 +54,7 @@ private:
     void createAccelerationStructure();
     std::vector<BlasInstance> getBlasInstances();
 
-    std::unordered_map<std::string, Blas> blas_objects;
+    std::unordered_map<std::string, std::unique_ptr<Blas>> blas_objects;
     std::unique_ptr<Tlas> tlas;
 
     void createRayTracedImageWithCurrentWindowSize();

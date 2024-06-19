@@ -138,6 +138,15 @@ RayTracingPipelineBuilder& RayTracingPipelineBuilder::addMaterialShader(
     return *this;
 }
 
+RayTracingPipelineBuilder& RayTracingPipelineBuilder::addHitGroup(std::shared_ptr<ShaderModule> closest_hit, std::shared_ptr<ShaderModule> intersection)
+{
+    uint32_t closest_hit_stage_index = addClosestHitStage(std::move(closest_hit));
+    uint32_t intersection_stage_index = addIntersectionStage(std::move(intersection));
+    addCustomIntersectionGroup(closest_hit_stage_index, intersection_stage_index);
+
+    return *this;
+}
+
 uint32_t RayTracingPipelineBuilder::addClosestHitStage(std::shared_ptr<ShaderModule> hit)
 {
     uint32_t hit_shader_index = addShaderStage(hit, VK_SHADER_STAGE_CLOSEST_HIT_BIT_KHR);
@@ -150,6 +159,13 @@ uint32_t RayTracingPipelineBuilder::addAnyHitStage(std::shared_ptr<ShaderModule>
     uint32_t any_hit_shader_index = addShaderStage(any_hit, VK_SHADER_STAGE_ANY_HIT_BIT_KHR);
     shader_modules.emplace_back(std::move(any_hit));
     return any_hit_shader_index;
+}
+
+uint32_t RayTracingPipelineBuilder::addIntersectionStage(std::shared_ptr<ShaderModule> intersection)
+{
+    uint32_t intersection_shader_index = addShaderStage(intersection, VK_SHADER_STAGE_INTERSECTION_BIT_KHR);
+    shader_modules.emplace_back(std::move(intersection));
+    return intersection_shader_index;
 }
 
 RayTracingPipelineBuilder& RayTracingPipelineBuilder::registerObjectMaterial(const std::string& material_name)
@@ -199,6 +215,18 @@ void RayTracingPipelineBuilder::addHitGroup(uint32_t closest_hit_stage_index, ui
     closest_hit_shader_group_create_info.anyHitShader = any_hit_stage_index;
     closest_hit_shader_group_create_info.intersectionShader = VK_SHADER_UNUSED_KHR;
     shader_group_create_info_list.push_back(closest_hit_shader_group_create_info);
+}
+
+void RayTracingPipelineBuilder::addCustomIntersectionGroup(uint32_t closest_hit_stage_index, uint32_t intersection_stage_index)
+{
+    ++hit_group_count;
+    VkRayTracingShaderGroupCreateInfoKHR custom_intersection_group_create_info{VK_STRUCTURE_TYPE_RAY_TRACING_SHADER_GROUP_CREATE_INFO_KHR};
+    custom_intersection_group_create_info.type = VK_RAY_TRACING_SHADER_GROUP_TYPE_PROCEDURAL_HIT_GROUP_KHR;
+    custom_intersection_group_create_info.closestHitShader = closest_hit_stage_index;
+    custom_intersection_group_create_info.generalShader = VK_SHADER_UNUSED_KHR;
+    custom_intersection_group_create_info.anyHitShader = VK_SHADER_UNUSED_KHR;
+    custom_intersection_group_create_info.intersectionShader = intersection_stage_index;
+    shader_group_create_info_list.push_back(custom_intersection_group_create_info);
 }
 
 void RayTracingPipelineBuilder::addOcclusionCheckGroup(uint32_t any_hit_stage_index)

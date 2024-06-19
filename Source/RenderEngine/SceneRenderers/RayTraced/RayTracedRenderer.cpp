@@ -10,6 +10,8 @@
 #include "RenderEngine/Materials/DeviceMaterialInfo.h"
 #include "Objects/Object.h"
 #include "RenderEngine/AccelerationStructures/Tlas.h"
+#include "RenderEngine/AccelerationStructures/Blas/DynamicBlas.h"
+#include "RenderEngine/AccelerationStructures/Blas/OctreeBlas.h"
 #include "RenderEngine/RenderingAPI/Descriptors/DescriptorPoolBuilder.h"
 #include "RenderEngine/RenderingAPI/Descriptors/DescriptorSetLayoutBuilder.h"
 #include "RenderEngine/RenderingAPI/Descriptors/DescriptorWriter.h"
@@ -19,10 +21,13 @@ RayTracedRenderer::RayTracedRenderer(
         MemoryAllocator& memory_allocator,
         AssetManager& asset_manager,
         World& world)
-    : device{device}, memory_allocator{memory_allocator}, asset_manager{asset_manager}, world{world},
+    : device{device},
+    memory_allocator{memory_allocator},
+    asset_manager{asset_manager},
+    world{world},
     rendered_objects{obtainRenderedObjectsFromWorld()}
 {
-    createObjectAndMaterialDescriptions();
+    // createObjectAndMaterialDescriptions();
     createAccelerationStructure();
     createRayTracedImageWithCurrentWindowSize();
     createCameraUniformBuffer();
@@ -168,23 +173,26 @@ void RayTracedRenderer::createAccelerationStructure()
 std::vector<BlasInstance> RayTracedRenderer::getBlasInstances()
 {
     std::vector<BlasInstance> blas_instances;
-    blas_instances.reserve(rendered_objects.size());
-    for (size_t i = 0; i < rendered_objects.size(); ++i)
-    {
-        auto mesh_component = rendered_objects[i]->findComponentByClass<MeshComponent>();
+    // blas_instances.reserve(rendered_objects.size());
+    // for (size_t i = 0; i < rendered_objects.size(); ++i)
+    // {
+    //     auto mesh_component = rendered_objects[i]->findComponentByClass<MeshComponent>();
+    //
+    //     if (!blas_objects.contains(mesh_component->getMeshName()))
+    //     {
+    //         blas_objects.emplace(mesh_component->getMeshName(), std::make_unique<DynamicBlas>(device, memory_allocator, asset_manager, *mesh_component->getMesh()));
+    //     }
+    //     BlasInstance blas_instance = blas_objects.at(mesh_component->getMeshName())->createBlasInstance(rendered_objects[i]->getTransform());
+    //     blas_instance.bottom_level_acceleration_structure_instance.instanceCustomIndex = object_description_offsets[i++];
+    //     blas_instances.emplace_back(std::move(blas_instance));
+    // }
 
-        if (!blas_objects.contains(mesh_component->getMeshName()))
-        {
-            blas_objects.emplace(
-                std::piecewise_construct,
-                std::forward_as_tuple(mesh_component->getMeshName()),
-                std::forward_as_tuple(device, memory_allocator, asset_manager, *mesh_component->getMesh()));
-        }
-        BlasInstance blas_instance = blas_objects.at(mesh_component->getMeshName()).createBlasInstance(rendered_objects[i]->getTransform());
-        blas_instance.bottom_level_acceleration_structure_instance.instanceCustomIndex = object_description_offsets[i++];
-        blas_instances.emplace_back(std::move(blas_instance));
-    }
-
+    Octree octree{memory_allocator};
+    blas_objects["test"] = std::make_unique<OctreeBlas>(device, memory_allocator, octree);
+    blas_objects["test"]->createBlas();
+    glm::mat4 transform{1.f};
+    blas_instances.emplace_back(blas_objects.at("test")->createBlasInstance(transform));
+    blas_instances.front().bottom_level_acceleration_structure_instance.instanceCustomIndex = 0;
     return blas_instances;
 }
 
@@ -245,7 +253,7 @@ void RayTracedRenderer::createDescriptors()
         .addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1)
         .addPoolSize(VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 5)
         .addPoolSize(VK_DESCRIPTOR_TYPE_STORAGE_IMAGE, 1)
-        .addPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, static_cast<uint32_t>(diffuse_textures.size() + normal_textures.size()))
+        // .addPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, static_cast<uint32_t>(diffuse_textures.size() + normal_textures.size()))
         .build();
 
     createAccelerationStructureDescriptor();
@@ -327,41 +335,41 @@ void RayTracedRenderer::createObjectDescriptionsDescriptorLayout()
 {
     objects_descriptions_descriptor_set_layout = DescriptorSetLayoutBuilder(device)
         .addBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_RAYGEN_BIT_KHR | VK_SHADER_STAGE_CLOSEST_HIT_BIT_KHR)
-        .addBinding(1, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, VK_SHADER_STAGE_CLOSEST_HIT_BIT_KHR | VK_SHADER_STAGE_ANY_HIT_BIT_KHR)
-        .addBinding(2, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, VK_SHADER_STAGE_CLOSEST_HIT_BIT_KHR | VK_SHADER_STAGE_ANY_HIT_BIT_KHR)
-        .addBinding(3, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_CLOSEST_HIT_BIT_KHR | VK_SHADER_STAGE_ANY_HIT_BIT_KHR,
-            static_cast<uint32_t>(diffuse_textures.size()))
-        .addBinding(4, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_CLOSEST_HIT_BIT_KHR,
-            static_cast<uint32_t>(normal_textures.size()))
+        // .addBinding(1, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, VK_SHADER_STAGE_CLOSEST_HIT_BIT_KHR | VK_SHADER_STAGE_ANY_HIT_BIT_KHR)
+        // .addBinding(2, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, VK_SHADER_STAGE_CLOSEST_HIT_BIT_KHR | VK_SHADER_STAGE_ANY_HIT_BIT_KHR)
+        // .addBinding(3, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_CLOSEST_HIT_BIT_KHR | VK_SHADER_STAGE_ANY_HIT_BIT_KHR,
+            // static_cast<uint32_t>(diffuse_textures.size()))
+        // .addBinding(4, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_CLOSEST_HIT_BIT_KHR,
+            // static_cast<uint32_t>(normal_textures.size()))
         .build();
 }
 
 void RayTracedRenderer::writeToObjectDescriptionsDescriptorSet()
 {
     auto camera_buffer_descriptor_info = camera_uniform_buffer->descriptorInfo();
-    auto object_descriptions_buffer_descriptor_info = object_descriptions_buffer->descriptorInfo();
-    auto material_descriptions_descriptor_info = material_descriptions_buffer->descriptorInfo();
+    // auto object_descriptions_buffer_descriptor_info = object_descriptions_buffer->descriptorInfo();
+    // auto material_descriptions_descriptor_info = material_descriptions_buffer->descriptorInfo();
 
-    std::vector<VkDescriptorImageInfo> diffuse_texture_descriptor_infos;
-    diffuse_texture_descriptor_infos.reserve(diffuse_textures.size());
-    for (auto& texture : diffuse_textures)
-    {
-        diffuse_texture_descriptor_infos.emplace_back(texture->descriptorInfo());
-    }
+    // std::vector<VkDescriptorImageInfo> diffuse_texture_descriptor_infos;
+    // diffuse_texture_descriptor_infos.reserve(diffuse_textures.size());
+    // for (auto& texture : diffuse_textures)
+    // {
+        // diffuse_texture_descriptor_infos.emplace_back(texture->descriptorInfo());
+    // }
 
-    std::vector<VkDescriptorImageInfo> normal_texture_descriptor_infos;
-    normal_texture_descriptor_infos.reserve(normal_textures.size());
-    for (auto& texture : normal_textures)
-    {
-        normal_texture_descriptor_infos.emplace_back(texture->descriptorInfo());
-    }
+    // std::vector<VkDescriptorImageInfo> normal_texture_descriptor_infos;
+    // normal_texture_descriptor_infos.reserve(normal_textures.size());
+    // for (auto& texture : normal_textures)
+    // {
+        // normal_texture_descriptor_infos.emplace_back(texture->descriptorInfo());
+    // }
 
     auto descriptor_writer = DescriptorWriter(*objects_descriptions_descriptor_set_layout, *descriptor_pool)
-        .writeBuffer(0, &camera_buffer_descriptor_info)
-        .writeBuffer(1, &object_descriptions_buffer_descriptor_info)
-        .writeBuffer(2, &material_descriptions_descriptor_info)
-        .writeImage(3, diffuse_texture_descriptor_infos.data(), static_cast<uint32_t>(diffuse_texture_descriptor_infos.size()))
-        .writeImage(4, normal_texture_descriptor_infos.data(), static_cast<uint32_t>(normal_texture_descriptor_infos.size()));
+        .writeBuffer(0, &camera_buffer_descriptor_info);
+        // .writeBuffer(1, &object_descriptions_buffer_descriptor_info)
+        // .writeBuffer(2, &material_descriptions_descriptor_info)
+        // .writeImage(3, diffuse_texture_descriptor_infos.data(), static_cast<uint32_t>(diffuse_texture_descriptor_infos.size()))
+        // .writeImage(4, normal_texture_descriptor_infos.data(), static_cast<uint32_t>(normal_texture_descriptor_infos.size()));
 
     if (objects_info_descriptor_set_handle == VK_NULL_HANDLE)
     {
@@ -378,22 +386,25 @@ void RayTracedRenderer::buildRayTracingPipeline()
     auto ray_tracing_pipeline_builder = RayTracingPipelineBuilder(device, memory_allocator)
         .addRayGenerationStage(std::make_unique<ShaderModule>(device, "raytrace", VK_SHADER_STAGE_RAYGEN_BIT_KHR))
         .addMissStage(std::make_unique<ShaderModule>(device, "raytrace", VK_SHADER_STAGE_MISS_BIT_KHR))
-        .addMissStage(std::make_unique<ShaderModule>(device, "raytrace_shadow", VK_SHADER_STAGE_MISS_BIT_KHR))
-        .addDefaultOcclusionCheckShader(std::make_unique<ShaderModule>(device, "raytrace_occlusion", VK_SHADER_STAGE_ANY_HIT_BIT_KHR))
+        // .addMissStage(std::make_unique<ShaderModule>(device, "raytrace_shadow", VK_SHADER_STAGE_MISS_BIT_KHR))
+        // .addDefaultOcclusionCheckShader(std::make_unique<ShaderModule>(device, "raytrace_occlusion", VK_SHADER_STAGE_ANY_HIT_BIT_KHR))
+        .addHitGroup(
+            std::make_unique<ShaderModule>(device, "octree", VK_SHADER_STAGE_CLOSEST_HIT_BIT_KHR),
+            std::make_unique<ShaderModule>(device, "octree", VK_SHADER_STAGE_INTERSECTION_BIT_KHR))
         .addDescriptorSetLayout(acceleration_structure_descriptor_set_layout->getDescriptorSetLayout())
         .addDescriptorSetLayout(ray_traced_image_descriptor_set_layout->getDescriptorSetLayout())
         .addDescriptorSetLayout(objects_descriptions_descriptor_set_layout->getDescriptorSetLayout())
         .setMaxRecursionDepth(2);
 
-    ray_tracing_pipeline_builder.addMaterialShader(
-        "lambertian",
-        std::make_unique<ShaderModule>(device, "raytrace_lambertian", VK_SHADER_STAGE_CLOSEST_HIT_BIT_KHR),
-        std::make_unique<ShaderModule>(device, "raytrace_alpha_check", VK_SHADER_STAGE_ANY_HIT_BIT_KHR),
-        std::make_unique<ShaderModule>(device, "raytrace_alpha_check", VK_SHADER_STAGE_ANY_HIT_BIT_KHR));
-    for (size_t i = 0; i < object_descriptions.size(); ++i)
-    {
-        ray_tracing_pipeline_builder.registerObjectMaterial("lambertian");
-    }
+    // ray_tracing_pipeline_builder.addMaterialShader(
+        // "lambertian",
+        // std::make_unique<ShaderModule>(device, "raytrace_lambertian", VK_SHADER_STAGE_CLOSEST_HIT_BIT_KHR),
+        // std::make_unique<ShaderModule>(device, "raytrace_alpha_check", VK_SHADER_STAGE_ANY_HIT_BIT_KHR),
+        // std::make_unique<ShaderModule>(device, "raytrace_alpha_check", VK_SHADER_STAGE_ANY_HIT_BIT_KHR));
+    // for (size_t i = 0; i < object_descriptions.size(); ++i)
+    // {
+        // ray_tracing_pipeline_builder.registerObjectMaterial("lambertian");
+    // }
 
     ray_tracing_pipeline = ray_tracing_pipeline_builder.build();
 }

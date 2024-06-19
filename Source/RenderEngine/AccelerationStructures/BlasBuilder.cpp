@@ -1,6 +1,6 @@
 #include "BlasBuilder.h"
 
-#include "Blas.h"
+#include "RenderEngine/AccelerationStructures/Blas/Blas.h"
 #include "BlasInstance.h"
 #include "RenderEngine/RenderingAPI/VulkanDefines.h"
 #include "RenderEngine/RenderingAPI/VulkanHelper.h"

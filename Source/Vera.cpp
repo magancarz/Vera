@@ -40,7 +40,7 @@ void Vera::initializeLogSystem()
 
 void Vera::loadProject()
 {
-    ProjectInfo project_info = ProjectUtils::loadProject("vera");
+    ProjectInfo project_info = ProjectUtils::loadProject("debug");
     world.loadProject(project_info, *asset_manager);
     world.createViewerObject(*input_manager);
 }

@@ -3,9 +3,9 @@
 #include <Assets/Mesh.h>
 #include <glm/glm.hpp>
 
-#include "AccelerationStructure.h"
-#include "BlasBuilder.h"
-#include "BlasInstance.h"
+#include "RenderEngine/AccelerationStructures/AccelerationStructure.h"
+#include "RenderEngine/AccelerationStructures/BlasBuilder.h"
+#include "RenderEngine/AccelerationStructures/BlasInstance.h"
 
 class MeshComponent;
 class MemoryAllocator;
@@ -16,26 +16,21 @@ class Blas
 public:
     Blas(
         VulkanHandler& device,
-        MemoryAllocator& memory_allocator,
-        AssetManager& asset_manager,
-        const Mesh& mesh);
+        MemoryAllocator& memory_allocator);
+    virtual ~Blas() = default;
 
     Blas(const Blas&) = delete;
     Blas& operator=(const Blas&) = delete;
-    Blas(Blas&& other) = default;
-    Blas& operator=(Blas&&) = delete;
 
+    virtual void createBlas() = 0;
     [[nodiscard]] BlasInstance createBlasInstance(const glm::mat4& transform) const;
 
     void update();
 
-private:
+protected:
     VulkanHandler& device;
     MemoryAllocator& memory_allocator;
-    AssetManager& asset_manager;
-
-    AccelerationStructure createBlas(const Mesh& mesh);
 
     BlasBuilder::BlasInput blas_input{};
-    AccelerationStructure blas;
+    AccelerationStructure blas{device.getLogicalDevice()};
 };

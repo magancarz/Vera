@@ -49,7 +49,7 @@ TEST(BlasBuilderTests, shouldBuildValidBlas)
     std::vector<BlasBuilder::BlasInput> blas_inputs{blas_input};
 
     // when
-    std::vector<AccelerationStructure> blases = BlasBuilder::buildBottomLevelAccelerationStructures(
+    std::vector<AccelerationStructure> blases = BlasBuilder::buildBottomLevelAccelerationStructure(
         TestsEnvironment::vulkanHandler(), TestsEnvironment::memoryAllocator(),
         blas_inputs, VK_BUILD_ACCELERATION_STRUCTURE_PREFER_FAST_TRACE_BIT_KHR);
 

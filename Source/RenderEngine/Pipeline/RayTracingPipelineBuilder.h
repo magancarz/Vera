@@ -23,6 +23,9 @@ public:
         std::shared_ptr<ShaderModule> hit,
         std::shared_ptr<ShaderModule> any_hit,
         std::shared_ptr<ShaderModule> occlusion);
+    RayTracingPipelineBuilder& addHitGroup(
+        std::shared_ptr<ShaderModule> closest_hit,
+        std::shared_ptr<ShaderModule> intersection);
     RayTracingPipelineBuilder& registerObjectMaterial(const std::string& material_name);
     RayTracingPipelineBuilder& setMaxRecursionDepth(uint32_t max_recursion_depth);
     RayTracingPipelineBuilder& addDescriptorSetLayout(VkDescriptorSetLayout descriptor_set_layout);
@@ -36,6 +39,7 @@ private:
 
     uint32_t addClosestHitStage(std::shared_ptr<ShaderModule> hit);
     uint32_t addAnyHitStage(std::shared_ptr<ShaderModule> any_hit);
+    uint32_t addIntersectionStage(std::shared_ptr<ShaderModule> intersection);
     uint32_t addShaderStage(
         const std::shared_ptr<ShaderModule>& shader_module,
         VkShaderStageFlagBits shader_stage);
@@ -44,6 +48,7 @@ private:
         VkShaderStageFlagBits shader_stage);
     void addHitGroup(uint32_t closest_hit_stage_index);
     void addHitGroup(uint32_t closest_hit_stage_index, uint32_t any_hit_stage_index);
+    void addCustomIntersectionGroup(uint32_t closest_hit_stage_index, uint32_t intersection_stage_index);
     void addOcclusionCheckGroup(uint32_t any_hit_stage_index);
 
     std::unordered_map<std::string, MaterialShader> material_shaders;
