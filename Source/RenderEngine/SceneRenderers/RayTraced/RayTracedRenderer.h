@@ -17,7 +17,6 @@ class RayTracedRenderer : public SceneRenderer
 {
 public:
     RayTracedRenderer(VulkanHandler& device, MemoryAllocator& memory_allocator, AssetManager& asset_manager, World& world);
-    ~RayTracedRenderer() noexcept override;
 
     void renderScene(FrameInfo& frame_info) override;
 
@@ -47,7 +46,7 @@ private:
     std::vector<BlasInstance> getBlasInstances();
 
     std::unordered_map<std::string, Blas> blas_objects;
-    Tlas tlas;
+    std::unique_ptr<Tlas> tlas;
 
     void createRayTracedImage(uint32_t width, uint32_t height);
 

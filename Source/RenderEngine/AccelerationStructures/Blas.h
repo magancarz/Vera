@@ -19,7 +19,6 @@ public:
         MemoryAllocator& memory_allocator,
         AssetManager& asset_manager,
         const Mesh& mesh);
-    ~Blas();
 
     Blas(const Blas&) = delete;
     Blas& operator=(const Blas&) = delete;
@@ -35,8 +34,8 @@ private:
     MemoryAllocator& memory_allocator;
     AssetManager& asset_manager;
 
-    void createBlas(const Mesh& mesh);
+    AccelerationStructure createBlas(const Mesh& mesh);
 
     BlasBuilder::BlasInput blas_input{};
-    AccelerationStructure blas{};
+    AccelerationStructure blas;
 };

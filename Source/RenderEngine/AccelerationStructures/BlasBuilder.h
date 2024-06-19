@@ -31,11 +31,9 @@ public:
 private:
     struct BuildAccelerationStructure
     {
-        VkAccelerationStructureBuildGeometryInfoKHR build_info{VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_BUILD_GEOMETRY_INFO_KHR};
-        VkAccelerationStructureBuildSizesInfoKHR size_info{VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_BUILD_SIZES_INFO_KHR};
-        const VkAccelerationStructureBuildRangeInfoKHR* range_info;
-        AccelerationStructure as;
-        AccelerationStructure cleanup_as;
+        VkAccelerationStructureBuildGeometryInfoKHR build_info;
+        VkAccelerationStructureBuildSizesInfoKHR size_info;
+        const VkAccelerationStructureBuildRangeInfoKHR* range_info{nullptr};
     };
 
     static std::vector<BuildAccelerationStructure> fillBuildInfos(
@@ -48,18 +46,19 @@ private:
         VkDeviceSize& max_scratch_buffer_size);
     static std::unique_ptr<Buffer> createScratchBuffer(MemoryAllocator& memory_allocator, uint32_t scratch_buffer_size);
 
-    static void cmdCreateBlas(
+    static std::vector<AccelerationStructure> cmdCreateBlas(
         VulkanHandler& device, MemoryAllocator& memory_allocator,
         VkCommandBuffer command_buffer,
         std::vector<uint32_t>& indices,
-        std::vector<BuildAccelerationStructure>& build_as,
-        VkDeviceAddress scratch_address,
+        std::vector<BuildAccelerationStructure>& build_acceleration_structure_infos,
+        VkDeviceAddress scratch_buffer_address,
         VkQueryPool query_pool);
-    static void cmdCompactBlas(
+    static std::vector<AccelerationStructure> cmdCompactBlas(
         VulkanHandler& device, MemoryAllocator& memory_allocator,
         VkCommandBuffer command_buffer,
         std::vector<uint32_t>& indices,
-        std::vector<BuildAccelerationStructure>& build_as,
+        std::vector<BuildAccelerationStructure>& build_acceleration_structure_infos,
+        const std::vector<AccelerationStructure>& acceleration_structures,
         VkQueryPool query_pool);
     static void destroyNonCompacted(
         VulkanHandler& device,

@@ -21,8 +21,7 @@ RayTracedRenderer::RayTracedRenderer(
         MemoryAllocator& memory_allocator,
         AssetManager& asset_manager,
         World& world)
-    : device{device}, memory_allocator{memory_allocator}, asset_manager{asset_manager}, world{world},
-    tlas{device.getLogicalDevice(), device.getCommandPool(), memory_allocator, VK_BUILD_ACCELERATION_STRUCTURE_PREFER_FAST_TRACE_BIT_KHR | VK_BUILD_ACCELERATION_STRUCTURE_ALLOW_UPDATE_BIT_KHR}
+    : device{device}, memory_allocator{memory_allocator}, asset_manager{asset_manager}, world{world}
 {
     obtainRenderedObjectsFromWorld();
     createObjectDescriptionsBuffer();
@@ -150,7 +149,8 @@ void RayTracedRenderer::createObjectDescriptionsBuffer()
 void RayTracedRenderer::createAccelerationStructure()
 {
     std::vector<BlasInstance> blas_instances = getBlasInstances();
-    tlas.build(blas_instances);
+    tlas = std::make_unique<Tlas>(
+        device.getLogicalDevice(), device.getCommandPool(), memory_allocator, VK_BUILD_ACCELERATION_STRUCTURE_PREFER_FAST_TRACE_BIT_KHR | VK_BUILD_ACCELERATION_STRUCTURE_ALLOW_UPDATE_BIT_KHR, blas_instances);
 }
 
 std::vector<BlasInstance> RayTracedRenderer::getBlasInstances()
@@ -254,7 +254,8 @@ void RayTracedRenderer::writeToAccelerationStructureDescriptorSet()
     VkWriteDescriptorSetAccelerationStructureKHR acceleration_structure_descriptor_info{};
     acceleration_structure_descriptor_info.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET_ACCELERATION_STRUCTURE_KHR;
     acceleration_structure_descriptor_info.accelerationStructureCount = 1;
-    acceleration_structure_descriptor_info.pAccelerationStructures = &tlas.accelerationStructure().handle;
+    std::vector<VkAccelerationStructureKHR> acceleration_structures{tlas->accelerationStructure().getHandle()};
+    acceleration_structure_descriptor_info.pAccelerationStructures = acceleration_structures.data();
 
     auto descriptor_writer = DescriptorWriter(*acceleration_structure_descriptor_set_layout, *descriptor_pool)
         .writeAccelerationStructure(0, &acceleration_structure_descriptor_info);
@@ -378,11 +379,6 @@ void RayTracedRenderer::buildRayTracingPipeline()
     }
 
     ray_tracing_pipeline = ray_tracing_pipeline_builder.build();
-}
-
-RayTracedRenderer::~RayTracedRenderer() noexcept
-{
-    pvkDestroyAccelerationStructureKHR(device.getDeviceHandle(), tlas.accelerationStructure().handle, VulkanDefines::NO_CALLBACK);
 }
 
 void RayTracedRenderer::renderScene(FrameInfo& frame_info)

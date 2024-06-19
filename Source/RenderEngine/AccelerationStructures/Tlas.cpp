@@ -6,10 +6,19 @@
 #include "BlasInstance.h"
 #include "RenderEngine/RenderingAPI/VulkanHelper.h"
 
-Tlas::Tlas(Device& logical_device, CommandPool& command_pool, MemoryAllocator& memory_allocator, VkBuildAccelerationStructureFlagsKHR build_flags)
-    : logical_device{logical_device}, command_pool{command_pool}, memory_allocator{memory_allocator}, build_flags{build_flags} {}
+Tlas::Tlas(
+        Device& logical_device,
+        CommandPool& command_pool,
+        MemoryAllocator& memory_allocator,
+        VkBuildAccelerationStructureFlagsKHR build_flags,
+        const std::vector<BlasInstance>& blas_instances)
+    : logical_device{logical_device},
+    command_pool{command_pool},
+    memory_allocator{memory_allocator},
+    build_flags{build_flags},
+    acceleration_structure{build(blas_instances)} {}
 
-void Tlas::build(const std::vector<BlasInstance>& blas_instances)
+AccelerationStructure Tlas::build(const std::vector<BlasInstance>& blas_instances)
 {
     copyBlasInstancesDataToBuffer(blas_instances);
 
@@ -17,10 +26,10 @@ void Tlas::build(const std::vector<BlasInstance>& blas_instances)
     auto build_geometry_info = fillBuildGeometryInfo(&geometries, VK_BUILD_ACCELERATION_STRUCTURE_MODE_BUILD_KHR);
 
     VkAccelerationStructureBuildSizesInfoKHR acceleration_structure_build_sizes_info = obtainBuildSizesInfo(build_geometry_info, blas_instances.size());
-    createAccelerationStructure(acceleration_structure_build_sizes_info.accelerationStructureSize);
+    AccelerationStructure acceleration_structure = createAccelerationStructure(acceleration_structure_build_sizes_info.accelerationStructureSize);
     std::unique_ptr<Buffer> scratch_buffer = createScratchBuffer(acceleration_structure_build_sizes_info.buildScratchSize);
 
-    build_geometry_info.dstAccelerationStructure = acceleration_structure.handle;
+    build_geometry_info.dstAccelerationStructure = acceleration_structure.getHandle();
     build_geometry_info.scratchData.deviceAddress = scratch_buffer->getBufferDeviceAddress();
 
     VkAccelerationStructureBuildRangeInfoKHR top_level_acceleration_structure_build_range_info =
@@ -32,6 +41,8 @@ void Tlas::build(const std::vector<BlasInstance>& blas_instances)
     };
 
     cmdBuildTlas(build_geometry_info, &top_level_acceleration_structure_build_range_info);
+
+    return acceleration_structure;
 }
 
 void Tlas::copyBlasInstancesDataToBuffer(const std::vector<BlasInstance>& blas_instances)
@@ -92,7 +103,7 @@ VkAccelerationStructureGeometryKHR Tlas::fillGeometryInfo()
 }
 
 VkAccelerationStructureBuildGeometryInfoKHR Tlas::fillBuildGeometryInfo(
-        VkAccelerationStructureGeometryKHR* geometries, VkBuildAccelerationStructureModeKHR mode)
+        VkAccelerationStructureGeometryKHR* geometries, VkBuildAccelerationStructureModeKHR mode) const
 {
     VkAccelerationStructureBuildGeometryInfoKHR acceleration_structure_build_geometry_info{};
     acceleration_structure_build_geometry_info.sType = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_BUILD_GEOMETRY_INFO_KHR;
@@ -126,32 +137,35 @@ VkAccelerationStructureBuildSizesInfoKHR Tlas::obtainBuildSizesInfo(const VkAcce
     return acceleration_structure_build_sizes_info;
 }
 
-void Tlas::createAccelerationStructure(uint32_t acceleration_structure_size)
+AccelerationStructure Tlas::createAccelerationStructure(uint32_t acceleration_structure_size)
 {
     BufferInfo acceleration_structure_buffer_info{};
     acceleration_structure_buffer_info.instance_size = acceleration_structure_size;
     acceleration_structure_buffer_info.instance_count = 1;
     acceleration_structure_buffer_info.usage_flags = VK_BUFFER_USAGE_ACCELERATION_STRUCTURE_STORAGE_BIT_KHR;
     acceleration_structure_buffer_info.required_memory_flags = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
-    acceleration_structure.buffer = memory_allocator.createBuffer(acceleration_structure_buffer_info);
+    std::unique_ptr<Buffer> buffer = memory_allocator.createBuffer(acceleration_structure_buffer_info);
 
     VkAccelerationStructureCreateInfoKHR top_level_acceleration_structure_create_info{};
     top_level_acceleration_structure_create_info.sType = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_CREATE_INFO_KHR;
     top_level_acceleration_structure_create_info.createFlags = 0;
-    top_level_acceleration_structure_create_info.buffer = acceleration_structure.buffer->getBuffer();
+    top_level_acceleration_structure_create_info.buffer = buffer->getBuffer();
     top_level_acceleration_structure_create_info.offset = 0;
     top_level_acceleration_structure_create_info.size = acceleration_structure_size;
     top_level_acceleration_structure_create_info.type = VK_ACCELERATION_STRUCTURE_TYPE_TOP_LEVEL_KHR;
     top_level_acceleration_structure_create_info.deviceAddress = 0;
 
+    VkAccelerationStructureKHR acceleration_structure_handle{VK_NULL_HANDLE};
     if (pvkCreateAccelerationStructureKHR(
         logical_device.getDevice(),
         &top_level_acceleration_structure_create_info,
         VulkanDefines::NO_CALLBACK,
-        &acceleration_structure.handle) != VK_SUCCESS)
+        &acceleration_structure_handle) != VK_SUCCESS)
     {
         throw std::runtime_error("vkCreateAccelerationStructureKHR");
     }
+
+    return AccelerationStructure{logical_device, acceleration_structure_handle, std::move(buffer)};
 }
 
 std::unique_ptr<Buffer> Tlas::createScratchBuffer(uint32_t scratch_buffer_size)
@@ -187,8 +201,8 @@ void Tlas::update(const std::vector<BlasInstance>& blas_instances)
     VkAccelerationStructureBuildSizesInfoKHR acceleration_structure_build_sizes_info = obtainBuildSizesInfo(build_geometry_info, blas_instances.size());
     std::unique_ptr<Buffer> scratch_buffer = createScratchBuffer(acceleration_structure_build_sizes_info.buildScratchSize);
 
-    build_geometry_info.srcAccelerationStructure = acceleration_structure.handle;
-    build_geometry_info.dstAccelerationStructure = acceleration_structure.handle;
+    build_geometry_info.srcAccelerationStructure = acceleration_structure.getHandle();
+    build_geometry_info.dstAccelerationStructure = acceleration_structure.getHandle();
     build_geometry_info.scratchData.deviceAddress = scratch_buffer->getBufferDeviceAddress();
 
     VkAccelerationStructureBuildRangeInfoKHR top_level_acceleration_structure_build_range_info =
