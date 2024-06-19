@@ -337,7 +337,7 @@ VkPresentModeKHR SwapChain::chooseSwapPresentMode(const std::vector<VkPresentMod
     }
 
     LogSystem::log(LogSeverity::LOG, "Present mode: V-Sync");
-    return VK_PRESENT_MODE_FIFO_KHR;
+    return VK_PRESENT_MODE_IMMEDIATE_KHR;
 }
 
 VkExtent2D SwapChain::chooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities)
