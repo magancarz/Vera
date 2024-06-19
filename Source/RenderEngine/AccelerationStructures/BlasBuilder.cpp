@@ -66,7 +66,6 @@ std::vector<AccelerationStructure> BlasBuilder::buildBottomLevelAccelerationStru
                 std::vector<AccelerationStructure> compacted_acceleration_structures =
                     cmdCompactBlas(device, memory_allocator, compact_command_buffer, indices, build_as, final_acceleration_structures, query_pool);
                 device.getCommandPool().endSingleTimeCommands(compact_command_buffer);
-                destroyNonCompacted(device, indices, build_as);
 
                 for (size_t i = 0; i < indices.size(); ++i)
                 {
@@ -287,17 +286,6 @@ std::vector<AccelerationStructure> BlasBuilder::cmdCompactBlas(
     }
 
     return compacted_acceleration_structures;
-}
-
-void BlasBuilder::destroyNonCompacted(
-    VulkanHandler& device,
-    std::vector<uint32_t>& indices,
-    std::vector<BuildAccelerationStructure>& build_as)
-{
-    for (uint32_t idx : indices)
-    {
-        // pvkDestroyAccelerationStructureKHR(device.getDeviceHandle(), build_as[idx].cleanup_as.handle, VulkanDefines::NO_CALLBACK);
-    }
 }
 
 void BlasBuilder::updateBottomLevelAccelerationStructures(

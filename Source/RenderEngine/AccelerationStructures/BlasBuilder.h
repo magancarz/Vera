@@ -60,8 +60,4 @@ private:
         std::vector<BuildAccelerationStructure>& build_acceleration_structure_infos,
         const std::vector<AccelerationStructure>& acceleration_structures,
         VkQueryPool query_pool);
-    static void destroyNonCompacted(
-        VulkanHandler& device,
-        std::vector<uint32_t>& indices,
-        std::vector<BuildAccelerationStructure>& build_as);
 };
