@@ -4,13 +4,11 @@
 #include <iostream>
 
 #include "RenderEngine/RenderingAPI/VulkanHelper.h"
-#include "RenderEngine/GlobalUBO.h"
-#include "RenderEngine/RenderingAPI/VulkanDefines.h"
+#include "RenderEngine/CameraUBO.h"
 #include "RenderEngine/Pipeline/RayTracingPipelineBuilder.h"
 #include "Objects/Components/MeshComponent.h"
 #include "RenderEngine/Materials/DeviceMaterialInfo.h"
 #include "Objects/Object.h"
-#include "Objects/Components/TransformComponent.h"
 #include "RenderEngine/AccelerationStructures/Tlas.h"
 #include "RenderEngine/RenderingAPI/Descriptors/DescriptorPoolBuilder.h"
 #include "RenderEngine/RenderingAPI/Descriptors/DescriptorSetLayoutBuilder.h"
@@ -22,98 +20,37 @@ RayTracedRenderer::RayTracedRenderer(
         AssetManager& asset_manager,
         World& world)
     : device{device}, memory_allocator{memory_allocator}, asset_manager{asset_manager}, world{world},
-    tlas{device.getLogicalDevice(), device.getCommandPool(), memory_allocator, VK_BUILD_ACCELERATION_STRUCTURE_PREFER_FAST_TRACE_BIT_KHR | VK_BUILD_ACCELERATION_STRUCTURE_ALLOW_UPDATE_BIT_KHR}
+    rendered_objects{obtainRenderedObjectsFromWorld()}
 {
-    obtainRenderedObjectsFromWorld();
-    createObjectDescriptionsBuffer();
+    createObjectAndMaterialDescriptions();
     createAccelerationStructure();
-
-    VkSurfaceCapabilitiesKHR surface_capabilities;
-    vkGetPhysicalDeviceSurfaceCapabilitiesKHR(device.getPhysicalDeviceHandle(), device.getSurfaceKHRHandle(), &surface_capabilities);
-    createRayTracedImage(surface_capabilities.currentExtent.width, surface_capabilities.currentExtent.height);
+    createRayTracedImageWithCurrentWindowSize();
     createCameraUniformBuffer();
     createDescriptors();
     buildRayTracingPipeline();
 }
 
-void RayTracedRenderer::obtainRenderedObjectsFromWorld()
+std::vector<Object*> RayTracedRenderer::obtainRenderedObjectsFromWorld()
 {
-    rendered_objects.clear();
+    std::vector<Object*> objects;
     for (const auto& [id, object] : world.getObjects())
     {
         if (object->findComponentByClass<MeshComponent>())
         {
-            rendered_objects.emplace_back(object.get());
+            objects.emplace_back(object.get());
         }
     }
+
+    return objects;
 }
 
-void RayTracedRenderer::createObjectDescriptionsBuffer()
+void RayTracedRenderer::createObjectAndMaterialDescriptions()
 {
-    std::vector<DeviceMaterialInfo> device_material_infos;
-    diffuse_textures.clear();
     for (auto& object : rendered_objects)
     {
         object_description_offsets.emplace_back(static_cast<uint32_t>(object_descriptions.size()));
-        auto mesh_component = object->findComponentByClass<MeshComponent>();
-        MeshDescription mesh_description = mesh_component->getDescription();
-        for (size_t i = 0; i < mesh_description.model_descriptions.size(); ++i)
-        {
-            ObjectDescription object_description{};
-            object_description.vertex_address = mesh_description.model_descriptions[i].vertex_buffer->
-                getBufferDeviceAddress();
-            object_description.index_address = mesh_description.model_descriptions[i].index_buffer->
-                getBufferDeviceAddress();
-            object_description.object_to_world = object->getTransform();
-
-            auto required_material = mesh_description.required_materials[i];
-            uint32_t material_index;
-            auto it = std::ranges::find_if(used_materials.begin(), used_materials.end(),
-               [&](const Material* item)
-               {
-                   return required_material == item->getName();
-               });
-            if (it != used_materials.end())
-            {
-                material_index = std::distance(used_materials.begin(), it);
-            }
-            else
-            {
-                auto material = mesh_component->findMaterial(required_material);
-                material_index = used_materials.size();
-                used_materials.emplace_back(material);
-
-                DeviceMaterialInfo device_material_info{};
-                auto texture = material->getDiffuseTexture();
-                auto tit = std::ranges::find(diffuse_textures.begin(), diffuse_textures.end(), texture);
-                if (tit != diffuse_textures.end())
-                {
-                    device_material_info.diffuse_texture_offset = std::distance(diffuse_textures.begin(), tit);
-                }
-                else
-                {
-                    device_material_info.diffuse_texture_offset = diffuse_textures.size();
-                    diffuse_textures.emplace_back(texture);
-                }
-
-                auto normal_texture = material->getNormalTexture();
-                auto nit = std::ranges::find(normal_textures.begin(), normal_textures.end(), normal_texture);
-                if (nit != normal_textures.end())
-                {
-                    device_material_info.normal_texture_offset = std::distance(normal_textures.begin(), nit);
-                }
-                else
-                {
-                    device_material_info.normal_texture_offset = normal_textures.size();
-                    normal_textures.emplace_back(normal_texture);
-                }
-
-                device_material_infos.emplace_back(device_material_info);
-            }
-
-            object_description.material_index = material_index;
-            object_descriptions.emplace_back(object_description);
-        }
+        std::vector<ObjectDescription> descriptions = createObjectDescriptionsFrom(object);
+        object_descriptions.insert(object_descriptions.end(), descriptions.begin(), descriptions.end());
     }
 
     auto object_descriptions_staging_buffer = memory_allocator.createStagingBuffer(
@@ -124,44 +61,117 @@ void RayTracedRenderer::createObjectDescriptionsBuffer()
     BufferInfo object_descriptions_buffer_info{};
     object_descriptions_buffer_info.instance_size = sizeof(ObjectDescription);
     object_descriptions_buffer_info.instance_count = static_cast<uint32_t>(object_descriptions.size());
-    object_descriptions_buffer_info.usage_flags =
-        VK_BUFFER_USAGE_STORAGE_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT;
+    object_descriptions_buffer_info.usage_flags = VK_BUFFER_USAGE_STORAGE_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT;
     object_descriptions_buffer_info.required_memory_flags = VK_MEMORY_ALLOCATE_DEVICE_ADDRESS_BIT;
-
     object_descriptions_buffer = memory_allocator.createBuffer(object_descriptions_buffer_info);
+
     object_descriptions_buffer->copyFrom(*object_descriptions_staging_buffer);
 
     auto material_descriptions_staging_buffer = memory_allocator.createStagingBuffer(
         sizeof(DeviceMaterialInfo),
-        static_cast<uint32_t>(device_material_infos.size()),
-        device_material_infos.data());
+        static_cast<uint32_t>(material_infos.size()),
+        material_infos.data());
 
     BufferInfo material_descriptions_buffer_info{};
     material_descriptions_buffer_info.instance_size = sizeof(DeviceMaterialInfo);
-    material_descriptions_buffer_info.instance_count = static_cast<uint32_t>(device_material_infos.size());
-    material_descriptions_buffer_info.usage_flags =
-        VK_BUFFER_USAGE_STORAGE_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT;
+    material_descriptions_buffer_info.instance_count = static_cast<uint32_t>(material_infos.size());
+    material_descriptions_buffer_info.usage_flags = VK_BUFFER_USAGE_STORAGE_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT;
     material_descriptions_buffer_info.required_memory_flags = VK_MEMORY_ALLOCATE_DEVICE_ADDRESS_BIT;
-
     material_descriptions_buffer = memory_allocator.createBuffer(material_descriptions_buffer_info);
+
     material_descriptions_buffer->copyFrom(*material_descriptions_staging_buffer);
+}
+
+std::vector<ObjectDescription> RayTracedRenderer::createObjectDescriptionsFrom(Object* rendered_object)
+{
+    auto mesh_component = rendered_object->findComponentByClass<MeshComponent>();
+    MeshDescription mesh_description = mesh_component->getDescription();
+
+    std::vector<ObjectDescription> descriptions(mesh_description.model_descriptions.size());
+    for (size_t i = 0; i < mesh_description.model_descriptions.size(); ++i)
+    {
+        descriptions[i].vertex_address = mesh_description.model_descriptions[i].vertex_buffer->getBufferDeviceAddress();
+        descriptions[i].index_address = mesh_description.model_descriptions[i].index_buffer->getBufferDeviceAddress();
+        descriptions[i].object_to_world = rendered_object->getTransform();
+
+        auto required_material = mesh_description.required_materials[i];
+        descriptions[i].material_index = fetchRequiredMaterialIndex(mesh_component, required_material);
+    }
+
+    return descriptions;
+}
+
+uint32_t RayTracedRenderer::fetchRequiredMaterialIndex(const MeshComponent* mesh_component, const std::string_view& required_material_name)
+{
+    auto find_material_predicate = [required_material_name] (const Material* item)
+    {
+        return required_material_name == item->getName();
+    };
+
+    auto found_at = std::ranges::find_if(used_materials.begin(), used_materials.end(), find_material_predicate);
+    if (found_at != used_materials.end())
+    {
+        return std::distance(used_materials.begin(), found_at);
+    }
+
+    auto material = mesh_component->findMaterial(required_material_name);
+    uint32_t material_index = used_materials.size();
+    used_materials.emplace_back(material);
+
+    DeviceMaterialInfo device_material_info{};
+    device_material_info.diffuse_texture_offset = fetchRequiredDiffuseTextureOffset(material);
+    device_material_info.normal_texture_offset = fetchRequiredNormalMapOffset(material);
+    material_infos.emplace_back(device_material_info);
+
+    return material_index;
+}
+
+uint32_t RayTracedRenderer::fetchRequiredDiffuseTextureOffset(const Material* material)
+{
+    auto texture = material->getDiffuseTexture();
+    auto found_at = std::ranges::find(diffuse_textures.begin(), diffuse_textures.end(), texture);
+    if (found_at != diffuse_textures.end())
+    {
+        return std::distance(diffuse_textures.begin(), found_at);
+    }
+
+    uint32_t diffuse_texture_offset = diffuse_textures.size();
+    diffuse_textures.emplace_back(texture);
+    return diffuse_texture_offset;
+}
+
+uint32_t RayTracedRenderer::fetchRequiredNormalMapOffset(const Material* material)
+{
+    auto normal_texture = material->getNormalTexture();
+    auto found_at = std::ranges::find(normal_textures.begin(), normal_textures.end(), normal_texture);
+    if (found_at != normal_textures.end())
+    {
+        return std::distance(normal_textures.begin(), found_at);
+    }
+
+    uint32_t normal_map_offset = normal_textures.size();
+    normal_textures.emplace_back(normal_texture);
+    return normal_map_offset;
 }
 
 void RayTracedRenderer::createAccelerationStructure()
 {
     std::vector<BlasInstance> blas_instances = getBlasInstances();
-    tlas.build(blas_instances);
+    tlas = std::make_unique<Tlas>(
+        device.getLogicalDevice(),
+        device.getCommandPool(),
+        memory_allocator,
+        VK_BUILD_ACCELERATION_STRUCTURE_PREFER_FAST_TRACE_BIT_KHR | VK_BUILD_ACCELERATION_STRUCTURE_ALLOW_UPDATE_BIT_KHR,
+        blas_instances);
 }
 
 std::vector<BlasInstance> RayTracedRenderer::getBlasInstances()
 {
     std::vector<BlasInstance> blas_instances;
     blas_instances.reserve(rendered_objects.size());
-    size_t i = 0;
-    for (auto& object : rendered_objects)
+    for (size_t i = 0; i < rendered_objects.size(); ++i)
     {
-        auto mesh_component = object->findComponentByClass<MeshComponent>();
-        assert(mesh_component && "Rendered object must have mesh component!");
+        auto mesh_component = rendered_objects[i]->findComponentByClass<MeshComponent>();
 
         if (!blas_objects.contains(mesh_component->getMeshName()))
         {
@@ -170,12 +180,19 @@ std::vector<BlasInstance> RayTracedRenderer::getBlasInstances()
                 std::forward_as_tuple(mesh_component->getMeshName()),
                 std::forward_as_tuple(device, memory_allocator, asset_manager, *mesh_component->getMesh()));
         }
-        BlasInstance blas_instance = blas_objects.at(mesh_component->getMeshName()).createBlasInstance(object->getTransform());
+        BlasInstance blas_instance = blas_objects.at(mesh_component->getMeshName()).createBlasInstance(rendered_objects[i]->getTransform());
         blas_instance.bottom_level_acceleration_structure_instance.instanceCustomIndex = object_description_offsets[i++];
-        blas_instances.push_back(std::move(blas_instance));
+        blas_instances.emplace_back(std::move(blas_instance));
     }
 
     return blas_instances;
+}
+
+void RayTracedRenderer::createRayTracedImageWithCurrentWindowSize()
+{
+    VkSurfaceCapabilitiesKHR surface_capabilities;
+    vkGetPhysicalDeviceSurfaceCapabilitiesKHR(device.getPhysicalDeviceHandle(), device.getSurfaceKHRHandle(), &surface_capabilities);
+    createRayTracedImage(surface_capabilities.currentExtent.width, surface_capabilities.currentExtent.height);
 }
 
 void RayTracedRenderer::createRayTracedImage(uint32_t width, uint32_t height)
@@ -210,13 +227,13 @@ void RayTracedRenderer::createRayTracedImage(uint32_t width, uint32_t height)
 void RayTracedRenderer::createCameraUniformBuffer()
 {
     BufferInfo material_descriptions_buffer_info{};
-    material_descriptions_buffer_info.instance_size = sizeof(GlobalUBO);
+    material_descriptions_buffer_info.instance_size = sizeof(CameraUBO);
     material_descriptions_buffer_info.instance_count = 1;
     material_descriptions_buffer_info.usage_flags = VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT;
     material_descriptions_buffer_info.required_memory_flags = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT;
     material_descriptions_buffer_info.allocation_flags = VMA_ALLOCATION_CREATE_HOST_ACCESS_SEQUENTIAL_WRITE_BIT;
-
     camera_uniform_buffer = memory_allocator.createBuffer(material_descriptions_buffer_info);
+
     camera_uniform_buffer->map();
 }
 
@@ -254,7 +271,8 @@ void RayTracedRenderer::writeToAccelerationStructureDescriptorSet()
     VkWriteDescriptorSetAccelerationStructureKHR acceleration_structure_descriptor_info{};
     acceleration_structure_descriptor_info.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET_ACCELERATION_STRUCTURE_KHR;
     acceleration_structure_descriptor_info.accelerationStructureCount = 1;
-    acceleration_structure_descriptor_info.pAccelerationStructures = &tlas.accelerationStructure().handle;
+    std::vector<VkAccelerationStructureKHR> acceleration_structures{tlas->accelerationStructure().getHandle()};
+    acceleration_structure_descriptor_info.pAccelerationStructures = acceleration_structures.data();
 
     auto descriptor_writer = DescriptorWriter(*acceleration_structure_descriptor_set_layout, *descriptor_pool)
         .writeAccelerationStructure(0, &acceleration_structure_descriptor_info);
@@ -380,11 +398,6 @@ void RayTracedRenderer::buildRayTracingPipeline()
     ray_tracing_pipeline = ray_tracing_pipeline_builder.build();
 }
 
-RayTracedRenderer::~RayTracedRenderer() noexcept
-{
-    pvkDestroyAccelerationStructureKHR(device.getDeviceHandle(), tlas.accelerationStructure().handle, VulkanDefines::NO_CALLBACK);
-}
-
 void RayTracedRenderer::renderScene(FrameInfo& frame_info)
 {
     ray_tracing_pipeline->bind(frame_info.command_buffer);
@@ -401,7 +414,7 @@ void RayTracedRenderer::updatePipelineUniformVariables(FrameInfo& frame_info)
 
 void RayTracedRenderer::updateCameraUniformBuffer(FrameInfo& frame_info)
 {
-    GlobalUBO camera_ubo{};
+    CameraUBO camera_ubo{};
     camera_ubo.view = frame_info.camera_view_matrix;
     camera_ubo.projection = frame_info.camera_projection_matrix;
     camera_uniform_buffer->writeToBuffer(&camera_ubo);

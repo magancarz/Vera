@@ -8,6 +8,7 @@
 #include "RenderEngine/Textures/DeviceTexture.h"
 #include "RenderEngine/AccelerationStructures/Blas.h"
 #include "RenderEngine/AccelerationStructures/Tlas.h"
+#include "RenderEngine/Materials/DeviceMaterialInfo.h"
 #include "RenderEngine/Pipeline/Compute/ComputePipeline.h"
 
 class DescriptorPool;
@@ -17,7 +18,6 @@ class RayTracedRenderer : public SceneRenderer
 {
 public:
     RayTracedRenderer(VulkanHandler& device, MemoryAllocator& memory_allocator, AssetManager& asset_manager, World& world);
-    ~RayTracedRenderer() noexcept override;
 
     void renderScene(FrameInfo& frame_info) override;
 
@@ -31,24 +31,33 @@ private:
     AssetManager& asset_manager;
     World& world;
 
-    void obtainRenderedObjectsFromWorld();
+    std::vector<Object*> obtainRenderedObjectsFromWorld();
 
     std::vector<Object*> rendered_objects;
 
-    void createObjectDescriptionsBuffer();
+    void createObjectAndMaterialDescriptions();
+    std::vector<ObjectDescription> createObjectDescriptionsFrom(Object* rendered_object);
+
+    std::vector<uint32_t> object_description_offsets;
+    std::vector<ObjectDescription> object_descriptions;
+    std::unique_ptr<Buffer> object_descriptions_buffer;
+
+    uint32_t fetchRequiredMaterialIndex(const MeshComponent* mesh_component, const std::string_view& required_material_name);
+    uint32_t fetchRequiredDiffuseTextureOffset(const Material* material);
+    uint32_t fetchRequiredNormalMapOffset(const Material* material);
 
     std::vector<DeviceTexture*> diffuse_textures;
     std::vector<DeviceTexture*> normal_textures;
-    std::unique_ptr<Buffer> object_descriptions_buffer;
+    std::vector<DeviceMaterialInfo> material_infos;
     std::unique_ptr<Buffer> material_descriptions_buffer;
-    std::vector<uint32_t> object_description_offsets;
 
     void createAccelerationStructure();
     std::vector<BlasInstance> getBlasInstances();
 
     std::unordered_map<std::string, Blas> blas_objects;
-    Tlas tlas;
+    std::unique_ptr<Tlas> tlas;
 
+    void createRayTracedImageWithCurrentWindowSize();
     void createRayTracedImage(uint32_t width, uint32_t height);
 
     std::unique_ptr<DeviceTexture> ray_traced_texture;
@@ -85,7 +94,6 @@ private:
 
     void buildRayTracingPipeline();
 
-    std::vector<ObjectDescription> object_descriptions;
     std::vector<Material*> used_materials;
     std::unique_ptr<RayTracingPipeline> ray_tracing_pipeline;
 

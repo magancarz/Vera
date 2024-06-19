@@ -37,6 +37,9 @@ std::vector<AccelerationStructure> BlasBuilder::buildBottomLevelAccelerationStru
         vkCreateQueryPool(device.getDeviceHandle(), &query_pool_create_info, VulkanDefines::NO_CALLBACK, &query_pool);
     }
 
+    std::vector<AccelerationStructure> final_acceleration_structures;
+    final_acceleration_structures.reserve(blas_input.size());
+
     std::vector<uint32_t> indices;
     VkDeviceSize batch_size{0};
     VkDeviceSize batch_limit{256'000'000};
@@ -48,15 +51,26 @@ std::vector<AccelerationStructure> BlasBuilder::buildBottomLevelAccelerationStru
         if (batch_size >= batch_limit || idx == blas_count - 1)
         {
             VkCommandBuffer create_command_buffer = device.getCommandPool().beginSingleTimeCommands();
-            cmdCreateBlas(device, memory_allocator, create_command_buffer, indices, build_as, scratch_buffer->getBufferDeviceAddress(), query_pool);
+            std::vector<AccelerationStructure> acceleration_structures =
+                cmdCreateBlas(device, memory_allocator, create_command_buffer, indices, build_as, scratch_buffer->getBufferDeviceAddress(), query_pool);
             device.getCommandPool().endSingleTimeCommands(create_command_buffer);
+
+            for (auto & acceleration_structure : acceleration_structures)
+            {
+                final_acceleration_structures.emplace_back(std::move(acceleration_structure));
+            }
 
             if (query_pool)
             {
                 VkCommandBuffer compact_command_buffer = device.getCommandPool().beginSingleTimeCommands();
-                cmdCompactBlas(device, memory_allocator, compact_command_buffer, indices, build_as, query_pool);
+                std::vector<AccelerationStructure> compacted_acceleration_structures =
+                    cmdCompactBlas(device, memory_allocator, compact_command_buffer, indices, build_as, final_acceleration_structures, query_pool);
                 device.getCommandPool().endSingleTimeCommands(compact_command_buffer);
-                destroyNonCompacted(device, indices, build_as);
+
+                for (size_t i = 0; i < indices.size(); ++i)
+                {
+                    final_acceleration_structures[indices[i]] = std::move(compacted_acceleration_structures[i]);
+                }
             }
 
             batch_size = 0;
@@ -66,13 +80,7 @@ std::vector<AccelerationStructure> BlasBuilder::buildBottomLevelAccelerationStru
 
     vkDestroyQueryPool(device.getDeviceHandle(), query_pool, VulkanDefines::NO_CALLBACK);
 
-    std::vector<AccelerationStructure> out_blas_values;
-    for (auto& blas : build_as)
-    {
-        out_blas_values.emplace_back(std::move(blas.as));
-    }
-
-    return out_blas_values;
+    return final_acceleration_structures;
 }
 
 std::vector<BlasBuilder::BuildAccelerationStructure> BlasBuilder::fillBuildInfos(
@@ -84,36 +92,43 @@ std::vector<BlasBuilder::BuildAccelerationStructure> BlasBuilder::fillBuildInfos
         uint32_t& number_of_compactions,
         VkDeviceSize& max_scratch_buffer_size)
 {
-    std::vector<BuildAccelerationStructure> build_as(blas_input.size());
-    for (size_t idx = 0; idx < blas_input.size(); ++idx)
+    std::vector<BuildAccelerationStructure> build_acceleration_structure_infos;
+    build_acceleration_structure_infos.reserve(blas_input.size());
+    for (const auto& blas_info : blas_input)
     {
-        build_as[idx].build_info.type = VK_ACCELERATION_STRUCTURE_TYPE_BOTTOM_LEVEL_KHR;
-        build_as[idx].build_info.mode = mode;
-        build_as[idx].build_info.flags = blas_input[idx].flags | flags;
-        build_as[idx].build_info.geometryCount = static_cast<uint32_t>(blas_input[idx].acceleration_structure_geometry.size());
-        build_as[idx].build_info.pGeometries = blas_input[idx].acceleration_structure_geometry.data();
+        BuildAccelerationStructure build_acceleration_structure_info{};
+        build_acceleration_structure_info.build_info.sType = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_BUILD_GEOMETRY_INFO_KHR;
+        build_acceleration_structure_info.build_info.type = VK_ACCELERATION_STRUCTURE_TYPE_BOTTOM_LEVEL_KHR;
+        build_acceleration_structure_info.build_info.mode = mode;
+        build_acceleration_structure_info.build_info.flags = blas_info.flags | flags;
+        build_acceleration_structure_info.build_info.geometryCount = static_cast<uint32_t>(blas_info.acceleration_structure_geometry.size());
+        build_acceleration_structure_info.build_info.pGeometries = blas_info.acceleration_structure_geometry.data();
 
-        build_as[idx].range_info = blas_input[idx].acceleration_structure_build_offset_info.data();
+        build_acceleration_structure_info.range_info = blas_info.acceleration_structure_build_offset_info.data();
 
-        std::vector<uint32_t> max_primitives_count(blas_input[idx].acceleration_structure_build_offset_info.size());
-        for (uint32_t tt = 0; tt < blas_input[idx].acceleration_structure_build_offset_info.size(); ++tt)
+        std::vector<uint32_t> max_primitives_count(blas_info.acceleration_structure_build_offset_info.size());
+        for (uint32_t tt = 0; tt < blas_info.acceleration_structure_build_offset_info.size(); ++tt)
         {
-            max_primitives_count[tt] = blas_input[idx].acceleration_structure_build_offset_info[tt].primitiveCount;
+            max_primitives_count[tt] = blas_info.acceleration_structure_build_offset_info[tt].primitiveCount;
         }
+
+        build_acceleration_structure_info.size_info.sType = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_BUILD_SIZES_INFO_KHR;
 
         pvkGetAccelerationStructureBuildSizesKHR(
             logical_device.getDevice(),
             VK_ACCELERATION_STRUCTURE_BUILD_TYPE_DEVICE_KHR,
-            &build_as[idx].build_info,
+            &build_acceleration_structure_info.build_info,
             max_primitives_count.data(),
-            &build_as[idx].size_info);
+            &build_acceleration_structure_info.size_info);
 
-        as_total_size += build_as[idx].size_info.accelerationStructureSize;
-        max_scratch_buffer_size = std::max(max_scratch_buffer_size, build_as[idx].size_info.buildScratchSize);
-        number_of_compactions += build_as[idx].build_info.flags & VK_BUILD_ACCELERATION_STRUCTURE_ALLOW_COMPACTION_BIT_KHR ? 1 : 0;
+        as_total_size += build_acceleration_structure_info.size_info.accelerationStructureSize;
+        max_scratch_buffer_size = std::max(max_scratch_buffer_size, build_acceleration_structure_info.size_info.buildScratchSize);
+        number_of_compactions += build_acceleration_structure_info.build_info.flags & VK_BUILD_ACCELERATION_STRUCTURE_ALLOW_COMPACTION_BIT_KHR ? 1 : 0;
+
+        build_acceleration_structure_infos.emplace_back(build_acceleration_structure_info);
     }
 
-    return build_as;
+    return build_acceleration_structure_infos;
 }
 
 std::unique_ptr<Buffer> BlasBuilder::createScratchBuffer(MemoryAllocator& memory_allocator, uint32_t scratch_buffer_size)
@@ -126,12 +141,13 @@ std::unique_ptr<Buffer> BlasBuilder::createScratchBuffer(MemoryAllocator& memory
     return memory_allocator.createBuffer(scratch_buffer_info);
 }
 
-void BlasBuilder::cmdCreateBlas(
-    VulkanHandler& device, MemoryAllocator& memory_allocator,
+std::vector<AccelerationStructure> BlasBuilder::cmdCreateBlas(
+    VulkanHandler& device,
+    MemoryAllocator& memory_allocator,
     VkCommandBuffer command_buffer,
     std::vector<uint32_t>& indices,
-    std::vector<BuildAccelerationStructure>& build_as,
-    VkDeviceAddress scratch_address,
+    std::vector<BuildAccelerationStructure>& build_acceleration_structure_infos,
+    VkDeviceAddress scratch_buffer_address,
     VkQueryPool query_pool)
 {
     if (query_pool)
@@ -139,36 +155,40 @@ void BlasBuilder::cmdCreateBlas(
         vkResetQueryPool(device.getDeviceHandle(), query_pool, 0, static_cast<uint32_t>(indices.size()));
     }
 
+    std::vector<AccelerationStructure> acceleration_structures;
+    acceleration_structures.reserve(indices.size());
+
     uint32_t query_count{0};
     for (const auto& idx : indices)
     {
         VkAccelerationStructureCreateInfoKHR create_info{};
         create_info.sType = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_CREATE_INFO_KHR;
         create_info.type = VK_ACCELERATION_STRUCTURE_TYPE_BOTTOM_LEVEL_KHR;
-        create_info.size = build_as[idx].size_info.accelerationStructureSize;
+        create_info.size = build_acceleration_structure_infos[idx].size_info.accelerationStructureSize;
 
         BufferInfo acceleration_structure_buffer_info{};
         acceleration_structure_buffer_info.instance_size = static_cast<uint32_t>(create_info.size);
         acceleration_structure_buffer_info.instance_count = 1;
         acceleration_structure_buffer_info.usage_flags = VK_BUFFER_USAGE_ACCELERATION_STRUCTURE_STORAGE_BIT_KHR | VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT;
         acceleration_structure_buffer_info.required_memory_flags = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
+        std::unique_ptr<Buffer> buffer = memory_allocator.createBuffer(acceleration_structure_buffer_info);
 
-        build_as[idx].as.buffer = memory_allocator.createBuffer(acceleration_structure_buffer_info);
+        create_info.buffer = buffer->getBuffer();
 
-        create_info.buffer = build_as[idx].as.buffer->getBuffer();
+        VkAccelerationStructureKHR acceleration_structure_handle{VK_NULL_HANDLE};
         if (pvkCreateAccelerationStructureKHR(
                 device.getDeviceHandle(),
                 &create_info,
                 VulkanDefines::NO_CALLBACK,
-                &build_as[idx].as.handle) != VK_SUCCESS)
+                &acceleration_structure_handle) != VK_SUCCESS)
         {
             throw std::runtime_error("Failed to create bottom level acceleration structure!");
         }
 
-        build_as[idx].build_info.dstAccelerationStructure = build_as[idx].as.handle;
-        build_as[idx].build_info.scratchData.deviceAddress = scratch_address;
+        build_acceleration_structure_infos[idx].build_info.dstAccelerationStructure = acceleration_structure_handle;
+        build_acceleration_structure_infos[idx].build_info.scratchData.deviceAddress = scratch_buffer_address;
 
-        pvkCmdBuildAccelerationStructuresKHR(command_buffer, 1, &build_as[idx].build_info, &build_as[idx].range_info);
+        pvkCmdBuildAccelerationStructuresKHR(command_buffer, 1, &build_acceleration_structure_infos[idx].build_info, &build_acceleration_structure_infos[idx].range_info);
 
         VkMemoryBarrier barrier{VK_STRUCTURE_TYPE_MEMORY_BARRIER};
         barrier.srcAccessMask = VK_ACCESS_ACCELERATION_STRUCTURE_WRITE_BIT_KHR;
@@ -190,23 +210,31 @@ void BlasBuilder::cmdCreateBlas(
             pvkCmdWriteAccelerationStructuresPropertiesKHR(
                 command_buffer,
                 1,
-                &build_as[idx].build_info.dstAccelerationStructure,
+                &build_acceleration_structure_infos[idx].build_info.dstAccelerationStructure,
                 VK_QUERY_TYPE_ACCELERATION_STRUCTURE_COMPACTED_SIZE_KHR,
                 query_pool,
                 query_count);
         }
+
+        acceleration_structures.emplace_back(device.getLogicalDevice(), acceleration_structure_handle, std::move(buffer));
     }
+
+    return acceleration_structures;
 }
 
-void BlasBuilder::cmdCompactBlas(
-    VulkanHandler& device, MemoryAllocator& memory_allocator,
-    VkCommandBuffer command_buffer,
-    std::vector<uint32_t>& indices,
-    std::vector<BuildAccelerationStructure>& build_as,
-    VkQueryPool query_pool)
+std::vector<AccelerationStructure> BlasBuilder::cmdCompactBlas(
+        VulkanHandler& device,
+        MemoryAllocator& memory_allocator,
+        VkCommandBuffer command_buffer,
+        std::vector<uint32_t>& indices,
+        std::vector<BuildAccelerationStructure>& build_acceleration_structure_infos,
+        const std::vector<AccelerationStructure>& acceleration_structures,
+        VkQueryPool query_pool)
 {
     uint32_t query_count{0};
-    std::vector<AccelerationStructure> cleanup_as;
+
+    std::vector<AccelerationStructure> compacted_acceleration_structures;
+    compacted_acceleration_structures.reserve(indices.size());
 
     std::vector<VkDeviceSize> compact_sizes(static_cast<uint32_t>(indices.size()));
     vkGetQueryPoolResults(
@@ -221,11 +249,10 @@ void BlasBuilder::cmdCompactBlas(
 
     for (uint32_t idx : indices)
     {
-        build_as[idx].cleanup_as = std::move(build_as[idx].as);
-        build_as[idx].size_info.accelerationStructureSize = compact_sizes[query_count++];
+        build_acceleration_structure_infos[idx].size_info.accelerationStructureSize = compact_sizes[query_count++];
 
         VkAccelerationStructureCreateInfoKHR create_info{VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_CREATE_INFO_KHR};
-        create_info.size = build_as[idx].size_info.accelerationStructureSize;
+        create_info.size = build_acceleration_structure_infos[idx].size_info.accelerationStructureSize;
         create_info.type = VK_ACCELERATION_STRUCTURE_TYPE_BOTTOM_LEVEL_KHR;
 
         BufferInfo acceleration_structure_buffer_info{};
@@ -235,35 +262,30 @@ void BlasBuilder::cmdCompactBlas(
             VK_BUFFER_USAGE_ACCELERATION_STRUCTURE_STORAGE_BIT_KHR | VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT;
         acceleration_structure_buffer_info.required_memory_flags = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
 
-        build_as[idx].as.buffer = memory_allocator.createBuffer(acceleration_structure_buffer_info);
+        std::unique_ptr<Buffer> buffer = memory_allocator.createBuffer(acceleration_structure_buffer_info);
 
-        create_info.buffer = build_as[idx].as.buffer->getBuffer();
+        create_info.buffer = buffer->getBuffer();
+
+        VkAccelerationStructureKHR acceleration_structure_handle{VK_NULL_HANDLE};
         if (pvkCreateAccelerationStructureKHR(
             device.getDeviceHandle(),
             &create_info,
             VulkanDefines::NO_CALLBACK,
-            &build_as[idx].as.handle) != VK_SUCCESS)
+            &acceleration_structure_handle) != VK_SUCCESS)
         {
             throw std::runtime_error("vkCreateAccelerationStructureKHR");
         }
 
         VkCopyAccelerationStructureInfoKHR copy_info{VK_STRUCTURE_TYPE_COPY_ACCELERATION_STRUCTURE_INFO_KHR};
-        copy_info.src = build_as[idx].build_info.dstAccelerationStructure;
-        copy_info.dst = build_as[idx].as.handle;
+        copy_info.src = acceleration_structures[idx].getHandle();
+        copy_info.dst = acceleration_structure_handle;
         copy_info.mode = VK_COPY_ACCELERATION_STRUCTURE_MODE_COMPACT_KHR;
         pvkCmdCopyAccelerationStructureKHR(command_buffer, &copy_info);
-    }
-}
 
-void BlasBuilder::destroyNonCompacted(
-    VulkanHandler& device,
-    std::vector<uint32_t>& indices,
-    std::vector<BuildAccelerationStructure>& build_as)
-{
-    for (uint32_t idx : indices)
-    {
-        pvkDestroyAccelerationStructureKHR(device.getDeviceHandle(), build_as[idx].cleanup_as.handle, VulkanDefines::NO_CALLBACK);
+        compacted_acceleration_structures.emplace_back(device.getLogicalDevice(), acceleration_structure_handle, std::move(buffer));
     }
+
+    return compacted_acceleration_structures;
 }
 
 void BlasBuilder::updateBottomLevelAccelerationStructures(

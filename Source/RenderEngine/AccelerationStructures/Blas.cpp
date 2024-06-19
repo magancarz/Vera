@@ -13,12 +13,9 @@ Blas::Blas(
     MemoryAllocator& memory_allocator,
     AssetManager& asset_manager,
     const Mesh& mesh)
-    : device{device}, memory_allocator{memory_allocator}, asset_manager{asset_manager}
-{
-    createBlas(mesh);
-}
+    : device{device}, memory_allocator{memory_allocator}, asset_manager{asset_manager}, blas{createBlas(mesh)} {}
 
-void Blas::createBlas(const Mesh& mesh)
+AccelerationStructure Blas::createBlas(const Mesh& mesh)
 {
     blas_input = BlasBuilder::BlasInput{};
 
@@ -61,13 +58,10 @@ void Blas::createBlas(const Mesh& mesh)
     }
 
     blas_input.flags = VK_BUILD_ACCELERATION_STRUCTURE_ALLOW_COMPACTION_BIT_KHR;
-    blas = std::move(BlasBuilder::buildBottomLevelAccelerationStructures(
+    AccelerationStructure acceleration_structure = std::move(BlasBuilder::buildBottomLevelAccelerationStructures(
         device, memory_allocator, {blas_input}, VK_BUILD_ACCELERATION_STRUCTURE_PREFER_FAST_TRACE_BIT_KHR).front());
-}
 
-Blas::~Blas()
-{
-    pvkDestroyAccelerationStructureKHR(device.getDeviceHandle(), blas.handle, VulkanDefines::NO_CALLBACK);
+    return acceleration_structure;
 }
 
 BlasInstance Blas::createBlasInstance(const glm::mat4& transform) const
@@ -77,7 +71,7 @@ BlasInstance Blas::createBlasInstance(const glm::mat4& transform) const
     blas_instance.bottom_level_acceleration_structure_instance.mask = 0xFF;
     blas_instance.bottom_level_acceleration_structure_instance.instanceShaderBindingTableRecordOffset = 0;
     blas_instance.bottom_level_acceleration_structure_instance.flags = VK_GEOMETRY_INSTANCE_TRIANGLE_FACING_CULL_DISABLE_BIT_KHR;
-    blas_instance.bottom_level_acceleration_structure_instance.accelerationStructureReference = blas.buffer->getBufferDeviceAddress();
+    blas_instance.bottom_level_acceleration_structure_instance.accelerationStructureReference = blas.getBuffer().getBufferDeviceAddress();
 
     BufferInfo bottom_level_geometry_instance_buffer_info{};
     bottom_level_geometry_instance_buffer_info.instance_size = sizeof(VkAccelerationStructureInstanceKHR);
@@ -101,5 +95,5 @@ BlasInstance Blas::createBlasInstance(const glm::mat4& transform) const
 void Blas::update()
 {
     BlasBuilder::updateBottomLevelAccelerationStructures(
-        device, memory_allocator, {blas.handle}, {blas_input}, VK_BUILD_ACCELERATION_STRUCTURE_ALLOW_UPDATE_BIT_KHR | VK_BUILD_ACCELERATION_STRUCTURE_PREFER_FAST_TRACE_BIT_KHR);
+        device, memory_allocator, {blas.getHandle()}, {blas_input}, VK_BUILD_ACCELERATION_STRUCTURE_ALLOW_UPDATE_BIT_KHR | VK_BUILD_ACCELERATION_STRUCTURE_PREFER_FAST_TRACE_BIT_KHR);
 }

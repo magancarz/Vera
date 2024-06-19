@@ -1,6 +1,5 @@
 #include "RenderEngine/AccelerationStructures/Tlas.h"
 
-#include <RenderEngine/RenderingAPI/VulkanDefines.h>
 #include <RenderEngine/RenderingAPI/VulkanHelper.h>
 
 #include "gtest/gtest.h"
@@ -22,20 +21,20 @@ TEST(TlasTests, shouldBuildValidTlas)
     std::vector<BlasInstance> blas_instances{};
     blas_instances.emplace_back(std::move(blas_instance));
 
+    // when
     Tlas tlas{
         TestsEnvironment::vulkanHandler().getLogicalDevice(),
         TestsEnvironment::vulkanHandler().getCommandPool(),
         TestsEnvironment::memoryAllocator(),
-        VK_BUILD_ACCELERATION_STRUCTURE_PREFER_FAST_TRACE_BIT_KHR | VK_BUILD_ACCELERATION_STRUCTURE_ALLOW_UPDATE_BIT_KHR};
-
-    // when
-    tlas.build(blas_instances);
+        VK_BUILD_ACCELERATION_STRUCTURE_PREFER_FAST_TRACE_BIT_KHR | VK_BUILD_ACCELERATION_STRUCTURE_ALLOW_UPDATE_BIT_KHR,
+        blas_instances};
 
     // then
     const AccelerationStructure& acceleration_structure = tlas.accelerationStructure();
-    EXPECT_NE(acceleration_structure.handle, VK_NULL_HANDLE);
-    EXPECT_NE(acceleration_structure.buffer, nullptr);
+    EXPECT_NE(acceleration_structure.getHandle(), VK_NULL_HANDLE);
 
-    pvkDestroyAccelerationStructureKHR(TestsEnvironment::vulkanHandler().getDeviceHandle(), acceleration_structure.handle, VulkanDefines::NO_CALLBACK);
+    const Buffer& buffer = acceleration_structure.getBuffer();
+    EXPECT_NE(buffer.getBuffer(), VK_NULL_HANDLE);
+
     TestUtils::failIfVulkanValidationLayersErrorsWerePresent();
 }

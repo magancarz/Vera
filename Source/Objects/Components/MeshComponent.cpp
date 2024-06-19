@@ -38,10 +38,10 @@ void MeshComponent::updateMaterials(std::vector<Material*> in_materials)
     updateRequiredMaterials();
 }
 
-Material* MeshComponent::findMaterial(const std::string& name) const
+Material* MeshComponent::findMaterial(const std::string_view& name) const
 {
     const auto found_material = std::ranges::find_if(materials.begin(), materials.end(),
-           [&] (const Material* material)
+        [&] (const Material* material)
     {
         return material->getName() == name;
     });
