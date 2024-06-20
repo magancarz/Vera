@@ -1,34 +1,145 @@
 #include "Octree.h"
 
-#include "glm/vec3.hpp"
+#include <chrono>
+#include <stack>
+
+#include "glm/ext/quaternion_common.hpp"
+#include "Logs/LogSystem.h"
 
 #include "Memory/MemoryAllocator.h"
-#include "RenderEngine/AccelerationStructures/AABB.h"
 
-Octree::Octree(MemoryAllocator& memory_allocator)
-    : memory_allocator{memory_allocator}, aabb_buffer{createAABBBuffer()} {}
+Octree::Octree(uint32_t max_depth, const std::unordered_set<Voxel>& voxels)
+    : max_depth{max_depth}, octree_aabb{findOctreeAxisAlignBoundingBox(voxels)}, nodes{createOctree(voxels)} {}
 
-std::unique_ptr<Buffer> Octree::createAABBBuffer()
+AABB Octree::findOctreeAxisAlignBoundingBox(const std::unordered_set<Voxel>& voxels)
 {
-    AABB aabb{.min = glm::vec3{-1, -1, -1}, .max = glm::vec3{1, 1, 1}};
+    float furthest_point{0};
+    for (auto& voxel : voxels)
+    {
+        furthest_point = glm::max(furthest_point, voxel.x);
+        furthest_point = glm::max(furthest_point, voxel.y);
+        furthest_point = glm::max(furthest_point, voxel.z);
+    }
 
-    auto staging_buffer = memory_allocator.createStagingBuffer(
-        sizeof(AABB),
-        1,
-        &aabb);
+    float log_result = std::log(furthest_point) / std::log(Voxel::DEFAULT_VOXEL_SIZE);
+    int next_power = static_cast<int>(std::ceil(log_result));
+    furthest_point = glm::pow(Voxel::DEFAULT_VOXEL_SIZE, static_cast<float>(next_power));
 
-    BufferInfo aabb_buffer_info{};
-    aabb_buffer_info.instance_size = sizeof(AABB);
-    aabb_buffer_info.instance_count = 1;
-    aabb_buffer_info.usage_flags =
-        VK_BUFFER_USAGE_STORAGE_BUFFER_BIT |
-        VK_BUFFER_USAGE_TRANSFER_DST_BIT |
-        VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT |
-        VK_BUFFER_USAGE_ACCELERATION_STRUCTURE_BUILD_INPUT_READ_ONLY_BIT_KHR;
-    aabb_buffer_info.required_memory_flags = VK_MEMORY_ALLOCATE_DEVICE_ADDRESS_BIT;
+    AABB aabb
+    {
+        .min = glm::vec3{-furthest_point, -furthest_point, -furthest_point},
+        .max = glm::vec3{furthest_point, furthest_point, furthest_point}
+    };
 
-    auto aabb_buffer = memory_allocator.createBuffer(aabb_buffer_info);
-    aabb_buffer->copyFrom(*staging_buffer);
+    return aabb;
+}
 
-    return aabb_buffer;
+std::vector<OctreeNode> Octree::createOctree(const std::unordered_set<Voxel>& voxels)
+{
+    auto start = std::chrono::high_resolution_clock::now();
+
+    auto root = std::make_unique<OctreeBuildNode>();
+    for (auto& voxel : voxels)
+    {
+        uint32_t current_depth{0};
+        insertVoxel(root, voxel, current_depth, octree_aabb.min, octree_aabb.max);
+    }
+
+    std::vector<OctreeNode> final_nodes = flattenOctree(std::move(root));
+
+    auto end = std::chrono::high_resolution_clock::now();
+    LogSystem::log(
+        LogSeverity::LOG,
+        "Created octree from ",
+        voxels.size(),
+        " voxels in ",
+        std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count(),
+        " millis.");
+
+    return final_nodes;
+}
+
+void Octree::insertVoxel(
+        std::unique_ptr<OctreeBuildNode>& node, const Voxel& voxel, uint32_t current_depth, const glm::vec3& aabb_min, const glm::vec3& aabb_max)
+{
+    if (!node)
+    {
+        node = std::make_unique<OctreeBuildNode>();
+    }
+
+    if (current_depth == max_depth || aabb_max.x - aabb_min.x <= Voxel::DEFAULT_VOXEL_SIZE)
+    {
+        node->is_leaf = true;
+        return;
+    }
+
+    glm::vec3 mid = (aabb_max + aabb_min) / 2.f;
+    glm::vec3 new_min{0};
+    glm::vec3 new_max{0};
+
+    uint8_t index{0};
+    if (voxel.x >= mid.x)
+    {
+        index |= 1;
+        new_min.x = mid.x;
+        new_max.x = aabb_max.x;
+    }
+    else
+    {
+        new_max.x = mid.x;
+        new_min.x = aabb_min.x;
+    }
+
+    if (voxel.y >= mid.y)
+    {
+        index |= 2;
+        new_min.y = mid.y;
+        new_max.y = aabb_max.y;
+    }
+    else
+    {
+        new_max.y = mid.y;
+        new_min.y = aabb_min.y;
+    }
+
+    if (voxel.z >= mid.z)
+    {
+        index |= 4;
+        new_min.z = mid.z;
+        new_max.z = aabb_max.z;
+    }
+    else
+    {
+        new_max.z = mid.z;
+        new_min.z = aabb_min.z;
+    }
+
+    return insertVoxel(node->children[index], voxel, current_depth + 1, new_min, new_max);
+}
+
+std::vector<OctreeNode> Octree::flattenOctree(std::unique_ptr<OctreeBuildNode> root_node)
+{
+    std::vector<OctreeNode> nodes;
+    std::stack<OctreeBuildNode*> build_nodes;
+    build_nodes.emplace(root_node.get());
+
+    while (!build_nodes.empty())
+    {
+        OctreeBuildNode* octree_build_node = build_nodes.top();
+        build_nodes.pop();
+
+        uint8_t children{0};
+        for (size_t i = 0; i < octree_build_node->children.size(); ++i)
+        {
+            if (octree_build_node->children[i])
+            {
+                uint8_t temp = 1 << i;
+                children |= temp;
+                build_nodes.emplace(octree_build_node->children[i].get());
+            }
+        }
+        nodes.emplace_back(children);
+    }
+
+    return nodes;
 }

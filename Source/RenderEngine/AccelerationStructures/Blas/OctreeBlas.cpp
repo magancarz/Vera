@@ -2,19 +2,24 @@
 
 #include <RenderEngine/AccelerationStructures/AABB.h>
 
+#include <utility>
+
 OctreeBlas::OctreeBlas(
         VulkanHandler& device,
         MemoryAllocator& memory_allocator,
-        const Octree& octree)
-    : Blas{device, memory_allocator}, octree{octree} {}
+        Octree octree)
+    : Blas{device, memory_allocator}, octree{std::move(octree)} {}
 
 void OctreeBlas::createBlas()
 {
+    octree_buffer
+
     blas_input = BlasBuilder::BlasInput{};
 
     VkAccelerationStructureGeometryAabbsDataKHR aabbs{};
     aabbs.sType = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_GEOMETRY_AABBS_DATA_KHR;
-    aabbs.data.deviceAddress = octree.aabbBuffer().getBufferDeviceAddress();
+    //TODO: remember
+    // aabbs.data.deviceAddress = octree.aabbBuffer().getBufferDeviceAddress();
     aabbs.stride = sizeof(AABB);
 
     VkAccelerationStructureGeometryKHR acceleration_structure_geometry{};

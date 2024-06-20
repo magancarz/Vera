@@ -11,19 +11,6 @@
 #include "Memory/MemoryAllocator.h"
 #include "Utils/Algorithms.h"
 
-namespace std
-{
-    template <>
-    struct hash<Voxel> {
-        size_t operator()(Voxel const& voxel) const noexcept
-        {
-            size_t seed = 0;
-            Algorithms::hashCombine(seed, voxel.x, voxel.y, voxel.z);
-            return seed;
-        }
-    };
-}
-
 class VoxelUtils
 {
 public:

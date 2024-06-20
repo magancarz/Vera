@@ -9,7 +9,7 @@ public:
     OctreeBlas(
         VulkanHandler& device,
         MemoryAllocator& memory_allocator,
-        const Octree& octree);
+        Octree  octree);
 
     OctreeBlas(const OctreeBlas&) = delete;
     OctreeBlas& operator=(const OctreeBlas&) = delete;
@@ -17,5 +17,6 @@ public:
     void createBlas() override;
 
 protected:
-    const Octree& octree;
+    Octree octree;
+    std::unique_ptr<Buffer> octree_buffer;
 };
