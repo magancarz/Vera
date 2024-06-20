@@ -3,15 +3,16 @@
 #include <memory>
 
 #include "Memory/Buffer.h"
+#include "Voxel.h"
 
 class MemoryAllocator;
 
 class Octree
 {
 public:
-    Octree(MemoryAllocator& memory_allocator);
+    explicit Octree(MemoryAllocator& memory_allocator);
 
-    const Buffer& aabbBuffer() const { return *aabb_buffer; }
+    [[nodiscard]] const Buffer& aabbBuffer() const { return *aabb_buffer; }
 
 private:
     MemoryAllocator& memory_allocator;

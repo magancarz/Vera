@@ -7,7 +7,7 @@
 Model::Model(
         MemoryAllocator& memory_allocator,
         const ModelData& model_data)
-    : name{model_data.name}, required_material{model_data.required_material}
+    : name{model_data.name}, required_material{model_data.required_material}, vertices{model_data.vertices}, indices{model_data.indices}
 {
     createVertexBuffer(memory_allocator, model_data.vertices);
     createIndexBuffer(memory_allocator, model_data.indices);

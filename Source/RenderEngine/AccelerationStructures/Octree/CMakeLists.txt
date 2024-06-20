@@ -1,2 +1,3 @@
 target_sources(Vera-Lib PRIVATE
-        Octree.cpp)
+        Octree.cpp
+        VoxelUtils.cpp)

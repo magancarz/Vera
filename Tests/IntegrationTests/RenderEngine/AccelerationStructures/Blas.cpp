@@ -3,8 +3,8 @@
 #include <Environment.h>
 #include <TestUtils.h>
 #include <Assets/AssetManager.h>
-#include <RenderEngine/AccelerationStructures/Blas.h>
-#include <RenderEngine/AccelerationStructures/BlasBuilder.h>
+#include <RenderEngine/AccelerationStructures/Blas/Blas.h>
+#include <RenderEngine/AccelerationStructures/Blas/DynamicBlas.h>
 #include <RenderEngine/RenderingAPI/VulkanHelper.h>
 
 TEST(BlasTests, shouldBuildValidBlas)
@@ -13,8 +13,10 @@ TEST(BlasTests, shouldBuildValidBlas)
     AssetManager asset_manager{TestsEnvironment::vulkanHandler(), TestsEnvironment::memoryAllocator()};
     const Mesh* debug_mesh = asset_manager.fetchMesh(Assets::DEBUG_MESH_NAME);
 
+    DynamicBlas blas{TestsEnvironment::vulkanHandler(), TestsEnvironment::memoryAllocator(), asset_manager, *debug_mesh};
+
     // when
-    const Blas blas{TestsEnvironment::vulkanHandler(), TestsEnvironment::memoryAllocator(), asset_manager, *debug_mesh};
+    blas.createBlas();
 
     // then
     TestUtils::failIfVulkanValidationLayersErrorsWerePresent();
@@ -26,7 +28,8 @@ TEST(BlasTests, shouldCreateBlasInstance)
     AssetManager asset_manager{TestsEnvironment::vulkanHandler(), TestsEnvironment::memoryAllocator()};
     const Mesh* debug_mesh = asset_manager.fetchMesh(Assets::DEBUG_MESH_NAME);
 
-    const Blas blas{TestsEnvironment::vulkanHandler(), TestsEnvironment::memoryAllocator(), asset_manager, *debug_mesh};
+    DynamicBlas blas{TestsEnvironment::vulkanHandler(), TestsEnvironment::memoryAllocator(), asset_manager, *debug_mesh};
+    blas.createBlas();
 
     const glm::mat4 transform = TestUtils::randomTransform();
 

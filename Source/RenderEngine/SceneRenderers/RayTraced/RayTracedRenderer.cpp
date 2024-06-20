@@ -234,13 +234,13 @@ void RayTracedRenderer::createRayTracedImage(uint32_t width, uint32_t height)
 
 void RayTracedRenderer::createCameraUniformBuffer()
 {
-    BufferInfo material_descriptions_buffer_info{};
-    material_descriptions_buffer_info.instance_size = sizeof(CameraUBO);
-    material_descriptions_buffer_info.instance_count = 1;
-    material_descriptions_buffer_info.usage_flags = VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT;
-    material_descriptions_buffer_info.required_memory_flags = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT;
-    material_descriptions_buffer_info.allocation_flags = VMA_ALLOCATION_CREATE_HOST_ACCESS_SEQUENTIAL_WRITE_BIT;
-    camera_uniform_buffer = memory_allocator.createBuffer(material_descriptions_buffer_info);
+    BufferInfo camera_uniform_buffer_info{};
+    camera_uniform_buffer_info.instance_size = sizeof(CameraUBO);
+    camera_uniform_buffer_info.instance_count = 1;
+    camera_uniform_buffer_info.usage_flags = VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT;
+    camera_uniform_buffer_info.required_memory_flags = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT;
+    camera_uniform_buffer_info.allocation_flags = VMA_ALLOCATION_CREATE_HOST_ACCESS_SEQUENTIAL_WRITE_BIT;
+    camera_uniform_buffer = memory_allocator.createBuffer(camera_uniform_buffer_info);
 
     camera_uniform_buffer->map();
 }

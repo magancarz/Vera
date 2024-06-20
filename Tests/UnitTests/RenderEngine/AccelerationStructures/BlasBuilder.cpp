@@ -10,7 +10,6 @@
 #include <RenderEngine/AccelerationStructures/AccelerationStructure.h>
 #include <RenderEngine/AccelerationStructures/BlasBuilder.h>
 #include <RenderEngine/RenderingAPI/VulkanDefines.h>
-#include <RenderEngine/RenderingAPI/VulkanHelper.h>
 
 TEST(BlasBuilderTests, shouldBuildValidBlas)
 {
@@ -49,7 +48,7 @@ TEST(BlasBuilderTests, shouldBuildValidBlas)
     std::vector<BlasBuilder::BlasInput> blas_inputs{blas_input};
 
     // when
-    std::vector<AccelerationStructure> blases = BlasBuilder::buildBottomLevelAccelerationStructure(
+    std::vector<AccelerationStructure> blases = BlasBuilder::buildBottomLevelAccelerationStructures(
         TestsEnvironment::vulkanHandler(), TestsEnvironment::memoryAllocator(),
         blas_inputs, VK_BUILD_ACCELERATION_STRUCTURE_PREFER_FAST_TRACE_BIT_KHR);
 

@@ -1,3 +1,4 @@
 target_sources(Vera-Tests PRIVATE
-        BlasBuilder.cpp
-        ../../../IntegrationTests/RenderEngine/AccelerationStructures/TlasBuilder.cpp)
+        BlasBuilder.cpp)
+
+add_subdirectory(Voxels)

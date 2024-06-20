@@ -27,6 +27,10 @@ public:
 
     [[nodiscard]] ModelDescription getModelDescription() const;
 
+    //TODO: remove later
+    std::vector<Vertex> vertices;
+    std::vector<uint32_t> indices;
+
 protected:
     std::string name{};
     std::string required_material{};
