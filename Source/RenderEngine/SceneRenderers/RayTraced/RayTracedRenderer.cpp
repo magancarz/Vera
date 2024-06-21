@@ -190,7 +190,7 @@ std::vector<BlasInstance> RayTracedRenderer::getBlasInstances()
     // }
 
     auto mesh_component = rendered_objects[0]->findComponentByClass<MeshComponent>();
-    Octree octree{8, VoxelUtils::voxelize(*mesh_component->getModels()[0])};
+    Octree octree{8, VoxelUtils::voxelize(*mesh_component->getMesh())};
     blas_objects["test"] = std::make_unique<OctreeBlas>(device, memory_allocator, octree);
     blas_objects["test"]->createBlas();
     glm::mat4 transform{1.f};

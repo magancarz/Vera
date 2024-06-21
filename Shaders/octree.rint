@@ -6,8 +6,8 @@
 
 struct Aabb
 {
-    vec3 minimum;
-    vec3 maximum;
+    vec4 minimum;
+    vec4 maximum;
 };
 
 struct Ray
@@ -19,8 +19,7 @@ struct Ray
 struct OctreeNode
 {
     vec4 children_and_color;
-    vec4 aabb_min;
-    vec4 aabb_max;
+    Aabb aabb;
     uint children_offsets[8];
 };
 
@@ -29,8 +28,8 @@ layout(binding = 1, set = 2) buffer Octree { OctreeNode nodes[]; } octree_nodes;
 float hitAabb(const Aabb aabb, const Ray r)
 {
     vec3 inv_dir = 1.0 / r.direction;
-    vec3 t_bot = inv_dir * (aabb.minimum - r.origin);
-    vec3 t_top = inv_dir * (aabb.maximum - r.origin);
+    vec3 t_bot = inv_dir * (aabb.minimum.xyz - r.origin);
+    vec3 t_top = inv_dir * (aabb.maximum.xyz - r.origin);
     vec3 t_min = min(t_top, t_bot);
     vec3 t_max = max(t_top, t_bot);
     float t0 = max(t_min.x, max(t_min.y, t_min.z));
@@ -42,34 +41,29 @@ float hitAabb(const Aabb aabb, const Ray r)
 
 float hitOctree(const Ray r)
 {
-    float hit_t = T_MAX;
-
     uint stack[32];
     uint stack_ptr = 0;
 
     stack[stack_ptr++] = 0;
 
+    float hit_t = T_MAX;
     while (stack_ptr > 0)
     {
         OctreeNode octree_node = octree_nodes.nodes[stack[--stack_ptr]];
 
-        Aabb node_aabb;
-        node_aabb.minimum = octree_node.aabb_min.xyz;
-        node_aabb.maximum = octree_node.aabb_max.xyz;
-
-        float hit_aabb = hitAabb(node_aabb, r);
+        float hit_aabb = hitAabb(octree_node.aabb, r);
         if (hit_aabb < hit_t)
         {
             uint children = (uint(octree_node.children_and_color.x) & CHILDREN) >> 24;
             if (children == 0)
             {
-                hit_t = hit_aabb < hit_t ? hit_aabb : hit_t;
+                hit_t = min(hit_t, hit_aabb);
                 continue;
             }
 
             for (uint i = 0; i < 8; ++i)
             {
-                if ((children & 1 << i) != 0)
+                if ((children & 1 << i) != 0 && hitAabb(octree_nodes.nodes[octree_node.children_offsets[i]].aabb, r) < T_MAX)
                 {
                     stack[stack_ptr++] = octree_node.children_offsets[i];
                 }

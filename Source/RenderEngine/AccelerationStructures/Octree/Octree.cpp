@@ -90,36 +90,36 @@ void Octree::insertVoxel(
     uint8_t index{0};
     if (voxel.x >= mid.x)
     {
-        index |= 1;
         new_min.x = mid.x;
         new_max.x = aabb_max.x;
     }
     else
     {
+        index |= 4;
         new_max.x = mid.x;
         new_min.x = aabb_min.x;
     }
 
     if (voxel.y >= mid.y)
     {
-        index |= 2;
         new_min.y = mid.y;
         new_max.y = aabb_max.y;
     }
     else
     {
+        index |= 2;
         new_max.y = mid.y;
         new_min.y = aabb_min.y;
     }
 
     if (voxel.z >= mid.z)
     {
-        index |= 4;
         new_min.z = mid.z;
         new_max.z = aabb_max.z;
     }
     else
     {
+        index |= 1;
         new_max.z = mid.z;
         new_min.z = aabb_min.z;
     }

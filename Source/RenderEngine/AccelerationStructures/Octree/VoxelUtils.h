@@ -11,8 +11,10 @@
 #include "Memory/MemoryAllocator.h"
 #include "Utils/Algorithms.h"
 
+struct Mesh;
+
 class VoxelUtils
 {
 public:
-    static std::unordered_set<Voxel> voxelize(const Model& model);
+    static std::unordered_set<Voxel> voxelize(const Mesh& mesh);
 };
