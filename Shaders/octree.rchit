@@ -105,6 +105,7 @@ void main()
     float cosine = occluded ? 0 : max(dot(push_constant.sun_position, payload.direction), 0.0);
     float sun_contribution = cosine * 50;
 
-    payload.color *= sun_contribution * vec3(1, 1, 1) * scattering_pdf;
+//    payload.color *= sun_contribution * vec3(1, 1, 1) * scattering_pdf;
+    payload.color = vec3(gl_HitTEXT / 10);
     payload.depth += 1;
 }

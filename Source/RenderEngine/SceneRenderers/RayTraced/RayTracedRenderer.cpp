@@ -2,6 +2,8 @@
 
 #include <chrono>
 #include <iostream>
+#include <unordered_set>
+#include <RenderEngine/AccelerationStructures/Octree/VoxelUtils.h>
 
 #include "RenderEngine/RenderingAPI/VulkanHelper.h"
 #include "RenderEngine/CameraUBO.h"
@@ -187,7 +189,8 @@ std::vector<BlasInstance> RayTracedRenderer::getBlasInstances()
     //     blas_instances.emplace_back(std::move(blas_instance));
     // }
 
-    Octree octree{memory_allocator};
+    auto mesh_component = rendered_objects[0]->findComponentByClass<MeshComponent>();
+    Octree octree{8, VoxelUtils::voxelize(*mesh_component->getModels()[0])};
     blas_objects["test"] = std::make_unique<OctreeBlas>(device, memory_allocator, octree);
     blas_objects["test"]->createBlas();
     glm::mat4 transform{1.f};
@@ -335,7 +338,7 @@ void RayTracedRenderer::createObjectDescriptionsDescriptorLayout()
 {
     objects_descriptions_descriptor_set_layout = DescriptorSetLayoutBuilder(device)
         .addBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_RAYGEN_BIT_KHR | VK_SHADER_STAGE_CLOSEST_HIT_BIT_KHR)
-        // .addBinding(1, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, VK_SHADER_STAGE_CLOSEST_HIT_BIT_KHR | VK_SHADER_STAGE_ANY_HIT_BIT_KHR)
+        .addBinding(1, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, VK_SHADER_STAGE_CLOSEST_HIT_BIT_KHR | VK_SHADER_STAGE_INTERSECTION_BIT_KHR)
         // .addBinding(2, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, VK_SHADER_STAGE_CLOSEST_HIT_BIT_KHR | VK_SHADER_STAGE_ANY_HIT_BIT_KHR)
         // .addBinding(3, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_CLOSEST_HIT_BIT_KHR | VK_SHADER_STAGE_ANY_HIT_BIT_KHR,
             // static_cast<uint32_t>(diffuse_textures.size()))
@@ -347,7 +350,7 @@ void RayTracedRenderer::createObjectDescriptionsDescriptorLayout()
 void RayTracedRenderer::writeToObjectDescriptionsDescriptorSet()
 {
     auto camera_buffer_descriptor_info = camera_uniform_buffer->descriptorInfo();
-    // auto object_descriptions_buffer_descriptor_info = object_descriptions_buffer->descriptorInfo();
+    auto octree_buffer = dynamic_cast<OctreeBlas*>(blas_objects["test"].get())->octreeBuffer().descriptorInfo();
     // auto material_descriptions_descriptor_info = material_descriptions_buffer->descriptorInfo();
 
     // std::vector<VkDescriptorImageInfo> diffuse_texture_descriptor_infos;
@@ -365,8 +368,8 @@ void RayTracedRenderer::writeToObjectDescriptionsDescriptorSet()
     // }
 
     auto descriptor_writer = DescriptorWriter(*objects_descriptions_descriptor_set_layout, *descriptor_pool)
-        .writeBuffer(0, &camera_buffer_descriptor_info);
-        // .writeBuffer(1, &object_descriptions_buffer_descriptor_info)
+        .writeBuffer(0, &camera_buffer_descriptor_info)
+        .writeBuffer(1, &octree_buffer);
         // .writeBuffer(2, &material_descriptions_descriptor_info)
         // .writeImage(3, diffuse_texture_descriptor_infos.data(), static_cast<uint32_t>(diffuse_texture_descriptor_infos.size()))
         // .writeImage(4, normal_texture_descriptor_infos.data(), static_cast<uint32_t>(normal_texture_descriptor_infos.size()));

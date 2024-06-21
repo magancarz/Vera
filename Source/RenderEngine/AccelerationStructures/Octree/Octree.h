@@ -16,6 +16,7 @@ public:
     explicit Octree(uint32_t max_depth, const std::unordered_set<Voxel>& voxels);
 
     [[nodiscard]] AABB aabb() const { return octree_aabb; }
+    [[nodiscard]] const std::vector<OctreeNode>& nodes() const { return octree_nodes; }
 
 private:
     uint32_t max_depth;
@@ -26,12 +27,14 @@ private:
 
     std::vector<OctreeNode> createOctree(const std::unordered_set<Voxel>& voxels);
     void insertVoxel(
-        std::unique_ptr<OctreeBuildNode>& node,
+        std::unique_ptr<OctreeBuildNode>& current_node,
         const Voxel& voxel,
         uint32_t current_depth,
         const glm::vec3& aabb_min,
-        const glm::vec3& aabb_max);
-    std::vector<OctreeNode> flattenOctree(std::unique_ptr<OctreeBuildNode> root_node);
+        const glm::vec3& aabb_max,
+        uint32_t& total_nodes);
+    std::vector<OctreeNode> flattenOctree(OctreeBuildNode* root_node, uint32_t total_nodes);
+    uint32_t flattenNode(std::vector<OctreeNode>& nodes, OctreeBuildNode* octree_build_node, uint32_t* offset);
 
-    std::vector<OctreeNode> nodes;
+    std::vector<OctreeNode> octree_nodes;
 };

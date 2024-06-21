@@ -1,6 +1,8 @@
 #include "Octree.h"
 
+#include <bitset>
 #include <chrono>
+#include <queue>
 #include <stack>
 
 #include "glm/ext/quaternion_common.hpp"
@@ -9,7 +11,7 @@
 #include "Memory/MemoryAllocator.h"
 
 Octree::Octree(uint32_t max_depth, const std::unordered_set<Voxel>& voxels)
-    : max_depth{max_depth}, octree_aabb{findOctreeAxisAlignBoundingBox(voxels)}, nodes{createOctree(voxels)} {}
+    : max_depth{max_depth}, octree_aabb{findOctreeAxisAlignBoundingBox(voxels)}, octree_nodes{createOctree(voxels)} {}
 
 AABB Octree::findOctreeAxisAlignBoundingBox(const std::unordered_set<Voxel>& voxels)
 {
@@ -23,7 +25,7 @@ AABB Octree::findOctreeAxisAlignBoundingBox(const std::unordered_set<Voxel>& vox
 
     float log_result = std::log(furthest_point) / std::log(Voxel::DEFAULT_VOXEL_SIZE);
     int next_power = static_cast<int>(std::ceil(log_result));
-    furthest_point = glm::pow(Voxel::DEFAULT_VOXEL_SIZE, static_cast<float>(next_power));
+    furthest_point = glm::pow(Voxel::DEFAULT_VOXEL_SIZE, static_cast<float>(next_power)) * 2;
 
     AABB aabb
     {
@@ -38,14 +40,15 @@ std::vector<OctreeNode> Octree::createOctree(const std::unordered_set<Voxel>& vo
 {
     auto start = std::chrono::high_resolution_clock::now();
 
-    auto root = std::make_unique<OctreeBuildNode>();
+    uint32_t total_nodes{0};
+    std::unique_ptr<OctreeBuildNode> root;
     for (auto& voxel : voxels)
     {
         uint32_t current_depth{0};
-        insertVoxel(root, voxel, current_depth, octree_aabb.min, octree_aabb.max);
+        insertVoxel(root, voxel, current_depth, octree_aabb.min, octree_aabb.max, total_nodes);
     }
 
-    std::vector<OctreeNode> final_nodes = flattenOctree(std::move(root));
+    std::vector<OctreeNode> final_nodes = flattenOctree(root.get(), total_nodes);
 
     auto end = std::chrono::high_resolution_clock::now();
     LogSystem::log(
@@ -60,16 +63,23 @@ std::vector<OctreeNode> Octree::createOctree(const std::unordered_set<Voxel>& vo
 }
 
 void Octree::insertVoxel(
-        std::unique_ptr<OctreeBuildNode>& node, const Voxel& voxel, uint32_t current_depth, const glm::vec3& aabb_min, const glm::vec3& aabb_max)
+        std::unique_ptr<OctreeBuildNode>& current_node,
+        const Voxel& voxel,
+        uint32_t current_depth,
+        const glm::vec3& aabb_min,
+        const glm::vec3& aabb_max,
+        uint32_t& total_nodes)
 {
-    if (!node)
+    if (!current_node)
     {
-        node = std::make_unique<OctreeBuildNode>();
+        ++total_nodes;
+        current_node = std::make_unique<OctreeBuildNode>();
+        current_node->aabb = AABB{aabb_min, aabb_max};
     }
 
     if (current_depth == max_depth || aabb_max.x - aabb_min.x <= Voxel::DEFAULT_VOXEL_SIZE)
     {
-        node->is_leaf = true;
+        current_node->is_leaf = true;
         return;
     }
 
@@ -114,32 +124,53 @@ void Octree::insertVoxel(
         new_min.z = aabb_min.z;
     }
 
-    return insertVoxel(node->children[index], voxel, current_depth + 1, new_min, new_max);
+    return insertVoxel(current_node->children[index], voxel, current_depth + 1, new_min, new_max, total_nodes);
 }
 
-std::vector<OctreeNode> Octree::flattenOctree(std::unique_ptr<OctreeBuildNode> root_node)
+std::vector<OctreeNode> Octree::flattenOctree(OctreeBuildNode* root_node, uint32_t total_nodes)
 {
-    std::vector<OctreeNode> nodes;
-    std::stack<OctreeBuildNode*> build_nodes;
-    build_nodes.emplace(root_node.get());
-
-    while (!build_nodes.empty())
-    {
-        OctreeBuildNode* octree_build_node = build_nodes.top();
-        build_nodes.pop();
-
-        uint8_t children{0};
-        for (size_t i = 0; i < octree_build_node->children.size(); ++i)
-        {
-            if (octree_build_node->children[i])
-            {
-                uint8_t temp = 1 << i;
-                children |= temp;
-                build_nodes.emplace(octree_build_node->children[i].get());
-            }
-        }
-        nodes.emplace_back(children);
-    }
+    std::vector<OctreeNode> nodes(total_nodes);
+    uint32_t offset{0};
+    flattenNode(nodes, root_node, &offset);
 
     return nodes;
+}
+
+uint32_t Octree::flattenNode(std::vector<OctreeNode>& nodes, OctreeBuildNode* octree_build_node, uint32_t* offset)
+{
+    if (!octree_build_node)
+    {
+        return 0;
+    }
+    const uint32_t my_offset = (*offset)++;
+    OctreeNode& node = nodes[my_offset];
+
+    glm::vec4 aabb_min{octree_build_node->aabb.min, 0.0};
+    glm::vec4 aabb_max{octree_build_node->aabb.max, 0.0};
+
+    node.children_and_color = glm::vec4{0};
+    node.aabb_min = aabb_min;
+    node.aabb_max = aabb_max;
+
+    if (octree_build_node->is_leaf)
+    {
+        return my_offset;
+    }
+
+    uint8_t children{0};
+    for (size_t i = 0; i < octree_build_node->children.size(); ++i)
+    {
+        if (octree_build_node->children[i])
+        {
+            uint8_t temp = 1 << i;
+            children |= temp;
+            node.child_offsets[i] = flattenNode(nodes, octree_build_node->children[i].get(), offset);
+        }
+    }
+
+    uint32_t children_and_color{0};
+    children_and_color |= children << 24;
+    node.children_and_color.x = static_cast<float>(children_and_color);
+
+    return my_offset;
 }

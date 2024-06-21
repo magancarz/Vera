@@ -10,7 +10,7 @@ struct Voxel
         return x == other.x && y == other.y && z == other.z;
     }
 
-    static constexpr float DEFAULT_VOXEL_SIZE{1.0f};// / 8.0f};
+    static constexpr float DEFAULT_VOXEL_SIZE{1.0f / 8.0f};
 };
 
 namespace std

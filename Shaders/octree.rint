@@ -2,6 +2,8 @@
 
 #extension GL_EXT_ray_tracing : require
 
+#include "Commons/defines.glsl"
+
 struct Aabb
 {
     vec3 minimum;
@@ -14,6 +16,16 @@ struct Ray
     vec3 direction;
 };
 
+struct OctreeNode
+{
+    vec4 children_and_color;
+    vec4 aabb_min;
+    vec4 aabb_max;
+    uint children_offsets[8];
+};
+
+layout(binding = 1, set = 2) buffer Octree { OctreeNode nodes[]; } octree_nodes;
+
 float hitAabb(const Aabb aabb, const Ray r)
 {
     vec3 inv_dir = 1.0 / r.direction;
@@ -23,19 +35,60 @@ float hitAabb(const Aabb aabb, const Ray r)
     vec3 t_max = max(t_top, t_bot);
     float t0 = max(t_min.x, max(t_min.y, t_min.z));
     float t1 = min(t_max.x, min(t_max.y, t_max.z));
-    return t1 > max(t0, 0.0) ? t0 : -1.0;
+    return t1 > max(t0, 0.0) ? t0 : T_MAX;
+}
+
+#define CHILDREN 4278190080
+
+float hitOctree(const Ray r)
+{
+    float hit_t = T_MAX;
+
+    uint stack[32];
+    uint stack_ptr = 0;
+
+    stack[stack_ptr++] = 0;
+
+    while (stack_ptr > 0)
+    {
+        OctreeNode octree_node = octree_nodes.nodes[stack[--stack_ptr]];
+
+        Aabb node_aabb;
+        node_aabb.minimum = octree_node.aabb_min.xyz;
+        node_aabb.maximum = octree_node.aabb_max.xyz;
+
+        float hit_aabb = hitAabb(node_aabb, r);
+        if (hit_aabb < hit_t)
+        {
+            uint children = (uint(octree_node.children_and_color.x) & CHILDREN) >> 24;
+            if (children == 0)
+            {
+                hit_t = hit_aabb < hit_t ? hit_aabb : hit_t;
+                continue;
+            }
+
+            for (uint i = 0; i < 8; ++i)
+            {
+                if ((children & 1 << i) != 0)
+                {
+                    stack[stack_ptr++] = octree_node.children_offsets[i];
+                }
+            }
+        }
+    }
+
+    return hit_t;
 }
 
 void main()
 {
-    Aabb aabb;
-    aabb.minimum = vec3(-1, -1, -1);
-    aabb.maximum = vec3(1, 1, 1);
-
     Ray ray;
     ray.origin = gl_WorldRayOriginEXT;
     ray.direction = gl_WorldRayDirectionEXT;
 
-    float hit_t = hitAabb(aabb, ray);
-    reportIntersectionEXT(hit_t, 0);
+    float hit_t = hitOctree(ray);
+    if (hit_t < T_MAX)
+    {
+        reportIntersectionEXT(hit_t, 0);
+    }
 }
