@@ -13,7 +13,7 @@ class MemoryAllocator;
 class Octree
 {
 public:
-    explicit Octree(uint32_t max_depth, const std::unordered_set<Voxel>& voxels);
+    Octree(uint32_t max_depth, const std::unordered_set<Voxel>& voxels);
 
     [[nodiscard]] AABB aabb() const { return octree_aabb; }
     [[nodiscard]] const std::vector<OctreeNode>& nodes() const { return octree_nodes; }

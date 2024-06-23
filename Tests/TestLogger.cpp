@@ -16,6 +16,10 @@ void TestLogger::log(LogSeverity severity, const char* message)
     {
         std::cerr << message;
     }
+    else
+    {
+        std::cout << message;
+    }
 }
 
 bool TestLogger::isVulkanValidationLayersError(const std::string_view& message)

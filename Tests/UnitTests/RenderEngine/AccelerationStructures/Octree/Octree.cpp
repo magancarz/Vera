@@ -10,8 +10,8 @@ TEST(OctreeTests, shouldBuildCorrectOctree)
 {
     // given
     AssetManager asset_manager{TestsEnvironment::vulkanHandler(), TestsEnvironment::memoryAllocator()};
-    const Model* debug_model = asset_manager.fetchModel("cube");
-    auto voxels = VoxelUtils::voxelize(*debug_model);
+    const Mesh* debug_mesh = asset_manager.fetchMesh("cube");
+    auto voxels = VoxelUtils::voxelize(*debug_mesh);
 
     // when
     Octree octree{5, voxels};
