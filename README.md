@@ -17,7 +17,7 @@ I am sure that the list will expand in the future with:
 - development of more game engine oriented features and create some basis for game development
 
 ## How to run:
-Application is written using CMake so the easiest way to compile and run is to fetch git submodules and open the project in some IDE. Remember that you will need to have a graphics card that supports the ray tracing and have Vulkan SDK installed.
+Application is written using CMake so the easiest way to compile and run is to fetch git submodules and open the project in some IDE. Remember that you will need to have a graphics card that supports the ray tracing and have Vulkan SDK installed. Also install all packages that are missing while compiling the code. Remember that working directory should be set to the directory where the project is located, i.e. C:/dev/Vera/{project_contents}.
 
 To control the viewer player you can use:
 - W/S to move forward/backward,
