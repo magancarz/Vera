@@ -11,6 +11,11 @@ public:
     Instance();
     ~Instance();
 
+    Instance(const Instance&) = delete;
+    Instance &operator=(const Instance&) = delete;
+    Instance(Instance&&) = delete;
+    Instance &operator=(Instance&&) = delete;
+
     VkInstance getInstance() { return instance; }
     [[nodiscard]] bool validationLayersEnabled() const { return enable_validation_layers; }
     [[nodiscard]] std::vector<const char*> getEnabledValidationLayers() const { return validation_layers; }

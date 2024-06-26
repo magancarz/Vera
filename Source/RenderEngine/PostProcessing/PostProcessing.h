@@ -9,14 +9,16 @@ class PostProcessing
 {
 public:
     PostProcessing(
-            VulkanHandler& device,
-            AssetManager& asset_manager,
-            VkRenderPass render_pass,
-            VkDescriptorSetLayout input_texture);
+        VulkanHandler& device,
+        AssetManager& asset_manager,
+        VkRenderPass render_pass,
+        VkDescriptorSetLayout input_texture);
     ~PostProcessing();
 
     PostProcessing(const PostProcessing&) = delete;
     PostProcessing& operator=(const PostProcessing&) = delete;
+    PostProcessing(PostProcessing&&) = delete;
+    PostProcessing& operator=(PostProcessing&&) = delete;
 
     void apply(FrameInfo& frame_info);
 

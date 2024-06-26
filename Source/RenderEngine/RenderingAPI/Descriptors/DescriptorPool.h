@@ -16,10 +16,12 @@ public:
 
     DescriptorPool(const DescriptorPool&) = delete;
     DescriptorPool &operator=(const DescriptorPool&) = delete;
+    DescriptorPool(DescriptorPool&&) = delete;
+    DescriptorPool &operator=(DescriptorPool&&) = delete;
 
     VkDescriptorPool descriptorPool() { return descriptor_pool; }
 
-    bool allocateDescriptor(const VkDescriptorSetLayout descriptor_set_layout, VkDescriptorSet& descriptor) const;
+    bool allocateDescriptor(VkDescriptorSetLayout descriptor_set_layout, VkDescriptorSet& descriptor) const;
     void freeDescriptors(std::vector<VkDescriptorSet>& descriptors) const;
     void resetPool();
 

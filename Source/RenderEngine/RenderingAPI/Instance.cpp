@@ -2,6 +2,7 @@
 
 #include <iostream>
 #include <unordered_set>
+#include <bit>
 
 #include "VulkanDefines.h"
 #include "Logs/LogSystem.h"

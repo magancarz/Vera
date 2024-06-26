@@ -17,6 +17,11 @@ public:
         VkBuildAccelerationStructureFlagsKHR build_flags,
         const std::vector<BlasInstance>& blas_instances);
 
+    Tlas(const Tlas&) = delete;
+    Tlas& operator=(const Tlas&) = delete;
+    Tlas(Tlas&&) = delete;
+    Tlas& operator=(Tlas&&) = delete;
+
     void update(const std::vector<BlasInstance>& blas_instances);
 
     [[nodiscard]] const AccelerationStructure& accelerationStructure() const { return acceleration_structure; }

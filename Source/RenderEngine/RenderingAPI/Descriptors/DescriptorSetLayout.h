@@ -13,6 +13,8 @@ public:
 
     DescriptorSetLayout(const DescriptorSetLayout&) = delete;
     DescriptorSetLayout &operator=(const DescriptorSetLayout&) = delete;
+    DescriptorSetLayout(DescriptorSetLayout&&) = delete;
+    DescriptorSetLayout &operator=(DescriptorSetLayout&&) = delete;
 
     VkDescriptorSetLayout getDescriptorSetLayout() const { return descriptor_set_layout; }
 

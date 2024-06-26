@@ -9,9 +9,6 @@ class GLFWInputManager : public InputManager
 public:
     GLFWInputManager();
 
-    GLFWInputManager(const GLFWInputManager&) = delete;
-    GLFWInputManager operator=(const GLFWInputManager&) = delete;
-
     bool isKeyPressed(KeyCode key_mapping) override;
 
 private:

@@ -17,6 +17,8 @@ public:
 
     GLFWWindow(const GLFWWindow&) = delete;
     GLFWWindow& operator=(const GLFWWindow&) = delete;
+    GLFWWindow(GLFWWindow&&) = delete;
+    GLFWWindow& operator=(GLFWWindow&&) = delete;
 
     [[nodiscard]] bool shouldClose() const override { return glfwWindowShouldClose(window); }
     [[nodiscard]] GLFWwindow* getGFLWwindow() const { return window; }
