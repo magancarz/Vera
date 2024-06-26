@@ -15,7 +15,9 @@ public:
     ~SwapChain();
 
     SwapChain(const SwapChain&) = delete;
-    SwapChain& operator=(const SwapChain&) = delete;
+    SwapChain &operator=(const SwapChain&) = delete;
+    SwapChain(SwapChain&&) = delete;
+    SwapChain &operator=(SwapChain&&) = delete;
 
     [[nodiscard]] uint32_t getCurrentFrameIndex() const { return current_frame; }
     [[nodiscard]] VkFramebuffer getFrameBuffer(int index) const { return swap_chain_framebuffers[index]; }

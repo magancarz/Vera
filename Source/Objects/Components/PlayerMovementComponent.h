@@ -13,6 +13,11 @@ class PlayerMovementComponent : public ObjectComponent
 public:
     PlayerMovementComponent(Object& owner, InputManager& input_manager, TransformComponent* transform_component);
 
+    PlayerMovementComponent(const PlayerMovementComponent&) = delete;
+    PlayerMovementComponent& operator=(const PlayerMovementComponent&) = delete;
+    PlayerMovementComponent(PlayerMovementComponent&&) = delete;
+    PlayerMovementComponent& operator=(PlayerMovementComponent&&) = delete;
+
     void update(FrameInfo& frame_info) override;
 
     [[nodiscard]] float getMoveSpeed() const { return move_speed; }
@@ -23,15 +28,15 @@ private:
 
     TransformComponent* transform_component;
 
-    glm::vec3 rotatePlayerWithInput(const FrameInfo& frame_info) const;
+    [[nodiscard]] glm::vec3 rotatePlayerWithInput(const FrameInfo& frame_info) const;
 
     float look_speed{2.f};
 
-    glm::vec3 translatePlayerWithInput(const FrameInfo& frame_info) const;
+    [[nodiscard]] glm::vec3 translatePlayerWithInput(const FrameInfo& frame_info) const;
 
     float move_speed{12.f};
 
-    bool checkIfPlayerHasMoved(const glm::vec3& player_frame_rotation, const glm::vec3& player_frame_translation) const;
+    [[nodiscard]] bool checkIfPlayerHasMoved(const glm::vec3& player_frame_rotation, const glm::vec3& player_frame_translation) const;
 
     bool player_moved{false};
 };

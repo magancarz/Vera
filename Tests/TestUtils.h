@@ -8,6 +8,7 @@
 #include <glm/glm.hpp>
 
 #include <string>
+#include <bit>
 #include <Memory/Buffer.h>
 
 class TestUtils

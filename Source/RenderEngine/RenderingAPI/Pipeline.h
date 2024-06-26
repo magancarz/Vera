@@ -17,7 +17,9 @@ public:
     ~Pipeline();
 
     Pipeline(const Pipeline&) = delete;
-    Pipeline& operator=(const Pipeline&) = delete;
+    Pipeline &operator=(const Pipeline&) = delete;
+    Pipeline(Pipeline&&) = delete;
+    Pipeline &operator=(Pipeline&&) = delete;
 
     void bind(VkCommandBuffer command_buffer);
     static void defaultPipelineConfigInfo(PipelineConfigInfo& config_info);

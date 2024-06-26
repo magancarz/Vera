@@ -8,6 +8,11 @@ public:
     explicit Surface(Instance& instance);
     ~Surface();
 
+    Surface(const Surface&) = delete;
+    Surface &operator=(const Surface&) = delete;
+    Surface(Surface&&) = delete;
+    Surface &operator=(Surface&&) = delete;
+
     [[nodiscard]] VkSurfaceKHR getSurface() const { return surface; }
 
 private:

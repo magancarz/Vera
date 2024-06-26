@@ -1,6 +1,7 @@
 #include "Pipeline.h"
 
 #include <fstream>
+#include <bit>
 
 #include "VulkanDefines.h"
 #include "Assets/Model/Vertex.h"

@@ -25,7 +25,7 @@ DescriptorPool::~DescriptorPool()
     vkDestroyDescriptorPool(device.getDeviceHandle(), descriptor_pool, nullptr);
 }
 
-bool DescriptorPool::allocateDescriptor(const VkDescriptorSetLayout descriptor_set_layout, VkDescriptorSet& descriptor) const
+bool DescriptorPool::allocateDescriptor(VkDescriptorSetLayout descriptor_set_layout, VkDescriptorSet& descriptor) const
 {
     VkDescriptorSetAllocateInfo alloc_info{};
     alloc_info.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;

@@ -2,6 +2,8 @@
 
 #include <iostream>
 
+#include "Logs/LoggerDecorator.h"
+
 int main()
 {
     Vera app{};

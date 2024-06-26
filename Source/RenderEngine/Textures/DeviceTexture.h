@@ -17,6 +17,11 @@ public:
     DeviceTexture(VulkanHandler& vulkan_facade, const TextureData& texture_data, std::unique_ptr<Image> image_buffer);
     ~DeviceTexture();
 
+    DeviceTexture(const DeviceTexture&) = delete;
+    DeviceTexture &operator=(const DeviceTexture&) = delete;
+    DeviceTexture(DeviceTexture&&) = delete;
+    DeviceTexture &operator=(DeviceTexture&&) = delete;
+
     [[nodiscard]] std::string getName() const { return texture_info.name; }
 
     [[nodiscard]] VkSampler getSampler() const { return sampler; }
