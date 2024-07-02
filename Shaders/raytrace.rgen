@@ -39,7 +39,7 @@ void main()
     payload.depth = 0;
 
     uint ray_flags = gl_RayFlagsNoneEXT;
-    const uint MAX_DEPTH = 3;
+    const uint MAX_DEPTH = 4;
     for (uint current_depth = 0; current_depth < MAX_DEPTH; ++current_depth)
     {
         traceRayEXT(

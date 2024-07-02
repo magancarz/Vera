@@ -115,13 +115,12 @@ void main()
     vec3 random_cosine_direction = generateRandomDirectionWithCosinePDF(payload.seed, u, v, w);
 
     vec3 to_light_direction = normalize(randomToSun());
-    to_light_direction = sign(dot(to_light_direction, normal)) > 0 ? to_light_direction : random_cosine_direction;
+    to_light_direction = sign(dot(to_light_direction, normal)) * to_light_direction;
 
     payload.direction = rnd(payload.seed) > 0.5 ? to_light_direction : random_cosine_direction;
 
-    const float AMBIENT = 0.05;
-    const float SCATTERING_PDF_BONUS = 8.0;
-    float scattering_pdf = max(scatteringPDFFromLambertian(payload.direction, normal), AMBIENT) * SCATTERING_PDF_BONUS;
+    const float SCATTERING_PDF_BONUS = 8.50;
+    float scattering_pdf = scatteringPDFFromLambertian(payload.direction, normal) * SCATTERING_PDF_BONUS;
 
     uint texture_offset = uint(material.diffuse_texture_offset);
     vec3 texture_color = texture(diffuse_textures[nonuniformEXT(texture_offset)], texture_uv).xyz;
