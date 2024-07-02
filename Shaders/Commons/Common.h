@@ -45,7 +45,6 @@ struct PushConstantRay
     uint time;
     uint frames;
     uint number_of_lights;
-    float weather;
     vec3 sun_position;
 };
 

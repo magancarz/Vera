@@ -378,8 +378,6 @@ void RayTracedRenderer::buildRayTracingPipeline()
     auto ray_tracing_pipeline_builder = RayTracingPipelineBuilder(device, memory_allocator)
         .addRayGenerationStage(std::make_unique<ShaderModule>(device, "raytrace", VK_SHADER_STAGE_RAYGEN_BIT_KHR))
         .addMissStage(std::make_unique<ShaderModule>(device, "raytrace", VK_SHADER_STAGE_MISS_BIT_KHR))
-        .addMissStage(std::make_unique<ShaderModule>(device, "raytrace_shadow", VK_SHADER_STAGE_MISS_BIT_KHR))
-        .addDefaultOcclusionCheckShader(std::make_unique<ShaderModule>(device, "raytrace_occlusion", VK_SHADER_STAGE_ANY_HIT_BIT_KHR))
         .addDescriptorSetLayout(acceleration_structure_descriptor_set_layout->getDescriptorSetLayout())
         .addDescriptorSetLayout(ray_traced_image_descriptor_set_layout->getDescriptorSetLayout())
         .addDescriptorSetLayout(objects_descriptions_descriptor_set_layout->getDescriptorSetLayout())
@@ -388,7 +386,6 @@ void RayTracedRenderer::buildRayTracingPipeline()
     ray_tracing_pipeline_builder.addMaterialShader(
         "lambertian",
         std::make_unique<ShaderModule>(device, "raytrace_lambertian", VK_SHADER_STAGE_CLOSEST_HIT_BIT_KHR),
-        std::make_unique<ShaderModule>(device, "raytrace_alpha_check", VK_SHADER_STAGE_ANY_HIT_BIT_KHR),
         std::make_unique<ShaderModule>(device, "raytrace_alpha_check", VK_SHADER_STAGE_ANY_HIT_BIT_KHR));
     for (size_t i = 0; i < object_descriptions.size(); ++i)
     {
@@ -437,7 +434,6 @@ void RayTracedRenderer::updateRayPushConstant(FrameInfo& frame_info)
     push_constant_ray.time = static_cast<uint32_t>(std::chrono::system_clock::now().time_since_epoch().count());
     current_number_of_frames = frame_info.need_to_refresh_generated_image ? 0 : current_number_of_frames;
     push_constant_ray.frames = current_number_of_frames;
-    push_constant_ray.weather = frame_info.weather;
     push_constant_ray.sun_position = frame_info.sun_position;
     ray_tracing_pipeline->pushConstants(frame_info.command_buffer, push_constant_ray);
 }

@@ -71,12 +71,6 @@ RayTracingPipelineBuilder& RayTracingPipelineBuilder::addMissStage(std::shared_p
     return *this;
 }
 
-RayTracingPipelineBuilder& RayTracingPipelineBuilder::addDefaultOcclusionCheckShader(std::shared_ptr<ShaderModule> occlusion_shader)
-{
-    default_occlusion_shader_stage_index = addAnyHitStage(std::move(occlusion_shader));
-    return *this;
-}
-
 RayTracingPipelineBuilder& RayTracingPipelineBuilder::addMaterialShader(const std::string& material_name, std::shared_ptr<ShaderModule> hit)
 {
     if (material_shaders.contains(material_name))
@@ -114,30 +108,6 @@ RayTracingPipelineBuilder& RayTracingPipelineBuilder::addMaterialShader(
     return *this;
 }
 
-RayTracingPipelineBuilder& RayTracingPipelineBuilder::addMaterialShader(
-    const std::string& material_name,
-    std::shared_ptr<ShaderModule> hit,
-    std::shared_ptr<ShaderModule> any_hit,
-    std::shared_ptr<ShaderModule> occlusion)
-{
-    if (material_shaders.contains(material_name))
-    {
-        return *this;
-    }
-
-    uint32_t closest_hit_stage_index = addClosestHitStage(std::move(hit));
-    uint32_t any_hit_stage_index = addAnyHitStage(std::move(any_hit));
-    uint32_t occlusion_stage_index = addAnyHitStage(std::move(occlusion));
-    material_shaders[material_name] = MaterialShader
-    {
-        .closest_hit_shader_stage_index = closest_hit_stage_index,
-        .any_hit_shader_stage_index = any_hit_stage_index,
-        .occlusion_shader_stage_index = occlusion_stage_index
-    };
-
-    return *this;
-}
-
 uint32_t RayTracingPipelineBuilder::addClosestHitStage(std::shared_ptr<ShaderModule> hit)
 {
     uint32_t hit_shader_index = addShaderStage(hit, VK_SHADER_STAGE_CLOSEST_HIT_BIT_KHR);
@@ -162,16 +132,6 @@ RayTracingPipelineBuilder& RayTracingPipelineBuilder::registerObjectMaterial(con
     else
     {
         addHitGroup(material_shader.closest_hit_shader_stage_index);
-    }
-
-    assert(default_occlusion_shader_stage_index.has_value() && "There must be at least default occlusion shader stage");
-    if (material_shader.occlusion_shader_stage_index.has_value())
-    {
-        addOcclusionCheckGroup(material_shader.occlusion_shader_stage_index.value());
-    }
-    else
-    {
-        addOcclusionCheckGroup(default_occlusion_shader_stage_index.value());
     }
 
     return *this;

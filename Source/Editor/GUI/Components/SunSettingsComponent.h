@@ -22,7 +22,4 @@ private:
 
     float previous_sun_pitch_angle{30.f};
     float sun_pitch_angle{30.f};
-
-    float previous_weather{0.05f};
-    float weather{0.05f};
 };

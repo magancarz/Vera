@@ -12,17 +12,11 @@ public:
 
     RayTracingPipelineBuilder& addRayGenerationStage(std::shared_ptr<ShaderModule> ray_gen);
     RayTracingPipelineBuilder& addMissStage(std::shared_ptr<ShaderModule> miss);
-    RayTracingPipelineBuilder& addDefaultOcclusionCheckShader(std::shared_ptr<ShaderModule> occlusion_shader);
     RayTracingPipelineBuilder& addMaterialShader(const std::string& material_name, std::shared_ptr<ShaderModule> hit);
     RayTracingPipelineBuilder& addMaterialShader(
         const std::string& material_name,
         std::shared_ptr<ShaderModule> hit,
         std::shared_ptr<ShaderModule> any_hit);
-    RayTracingPipelineBuilder& addMaterialShader(
-        const std::string& material_name,
-        std::shared_ptr<ShaderModule> hit,
-        std::shared_ptr<ShaderModule> any_hit,
-        std::shared_ptr<ShaderModule> occlusion);
     RayTracingPipelineBuilder& registerObjectMaterial(const std::string& material_name);
     RayTracingPipelineBuilder& setMaxRecursionDepth(uint32_t max_recursion_depth);
     RayTracingPipelineBuilder& addDescriptorSetLayout(VkDescriptorSetLayout descriptor_set_layout);
@@ -50,7 +44,6 @@ private:
 
     std::vector<std::shared_ptr<ShaderModule>> shader_modules;
 
-    std::optional<uint32_t> default_occlusion_shader_stage_index;
     std::vector<VkPipelineShaderStageCreateInfo> shader_stage_create_info_list;
     std::vector<VkRayTracingShaderGroupCreateInfoKHR> shader_group_create_info_list;
 

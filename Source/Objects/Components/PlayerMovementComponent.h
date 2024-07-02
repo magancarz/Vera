@@ -34,7 +34,7 @@ private:
 
     [[nodiscard]] glm::vec3 translatePlayerWithInput(const FrameInfo& frame_info) const;
 
-    float move_speed{12.f};
+    float move_speed{25.f};
 
     [[nodiscard]] bool checkIfPlayerHasMoved(const glm::vec3& player_frame_rotation, const glm::vec3& player_frame_translation) const;
 
