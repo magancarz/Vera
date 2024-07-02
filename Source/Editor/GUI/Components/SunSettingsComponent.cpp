@@ -20,7 +20,6 @@ void SunSettingsComponent::drawSliderElements()
 {
     ImGui::SliderFloat("Sun Yaw Angle", &sun_yaw_angle, 0.0f, 360.0f);
     ImGui::SliderFloat("Sun Pitch Angle", &sun_pitch_angle, 0.0f, 90.0f);
-    ImGui::SliderFloat("Weather", &weather, 0.01f, 1.0f);
 }
 
 void SunSettingsComponent::calculateSunPosition(FrameInfo& frame_info) const
@@ -34,15 +33,12 @@ void SunSettingsComponent::calculateSunPosition(FrameInfo& frame_info) const
 
 void SunSettingsComponent::updateFrameInfo(FrameInfo& frame_info) const
 {
-    frame_info.weather = weather;
     frame_info.need_to_refresh_generated_image |= glm::abs(previous_sun_yaw_angle - sun_yaw_angle) > 0.001f
-                                                  || glm::abs(previous_sun_pitch_angle - sun_pitch_angle) > 0.001f
-                                                  || glm::abs(previous_weather - weather) > 0.001f;
+                                                  || glm::abs(previous_sun_pitch_angle - sun_pitch_angle) > 0.001f;
 }
 
 void SunSettingsComponent::updatePreviousValues()
 {
     previous_sun_yaw_angle = sun_yaw_angle;
     previous_sun_pitch_angle = sun_pitch_angle;
-    previous_weather = weather;
 }

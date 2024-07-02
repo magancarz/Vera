@@ -50,8 +50,8 @@ void PostProcessing::createPipeline(VkRenderPass render_pass)
     simple_pipeline = std::make_unique<Pipeline>
     (
         device,
-        "Shaders/HDR.vert.spv",
-        "Shaders/HDR.frag.spv",
+        "Shaders/PostProcess.vert.spv",
+        "Shaders/PostProcess.frag.spv",
         config_info
     );
 }

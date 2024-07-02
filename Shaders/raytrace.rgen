@@ -39,7 +39,8 @@ void main()
     payload.depth = 0;
 
     uint ray_flags = gl_RayFlagsNoneEXT;
-    for (uint current_depth = 0; current_depth <= MAX_CALCULATIONS_DEPTH; ++current_depth)
+    const uint MAX_DEPTH = 3;
+    for (uint current_depth = 0; current_depth < MAX_DEPTH; ++current_depth)
     {
         traceRayEXT(
             top_level_as,
@@ -55,7 +56,7 @@ void main()
             0
             );
 
-        if (payload.is_active == 0 || payload.depth > MAX_RAY_DEPTH)
+        if (payload.is_active == 0)
         {
             break;
         }

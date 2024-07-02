@@ -16,7 +16,6 @@
 #include "Commons/Common.h"
 
 layout(location = 0) rayPayloadInEXT Ray payload;
-layout(location = 1) rayPayloadEXT bool occluded;
 
 layout(binding = 0, set = 0) uniform accelerationStructureEXT top_level_as;
 layout(binding = 1, set = 2) buffer ObjectDescriptions { ObjectDescription data[]; } object_descriptions;
@@ -54,13 +53,14 @@ vec3 randomToSphere(float radius, float distance_squared)
     return vec3(x, y, z);
 }
 
-vec3 randomToSun(float radius)
+vec3 randomToSun()
 {
-    const float distance_squared = 100.0;
+    const float DISTANCE_SQUARED = 100.0;
+    const float DEFAULT_RADIUS = 0.7;
     vec3 u, v, w;
     w = push_constant.sun_position;
     generateOrthonormalBasis(u, v, w);
-    vec3 random_to_sphere = randomToSphere(radius, distance_squared);
+    vec3 random_to_sphere = randomToSphere(DEFAULT_RADIUS, DISTANCE_SQUARED);
     random_to_sphere = u * random_to_sphere.x + v * random_to_sphere.y + w * random_to_sphere.z;
     return random_to_sphere;
 }
@@ -109,36 +109,23 @@ void main()
 
     payload.origin = position;
 
-    vec3 positionToLightDirection = randomToSun(push_constant.weather * 10);
-
     vec3 u, v, w;
     w = normal;
     generateOrthonormalBasis(u, v, w);
     vec3 random_cosine_direction = generateRandomDirectionWithCosinePDF(payload.seed, u, v, w);
-    payload.direction = rnd(payload.seed) > 0.5 ? positionToLightDirection : random_cosine_direction;
 
-    const uint ray_flags = gl_RayFlagsTerminateOnFirstHitEXT | gl_RayFlagsSkipClosestHitShaderEXT;
-    occluded = false;
-    traceRayEXT(
-        top_level_as,
-        ray_flags,
-        0xFF,
-        1,
-        0,
-        1,
-        payload.origin,
-        T_MIN,
-        payload.direction,
-        T_MAX,
-        1
-        );
+    vec3 to_light_direction = normalize(randomToSun());
+    to_light_direction = sign(dot(to_light_direction, normal)) > 0 ? to_light_direction : random_cosine_direction;
 
-    float scattering_pdf = scatteringPDFFromLambertian(payload.direction, normal);
-    float cosine = occluded ? 0 : max(dot(push_constant.sun_position, payload.direction), 0.0);
-    float sun_contribution = cosine * 50;
+    payload.direction = rnd(payload.seed) > 0.5 ? to_light_direction : random_cosine_direction;
+
+    const float AMBIENT = 0.05;
+    const float SCATTERING_PDF_BONUS = 8.0;
+    float scattering_pdf = max(scatteringPDFFromLambertian(payload.direction, normal), AMBIENT) * SCATTERING_PDF_BONUS;
 
     uint texture_offset = uint(material.diffuse_texture_offset);
     vec3 texture_color = texture(diffuse_textures[nonuniformEXT(texture_offset)], texture_uv).xyz;
-    payload.color *= sun_contribution * texture_color * scattering_pdf;
+
+    payload.color *= texture_color * scattering_pdf;
     payload.depth += 1;
 }
