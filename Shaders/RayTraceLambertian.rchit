@@ -16,12 +16,14 @@
 #include "Commons/Common.h"
 
 layout(location = 0) rayPayloadInEXT Ray payload;
+layout(location = 1) rayPayloadEXT bool occluded;
 
-layout(binding = 0, set = 0) uniform accelerationStructureEXT top_level_as;
-layout(binding = 1, set = 2) buffer ObjectDescriptions { ObjectDescription data[]; } object_descriptions;
-layout(binding = 2, set = 2) buffer Materials { Material m[]; } materials;
-layout(binding = 3, set = 2) uniform sampler2D diffuse_textures[];
-layout(binding = 4, set = 2) uniform sampler2D normal_textures[];
+layout(set = 0, binding = 0) uniform accelerationStructureEXT top_level_as;
+
+layout(set = 2, binding = 1) buffer ObjectDescriptions { ObjectDescription data[]; } object_descriptions;
+layout(set = 2, binding = 2) buffer Materials { Material m[]; } materials;
+layout(set = 2, binding = 3) uniform sampler2D diffuse_textures[];
+layout(set = 2, binding = 4) uniform sampler2D normal_textures[];
 
 layout(buffer_reference, scalar) readonly buffer Vertices { Vertex v[]; };
 layout(buffer_reference, scalar) readonly buffer Indices { uint i[]; };

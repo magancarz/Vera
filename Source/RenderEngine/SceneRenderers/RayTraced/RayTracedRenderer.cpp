@@ -376,8 +376,8 @@ void RayTracedRenderer::writeToObjectDescriptionsDescriptorSet()
 void RayTracedRenderer::buildRayTracingPipeline()
 {
     auto ray_tracing_pipeline_builder = RayTracingPipelineBuilder(device, memory_allocator)
-        .addRayGenerationStage(std::make_unique<ShaderModule>(device, "raytrace", VK_SHADER_STAGE_RAYGEN_BIT_KHR))
-        .addMissStage(std::make_unique<ShaderModule>(device, "raytrace", VK_SHADER_STAGE_MISS_BIT_KHR))
+        .addRayGenerationStage(std::make_unique<ShaderModule>(device, "RayTraceRayGeneration", VK_SHADER_STAGE_RAYGEN_BIT_KHR))
+        .addMissStage(std::make_unique<ShaderModule>(device, "RayTraceMiss", VK_SHADER_STAGE_MISS_BIT_KHR))
         .addDescriptorSetLayout(acceleration_structure_descriptor_set_layout->getDescriptorSetLayout())
         .addDescriptorSetLayout(ray_traced_image_descriptor_set_layout->getDescriptorSetLayout())
         .addDescriptorSetLayout(objects_descriptions_descriptor_set_layout->getDescriptorSetLayout())
@@ -385,8 +385,8 @@ void RayTracedRenderer::buildRayTracingPipeline()
 
     ray_tracing_pipeline_builder.addMaterialShader(
         "lambertian",
-        std::make_unique<ShaderModule>(device, "raytrace_lambertian", VK_SHADER_STAGE_CLOSEST_HIT_BIT_KHR),
-        std::make_unique<ShaderModule>(device, "raytrace_alpha_check", VK_SHADER_STAGE_ANY_HIT_BIT_KHR));
+        std::make_unique<ShaderModule>(device, "RayTraceLambertian", VK_SHADER_STAGE_CLOSEST_HIT_BIT_KHR),
+        std::make_unique<ShaderModule>(device, "RayTraceAlphaCheck", VK_SHADER_STAGE_ANY_HIT_BIT_KHR));
     for (size_t i = 0; i < object_descriptions.size(); ++i)
     {
         ray_tracing_pipeline_builder.registerObjectMaterial("lambertian");
